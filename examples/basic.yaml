@@ -1,0 +1,99 @@
+config:
+  pulumi-hcloud-kube-hetzner:organization: spigell
+  pulumi-hcloud-kube-hetzner:nodes:
+    agents:
+      - id: k3s-agent01
+#      - id: k3s-agent02
+#      - id: k3s-agent03
+    servers:
+      - id: k3s-server01
+        server:
+          server-type: cpx31
+          firewall:
+            firewalld:
+              enabled: false
+            hetzner:
+              enabled: true
+              allow-icmp: true
+              # Do not allow ssh at all
+        leader: true
+  pulumi-hcloud-kube-hetzner:defaults:
+    agents:
+      k3s:
+        config:
+          kubelet-arg:
+            - node-status-update-frequency=20s
+            - system-reserved=cpu=100m,memory=100Mi
+    global:
+      server:
+        server-type: cpx21
+        image: '132595652'
+        firewall:
+          firewalld:
+            enabled: true
+            internalZone:
+              restrictToSources:
+                - cidr: 45.14.15.131/32
+                  name: infra-gw
+                - cidr: 94.131.113.147/32
+                  name: ru-cluster
+                  main: true
+            publicZone:
+              removeSSHService: true
+          hetzner:
+            enabled: true
+            allow-icmp: true
+            ssh:
+              allow: true
+              sourceIps:
+                - 0.0.0.0/0
+                - ::/0
+            additional-rules:
+              - description: custom rule
+                port: "51825"
+                protocol: udp
+                sourceIps:
+                  - 0.0.0.0/0
+                  - ::/0
+      k3s:
+        config:
+          node-ip: 127.0.0.1
+          node-label:
+            - k3os.io/upgrade=disabled
+          token: token
+        version: v1.26.4+k3s1
+      wireguard:
+        enabled: true
+        firewall:
+          firewalld:
+            allowed-ips:
+              - "10.10.0.1/32"
+          hetzner:
+            allowed-ips:
+              - "102.0.0.0/8"
+    servers:
+      server:
+        firewall:
+          hetzner:
+            enabled: false
+      k3s:
+        config:
+          cluster-cidr: 10.140.0.0/16
+          cluster-dns: 10.141.0.10
+          disable:
+            - metrics-server
+            - traefik
+            - servicelb
+          disable-cloud-controller: true
+          kube-apiserver-arg:
+            - default-not-ready-toleration-seconds=60
+            - default-unreachable-toleration-seconds=60
+          kube-controller-manager-arg:
+            - node-monitor-grace-period=2m
+          kubeet-arg:
+            - node-status-update-frequency=20s
+            - system-reserved=cpu=1,memory=1Gi
+          node-taint:
+            - CriticalAddonsOnly=true:NoExecute
+            - node-role.kubernetes.io/control-plane:NoSchedule
+          service-cidr: 10.141.0.0/16
