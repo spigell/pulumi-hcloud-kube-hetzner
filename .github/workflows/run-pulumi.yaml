@@ -1,0 +1,36 @@
+name: Pulumi
+on:
+  push:
+    branches:
+      - main
+jobs:
+  up:
+    name: Preview
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GOOGLE_CREDENTIALS }}'
+      - name: Setup Go ✨
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.21'
+      - name: Downloading dependencies 📦
+        run: go mod download
+      - name: install pulumi
+        uses: pulumi/actions@v4
+      - name: create a stack
+        run: |
+          pulumi login gs://spigell-infra-phkh-pulumi-states  &&
+          pulumi stack rm --force test -y &&
+          pulumi stack init test --secrets-provider=gcpkms://projects/spigell-infra/locations/global/keyRings/spigell-infra-keyring/cryptoKeys/spigell-infra-phkh-pulumi-key &&
+          cat ./Pulumi.test.yaml &&
+          cat ./examples/basic.yaml >> ./Pulumi.test.yaml
+      - uses: pulumi/actions@v4
+        with:
+          command: preview
+          stack-name: test
+        env:
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
