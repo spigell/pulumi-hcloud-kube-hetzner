@@ -1,5 +1,4 @@
 config:
-  pulumi-hcloud-kube-hetzner:organization: spigell
   pulumi-hcloud-kube-hetzner:nodes:
     agents:
       - id: k3s-agent01

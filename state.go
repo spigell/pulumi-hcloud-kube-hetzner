@@ -23,8 +23,8 @@ type State struct {
 	Stack *pulumi.StackReference
 }
 
-func NewState(ctx *pulumi.Context, org string) (*State, error) {
-	self, err := pulumi.NewStackReference(ctx, fmt.Sprintf("%s/%s/%s", org, ctx.Project(), ctx.Stack()), nil)
+func NewState(ctx *pulumi.Context) (*State, error) {
+	self, err := pulumi.NewStackReference(ctx, fmt.Sprintf("%s/%s/%s", ctx.Organization(), ctx.Project(), ctx.Stack()), nil)
 	if err != nil {
 		return nil, err
 	}

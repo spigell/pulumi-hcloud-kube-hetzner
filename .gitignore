@@ -21,3 +21,4 @@ wg.conf
 output/*
 *local*
 go.work.sum
+Pulumi.*.yaml

@@ -15,9 +15,8 @@ const (
 )
 
 type Config struct {
-	Organization string
-	Nodes        *Nodes
-	Defaults     *Defaults
+	Nodes    *Nodes
+	Defaults *Defaults
 }
 
 func New(ctx *pulumi.Context) *Config {
@@ -29,9 +28,8 @@ func New(ctx *pulumi.Context) *Config {
 	c.RequireSecretObject("nodes", &nodes)
 
 	return &Config{
-		Nodes:        nodes,
-		Defaults:     defaults,
-		Organization: c.Require("organization"),
+		Nodes:    nodes,
+		Defaults: defaults,
 	}
 }
 

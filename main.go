@@ -9,7 +9,7 @@ import (
 func main() {
 	pulumi.Run(func(ctx *pulumi.Context) error {
 		cfg := config.New(ctx)
-		state, err := NewState(ctx, cfg.Organization)
+		state, err := NewState(ctx)
 		if err != nil {
 			return err
 		}
