@@ -26,7 +26,7 @@ config:
     global:
       server:
         server-type: cpx21
-        image: '132595652'
+        image: '<put-your-image-here>'
         firewall:
           firewalld:
             enabled: true

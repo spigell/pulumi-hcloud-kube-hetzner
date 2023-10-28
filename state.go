@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"pulumi-hcloud-kube-hetzner/internal/system"
 	"pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
@@ -14,6 +15,7 @@ const (
 	keyPairKey     = "ssh:keypair"
 	wgInfoKey      = "wireguard:info"
 	wgMasterConKey = "wireguard:connection"
+	hetznerServersKey    = "hetzer:servers"
 	publicKey      = "PublicKey"
 	privateKey     = "PrivateKey"
 )
@@ -34,6 +36,17 @@ func NewState(ctx *pulumi.Context) (*State, error) {
 		Stack: self,
 	}, nil
 }
+func (s *State) ExportHetznerInfra(deployed *hetzner.Deployed) {
+	export := make(map[string]map[string]interface{})
+	for k, v := range deployed.Servers {
+		export[k] = make(map[string]interface{})
+		export[k]["ip"] = v.Connection.IP
+		export[k]["user"] = v.Connection.User
+	}
+
+	s.ctx.Export(hetznerServersKey, pulumi.ToSecret(export))
+}
+
 
 func (s *State) SSHKeyPair() (*keypair.ECDSAKeyPair, error) {
 	decoded, err := s.Stack.GetOutputDetails(keyPairKey)

@@ -1,9 +1,16 @@
+SHELL := /bin/bash
 
-ifeq ($(M),)
-        export HCLOUD_TOKEN=$(shell bash -c 'read -s -p "Enter your HCLOUD_TOKEN: " hcloud_token; echo $$hcloud_token')
+include pulumi.Makefile
+
+export HCLOUD_TOKEN ?= ""
+WITH_HCLOUD_TOKEN := microos pulumi-stack pulumi-config
+
+ifneq (,$(filter $(MAKECMDGOALS),$(WITH_HCLOUD_TOKEN)))
+        ifeq ($(HCLOUD_TOKEN),"")
+                export HCLOUD_TOKEN=$(shell bash -c 'read -s -p "Enter your HCLOUD_TOKEN: " hcloud_token; echo $$hcloud_token')
+        endif
 endif
 
-
-build-microos:
-	cd image-builder/microos && \
+microos:
+	@cd image-builder/microos && \
 	packer init template.pkr.hcl && packer build template.pkr.hcl

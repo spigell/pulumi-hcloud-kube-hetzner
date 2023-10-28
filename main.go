@@ -38,8 +38,8 @@ func main() {
 			return err
 		}
 
+		state.ExportHetznerInfra(cloud)
 		state.ExportWGInfo(sys.Wireguard)
-
 		state.ExportSSHKeyPair(keys)
 
 		return nil
