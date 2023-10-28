@@ -40,7 +40,7 @@ pulumi-ssh-check:
 	done
 
 pulumi-wireguard-check:
-	$(PULUMI) stack output --show-secrets -j 'wireguard:connection' > ./wg0.conf
+	$(PULUMI) stack output --show-secrets 'wireguard:connection' > ./wg0.conf
 	wg-quick up ./wg0.conf
 	@JSON=$$(pulumi stack output --show-secrets -j 'wireguard:info') && \
 	for i in `echo $${JSON} | jq -r 'keys[]'`; do \
