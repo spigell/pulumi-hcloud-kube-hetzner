@@ -3,7 +3,7 @@ SHELL := /bin/bash
 include pulumi.Makefile
 
 export HCLOUD_TOKEN ?= ""
-WITH_HCLOUD_TOKEN := microos pulumi-stack pulumi-config
+WITH_HCLOUD_TOKEN := microos
 
 ifneq (,$(filter $(MAKECMDGOALS),$(WITH_HCLOUD_TOKEN)))
         ifeq ($(HCLOUD_TOKEN),"")

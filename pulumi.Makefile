@@ -13,8 +13,10 @@ pulumi-login:
 	pulumi logout
 	pulumi login $(PULUMI_BACKEND)
 
+pulumi-select:
+	$(PULUMI) stack select $(PULUMI_STACK)
+
 pulumi-stack:
-	$(PULUMI) destroy --yes -s $(PULUMI_STACK) || true
 	$(PULUMI) stack rm --yes --force $(PULUMI_STACK) || true
 	$(PULUMI) stack init $(PULUMI_STACK) $(PULUMI_STACK_INIT_FLAGS)
 
@@ -37,4 +39,10 @@ pulumi-ssh-check:
 		'echo "Greetings from `hostname`"' ; \
 	done
 
-pulumi-tests: pulumi-ssh-check
+pulumi-wireguard-check:
+	$(PULUMI) stack output --show-secrets -j 'wireguard:connection' > ./wg0.conf
+	wg-quick up ./wg0.conf
+	@JSON=$$(pulumi stack output --show-secrets -j 'wireguard:info') && \
+	for i in `echo $${JSON} | jq -r 'keys[]'`; do \
+		ping -c 2 `echo $${JSON} | jq -r --arg k $$i '.[$$k] | .ip'`; \
+	done

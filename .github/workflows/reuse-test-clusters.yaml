@@ -1,0 +1,106 @@
+name: The reusable workflow for deploy cluster
+run-name: Cluster ${{ inputs.pulumi-stack }} by @${{ github.actor }}
+
+on:
+  workflow_call:
+    inputs:
+      pulumi-stack:
+        required: true
+        type: string
+    secrets:
+      google-credentials:
+        required: true
+      hcloud-token:
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy Cluster
+    runs-on: ubuntu-latest
+    env:
+      PULUMI_STACK: ${{ inputs.pulumi-stack }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/prepare-pulumi
+        with:
+          create-stack: true
+          google-credentials: ${{ secrets.google-credentials }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Pulumi configuration for stack
+          path: "Pulumi.${{ env.PULUMI_STACK }}.yaml"
+      - uses: pulumi/actions@v4
+        name: Preview
+        with:
+          command: preview
+          stack-name: ${{ env.PULUMI_STACK }}
+        env:
+          HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
+      - uses: pulumi/actions@v4
+        name: Up
+        with:
+          command: up
+          stack-name: ${{ env.PULUMI_STACK }}
+        env:
+          HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
+
+  external-ssh-reachability:
+    needs: deploy
+    name: SSH Reachability
+    runs-on: ubuntu-latest
+    env:
+      PULUMI_STACK: basic
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/prepare-pulumi
+        with:
+          create-stack: false
+          disable-go-deps: true
+          google-credentials: ${{ secrets.google-credentials }}
+      - run: make pulumi-ssh-check
+
+  wireguard-reachability:
+    needs: deploy
+    name: Wireguard Reachability
+    runs-on: ubuntu-latest
+    env:
+      PULUMI_STACK: basic
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/prepare-pulumi
+        with:
+          create-stack: false
+          disable-go-deps: true
+          google-credentials: ${{ secrets.google-credentials }}
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: wireguard-tools
+      - run: make pulumi-wireguard-check
+
+  cleanup:
+    name: Cleanup
+    needs:
+      - wireguard-reachability
+      - external-ssh-reachability
+    runs-on: ubuntu-latest
+    if: always()
+    env:
+      PULUMI_STACK: basic
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: Pulumi configuration for stack
+      - uses: ./.github/actions/prepare-pulumi
+        with:
+          create-stack: false
+          google-credentials: ${{ secrets.google-credentials }}
+      - name: Cleanup
+        uses: pulumi/actions@v4
+        with:
+          command: destroy
+          stack-name: ${{ env.PULUMI_STACK }}
+          remove: true
+          cloud-url: gs://spigell-infra-phkh-pulumi-states
+        env:
+          HCLOUD_TOKEN: ${{ secrets.hcloud-token }}

@@ -1,0 +1,16 @@
+name: Main examples
+on:
+  push:
+    branches:
+      - main
+
+
+jobs:
+  default:
+    name: Default cluster
+    uses: ./.github/workflows/reuse-test-clusters.yaml
+    with:
+      pulumi-stack: basic
+    secrets:
+      google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+      hcloud-token: ${{ secrets.HCLOUD_TOKEN }}

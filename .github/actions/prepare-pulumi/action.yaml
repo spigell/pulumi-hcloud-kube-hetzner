@@ -1,0 +1,46 @@
+name: prepare-pulumi
+description: "Prepare credentials and pulumi stack for github CI"
+inputs:
+  google-credentials:
+    required: true
+    description: "credentials for GCP pulumi backend"
+  create-stack:
+    required: true
+    description: "create stack or not"
+  disable-go-deps:
+    required: false
+    description: "disable go cache"
+runs:
+  using: "composite"
+  steps:
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ inputs.google-credentials }}'
+    - name: Setup Go ✨
+      if: ${{ ! inputs.disable-go-deps }}
+      uses: actions/setup-go@v4
+      with:
+        go-version-file: go.mod
+    - name: Downloading dependencies 📦
+      if: ${{ ! inputs.disable-go-deps }}
+      shell: bash
+      run: go mod download
+    - name: Install pulumi cli
+      uses: pulumi/actions@v4
+      with:
+        pulumi-version: v3.90.1
+    - name: Create a stack
+      shell: bash
+      if: ${{ inputs.create-stack == 'true'}}
+      run: make ci-pulumi-prepare
+      env:
+        PULUMI_STACK_INIT_FLAGS: --secrets-provider=gcpkms://projects/spigell-infra/locations/global/keyRings/spigell-infra-keyring/cryptoKeys/spigell-infra-phkh-pulumi-key
+        PULUMI_BACKEND: gs://spigell-infra-phkh-pulumi-states
+        HCLOUD_IMAGE: '133426649'
+    - name: Login to Pulumi
+      shell: bash
+      if: ${{ inputs.create-stack == 'false' }}
+      run: make pulumi-login && make pulumi-select
+      env:
+        PULUMI_BACKEND: gs://spigell-infra-phkh-pulumi-states
