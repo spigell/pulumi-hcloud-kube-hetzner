@@ -5,6 +5,7 @@ import (
 	"pulumi-hcloud-kube-hetzner/internal/config"
 	"pulumi-hcloud-kube-hetzner/internal/system/modules"
 	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
+	"strings"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -90,12 +91,14 @@ func (w *Wireguard) Up(ctx *pulumi.Context, con *connection.Connection, deps []p
 	}
 	resources = append(resources, deployed)
 
+	restartCommand := pulumi.Sprintf(strings.Join([]string{
+		"sudo systemctl disable --now wg-quick@%s",
+		"sudo systemctl enable --now wg-quick@%s",
+	}, " && "), w.Iface, w.Iface)
+
 	restarted, err := remote.NewCommand(ctx, fmt.Sprintf("wg-restart-%s", w.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
-		Create: pulumi.Sprintf(`sudo systemctl disable --now wg-quick@%s &&\
-					sudo systemctl enable --now wg-quick@%s`,
-			w.Iface, w.Iface,
-		),
+		Create:     restartCommand,
 		Triggers: pulumi.Array{
 			deployed.Md5sum,
 			deployed.Permissions,
