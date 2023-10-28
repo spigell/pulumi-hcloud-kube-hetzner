@@ -10,7 +10,6 @@ import (
 )
 
 func (m *MicroOS) Reboot(ctx *pulumi.Context, con *connection.Connection) error {
-	fmt.Printf("RES: %+v\n", extractRemoteCommandResources(m.resources)[0])
 	rebooted, err := remote.NewCommand(ctx, fmt.Sprintf("reboot-%s", m.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.String("(sleep 1 && sudo shutdown -r now) &"),
@@ -23,7 +22,7 @@ func (m *MicroOS) Reboot(ctx *pulumi.Context, con *connection.Connection) error 
 
 	m.resources = append(m.resources, rebooted)
 
-	waited, err := local.NewCommand(ctx, fmt.Sprintf("%s-localWait", m.ID), &local.CommandArgs{
+	waited, err := local.NewCommand(ctx, fmt.Sprintf("local-wait-%s", m.ID), &local.CommandArgs{
 		Create:   pulumi.Sprintf("sleep 120 && until nc -z %s 22; do sleep 5; done", con.IP),
 		Triggers: extractRemoteCommandResources(m.resources),
 	}, pulumi.DependsOn([]pulumi.Resource{rebooted}),

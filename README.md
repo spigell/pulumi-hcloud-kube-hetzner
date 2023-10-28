@@ -1,5 +1,20 @@
 ## Usage
 
+It is recomended to export env variable `HCLOUD_TOKEN` since it is required for large amount of commands
+
+However, you can provide it every time when you requested it
+
+### Create microos image
+```
+make microos
+```
+Please remember id of created image
+
+### Create pulumi stack and generate configuration for it
+```
+make pulumi-config
+```
+
 ### Get ssh keys
 ```
 pulumi stack output --show-secrets   -j ssh:keypair | jq .PrivateKey -r
