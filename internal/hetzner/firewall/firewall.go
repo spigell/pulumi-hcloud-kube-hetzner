@@ -23,6 +23,11 @@ var (
 		Protocol:    "tcp",
 		Description: "Allow SSH",
 		Port:        "22",
+		// It can be changed by user
+		SourceIps: []string{
+			"0.0.0.0/0",
+			"::/0",
+		},
 	}
 )
 
@@ -47,14 +52,9 @@ func (f *Firewall) Up(ctx *pulumi.Context, name string) (*Firewall, error) {
 	}
 
 	if f.Config.SSH.Allow {
-		if f.Config.SSH.SourceIps == nil {
-			f.Config.SSH.SourceIps = []string{
-				"0.0.0.0/0",
-				"::/0",
-			}
+		if f.Config.SSH.AllowedIps != nil {
+			SSHRule.SourceIps = f.Config.SSH.AllowedIps
 		}
-
-		SSHRule.SourceIps = f.Config.SSH.SourceIps
 
 		f.Config.rules = append(f.Config.rules, SSHRule)
 	}

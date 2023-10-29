@@ -11,8 +11,8 @@ type Config struct {
 }
 
 type SSH struct {
-	Allow     bool
-	SourceIps []string
+	Allow      bool
+	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
 type Rule struct {
