@@ -38,6 +38,7 @@ jobs:
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
   with-rich-firewall-rules:
     needs: init
     name: The cluster with rich firewalls rules for ${{ needs.init.outputs.short-sha }}
@@ -49,3 +50,4 @@ jobs:
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
