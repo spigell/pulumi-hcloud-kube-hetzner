@@ -21,6 +21,10 @@ const (
 
 	// Allow user to be superuser.
 	sudo = "ALL=(ALL) NOPASSWD:ALL"
+
+	// ServerName must be a valid hostname.
+	// Since ctx.Project() can be a quite long string, prefix for server name is 4 character.
+	serverNamePrefix = "phkh"
 )
 
 var ErrUserDataRender = errors.New("userdata render error")
@@ -74,7 +78,7 @@ func (s *Server) Validate() error {
 }
 
 func (s *Server) Up(ctx *pulumi.Context, id string) (*hcloud.Server, error) {
-	name := fmt.Sprintf("%s-%s-%s", ctx.Project(), ctx.Stack(), id)
+	name := fmt.Sprintf("%s-%s-%s", serverNamePrefix, ctx.Stack(), id)
 	s.Userdata.Hostname = name
 
 	// Error is already checked.
