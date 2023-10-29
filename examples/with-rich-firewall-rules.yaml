@@ -12,6 +12,10 @@ config:
               enabled: true
               # Do not allow ping only this server node explicitly.
               allow-icmp: false
+            ssh:
+              # You should explicitly enable ssh for every layer of the configuration.
+              # If you need it of course
+              allow: true
   pulumi-hcloud-kube-hetzner:defaults:
     agents:
       server:
@@ -19,6 +23,11 @@ config:
           hetzner:
             # You should explicitly enable firewall for every layer of the configuration.
             enabled: true
+            allow-icmp: false
+            ssh:
+              # You should explicitly enable ssh for every layer of the configuration.
+              # If you need it of course
+              allow: true
             # Append (!) to additional rules this rule for agent nodes only.
             additional-rules:
               - description: custom rule
@@ -56,6 +65,7 @@ config:
         enabled: true
     servers:
       wireguard:
+        enabled: true
         firewall:
           hetzner:
             # Allow establish tunnel only from the ips for servers node only!
