@@ -7,6 +7,7 @@ import (
 	"os"
 	"pulumi-hcloud-kube-hetzner/internal/config"
 	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
+	"strings"
 
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -25,9 +26,23 @@ const (
 	// ServerName must be a valid hostname.
 	// Since ctx.Project() can be a quite long string, prefix for server name is 4 character.
 	serverNamePrefix = "phkh"
+
+	// This labels set in build via packer
+	selector = "microos-snapshot=yes"
 )
 
-var ErrUserDataRender = errors.New("userdata render error")
+var (
+	ErrUserDataRender = errors.New("userdata render error")
+
+	ImageNotFoundSuggestion = fmt.Sprintf(strings.Join([]string{
+		"please provide image ID manually in configuration",
+		"create image with `%s` selector",
+	}, " or "), selector)
+	ImageNotFoundMessage = strings.Join([]string{
+		"can not obtain image ID automatically",
+		"failed to get image",
+	}, ": ")
+)
 
 type Server struct {
 	Config   *config.Server
@@ -35,6 +50,7 @@ type Server struct {
 }
 
 func New(srv *config.Server, keys *keypair.ECDSAKeyPair) *Server {
+
 	if srv.ServerType == "" {
 		srv.ServerType = defaultServerType
 	}
@@ -81,6 +97,29 @@ func (s *Server) Up(ctx *pulumi.Context, id string) (*hcloud.Server, error) {
 	name := fmt.Sprintf("%s-%s-%s", serverNamePrefix, ctx.Stack(), id)
 	s.Userdata.Hostname = name
 
+	// Get image ID from user input
+	image := pulumi.String(s.Config.Image)
+
+	// If image is not provided from user, get latest microos snapshot.
+	if s.Config.Image == "" {
+		got, err := hcloud.GetImage(ctx, &hcloud.GetImageArgs{
+			WithSelector: pulumi.StringRef(selector),
+			MostRecent:   pulumi.BoolRef(true),
+		})
+
+		if err != nil {
+			return nil, fmt.Errorf(
+				strings.Join([]string{
+					ImageNotFoundMessage,
+					ImageNotFoundSuggestion,
+					"%w",
+				}, ": "), err,
+			)
+		}
+
+		image = pulumi.String(fmt.Sprintf("%d", got.Id))
+	}
+
 	// Error is already checked.
 	ud, _ := s.Userdata.render()
 
@@ -89,7 +128,7 @@ func (s *Server) Up(ctx *pulumi.Context, id string) (*hcloud.Server, error) {
 		Location:   pulumi.String(s.Config.Location),
 		Name:       pulumi.String(name),
 		UserData:   pulumi.String(ud),
-		Image:      pulumi.String(s.Config.Image),
+		Image:      image,
 	}
 
 	if os.Getenv(autoApiApps.EnvAutomaionAPIAddr) != "" {

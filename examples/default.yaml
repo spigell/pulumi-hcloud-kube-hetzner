@@ -2,6 +2,8 @@ config:
   pulumi-hcloud-kube-hetzner:nodes:
     agents:
       - id: k3s-agent01
+        server:
+          image: '<put-your-image-here>'
       - id: k3s-agent02
     servers:
       - id: k3s-server01
@@ -17,7 +19,6 @@ config:
             - system-reserved=cpu=100m,memory=100Mi
     global:
       server:
-        image: '<put-your-image-here>'
         firewall:
           firewalld:
             enabled: false

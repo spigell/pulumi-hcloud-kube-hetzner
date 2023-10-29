@@ -7,18 +7,15 @@ packer {
   }
 }
 
-locals {
-  builddate = formatdate("YYYY-MM-DD", timestamp())
-}
-
 source "hcloud" "main" {
   image       = "ubuntu-20.04"
   location    = "hel1"
   rescue      = "linux64"
   server_type = "cpx11"
   snapshot_labels = {
-    name    = "microos"
-    version = "production"
+    // Took from terraform-hcloud-kube-hetzner
+    microos-snapshot = "yes"
+    creator          = "phkh-builder"
   }
   snapshot_name = "microos-amd64-{{ isotime `2006-01-02` }}"
   ssh_username  = "root"

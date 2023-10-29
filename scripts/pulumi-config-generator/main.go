@@ -17,7 +17,7 @@ func main() {
 
 	newImage := os.Getenv("HCLOUD_IMAGE")
 	if newImage == "" {
-		log.Fatal("HCLOUD_IMAGE env variable must be provided. Exiting")
+		log.Print("HCLOUD_IMAGE env variable is not provided.")
 	}
 
 	fmt.Println(NewConfig(source).WithReplaceImageValue(newImage).WithReplaceProjectName().Content)

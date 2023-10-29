@@ -33,6 +33,10 @@ func (c *Config) WithReplaceImageValue(image string) *Config {
 	target := "image: '<put-your-image-here>'"
 	new := fmt.Sprintf("image: '%s'", image)
 
+	if image == "" {
+		new = ""
+	}
+
 	c.Content = strings.ReplaceAll(c.Content, target, new)
 
 	return c
