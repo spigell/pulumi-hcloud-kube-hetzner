@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	defaultServerType = "cp21"
+	defaultServerType = "cx21"
 	defaultLocation   = "hel1"
 	defaultUserName   = "rancher"
 
