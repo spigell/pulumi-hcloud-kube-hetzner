@@ -25,7 +25,7 @@ config:
             - system-reserved=cpu=100m,memory=100Mi
     global:
       server:
-        server-type: cpx21
+        server-type: cpx41
         image: '<put-your-image-here>'
         firewall:
           firewalld:
