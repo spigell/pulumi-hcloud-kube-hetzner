@@ -19,7 +19,7 @@ on:
 jobs:
   default:
     name: Default cluster
-    if: ${{ contains(inputs.example, ["all", "default"]) }}
+    if: contains(fromJson('["all", "default"]'), inputs.example) || ${{ github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: basic
