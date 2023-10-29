@@ -1,13 +1,25 @@
 name: Main examples
+# run-name: by @${{ github.actor }}
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      example:
+        description: list of examples
+        type: choice
+        options:
+          - default
+          - all
+
+
 
 
 jobs:
   default:
     name: Default cluster
+    if: ${{ contains(inputs.example, ["all", "default"]) }}
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: basic
