@@ -1,4 +1,4 @@
-name: The reusable workflow for deploy cluster
+name: The reusable workflow for deploying clusters
 run-name: Cluster ${{ inputs.pulumi-stack }} by @${{ github.actor }}
 
 on:
@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
+    environment: ${{ inputs.pulumi-stack }}
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/prepare-pulumi
