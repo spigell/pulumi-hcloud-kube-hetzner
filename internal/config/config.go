@@ -51,11 +51,11 @@ func (c *Config) MergeNodesConfiguration() (*Node, []*Node, error) {
 	for i, s := range c.Nodes.Servers {
 		s.Role = serverRole
 		if c.Nodes.Servers[i].Leader {
-			s, err := merge(*s, *c.Defaults)
-			leader = &s
 			if hetznerFirewallConfigured(s.Server) {
 				c.Nodes.Servers[i].Server.Firewall.Hetzner.MarkAsDedicated()
 			}
+			s, err := merge(*s, *c.Defaults)
+			leader = &s
 			if err != nil {
 				return nil, nil, fmt.Errorf("failed to merge the leader config: %w", err)
 			}

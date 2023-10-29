@@ -5,7 +5,8 @@ config:
       - id: k3s-agent02
     servers:
       - id: k3s-server01
-        server-type: cpx21
+        server:
+          server-type: cpx21
         leader: true
   pulumi-hcloud-kube-hetzner:defaults:
     agents:

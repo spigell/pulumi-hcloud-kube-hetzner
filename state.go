@@ -12,12 +12,12 @@ import (
 )
 
 const (
-	keyPairKey     = "ssh:keypair"
-	wgInfoKey      = "wireguard:info"
-	wgMasterConKey = "wireguard:connection"
-	hetznerServersKey    = "hetzer:servers"
-	publicKey      = "PublicKey"
-	privateKey     = "PrivateKey"
+	keyPairKey        = "ssh:keypair"
+	wgInfoKey         = "wireguard:info"
+	wgMasterConKey    = "wireguard:connection"
+	hetznerServersKey = "hetzer:servers"
+	publicKey         = "PublicKey"
+	privateKey        = "PrivateKey"
 )
 
 type State struct {
@@ -46,7 +46,6 @@ func (s *State) ExportHetznerInfra(deployed *hetzner.Deployed) {
 
 	s.ctx.Export(hetznerServersKey, pulumi.ToSecret(export))
 }
-
 
 func (s *State) SSHKeyPair() (*keypair.ECDSAKeyPair, error) {
 	decoded, err := s.Stack.GetOutputDetails(keyPairKey)
