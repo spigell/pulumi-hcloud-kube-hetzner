@@ -1,5 +1,4 @@
-name: Main examples
-# run-name: by @${{ github.actor }}
+name: Deploy examples
 on:
   push:
     branches:
@@ -7,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       example:
-        description: list of examples
+        description: the desired example (all for all examples)
         type: choice
         options:
           - default
