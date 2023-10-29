@@ -16,12 +16,25 @@ on:
 
 
 jobs:
+  init:
+    name: Initialize global clusters variables
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: benjlevesque/short-sha@v2.2
+        id: short-sha
+        with:
+          length: 6
+    outputs:
+      short-sha: ${{ steps.short-sha.outputs.sha }}
+
   default:
-    name: Default cluster for ${{github.ref}}
+    needs: init
+    name: Default cluster for ${{ needs.init.outputs.short-sha }}
     if: contains(fromJson('["all", "default"]'), inputs.example) || ${{ github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
-      pulumi-stack: basic
+      pulumi-stack: default-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/default.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}

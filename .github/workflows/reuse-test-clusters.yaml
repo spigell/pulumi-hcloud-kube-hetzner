@@ -25,6 +25,7 @@ jobs:
       PULUMI_CONFIG_SOURCE: ${{ inputs.pulumi-config-source }}
     steps:
       - uses: actions/checkout@v3
+      - run: env
       - uses: ./.github/actions/prepare-pulumi
         with:
           create-stack: true
@@ -53,7 +54,7 @@ jobs:
     name: SSH Reachability
     runs-on: ubuntu-latest
     env:
-      PULUMI_STACK: basic
+      PULUMI_STACK: ${{ inputs.pulumi-stack }}
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/prepare-pulumi
@@ -68,7 +69,7 @@ jobs:
     name: Wireguard Reachability
     runs-on: ubuntu-latest
     env:
-      PULUMI_STACK: basic
+      PULUMI_STACK: ${{ inputs.pulumi-stack }}
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/prepare-pulumi
@@ -89,7 +90,7 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     env:
-      PULUMI_STACK: basic
+      PULUMI_STACK: ${{ inputs.pulumi-stack }}
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
