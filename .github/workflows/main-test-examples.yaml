@@ -17,11 +17,12 @@ on:
 
 jobs:
   default:
-    name: Default cluster
+    name: Default cluster for ${{github.ref}}
     if: contains(fromJson('["all", "default"]'), inputs.example) || ${{ github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: basic
+      pulumi-config-source: examples/default.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}

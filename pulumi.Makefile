@@ -1,11 +1,20 @@
 PULUMI := pulumi --non-interactive
-PULUMI_STACK ?= basic
+PULUMI_STACK ?= 
 PULUMI_SSH_KEY_FILE ?= /tmp/phkh.key
 # Default is pulumi service
 PULUMI_BACKEND ?=
-PULUMI_CONFIG_SOURCE ?= examples/$(PULUMI_STACK).yaml
+PULUMI_CONFIG_SOURCE ?= examples/default.yaml
 PULUMI_STACK_INIT_FLAGS ?=
 HCLOUD_IMAGE ?= 
+
+WITH_PULUMI_STACK_DEFINED := pulumi-stack pulumi-config
+
+ifneq (,$(filter $(MAKECMDGOALS),$(WITH_PULUMI_STACK_DEFINED)))
+        ifeq ($(PULUMI_STACK),)
+                PULUMI_STACK := $(shell bash -c 'read -p "Enter stack name: " pulumi_stack; echo $$pulumi_stack')
+                export $(PULUMI_STACK)
+        endif
+endif
 
 ci-pulumi-prepare: pulumi-login pulumi-stack pulumi-config
 
@@ -17,7 +26,7 @@ pulumi-select:
 	$(PULUMI) stack select $(PULUMI_STACK)
 
 pulumi-stack:
-	$(PULUMI) stack rm --yes --force $(PULUMI_STACK) || true
+	$(PULUMI) stack rm --yes --force -s $(PULUMI_STACK) || true
 	$(PULUMI) stack init $(PULUMI_STACK) $(PULUMI_STACK_INIT_FLAGS)
 
 pulumi-config: pulumi-stack

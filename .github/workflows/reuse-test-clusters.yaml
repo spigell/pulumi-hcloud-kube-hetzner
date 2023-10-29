@@ -7,6 +7,9 @@ on:
       pulumi-stack:
         required: true
         type: string
+      pulumi-config-source:
+        required: true
+        type: string
     secrets:
       google-credentials:
         required: true
@@ -19,6 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
+      PULUMI_CONFIG_SOURCE: ${{ inputs.pulumi-config-source }}
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/prepare-pulumi
