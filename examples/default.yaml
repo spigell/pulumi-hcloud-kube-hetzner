@@ -2,19 +2,10 @@ config:
   pulumi-hcloud-kube-hetzner:nodes:
     agents:
       - id: k3s-agent01
-#      - id: k3s-agent02
-#      - id: k3s-agent03
+      - id: k3s-agent02
     servers:
       - id: k3s-server01
-        server:
-          server-type: cpx31
-          firewall:
-            firewalld:
-              enabled: false
-            hetzner:
-              enabled: true
-              allow-icmp: true
-              # Do not allow ssh at all
+        server-type: cpx21
         leader: true
   pulumi-hcloud-kube-hetzner:defaults:
     agents:
@@ -25,35 +16,15 @@ config:
             - system-reserved=cpu=100m,memory=100Mi
     global:
       server:
-        server-type: cpx21
         image: '<put-your-image-here>'
         firewall:
           firewalld:
-            enabled: true
-            internalZone:
-              restrictToSources:
-                - cidr: 45.14.15.131/32
-                  name: infra-gw
-                - cidr: 94.131.113.147/32
-                  name: ru-cluster
-                  main: true
-            publicZone:
-              removeSSHService: true
+            enabled: false
           hetzner:
             enabled: true
             allow-icmp: true
             ssh:
               allow: true
-              sourceIps:
-                - 0.0.0.0/0
-                - ::/0
-            additional-rules:
-              - description: custom rule
-                port: "51825"
-                protocol: udp
-                sourceIps:
-                  - 0.0.0.0/0
-                  - ::/0
       k3s:
         config:
           node-ip: 127.0.0.1
@@ -63,18 +34,7 @@ config:
         version: v1.26.4+k3s1
       wireguard:
         enabled: true
-        firewall:
-          firewalld:
-            allowed-ips:
-              - "10.10.0.1/32"
-          hetzner:
-            allowed-ips:
-              - "102.0.0.0/8"
     servers:
-      server:
-        firewall:
-          hetzner:
-            enabled: false
       k3s:
         config:
           cluster-cidr: 10.140.0.0/16
