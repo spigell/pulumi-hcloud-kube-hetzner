@@ -1,0 +1,80 @@
+config:
+  pulumi-hcloud-kube-hetzner:nodes:
+    agents:
+      - id: k3s-agent01
+    servers:
+      - id: k3s-server01
+        leader: true
+        server:
+          firewall:
+            hetzner:
+              # Do not allow ping only this server node explicitly.
+              allow-icmp: false
+  pulumi-hcloud-kube-hetzner:defaults:
+    agents:
+      server:
+        firewall:
+          hetzner:
+            # Append (!) to additional rules this rule for agent nodes only.
+            additional-rules:
+              - description: custom rule
+                port: "10000"
+                protocol: tcp
+                sourceIps:
+                  - 0.0.0.0/8
+                  - ::/0
+    global:
+      server:
+        image: '<put-your-image-here>'
+        firewall:
+          firewalld:
+            enabled: false
+          hetzner:
+            enabled: true
+            allow-icmp: true
+            ssh:
+              allow: true
+              allowed-ips:
+                - '0.0.0.0/0'
+            additional-rules:
+              - description: custom rule
+                port: "51825"
+                protocol: udp
+                sourceIps:
+                  - 102.0.0.0/8
+                  - ::/0
+      k3s:
+        config:
+          node-ip: 127.0.0.1
+          token: token
+        version: v1.26.4+k3s1
+      wireguard:
+        enabled: true
+    servers:
+      wireguard:
+        firewall:
+          hetzner:
+            # Allow establish tunnel only from the ips for servers node only!
+            source-ips:
+              - '102.0.0.0/8'
+      k3s:
+        config:
+          cluster-cidr: 10.140.0.0/16
+          cluster-dns: 10.141.0.10
+          disable:
+            - metrics-server
+            - traefik
+            - servicelb
+          disable-cloud-controller: true
+          kube-apiserver-arg:
+            - default-not-ready-toleration-seconds=60
+            - default-unreachable-toleration-seconds=60
+          kube-controller-manager-arg:
+            - node-monitor-grace-period=2m
+          kubeet-arg:
+            - node-status-update-frequency=20s
+            - system-reserved=cpu=1,memory=1Gi
+          node-taint:
+            - CriticalAddonsOnly=true:NoExecute
+            - node-role.kubernetes.io/control-plane:NoSchedule
+          service-cidr: 10.141.0.0/16

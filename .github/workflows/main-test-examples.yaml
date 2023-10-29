@@ -10,9 +10,8 @@ on:
         type: choice
         options:
           - default
+          - with-rich-firewall-rules
           - all
-
-
 
 
 jobs:
@@ -36,6 +35,17 @@ jobs:
     with:
       pulumi-stack: default-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/default.yaml
+    secrets:
+      google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+      hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
+  with-rich-firewall-rules:
+    needs: init
+    name: The cluster with rich firewalls rules for ${{ needs.init.outputs.short-sha }}
+    if: contains(fromJson('["all", "default"]'), inputs.example) || ${{ github.ref == 'refs/heads/main' }}
+    uses: ./.github/workflows/reuse-test-clusters.yaml
+    with:
+      pulumi-stack: with-rich-firewall-rules-${{ needs.init.outputs.short-sha }}
+      pulumi-config-source: examples/with-rich-firewall-rules.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
