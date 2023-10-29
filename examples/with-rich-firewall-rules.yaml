@@ -23,7 +23,8 @@ config:
           hetzner:
             # You should explicitly enable firewall for every layer of the configuration.
             enabled: true
-            allow-icmp: false
+            # You should explicitly enable ping for every layer of the configuration.
+            allow-icmp: true
             ssh:
               # You should explicitly enable ssh for every layer of the configuration.
               # If you need it of course
@@ -69,7 +70,7 @@ config:
         firewall:
           hetzner:
             # Allow establish tunnel only from the ips for servers node only!
-            source-ips:
+            allowed-ips:
               - '102.0.0.0/8'
       k3s:
         config:
