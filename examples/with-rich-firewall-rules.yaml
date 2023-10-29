@@ -8,6 +8,8 @@ config:
         server:
           firewall:
             hetzner:
+              # You should explicitly enable firewall for every layer of the configuration.
+              enabled: true
               # Do not allow ping only this server node explicitly.
               allow-icmp: false
   pulumi-hcloud-kube-hetzner:defaults:
@@ -15,6 +17,8 @@ config:
       server:
         firewall:
           hetzner:
+            # You should explicitly enable firewall for every layer of the configuration.
+            enabled: true
             # Append (!) to additional rules this rule for agent nodes only.
             additional-rules:
               - description: custom rule
