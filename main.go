@@ -19,6 +19,11 @@ func main() {
 			return err
 		}
 
+		hetznerInfo, err := state.HetznerInfra()
+		if err != nil {
+			return err
+		}
+
 		wgInfo, err := state.WGInfo()
 		if err != nil {
 			return err
@@ -29,7 +34,7 @@ func main() {
 			return err
 		}
 
-		cloud, err := cluster.Hetzner.Up(keys)
+		cloud, err := cluster.Hetzner.Up(hetznerInfo, keys)
 		if err != nil {
 			return err
 		}

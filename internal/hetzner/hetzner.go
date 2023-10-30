@@ -26,8 +26,9 @@ type Deployed struct {
 }
 
 type Server struct {
-	ID         pulumi.IDOutput
-	Connection *connection.Connection
+	ID            pulumi.IDOutput
+	LocalPassword string
+	Connection    *connection.Connection
 }
 
 func New(ctx *pulumi.Context, nodes []*config.Node) *Hetzner {
@@ -75,8 +76,9 @@ func New(ctx *pulumi.Context, nodes []*config.Node) *Hetzner {
 	}
 
 	return &Hetzner{
-		ctx:       ctx,
-		Servers:   servers,
+		ctx:     ctx,
+		Servers: servers,
+		//		Network:   networks,
 		Firewalls: firewalls,
 	}
 }
@@ -102,10 +104,15 @@ func (h *Hetzner) FirewallConfigByIDOrRole(id string) (*firewall.Config, error) 
 	}
 }
 
-func (h *Hetzner) Up(keys *keypair.ECDSAKeyPair) (*Deployed, error) {
+func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, error) {
 	nodes := make(map[string]*Server)
 	firewalls := make(map[string]*firewall.Firewall)
 	firewallsByNodeRole := make(map[string]pulumi.IntArray)
+
+	key, err := h.NewSSHKey(keys.PublicKey)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create ssh key: %w", err)
+	}
 
 	// Create a dedicated firewall for master (servers) and agents (if exists) nodes separattely
 	for kind, fw := range h.Firewalls {
@@ -117,7 +124,14 @@ func (h *Hetzner) Up(keys *keypair.ECDSAKeyPair) (*Deployed, error) {
 	}
 
 	for id, srv := range h.Servers {
-		s := server.New(srv.Server, keys)
+		// if the passwd is given by user, use the password from the config.
+		// Check if we have a password in the state as well since we may have empty state.
+		// Generate a new password if we do not have it in creating stage.
+		if srv.Server.UserPasswd == "" && info.Servers[id] != nil {
+			srv.Server.UserPasswd = info.Servers[id].LocalPassword
+		}
+
+		s := server.New(srv.Server, key)
 		if err := s.Validate(); err != nil {
 			return nil, err
 		}
@@ -126,9 +140,10 @@ func (h *Hetzner) Up(keys *keypair.ECDSAKeyPair) (*Deployed, error) {
 			return nil, err
 		}
 		nodes[id] = &Server{
-			ID: node.ID(),
+			ID:            node.Resource.ID(),
+			LocalPassword: node.Password,
 			Connection: &connection.Connection{
-				IP:         node.Ipv4Address,
+				IP:         node.Resource.Ipv4Address,
 				PrivateKey: keys.PrivateKey,
 				User:       srv.Server.UserName,
 			},
@@ -142,7 +157,7 @@ func (h *Hetzner) Up(keys *keypair.ECDSAKeyPair) (*Deployed, error) {
 			}
 			_, err = firewall.Attach(h.ctx, id,
 				//nolint: gocritic // this is the only way to convert string to int
-				pulumi.IntArray{node.ID().ToIDOutput().ApplyT(func(id string) (int, error) {
+				pulumi.IntArray{node.Resource.ID().ToIDOutput().ApplyT(func(id string) (int, error) {
 					return strconv.Atoi(id)
 				}).(pulumi.IntOutput)},
 			)
@@ -154,7 +169,7 @@ func (h *Hetzner) Up(keys *keypair.ECDSAKeyPair) (*Deployed, error) {
 
 		if srv.Server.Firewall.Hetzner.Enabled {
 			//nolint: gocritic // this is the only way to convert string to int
-			firewallsByNodeRole[srv.Role] = append(firewallsByNodeRole[srv.Role], node.ID().ToStringOutput().ApplyT(func(id string) (int, error) {
+			firewallsByNodeRole[srv.Role] = append(firewallsByNodeRole[srv.Role], node.Resource.ID().ToStringOutput().ApplyT(func(id string) (int, error) {
 				return strconv.Atoi(id)
 			}).(pulumi.IntOutput))
 		}

@@ -3,11 +3,12 @@ package server
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"os"
 	"pulumi-hcloud-kube-hetzner/internal/config"
-	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 	"strings"
+	"time"
 
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -27,7 +28,7 @@ const (
 	// Since ctx.Project() can be a quite long string, prefix for server name is 4 character.
 	serverNamePrefix = "phkh"
 
-	// This labels set in build via packer
+	// This labels set in build via packer.
 	selector = "microos-snapshot=yes"
 )
 
@@ -47,10 +48,15 @@ var (
 type Server struct {
 	Config   *config.Server
 	Userdata *CloudConfig
+	KeyName  pulumi.StringOutput
 }
 
-func New(srv *config.Server, keys *keypair.ECDSAKeyPair) *Server {
+type Deployed struct {
+	Resource *hcloud.Server
+	Password string
+}
 
+func New(srv *config.Server, key *hcloud.SshKey) *Server {
 	if srv.ServerType == "" {
 		srv.ServerType = defaultServerType
 	}
@@ -63,37 +69,55 @@ func New(srv *config.Server, keys *keypair.ECDSAKeyPair) *Server {
 	}
 
 	userdata := &CloudConfig{
-		GrowPart: &GrowPartConfig{
+		GrowPart: &CloudConfigGrowPartConfig{
 			Devices: []string{
 				"/var",
 			},
 		},
-		Users: []*UserCloudConfig{
+		Users: []*CloudConfigUserCloudConfig{
 			{
 				Name: srv.UserName,
 				Sudo: sudo,
-				SSHAuthorizedKeys: []string{
-					keys.PublicKey,
+			},
+		},
+		Chpasswd: &CloudConfigChpasswd{
+			Expire: false,
+			Users: []*CloudConfigChpasswdUser{
+				{
+					Name:     srv.UserName,
+					Password: srv.UserPasswd,
 				},
-				Passwd: srv.UserPasswd,
 			},
 		},
 	}
+
+	if userdata.Chpasswd.Users[0].Password == "" {
+		// Default is hashed password, but we need plain text.
+		// TODO: maybe we can use hashed password?
+		// I do not how to do it with current knowledges :(
+		userdata.Chpasswd.Users[0].Password = generatePassword()
+	}
+
+	if !strings.HasPrefix(userdata.Chpasswd.Users[0].Password, "$6") {
+		userdata.Chpasswd.Users[0].Type = "text"
+	}
+
+	userdata.Inputs = &CloudConfigPulumiInputs{
+		Key: &key.PublicKey,
+	}
+
 	return &Server{
 		Config:   srv,
 		Userdata: userdata,
+		KeyName:  key.Name,
 	}
 }
 
 func (s *Server) Validate() error {
-	_, err := s.Userdata.render()
-	if err != nil {
-		return fmt.Errorf("%w: %w", ErrUserDataRender, err)
-	}
 	return nil
 }
 
-func (s *Server) Up(ctx *pulumi.Context, id string) (*hcloud.Server, error) {
+func (s *Server) Up(ctx *pulumi.Context, id string) (*Deployed, error) {
 	name := fmt.Sprintf("%s-%s-%s", serverNamePrefix, ctx.Stack(), id)
 	s.Userdata.Hostname = name
 
@@ -106,7 +130,6 @@ func (s *Server) Up(ctx *pulumi.Context, id string) (*hcloud.Server, error) {
 			WithSelector: pulumi.StringRef(selector),
 			MostRecent:   pulumi.BoolRef(true),
 		})
-
 		if err != nil {
 			return nil, fmt.Errorf(
 				strings.Join([]string{
@@ -120,15 +143,15 @@ func (s *Server) Up(ctx *pulumi.Context, id string) (*hcloud.Server, error) {
 		image = pulumi.String(fmt.Sprintf("%d", got.Id))
 	}
 
-	// Error is already checked.
-	ud, _ := s.Userdata.render()
-
 	args := &hcloud.ServerArgs{
 		ServerType: pulumi.String(s.Config.ServerType),
 		Location:   pulumi.String(s.Config.Location),
 		Name:       pulumi.String(name),
-		UserData:   pulumi.String(ud),
+		UserData:   s.Userdata.render(),
 		Image:      image,
+		SshKeys: pulumi.StringArray{
+			s.KeyName,
+		},
 	}
 
 	if os.Getenv(autoApiApps.EnvAutomaionAPIAddr) != "" {
@@ -148,5 +171,23 @@ func (s *Server) Up(ctx *pulumi.Context, id string) (*hcloud.Server, error) {
 		return nil, err
 	}
 
-	return created, nil
+	return &Deployed{
+		Resource: created,
+		Password: s.Userdata.Chpasswd.Users[0].Password,
+	}, nil
+}
+
+func generatePassword() string {
+	charset := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+	//nolint: gosec
+	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	userPassword := make([]byte, 12)
+	for i := range userPassword {
+		userPassword[i] = charset[seededRand.Intn(len(charset))]
+	}
+	fmt.Println("Plain password:" + string(userPassword))
+
+	return string(userPassword)
 }
