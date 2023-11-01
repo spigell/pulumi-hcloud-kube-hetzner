@@ -1,15 +1,34 @@
 config:
-  pulumi-hcloud-kube-hetzner:nodes:
+  pulumi-hcloud-kube-hetzner:network:
+    enabled: true
+    # It is highly recommended to set a cidr for the private network for at least /20
+    cidr: 10.22.0.0/16
+  pulumi-hcloud-kube-hetzner:nodepools:
     agents:
-      - id: k3s-agent01
-        server:
-          image: '<put-your-image-here>'
-      - id: k3s-agent02
+      - id: big-nodes
+        config:
+          server:
+            server-type: cpx31
+        nodes:
+        - id: k3s-big-agent01
+      - id: ingress-node
+        nodes:
+        - id: k3s-ingress01
+          server:
+            image: '<put-your-image-here>'
+      - id: worker-nodes
+        nodes:
+        - id: k3s-agent01
     servers:
-      - id: k3s-server01
-        server:
-          server-type: cpx21
-        leader: true
+      - id: control-plane
+        config:
+          server:
+            server-type: cpx21
+        nodes:
+        - id: k3s-server01
+          leader: true
+          server:
+            location: fsn1
   pulumi-hcloud-kube-hetzner:defaults:
     agents:
       k3s:

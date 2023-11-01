@@ -12,7 +12,7 @@ Please remember id of created image
 
 ### Create pulumi stack and generate configuration for it
 ```
-make pulumi-config
+make pulumi-config PULUMI_CONFIG_SOURCE=/path/to/file
 ```
 
 ### Get ssh keys
@@ -29,6 +29,8 @@ pulumi stack output --show-secrets   wireguard:connection > ~/wg-dev.conf && wg-
 ## Code
 - [ ] Rewrite wireguard part
 - [ ] Rewrite ssh checker
+- [ ] Add reasonable defaults for variables
+- [ ] K3s token generation
 
 ## Tests
 - [ ] Add idempotent tests for all runs

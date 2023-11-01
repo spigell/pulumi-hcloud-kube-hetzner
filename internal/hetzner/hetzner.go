@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"pulumi-hcloud-kube-hetzner/internal/config"
 	"pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
+	"pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"pulumi-hcloud-kube-hetzner/internal/hetzner/server"
+	"pulumi-hcloud-kube-hetzner/internal/utils"
 	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 	"strconv"
@@ -19,6 +21,8 @@ type Hetzner struct {
 	ctx       *pulumi.Context
 	Servers   map[string]*config.Node
 	Firewalls map[string]*firewall.Config
+	Pools     map[string][]string
+	Network   *network.Network
 }
 
 type Deployed struct {
@@ -28,6 +32,7 @@ type Deployed struct {
 type Server struct {
 	ID            pulumi.IDOutput
 	LocalPassword string
+	InternalIP    string
 	Connection    *connection.Connection
 }
 
@@ -76,11 +81,34 @@ func New(ctx *pulumi.Context, nodes []*config.Node) *Hetzner {
 	}
 
 	return &Hetzner{
-		ctx:     ctx,
-		Servers: servers,
-		//		Network:   networks,
+		ctx:       ctx,
+		Servers:   servers,
 		Firewalls: firewalls,
+		Pools:     make(map[string][]string),
 	}
+}
+
+func (h *Hetzner) WithNetwork(cfg *network.Config) *Hetzner {
+	h.Network = network.New(h.ctx, cfg)
+	return h
+}
+
+// AddToPool adds a node to the pool.
+// Pool in hetzner stage is a simple slice with id of nodes.
+// It is used to identify subnet for the node.
+func (h *Hetzner) AddToPool(pool, node string) {
+	h.Pools[pool] = append(h.Pools[pool], node)
+}
+
+func (h *Hetzner) FindInPools(node string) string {
+	for pool := range h.Pools {
+		for _, n := range h.Pools[pool] {
+			if n == node {
+				return pool
+			}
+		}
+	}
+	return ""
 }
 
 func (h *Hetzner) FirewallConfigByIDOrRole(id string) (*firewall.Config, error) {
@@ -114,6 +142,14 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 		return nil, fmt.Errorf("failed to create ssh key: %w", err)
 	}
 
+	var net *network.Deployed
+	if h.Network.Config.Enabled {
+		net, err = h.Network.Up()
+		if err != nil {
+			return nil, fmt.Errorf("failed to configure the network: %w", err)
+		}
+	}
+
 	// Create a dedicated firewall for master (servers) and agents (if exists) nodes separattely
 	for kind, fw := range h.Firewalls {
 		firewall, err := firewall.New(fw).Up(h.ctx, fmt.Sprintf("role-%s", kind))
@@ -123,7 +159,9 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 		firewalls[kind] = firewall
 	}
 
-	for id, srv := range h.Servers {
+	for _, id := range utils.SortedMapKeys(h.Servers) {
+		srv := h.Servers[id]
+
 		// if the passwd is given by user, use the password from the config.
 		// Check if we have a password in the state as well since we may have empty state.
 		// Generate a new password if we do not have it in creating stage.
@@ -131,17 +169,28 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 			srv.Server.UserPasswd = info.Servers[id].LocalPassword
 		}
 
+		internalIP, pool := "none", ""
+		if h.Network.Config.Enabled {
+			pool = h.FindInPools(id)
+			internalIP, err = net.Subnets[pool].GetFree()
+			if err != nil {
+				return nil, fmt.Errorf("failed to get free ip for node %s: %w", id, err)
+			}
+			net.Subnets[pool].IPs[id] = internalIP
+		}
+
 		s := server.New(srv.Server, key)
 		if err := s.Validate(); err != nil {
 			return nil, err
 		}
-		node, err := s.Up(h.ctx, id)
+		node, err := s.Up(h.ctx, id, net, pool)
 		if err != nil {
 			return nil, err
 		}
 		nodes[id] = &Server{
 			ID:            node.Resource.ID(),
 			LocalPassword: node.Password,
+			InternalIP:    internalIP,
 			Connection: &connection.Connection{
 				IP:         node.Resource.Ipv4Address,
 				PrivateKey: keys.PrivateKey,
