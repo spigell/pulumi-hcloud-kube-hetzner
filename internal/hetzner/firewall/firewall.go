@@ -44,7 +44,7 @@ func New(config *Config) *Firewall {
 }
 
 func (f *Firewall) Up(ctx *pulumi.Context, name string) (*Firewall, error) {
-	f.Config.rules = make([]*Rule, 0)
+	// f.Config.rules = make([]*Rule, 0)
 	var rules hcloud.FirewallRuleArray
 
 	if f.Config.AllowICMP {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"pulumi-hcloud-kube-hetzner/internal/config"
 	"pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"pulumi-hcloud-kube-hetzner/internal/system"
 	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
@@ -28,7 +29,24 @@ func NewCluster(ctx *pulumi.Context, config *config.Config, keyPair *keypair.ECD
 		return nil, err
 	}
 
-	infra := hetzner.New(ctx, allNodes)
+	infra := hetzner.New(ctx, allNodes).WithNetwork(config.Network)
+
+	if config.Network.Enabled {
+		for _, pool := range config.Nodepools.Agents {
+			for _, node := range pool.Nodes {
+				// Pools are used only in network mode
+				infra.AddToPool(pool.ID, node.ID)
+			}
+			infra.Network.PickSubnet(pool.ID, network.FromStart)
+		}
+
+		for _, pool := range config.Nodepools.Servers {
+			for _, node := range pool.Nodes {
+				infra.AddToPool(pool.ID, node.ID)
+			}
+			infra.Network.PickSubnet(pool.ID, network.FromEnd)
+		}
+	}
 
 	s := make(system.Cluster, 0)
 	for _, node := range allNodes {

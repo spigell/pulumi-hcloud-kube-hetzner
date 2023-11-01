@@ -32,5 +32,5 @@ func (c *Config) Dedicated() bool {
 }
 
 func (c *Config) AddRules(rules []*Rule) {
-	c.AdditionalRules = append(c.AdditionalRules, rules...)
+	c.rules = append(c.rules, rules...)
 }

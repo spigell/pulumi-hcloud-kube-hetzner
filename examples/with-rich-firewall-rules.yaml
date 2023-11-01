@@ -1,21 +1,30 @@
 config:
-  pulumi-hcloud-kube-hetzner:nodes:
+  pulumi-hcloud-kube-hetzner:network:
+    enabled: true
+    # It is highly recommended to set a cidr for the private network for at least /20
+    cidr: 192.168.16.0/20
+  pulumi-hcloud-kube-hetzner:nodepools:
     agents:
-      - id: k3s-agent01
+      - id: small-2
+        nodes:
+          - id: k3s-agent01
     servers:
-      - id: k3s-server01
-        leader: true
-        server:
-          firewall:
-            hetzner:
-              # You should explicitly enable firewall for every layer of the configuration.
-              enabled: true
-              # Do not allow ping only this server node explicitly.
-              allow-icmp: false
-            ssh:
-              # You should explicitly enable ssh for every layer of the configuration.
-              # If you need it of course
-              allow: true
+      - id: control-plane
+        nodes:
+        - id: k3s-server01
+          leader: true
+          server:
+            firewall:
+              hetzner:
+                # You should explicitly enable firewall for every layer of the configuration.
+                enabled: true
+                # Do not allow ping only this server node explicitly.
+                allow-icmp: false
+              ssh:
+                # You should explicitly enable ssh for every layer of the configuration.
+                # If you need it of course
+                allow: true
+            location: fsn1
   pulumi-hcloud-kube-hetzner:defaults:
     agents:
       server:

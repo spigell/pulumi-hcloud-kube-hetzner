@@ -9,6 +9,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/pulumi/pulumi-hcloud/sdk v1.16.1
 	github.com/pulumi/pulumi/sdk/v3 v3.91.0
+	github.com/seancfoley/ipaddress-go v1.5.5
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99
 	github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99
 	github.com/spigell/pulumi-file/sdk v0.0.0-20231027223840-65de13d29cb4
@@ -22,6 +23,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/seancfoley/bintree v1.2.3 // indirect
 	go4.org/intern v0.0.0-20211027215823-ae77deb06f29 // indirect
 	go4.org/unsafe/assume-no-moving-gc v0.0.0-20230525183740-e7c30c78aeb2 // indirect
 )

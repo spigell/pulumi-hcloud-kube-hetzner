@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"pulumi-hcloud-kube-hetzner/internal/config"
+	"pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"strings"
 	"time"
 
@@ -117,7 +118,7 @@ func (s *Server) Validate() error {
 	return nil
 }
 
-func (s *Server) Up(ctx *pulumi.Context, id string) (*Deployed, error) {
+func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool string) (*Deployed, error) {
 	name := fmt.Sprintf("%s-%s-%s", serverNamePrefix, ctx.Stack(), id)
 	s.Userdata.Hostname = name
 
@@ -147,12 +148,30 @@ func (s *Server) Up(ctx *pulumi.Context, id string) (*Deployed, error) {
 		ServerType: pulumi.String(s.Config.ServerType),
 		Location:   pulumi.String(s.Config.Location),
 		Name:       pulumi.String(name),
-		UserData:   s.Userdata.render(),
 		Image:      image,
 		SshKeys: pulumi.StringArray{
 			s.KeyName,
 		},
 	}
+
+	dependencies := make([]pulumi.Resource, 0)
+	if net != nil {
+		s.Userdata.WriteFiles = append(s.Userdata.WriteFiles, RenameInterfaceScript())
+		s.Userdata.RunCMD = append(s.Userdata.RunCMD, RenameInterfaceScript().Path)
+
+		subnet := net.Subnets[pool]
+
+		args.Networks = &hcloud.ServerNetworkTypeArray{
+			hcloud.ServerNetworkTypeArgs{
+				NetworkId: net.ID,
+				Ip:        pulumi.String(subnet.IPs[id]),
+			},
+		}
+		// Rule: id of pool is id of the needed subnet
+		dependencies = append(dependencies, net.Subnets[pool].Resource)
+	}
+
+	args.UserData = s.Userdata.render()
 
 	if os.Getenv(autoApiApps.EnvAutomaionAPIAddr) != "" {
 		sn, err := snapshots.GetLastSnapshot(&http.Client{}, name)
@@ -166,7 +185,9 @@ func (s *Server) Up(ctx *pulumi.Context, id string) (*Deployed, error) {
 		args.Image = pulumi.String(rune(sn.Body.ID))
 	}
 
-	created, err := hcloud.NewServer(ctx, id, args)
+	created, err := hcloud.NewServer(ctx, id, args,
+		pulumi.DependsOn(dependencies),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +208,6 @@ func generatePassword() string {
 	for i := range userPassword {
 		userPassword[i] = charset[seededRand.Intn(len(charset))]
 	}
-	fmt.Println("Plain password:" + string(userPassword))
 
 	return string(userPassword)
 }

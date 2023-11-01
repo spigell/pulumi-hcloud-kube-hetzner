@@ -4,15 +4,29 @@ import (
 	"pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 )
 
+type WithID interface {
+	GetID() string
+}
+
 type Defaults struct {
 	Global  *Node
 	Servers *Node
 	Agents  *Node
 }
 
-type Nodes struct {
-	Servers []*Node
-	Agents  []*Node
+type Nodepools struct {
+	Servers []*Nodepool
+	Agents  []*Nodepool
+}
+
+type Nodepool struct {
+	ID     string
+	Config *Node
+	Nodes  []*Node
+}
+
+func (n *Nodepool) GetID() string {
+	return n.ID
 }
 
 type Node struct {
@@ -22,6 +36,10 @@ type Node struct {
 	Server    *Server
 	K3s       *K3s
 	Role      string
+}
+
+func (n *Node) GetID() string {
+	return n.ID
 }
 
 type Server struct {
