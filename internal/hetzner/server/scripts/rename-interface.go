@@ -1,15 +1,17 @@
 package scripts
 
 const RenameInterface = `
-  # Taken from https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner/blob/eb779a2d24ed4e61ea679944912f92deba7283d2/locals.tf#L48
+  # Based onhttps://github.com/kube-hetzner/terraform-hcloud-kube-hetzner/blob/eb779a2d24ed4e61ea679944912f92deba7283d2/locals.tf#L48
   # Added default gateway pinning
   #!/bin/bash
   set -euo pipefail -x
 
   # Wait for additional ip to be assigned
-  sleep 20
-
+  until [[ $(ip link show | awk '/^3:/{print $2}' | sed 's/://g') ]]; do \
+    sleep 1 ; \
+  done
   INTERFACE=$(ip link show | awk '/^3:/{print $2}' | sed 's/://g')
+
   MAC=$(cat /sys/class/net/$INTERFACE/address)
 
   cat <<EOF > /etc/udev/rules.d/70-persistent-net.rules
@@ -33,8 +35,11 @@ const RenameInterface = `
     ipv4.never-default yes
 
   # Twice delete default route since there are two defaults routes
-  ip r del default
-  ip r del default
+  ip r del default || true
+  ip r del default || true
+  # Hack for another deletion
+  sleep 1
+  ip r del default || true
 
   # After restart the default route will be set
   systemctl restart NetworkManager
