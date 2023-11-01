@@ -160,6 +160,9 @@ func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool 
 		s.Userdata.RunCMD = append(s.Userdata.RunCMD, RenameInterfaceScript().Path)
 
 		subnet := net.Subnets[pool]
+                fmt.Println(pool)
+                fmt.Println(net.Subnets)
+                fmt.Println(subnet)
 
 		args.Networks = &hcloud.ServerNetworkTypeArray{
 			hcloud.ServerNetworkTypeArgs{

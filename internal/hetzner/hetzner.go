@@ -171,8 +171,8 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 
 		internalIP, pool := "none", ""
 		if h.Network.Config.Enabled {
-			pool := h.FindInPools(id)
-			internalIP, err := net.Subnets[pool].GetFree()
+			pool = h.FindInPools(id)
+			internalIP, err = net.Subnets[pool].GetFree()
 			if err != nil {
 				return nil, fmt.Errorf("failed to get free ip for node %s: %w", id, err)
 			}
