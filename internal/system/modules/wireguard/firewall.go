@@ -1,8 +1,9 @@
 package wireguard
 
 import (
-	hetzner "pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"strconv"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 )
 
 var FWAllowedIps = []string{
@@ -10,8 +11,8 @@ var FWAllowedIps = []string{
 	"::/0",
 }
 
-func (w *Wireguard) HetznerRules() []*hetzner.Rule {
-	return []*hetzner.Rule{
+func (w *Wireguard) HetznerRules() []*firewall.Rule {
+	return []*firewall.Rule{
 		{
 			Protocol:    "udp",
 			Description: "Allow Wireguard",

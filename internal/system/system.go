@@ -2,10 +2,11 @@ package system
 
 import (
 	"fmt"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner"
-	"pulumi-hcloud-kube-hetzner/internal/system/os"
-	"pulumi-hcloud-kube-hetzner/internal/system/os/microos"
-	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os/microos"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )

@@ -2,8 +2,9 @@ package system
 
 import (
 	"fmt"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner"
-	"pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )

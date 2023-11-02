@@ -2,9 +2,10 @@ package config
 
 import (
 	"fmt"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"reflect"
 	"sort"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 
 	"dario.cat/mergo"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"

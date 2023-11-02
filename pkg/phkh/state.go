@@ -1,12 +1,13 @@
-package main
+package phkh
 
 import (
 	"fmt"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner"
-	"pulumi-hcloud-kube-hetzner/internal/system"
-	"pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
-	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
-	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"

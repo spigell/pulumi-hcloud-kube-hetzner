@@ -14,8 +14,6 @@ config:
       - id: ingress-node
         nodes:
         - id: k3s-ingress01
-          server:
-            image: '<put-your-image-here>'
       - id: worker-nodes
         nodes:
         - id: k3s-agent01

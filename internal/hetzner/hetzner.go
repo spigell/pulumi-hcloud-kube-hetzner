@@ -3,14 +3,15 @@ package hetzner
 import (
 	"errors"
 	"fmt"
-	"pulumi-hcloud-kube-hetzner/internal/config"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner/network"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner/server"
-	"pulumi-hcloud-kube-hetzner/internal/utils"
-	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
-	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 	"strconv"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/server"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )

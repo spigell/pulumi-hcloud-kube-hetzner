@@ -1,7 +1,6 @@
 package utils
 
 import (
-	//	"pulumi-hcloud-kube-hetzner/internal/config"
 	"sort"
 )
 

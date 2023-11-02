@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -27,19 +26,6 @@ func NewConfig(path string) *Config {
 	return &Config{
 		Content: string(file),
 	}
-}
-
-func (c *Config) WithReplaceImageValue(image string) *Config {
-	target := "image: '<put-your-image-here>'"
-	new := fmt.Sprintf("image: '%s'", image)
-
-	if image == "" {
-		new = ""
-	}
-
-	c.Content = strings.ReplaceAll(c.Content, target, new)
-
-	return c
 }
 
 func (c *Config) WithReplaceProjectName() * Config {

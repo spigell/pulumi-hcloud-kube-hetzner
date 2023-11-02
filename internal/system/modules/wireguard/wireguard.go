@@ -2,10 +2,11 @@ package wireguard
 
 import (
 	"fmt"
-	"pulumi-hcloud-kube-hetzner/internal/config"
-	"pulumi-hcloud-kube-hetzner/internal/system/modules"
-	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 	"strings"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"

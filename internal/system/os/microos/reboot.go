@@ -2,7 +2,8 @@ package microos
 
 import (
 	"fmt"
-	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/local"
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 )
 
 type WithID interface {

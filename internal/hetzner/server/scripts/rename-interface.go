@@ -37,10 +37,9 @@ const RenameInterface = `
   # Twice delete default route since there are two defaults routes
   ip r del default || true
   ip r del default || true
-  # Hack for another deletion
-  sleep 1
-  ip r del default || true
 
   # After restart the default route will be set
   systemctl restart NetworkManager
+
+  ip r
 `

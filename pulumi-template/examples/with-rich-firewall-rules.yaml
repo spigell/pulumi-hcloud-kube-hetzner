@@ -48,7 +48,6 @@ config:
                   - ::/0
     global:
       server:
-        image: '<put-your-image-here>'
         firewall:
           firewalld:
             enabled: false

@@ -1,34 +1,13 @@
-module github.com/spigell/pulumi-hcloud-kube-hetzner
-
-go 1.21.0
-
-toolchain go1.21.1
+module ${PROJECT}
 
 require (
-	dario.cat/mergo v1.0.0
-	github.com/BurntSushi/toml v0.3.1
-	github.com/pulumi/pulumi-hcloud/sdk v1.16.1
-	github.com/pulumi/pulumi/sdk/v3 v3.91.0
-	github.com/seancfoley/ipaddress-go v1.5.5
-	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99
-	github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99
-	github.com/spigell/pulumi-file/sdk v0.0.0-20231027223840-65de13d29cb4
-	github.com/stretchr/testify v1.8.4
-	golang.org/x/crypto v0.14.0
-	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20230429144221-925a1e7659e6
-	gopkg.in/yaml.v3 v3.0.1
-	inet.af/netaddr v0.0.0-20230525184311-b8eac61e914a
+	github.com/pulumi/pulumi/sdk/v3 v3.91.1
+	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.0-00010101000000-000000000000
 )
 
 require (
-	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/seancfoley/bintree v1.2.3 // indirect
-	go4.org/intern v0.0.0-20211027215823-ae77deb06f29 // indirect
-	go4.org/unsafe/assume-no-moving-gc v0.0.0-20230525183740-e7c30c78aeb2 // indirect
-)
-
-require (
+	dario.cat/mergo v1.0.0 // indirect
+	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230923063757-afb1ddc0824c // indirect
 	github.com/acomagu/bufpipe v1.0.4 // indirect
@@ -107,11 +86,14 @@ require (
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/pulumi/esc v0.5.6 // indirect
-	github.com/pulumi/pulumi-command/sdk v0.9.1
+	github.com/pulumi/pulumi-command/sdk v0.9.1 // indirect
+	github.com/pulumi/pulumi-hcloud/sdk v1.16.1 // indirect
 	github.com/rivo/uniseg v0.4.4 // indirect
 	github.com/rogpeppe/go-internal v1.11.0 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
 	github.com/santhosh-tekuri/jsonschema/v5 v5.3.1 // indirect
+	github.com/seancfoley/bintree v1.2.3 // indirect
+	github.com/seancfoley/ipaddress-go v1.5.5 // indirect
 	github.com/sergi/go-diff v1.3.1 // indirect
 	github.com/skeema/knownhosts v1.2.1 // indirect
 	github.com/spf13/afero v1.10.0 // indirect
@@ -120,6 +102,9 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.16.0 // indirect
+	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99 // indirect
+	github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99 // indirect
+	github.com/spigell/pulumi-file/sdk v0.0.0-20231027223840-65de13d29cb4 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/texttheater/golang-levenshtein v1.0.1 // indirect
 	github.com/tweekmonster/luser v0.0.0-20161003172636-3fa38070dbd7 // indirect
@@ -132,7 +117,10 @@ require (
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
+	go4.org/intern v0.0.0-20211027215823-ae77deb06f29 // indirect
+	go4.org/unsafe/assume-no-moving-gc v0.0.0-20230525183740-e7c30c78aeb2 // indirect
 	golang.org/x/arch v0.5.0 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
 	golang.org/x/mod v0.13.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
@@ -141,12 +129,17 @@ require (
 	golang.org/x/term v0.13.0 // indirect
 	golang.org/x/text v0.13.0 // indirect
 	golang.org/x/tools v0.14.0 // indirect
+	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20230429144221-925a1e7659e6 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20230920204549-e6e6cdab5c13 // indirect
 	google.golang.org/grpc v1.58.2 // indirect
 	google.golang.org/protobuf v1.31.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
+	inet.af/netaddr v0.0.0-20230525184311-b8eac61e914a // indirect
 	lukechampine.com/frand v1.4.2 // indirect
 	sourcegraph.com/sourcegraph/appdash v0.0.0-20211028080628-e2786a622600 // indirect
 )
+
+go 1.21.1

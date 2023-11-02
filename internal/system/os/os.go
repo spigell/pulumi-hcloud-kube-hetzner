@@ -1,10 +1,10 @@
 package os
 
 import (
-	"pulumi-hcloud-kube-hetzner/internal/config"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner"
-	"pulumi-hcloud-kube-hetzner/internal/system/modules"
-	"pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )

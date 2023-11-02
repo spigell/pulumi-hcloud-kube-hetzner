@@ -30,10 +30,6 @@ pulumi-stack:
 	$(PULUMI) stack init $(PULUMI_STACK) $(PULUMI_STACK_INIT_FLAGS)
 
 pulumi-config: pulumi-stack
-	@if [[ -z $${HCLOUD_IMAGE} ]]; then \
-		read -s -p "Enter your HCLOUD_IMAGE (press enter to skip): " hcloud_image; \
-		export HCLOUD_IMAGE=$$(echo $${hcloud_image}); \
-	fi && \
 	go run ./scripts/pulumi-config-generator $(PULUMI_CONFIG_SOURCE) >> ./Pulumi.$(PULUMI_STACK).yaml
 	@echo "Pulumi.$(PULUMI_STACK).yaml is generated"
 

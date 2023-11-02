@@ -3,7 +3,8 @@ package server
 import (
 	"errors"
 	"fmt"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner/server/scripts"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/server/scripts"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"gopkg.in/yaml.v3"

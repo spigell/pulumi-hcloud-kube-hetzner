@@ -22,3 +22,6 @@ output/*
 *local*
 go.work.sum
 Pulumi.*.yaml
+
+build/*
+test-project/*

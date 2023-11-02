@@ -1,16 +1,18 @@
-package main
+package phkh
 
 import (
 	"errors"
-	"pulumi-hcloud-kube-hetzner/internal/config"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner"
-	"pulumi-hcloud-kube-hetzner/internal/hetzner/network"
-	"pulumi-hcloud-kube-hetzner/internal/system"
-	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
+// Cluster is a collection of Hetzner, System and k8s clusters.
 type Cluster struct {
 	SysCluster system.Cluster
 	Hetzner    *hetzner.Hetzner

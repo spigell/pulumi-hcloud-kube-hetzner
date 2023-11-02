@@ -23,10 +23,14 @@ runs:
       with:
         cache: false
         go-version-file: go.mod
+    - name: Create a temporary Pulumi project
+      run: make test-project
+      shell: bash
     - name: Downloading dependencies 📦
       if: ${{ ! inputs.disable-go-deps }}
       shell: bash
       run: go mod download
+      working-directory: test-project
     - name: Install pulumi cli
       uses: pulumi/actions@v4
       with:
@@ -38,10 +42,11 @@ runs:
       env:
         PULUMI_STACK_INIT_FLAGS: --secrets-provider=gcpkms://projects/spigell-infra/locations/global/keyRings/spigell-infra-keyring/cryptoKeys/spigell-infra-phkh-pulumi-key
         PULUMI_BACKEND: gs://spigell-infra-phkh-pulumi-states
-        HCLOUD_IMAGE: '133426649'
+      working-directory: test-project
     - name: Login to Pulumi
       shell: bash
       if: ${{ inputs.create-stack == 'false' }}
       run: make pulumi-login && make pulumi-select
       env:
         PULUMI_BACKEND: gs://spigell-infra-phkh-pulumi-states
+      working-directory: test-project

@@ -1,7 +1,7 @@
 package modules
 
 import (
-	"pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )

@@ -2,5 +2,6 @@ go 1.21.1
 
 use (
 	.
-	./scripts/pulumi-config-generator
+	./test-project
+	./test-project/scripts/pulumi-config-generator
 )

@@ -20,5 +20,5 @@ func main() {
 		log.Print("HCLOUD_IMAGE env variable is not provided.")
 	}
 
-	fmt.Println(NewConfig(source).WithReplaceImageValue(newImage).WithReplaceProjectName().Content)
+	fmt.Println(NewConfig(source).WithReplaceProjectName().Content)
 }
