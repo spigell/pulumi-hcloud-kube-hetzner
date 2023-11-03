@@ -6,6 +6,7 @@ import (
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os/info"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
@@ -22,6 +23,7 @@ const (
 type Wireguard struct {
 	order int
 	built *Config
+	OS    info.Info
 
 	ID            string
 	Self          Peer
@@ -29,7 +31,6 @@ type Wireguard struct {
 	NeighboursIPS pulumi.StringMapOutput
 	ListenPort    int
 	Iface         string
-	Mgmt          bool
 	Config        *config.Wireguard
 }
 
@@ -46,7 +47,7 @@ func GetRequiredPkgs(os string) []string {
 	return packages[os]
 }
 
-func New(id string, cfg *config.Wireguard) *Wireguard {
+func New(id string, os info.Info, cfg *config.Wireguard) *Wireguard {
 	if cfg.CIDR == "" {
 		cfg.CIDR = defaultCIDR
 	}
@@ -61,6 +62,7 @@ func New(id string, cfg *config.Wireguard) *Wireguard {
 
 	return &Wireguard{
 		ID:         id,
+		OS:         os,
 		ListenPort: defaultListenPort,
 		Iface:      defaultIface,
 		Config:     cfg,
@@ -85,7 +87,7 @@ func (w *Wireguard) Up(ctx *pulumi.Context, con *connection.Connection, deps []p
 		UseSudo:    pulumi.Bool(true),
 		Content:    w.built.Render(),
 		Path:       pulumi.Sprintf("/etc/wireguard/%s.conf", w.Iface),
-		SftpPath:   pulumi.String("/usr/libexec/ssh/sftp-server"),
+		SftpPath:   pulumi.String(w.OS.SFTPServerPath()),
 	}, pulumi.RetainOnDelete(true), pulumi.DependsOn(deps))
 	if err != nil {
 		return nil, err

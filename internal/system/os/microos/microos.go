@@ -6,10 +6,19 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+)
+
+const (
+	// sftp-server is preinstalled in microos based images.
+	SFTPServerPath = "/usr/libexec/ssh/sftp-server"
+
+	AfterReboot int = iota
+	AfterNetwork
 )
 
 type MicroOS struct {
@@ -71,12 +80,23 @@ func (m *MicroOS) Up(ctx *pulumi.Context, server *hetzner.Server) (os.Provisione
 	}, nil
 }
 
-func (m *MicroOS) SetWireguard(config *config.Wireguard) {
+func (m *MicroOS) SFTPServerPath() string {
+	return SFTPServerPath
+}
+
+func (m *MicroOS) SetupWireguard(config *config.Wireguard) {
 	m.AddAdditionalRequiredPackages(wireguard.GetRequiredPkgs("microos"))
 
-	module := wireguard.New(m.ID, config)
-	module.SetOrder(1)
+	module := wireguard.New(m.ID, &MicroOS{}, config)
+	module.SetOrder(AfterReboot)
 	m.modules["wireguard"] = module
+}
+
+func (m *MicroOS) SetupSSHD(config *sshd.Config) {
+	module := sshd.New(m.ID, &MicroOS{}, config)
+
+	module.SetOrder(AfterNetwork)
+	m.modules["sshd"] = module
 }
 
 func (m *MicroOS) Wireguard() *wireguard.Wireguard {

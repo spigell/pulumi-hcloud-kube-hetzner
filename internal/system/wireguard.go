@@ -8,6 +8,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os/microos"
 
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
 
@@ -60,7 +61,9 @@ func (c *Cluster) NewWgCluster(wgInfo map[string]*wireguard.WgConfig, servers ma
 }
 
 func (c *Cluster) NewWgMaster() *wireguard.Wireguard {
-	return wireguard.New(wgMasterID, &config.Wireguard{
+	// MicroOS is the only supported OS right now.
+	// Let's choose it.
+	return wireguard.New(wgMasterID, &microos.MicroOS{}, &config.Wireguard{
 		Enabled: true,
 	})
 }

@@ -1,8 +1,8 @@
 package phkh
 
 import (
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/sanity-io/litter"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
@@ -11,7 +11,6 @@ type PHKH struct {
 	config  *config.Config
 	cluster *Cluster
 	state   *State
-
 }
 
 func New(ctx *pulumi.Context) (*PHKH, error) {
