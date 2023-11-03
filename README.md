@@ -77,6 +77,7 @@ $ make test-project
 - [ ] Add reasonable defaults for variables
 - [ ] K3s token generation
 - [ ] Add arm64 support
+- [ ] Allow change config from code
 
 ## Tests
 - [ ] Add idempotent tests for all runs

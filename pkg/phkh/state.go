@@ -27,7 +27,7 @@ type State struct {
 	Stack *pulumi.StackReference
 }
 
-func NewState(ctx *pulumi.Context) (*State, error) {
+func newState(ctx *pulumi.Context) (*State, error) {
 	self, err := pulumi.NewStackReference(ctx, fmt.Sprintf("%s/%s/%s", ctx.Organization(), ctx.Project(), ctx.Stack()), nil)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func NewState(ctx *pulumi.Context) (*State, error) {
 	}, nil
 }
 
-func (s *State) HetznerInfra() (*hetzner.Deployed, error) {
+func (s *State) hetznerInfra() (*hetzner.Deployed, error) {
 	info := &hetzner.Deployed{Servers: make(map[string]*hetzner.Server)}
 
 	decoded, err := s.Stack.GetOutputDetails(hetznerServersKey)
@@ -76,7 +76,7 @@ func (s *State) HetznerInfra() (*hetzner.Deployed, error) {
 	return info, nil
 }
 
-func (s *State) ExportHetznerInfra(deployed *hetzner.Deployed) {
+func (s *State) exportHetznerInfra(deployed *hetzner.Deployed) {
 	export := make(map[string]map[string]interface{})
 	for k, v := range deployed.Servers {
 		export[k] = make(map[string]interface{})
@@ -88,7 +88,7 @@ func (s *State) ExportHetznerInfra(deployed *hetzner.Deployed) {
 	s.ctx.Export(hetznerServersKey, pulumi.ToSecret(export))
 }
 
-func (s *State) SSHKeyPair() (*keypair.ECDSAKeyPair, error) {
+func (s *State) sshKeyPair() (*keypair.ECDSAKeyPair, error) {
 	decoded, err := s.Stack.GetOutputDetails(keyPairKey)
 	if err != nil {
 		return nil, err
@@ -112,7 +112,7 @@ func (s *State) SSHKeyPair() (*keypair.ECDSAKeyPair, error) {
 	}, nil
 }
 
-func (s *State) ExportSSHKeyPair(keyPair *keypair.ECDSAKeyPair) {
+func (s *State) exportSSHKeyPair(keyPair *keypair.ECDSAKeyPair) {
 	s.ctx.Export(keyPairKey, pulumi.ToSecret(pulumi.ToMap(
 		map[string](interface{}){
 			privateKey: keyPair.PrivateKey,
@@ -121,7 +121,7 @@ func (s *State) ExportSSHKeyPair(keyPair *keypair.ECDSAKeyPair) {
 	)))
 }
 
-func (s *State) WGInfo() (map[string]*wireguard.WgConfig, error) {
+func (s *State) wgInfo() (map[string]*wireguard.WgConfig, error) {
 	info := make(map[string]*wireguard.WgConfig)
 	decoded, err := s.Stack.GetOutputDetails(wgInfoKey)
 	if err != nil {
@@ -140,7 +140,7 @@ func (s *State) WGInfo() (map[string]*wireguard.WgConfig, error) {
 		info[k] = &wireguard.WgConfig{
 			Interface: wireguard.WgInterface{
 				Address:    p["ip"].(string),
-				PrivateKey: p["privatekey"].(string),
+				PrivateKey: p[privateKey].(string),
 			},
 		}
 	}
@@ -148,7 +148,7 @@ func (s *State) WGInfo() (map[string]*wireguard.WgConfig, error) {
 	return info, nil
 }
 
-func (s *State) ExportWGInfo(cluster *system.WgCluster) {
+func (s *State) exportWGInfo(cluster *system.WgCluster) {
 	s.ctx.Export(wgInfoKey, pulumi.ToSecret(cluster.Peers.ToMapOutput().ApplyT(func(v map[string]interface{}) map[string]map[string]string {
 		m := make(map[string]map[string]string)
 		for name, cfg := range v {
@@ -157,8 +157,8 @@ func (s *State) ExportWGInfo(cluster *system.WgCluster) {
 			pk, _ := wgtypes.ParseKey(p.Interface.PrivateKey)
 			m[name] = make(map[string]string)
 			m[name]["ip"] = p.Interface.Address
-			m[name]["privatekey"] = p.Interface.PrivateKey
-			m[name]["publickey"] = pk.PublicKey().String()
+			m[name][privateKey] = p.Interface.PrivateKey
+			m[name][publicKey] = pk.PublicKey().String()
 		}
 		return m
 	}).(pulumi.StringMapMapOutput)))

@@ -18,7 +18,7 @@ type Cluster struct {
 	Hetzner    *hetzner.Hetzner
 }
 
-func NewCluster(ctx *pulumi.Context, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Cluster, error) {
+func newCluster(ctx *pulumi.Context, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Cluster, error) {
 	leader, followers, err := config.MergeNodesConfiguration()
 	if err != nil {
 		return nil, err

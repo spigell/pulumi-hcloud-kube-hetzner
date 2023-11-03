@@ -2,7 +2,7 @@ module ${PROJECT}
 
 require (
 	github.com/pulumi/pulumi/sdk/v3 v3.91.1
-	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.0-00010101000000-000000000000
+	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.0-20231103121112-3bd158e69f72
 )
 
 require (
