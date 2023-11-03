@@ -22,11 +22,17 @@ const RenameInterface = `
   ip link set $INTERFACE name eth1
   ip link set eth1 up
 
+  until [[ $(nmcli -g GENERAL.CONNECTION device show eth0) ]]; do \
+    sleep 0.5; \
+  done
   eth0_connection=$(nmcli -g GENERAL.CONNECTION device show eth0)
   nmcli connection modify "$eth0_connection" \
     con-name eth0 \
     connection.interface-name eth0
 
+  until [[ $(nmcli -g GENERAL.CONNECTION device show eth1) ]]; do \
+    sleep 0.5; \
+  done
   eth1_connection=$(nmcli -g GENERAL.CONNECTION device show eth1)
   nmcli connection modify "$eth1_connection" \
     con-name eth1 \
@@ -38,6 +44,7 @@ const RenameInterface = `
   ip r del default || true
   ip r del default || true
 
+  ip r add default via 172.31.1.1 dev eth0
   # After restart the default route will be set
   systemctl restart NetworkManager
 

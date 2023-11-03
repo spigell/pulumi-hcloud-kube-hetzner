@@ -39,6 +39,20 @@ make pulumi-config PULUMI_CONFIG_SOURCE=/path/to/file
 ```
 `PULUMI_CONFIG_SOURCE` is the path for config. It can be any yaml config file. You can browse examples in example directory. Most of this examples are tested via Actions and considered as supported.
 
+## Supported scenarios
+All valid conbinations between defauls{agents/servers}/nodepools.config/nodes are considered to be supported and changeable on the fly without cluster recreation (cluster recreation means `pulumi destroy` and `pulumi up`).
+If you find any panic (due accessing to a null value or like that), please create an issue!
+
+### Network changes
+PHKH supports several types of communication between nodes of cluster:
+- using only public ip (network.enabled: false);
+- using private hetnzer network (network.enabled: true);
+- using wireguard built on top of public ips (wireguard.enabled: true and network.enabled: false);
+- using wireguard on private ips (wireguard.enabled: true and network.enabled: true);
+
+Switching between modes on the fly is supported except switching from scenarios where `network.enabled: false -> network.enabled: true`.
+Since NetworkManager configured on stage of cluster creation, it is not possible to switch between these scenarios. You should recreate cluster.
+
 #### Useful commands and snippets
 ### Get ssh keys
 ```
@@ -54,6 +68,7 @@ pulumi stack output --show-secrets   wireguard:connection > ~/wg-dev.conf && wg-
 ```
 $ make test-project
 ```
+
 
 # RoadMap
 ## Code

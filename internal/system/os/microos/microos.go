@@ -36,6 +36,10 @@ func (m *MicroOS) AddAdditionalRequiredPackages(packages []string) {
 }
 
 func (m *MicroOS) Up(ctx *pulumi.Context, server *hetzner.Server) (os.Provisioned, error) {
+	if err := m.WaitForCloudInit(ctx, server.Connection); err != nil {
+		return nil, err
+	}
+
 	if err := m.Packages(ctx, server.Connection); err != nil {
 		return nil, err
 	}

@@ -21,7 +21,10 @@ func (m *MicroOS) Packages(ctx *pulumi.Context, con *connection.Connection) erro
 	installed, err := remote.NewCommand(ctx, fmt.Sprintf("packages-%s", m.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.String(cmd),
-	})
+	},
+		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m", Update: "10m"}),
+		pulumi.DependsOn(m.resources),
+	)
 	if err != nil {
 		return err
 	}

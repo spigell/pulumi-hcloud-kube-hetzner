@@ -128,30 +128,30 @@ func merge(node Node, nodepool *Node, defaults Defaults) (Node, error) {
 	agents := defaults.Agents
 	servers := defaults.Servers
 
+	if nodepool == nil {
+		nodepool = &Node{}
+	}
+
 	switch role := node.Role; role {
 	case agentRole:
 		if err := mergo.Merge(agents, global, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
 			return node, err
 		}
-		if err := mergo.Merge(&node, agents, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
+		if err := mergo.Merge(nodepool, agents, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
 			return node, err
 		}
-		if nodepool != nil {
-			if err := mergo.Merge(&node, nodepool, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
-				return node, err
-			}
+		if err := mergo.Merge(&node, nodepool, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
+			return node, err
 		}
 	case serverRole:
 		if err := mergo.Merge(servers, global, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
 			return node, err
 		}
-		if err := mergo.Merge(&node, servers, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
+		if err := mergo.Merge(nodepool, servers, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
 			return node, err
 		}
-		if nodepool != nil {
-			if err := mergo.Merge(&node, nodepool, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
-				return node, err
-			}
+		if err := mergo.Merge(&node, nodepool, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
+			return node, err
 		}
 	}
 	return node, nil
