@@ -6,15 +6,15 @@ import (
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	remotefile "github.com/spigell/pulumi-file/sdk/go/file/remote"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/info"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os/info"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 )
 
 type SSHD struct {
 	order int
 	ID    string
-	OS    info.Info
+	OS    info.OSInfo
 
 	Config *Config
 }
@@ -23,7 +23,7 @@ type Provisioned struct {
 	resources []pulumi.Resource
 }
 
-func New(id string, os info.Info, config *Config) *SSHD {
+func New(id string, os info.OSInfo, config *Config) *SSHD {
 	return &SSHD{
 		ID:     id,
 		OS:     os,
@@ -41,7 +41,7 @@ func (s *SSHD) Order() int {
 
 // Up configures sshd.
 // It deletes default sshd config file and creates new one with config provided in Config.
-func (s *SSHD) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.Resource) (modules.Output, error) {
+func (s *SSHD) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.Resource, _ []interface{}) (modules.Output, error) {
 	resources := make([]pulumi.Resource, 0)
 
 	// Delete default sshd config file.

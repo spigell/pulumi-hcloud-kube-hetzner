@@ -1,8 +1,18 @@
 config:
   pulumi-hcloud-kube-hetzner:network:
-    enabled: true
-    # It is highly recommended to set a cidr for the private network for at least /20
-    cidr: 192.168.16.0/20
+    hetzner:
+      enabled: true
+      # It is highly recommended to set a cidr for the private network for at least /20
+      cidr: 192.168.16.0/20
+    wireguard:
+      enabled: true
+      firewall:
+        hetzner:
+          # Allow establish tunnel only from the this cidr!
+          # Remember: it only affects external network. Nodes in the internal network can establish tunnels from any ip
+          # because THEY consider the private networks to be "secure".
+          allowed-ips:
+            - '102.0.0.0/8'
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: small-2
@@ -44,8 +54,7 @@ config:
                 port: "10000"
                 protocol: tcp
                 sourceIps:
-                  - 0.0.0.0/8
-                  - ::/0
+                  - 0.0.0.0/0
     global:
       server:
         firewall:
@@ -70,16 +79,7 @@ config:
           node-ip: 127.0.0.1
           token: token
         version: v1.26.4+k3s1
-      wireguard:
-        enabled: true
     servers:
-      wireguard:
-        enabled: true
-        firewall:
-          hetzner:
-            # Allow establish tunnel only from the ips for servers node only!
-            allowed-ips:
-              - '102.0.0.0/8'
       k3s:
         config:
           cluster-cidr: 10.140.0.0/16

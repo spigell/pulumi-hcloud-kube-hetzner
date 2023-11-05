@@ -5,22 +5,24 @@ import (
 	"reflect"
 	"sort"
 
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
-
 	"dario.cat/mergo"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
+	hnetwork "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 )
 
 const (
-	agentRole  = "agent"
-	serverRole = "server"
+	AgentRole  = "agent"
+	ServerRole = "server"
 )
 
 type Config struct {
 	Nodepools *Nodepools
 	Defaults  *Defaults
-	Network   *network.Config
+	Network   *Network
 }
 
 // New returns the configuration for the cluster.
@@ -29,13 +31,91 @@ type Config struct {
 func New(ctx *pulumi.Context) *Config {
 	var defaults *Defaults
 	var nodepools *Nodepools
-	var network *network.Config
+	var network *Network
 	c := config.New(ctx, "")
 
 	c.RequireSecretObject("defaults", &defaults)
 	c.RequireSecretObject("nodepools", &nodepools)
 	c.RequireSecretObject("network", &network)
 
+	if defaults == nil {
+		defaults = &Defaults{}
+	}
+
+	if defaults.Global == nil {
+		defaults.Global = &Node{}
+	}
+
+	if defaults.Agents == nil {
+		defaults.Agents = &Node{}
+	}
+
+	if defaults.Servers == nil {
+		defaults.Servers = &Node{}
+	}
+
+	for i, pool := range nodepools.Agents {
+		if pool.Config == nil {
+			nodepools.Agents[i].Config = &Node{}
+		}
+
+		if pool.Config.K3s == nil {
+			nodepools.Agents[i].Config.K3s = &k3s.Config{}
+		}
+
+		if pool.Config.K3s.K3S == nil {
+			nodepools.Agents[i].Config.K3s.K3S = &k3s.K3sConfig{}
+		}
+
+		for j, node := range pool.Nodes {
+			if node.Server == nil {
+				nodepools.Agents[i].Nodes[j].Server = &Server{}
+			}
+
+			if node.K3s == nil {
+				nodepools.Agents[i].Nodes[j].K3s = &k3s.Config{}
+			}
+
+			if node.K3s.K3S == nil {
+				nodepools.Agents[i].Nodes[j].K3s.K3S = &k3s.K3sConfig{}
+			}
+		}
+	}
+
+	for i, pool := range nodepools.Servers {
+		if pool.Config == nil {
+			nodepools.Servers[i].Config = &Node{}
+		}
+
+		if pool.Config.K3s == nil {
+			nodepools.Servers[i].Config.K3s = &k3s.Config{}
+		}
+
+		if pool.Config.K3s.K3S == nil {
+			nodepools.Servers[i].Config.K3s.K3S = &k3s.K3sConfig{}
+		}
+
+		if len(nodepools.Agents) > 0 && pool.Config.K3s.K3S.NodeTaints == nil {
+			// Hack for identify if user has set node taints.
+			nodepools.Servers[i].Config.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
+		}
+
+		for j, node := range pool.Nodes {
+			if node.Server == nil {
+				nodepools.Servers[i].Nodes[j].Server = &Server{}
+			}
+
+			if node.K3s == nil {
+				nodepools.Servers[i].Nodes[j].K3s = &k3s.Config{}
+			}
+
+			if node.K3s.K3S == nil {
+				nodepools.Servers[i].Nodes[j].K3s.K3S = &k3s.K3sConfig{}
+			}
+		}
+	}
+
+	// Sort
 	nodepools.Agents = sortByID(nodepools.Agents)
 	nodepools.Servers = sortByID(nodepools.Servers)
 
@@ -47,11 +127,88 @@ func New(ctx *pulumi.Context) *Config {
 		nodepools.Servers[i].Nodes = sortByID(pool.Nodes)
 	}
 
+	if network == nil {
+		network = &Network{}
+	}
+
+	if network.Hetzner == nil {
+		network.Hetzner = &hnetwork.Config{
+			Enabled: false,
+		}
+	}
+
+	if network.Wireguard == nil {
+		network.Wireguard = &wireguard.Config{
+			Enabled: false,
+		}
+	}
+
 	return &Config{
 		Nodepools: nodepools,
 		Network:   network,
 		Defaults:  defaults,
 	}
+}
+
+// Nodes returns the nodes for the cluster.
+// They are sorted by majority.
+func (c *Config) Nodes() ([]*Node, error) {
+	nodes := make([]*Node, 0)
+
+	for agentpoolIdx, agentpool := range c.Nodepools.Agents {
+		for i, a := range agentpool.Nodes {
+			a.Role = AgentRole
+			if hetznerFirewallConfigured(a.Server) {
+				c.Nodepools.Agents[agentpoolIdx].Nodes[i].Server.Firewall.Hetzner.MarkAsDedicated()
+			}
+			agent, err := merge(*a, agentpool.Config, *c.Defaults)
+			if err != nil {
+				return nil, fmt.Errorf("failed to merge the agent config: %w", err)
+			}
+
+			nodes = append(nodes, &agent)
+		}
+	}
+	for serverpoolIdx, serverpool := range c.Nodepools.Servers {
+		for i, s := range serverpool.Nodes {
+			s.Role = ServerRole
+			if hetznerFirewallConfigured(s.Server) {
+				c.Nodepools.Servers[serverpoolIdx].Nodes[i].Server.Firewall.Hetzner.MarkAsDedicated()
+			}
+			s, err := merge(*s, serverpool.Config, *c.Defaults)
+			if err != nil {
+				return nil, fmt.Errorf("failed to merge server config: %w", err)
+			}
+			nodes = append(nodes, &s)
+		}
+	}
+
+	return sortByMajority(nodes), nil
+}
+
+// sortByMajority sorts nodes by majority.
+// The first if leader, then other servers, then workers.
+func sortByMajority(n []*Node) []*Node {
+	nodes := make([]*Node, 0)
+
+	for _, node := range n {
+		if node.Leader {
+			nodes = append([]*Node{node}, nodes...)
+			continue
+		}
+		if node.Role == ServerRole {
+			nodes = append(nodes, node)
+			continue
+		}
+	}
+
+	for _, node := range n {
+		if node.Role == AgentRole {
+			nodes = append(nodes, node)
+		}
+	}
+
+	return nodes
 }
 
 func sortByID[W WithID](unsorted []W) []W {
@@ -78,51 +235,6 @@ func sortByID[W WithID](unsorted []W) []W {
 	return sorted
 }
 
-func (c *Config) MergeNodesConfiguration() (*Node, []*Node, error) {
-	var leader *Node
-	followers := make([]*Node, 0)
-
-	for agentpoolIdx, agentpool := range c.Nodepools.Agents {
-		for i, a := range agentpool.Nodes {
-			a.Role = agentRole
-			if hetznerFirewallConfigured(a.Server) {
-				c.Nodepools.Agents[agentpoolIdx].Nodes[i].Server.Firewall.Hetzner.MarkAsDedicated()
-			}
-			agent, err := merge(*a, agentpool.Config, *c.Defaults)
-			if err != nil {
-				return nil, nil, fmt.Errorf("failed to merge the agent config: %w", err)
-			}
-			followers = append(followers, &agent)
-		}
-	}
-	for serverpoolIdx, serverpool := range c.Nodepools.Servers {
-		for i, s := range serverpool.Nodes {
-			s.Role = serverRole
-			if c.Nodepools.Servers[serverpoolIdx].Nodes[i].Leader {
-				if hetznerFirewallConfigured(s.Server) {
-					c.Nodepools.Servers[serverpoolIdx].Nodes[i].Server.Firewall.Hetzner.MarkAsDedicated()
-				}
-				s, err := merge(*s, serverpool.Config, *c.Defaults)
-				leader = &s
-				if err != nil {
-					return nil, nil, fmt.Errorf("failed to merge the leader config: %w", err)
-				}
-				continue
-			}
-			if hetznerFirewallConfigured(s.Server) {
-				c.Nodepools.Servers[serverpoolIdx].Nodes[i].Server.Firewall.Hetzner.MarkAsDedicated()
-			}
-			s, err := merge(*s, serverpool.Config, *c.Defaults)
-			if err != nil {
-				return nil, nil, fmt.Errorf("failed to merge server config: %w", err)
-			}
-			followers = append(followers, &s)
-		}
-	}
-
-	return leader, followers, nil
-}
-
 func merge(node Node, nodepool *Node, defaults Defaults) (Node, error) {
 	global := defaults.Global
 	agents := defaults.Agents
@@ -133,7 +245,7 @@ func merge(node Node, nodepool *Node, defaults Defaults) (Node, error) {
 	}
 
 	switch role := node.Role; role {
-	case agentRole:
+	case AgentRole:
 		if err := mergo.Merge(agents, global, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
 			return node, err
 		}
@@ -143,7 +255,7 @@ func merge(node Node, nodepool *Node, defaults Defaults) (Node, error) {
 		if err := mergo.Merge(&node, nodepool, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
 			return node, err
 		}
-	case serverRole:
+	case ServerRole:
 		if err := mergo.Merge(servers, global, mergo.WithAppendSlice, mergo.WithTransformers(BoolTransformer{})); err != nil {
 			return node, err
 		}

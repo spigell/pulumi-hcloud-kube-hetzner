@@ -8,6 +8,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -24,24 +25,21 @@ type Cluster struct {
 }
 
 func newCluster(ctx *pulumi.Context, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Cluster, error) {
-	// TODO: make this configurable
+	// This is the only supported kubernetes distribution right now.
 	kube := defaultKube
 
-	leader, followers, err := config.MergeNodesConfiguration()
+	nodes, err := config.Nodes()
 	if err != nil {
 		return nil, err
 	}
 
-	allNodes := followers
-	allNodes = append(allNodes, leader)
-
-	if err := config.Validate(allNodes); err != nil {
+	if err := config.Validate(nodes); err != nil {
 		return nil, err
 	}
 
-	infra := hetzner.New(ctx, allNodes).WithNetwork(config.Network)
+	infra := hetzner.New(ctx, nodes).WithNetwork(config.Network.Hetzner)
 
-	if config.Network.Enabled {
+	if config.Network.Hetzner.Enabled {
 		for _, pool := range config.Nodepools.Agents {
 			for _, node := range pool.Nodes {
 				// Pools are used only in network mode
@@ -59,31 +57,41 @@ func newCluster(ctx *pulumi.Context, config *config.Config, keyPair *keypair.ECD
 	}
 
 	s := make(system.Cluster, 0)
-	for _, node := range allNodes {
-		sys := system.New(ctx, node.ID, keyPair)
+	for _, node := range nodes {
+		sys := system.New(ctx, node.ID, keyPair).WithCommunicationMethod(variables.DefaultCommunicationMethod)
 		os := sys.MicroOS()
+
+		if config.Network.Hetzner.Enabled {
+			sys.WithCommunicationMethod(variables.InternalCommunicationMethod)
+		}
+
 		switch kube {
 		case defaultKube:
 			os.SetupSSHD(&sshd.Config{
-				AcceptEnv: "K3S_*",
+				// TODO: make it discoverable from k3s module
+				AcceptEnv: "INSTALL_K3S_*",
 			})
+			os.AddK3SModule(node.Role, node.K3s)
 		default:
 			return nil, errors.New("unknown kubernetes distribution")
 		}
-		if node.Wireguard.Enabled {
-			os.SetupWireguard(node.Wireguard)
+
+		if config.Network.Wireguard.Enabled {
+			os.SetupWireguard(config.Network.Wireguard)
 			fw, err := infra.FirewallConfigByIDOrRole(node.ID)
 			if err != nil {
 				if !errors.Is(err, hetzner.ErrFirewallDisabled) {
 					return nil, err
 				}
 			}
+			sys.WithCommunicationMethod(variables.WgCommunicationMethod)
 
 			if fw != nil {
 				fw.AddRules(os.Wireguard().HetznerRules())
 			}
 		}
-		s = append(s, sys.SetOS(os))
+
+		s = append(s, sys.WithOS(os))
 	}
 
 	return &Cluster{

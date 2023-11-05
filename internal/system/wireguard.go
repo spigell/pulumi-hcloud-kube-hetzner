@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"net"
 
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os/microos"
@@ -42,7 +41,7 @@ func (c *Cluster) NewWgCluster(wgInfo map[string]*wireguard.WgConfig, servers ma
 	master.Neighbours = peers.Without(wgMasterID)
 	master.Self = peers.Peer(wgMasterID)
 	master.NeighboursIPS = peers.IPS
-	cfg := master.NewConfig()
+	cfg := master.CompleteConfig()
 
 	provisionedWGPeers[wgMasterID] = cfg.Content().(pulumi.AnyOutput)
 
@@ -63,7 +62,7 @@ func (c *Cluster) NewWgCluster(wgInfo map[string]*wireguard.WgConfig, servers ma
 func (c *Cluster) NewWgMaster() *wireguard.Wireguard {
 	// MicroOS is the only supported OS right now.
 	// Let's choose it.
-	return wireguard.New(wgMasterID, &microos.MicroOS{}, &config.Wireguard{
+	return wireguard.New(wgMasterID, &microos.MicroOS{}, &wireguard.Config{
 		Enabled: true,
 	})
 }
@@ -150,6 +149,10 @@ func (c *Cluster) BuildWgPeers(info map[string]*wireguard.WgConfig, servers map[
 		}
 
 		ips[sys.ID] = servers[sys.ID].Connection.IP
+
+		if servers[sys.ID].InternalIP != "" {
+			ips[sys.ID] = pulumi.String(servers[sys.ID].InternalIP).ToStringOutput()
+		}
 
 		peers = append(peers, peer)
 	}

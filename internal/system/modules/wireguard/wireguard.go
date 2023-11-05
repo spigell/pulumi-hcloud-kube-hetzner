@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/info"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os/info"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
@@ -15,23 +15,26 @@ import (
 )
 
 const (
+	// Iface is the name of interface. It is not allowed to change it.
 	defaultListenPort = 51822
-	defaultIface      = "kubewg0"
 	defaultCIDR       = "192.168.180.0/24"
+)
+
+var (
+	Iface = variables.WGIface
 )
 
 type Wireguard struct {
 	order int
-	built *Config
-	OS    info.Info
+	built *CompletedConfig
 
 	ID            string
 	Self          Peer
 	Neighbours    []Peer
+	OS            info.OSInfo
 	NeighboursIPS pulumi.StringMapOutput
 	ListenPort    int
-	Iface         string
-	Config        *config.Wireguard
+	Config        *Config
 }
 
 type Provisioned struct {
@@ -47,14 +50,14 @@ func GetRequiredPkgs(os string) []string {
 	return packages[os]
 }
 
-func New(id string, os info.Info, cfg *config.Wireguard) *Wireguard {
+func New(id string, os info.OSInfo, cfg *Config) *Wireguard {
 	if cfg.CIDR == "" {
 		cfg.CIDR = defaultCIDR
 	}
 
 	if cfg.Firewall == nil {
-		cfg.Firewall = &config.WGFirewall{
-			Hetzner: &config.ServiceFirewall{
+		cfg.Firewall = &Firewall{
+			Hetzner: &ServiceFirewall{
 				AllowedIps: FWAllowedIps,
 			},
 		}
@@ -64,7 +67,6 @@ func New(id string, os info.Info, cfg *config.Wireguard) *Wireguard {
 		ID:         id,
 		OS:         os,
 		ListenPort: defaultListenPort,
-		Iface:      defaultIface,
 		Config:     cfg,
 	}
 }
@@ -77,8 +79,8 @@ func (w *Wireguard) Order() int {
 	return w.order
 }
 
-func (w *Wireguard) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.Resource) (modules.Output, error) {
-	w.built = w.NewConfig()
+func (w *Wireguard) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.Resource, _ []interface{}) (modules.Output, error) {
+	w.built = w.CompleteConfig()
 
 	resources := make([]pulumi.Resource, 0)
 
@@ -86,7 +88,7 @@ func (w *Wireguard) Up(ctx *pulumi.Context, con *connection.Connection, deps []p
 		Connection: con.RemoteFile(),
 		UseSudo:    pulumi.Bool(true),
 		Content:    w.built.Render(),
-		Path:       pulumi.Sprintf("/etc/wireguard/%s.conf", w.Iface),
+		Path:       pulumi.Sprintf("/etc/wireguard/%s.conf", Iface),
 		SftpPath:   pulumi.String(w.OS.SFTPServerPath()),
 	}, pulumi.RetainOnDelete(true), pulumi.DependsOn(deps))
 	if err != nil {
@@ -97,7 +99,7 @@ func (w *Wireguard) Up(ctx *pulumi.Context, con *connection.Connection, deps []p
 	restartCommand := pulumi.Sprintf(strings.Join([]string{
 		"sudo systemctl disable --now wg-quick@%s",
 		"sudo systemctl enable --now wg-quick@%s",
-	}, " && "), w.Iface, w.Iface)
+	}, " && "), Iface, Iface)
 
 	restarted, err := remote.NewCommand(ctx, fmt.Sprintf("wg-restart-%s", w.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
@@ -123,12 +125,12 @@ func (w *Wireguard) Up(ctx *pulumi.Context, con *connection.Connection, deps []p
 	}, nil
 }
 
-type Config struct {
+type CompletedConfig struct {
 	config pulumi.AnyOutput
 }
 
-func (w *Wireguard) NewConfig() *Config {
-	return &Config{
+func (w *Wireguard) CompleteConfig() *CompletedConfig {
+	return &CompletedConfig{
 		config: w.NeighboursIPS.ApplyT(func(ips interface{}) *WgConfig {
 			if len(w.Config.AdditionalPeers) > 0 {
 				for _, p := range w.Config.AdditionalPeers {
@@ -170,7 +172,7 @@ func (w *Wireguard) NewConfig() *Config {
 	}
 }
 
-func (c *Config) Render() pulumi.StringOutput {
+func (c *CompletedConfig) Render() pulumi.StringOutput {
 	return c.config.ApplyT(func(config interface{}) string {
 		wgConfig, err := renderConfig(config.(*WgConfig))
 		if err != nil {
@@ -181,7 +183,7 @@ func (c *Config) Render() pulumi.StringOutput {
 	}).(pulumi.StringOutput)
 }
 
-func (c *Config) Content() interface{} {
+func (c *CompletedConfig) Content() interface{} {
 	return c.config
 }
 

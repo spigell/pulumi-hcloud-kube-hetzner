@@ -188,6 +188,9 @@ func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool 
 
 	created, err := hcloud.NewServer(ctx, id, args,
 		pulumi.DependsOn(dependencies),
+		pulumi.IgnoreChanges([]string{
+			"userData",
+		}),
 	)
 	if err != nil {
 		return nil, err

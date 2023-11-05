@@ -12,7 +12,7 @@ import (
 
 const (
 	// 24 bit network
-	// In the future, we can add changeable subnet size.
+	// In the future, we can add an ability to change subnet size.
 	subnetSize = 24
 	FromEnd    = "end"
 	FromStart  = "start"
@@ -193,7 +193,7 @@ func (n *Network) Up() (*Deployed, error) {
 func (s *Subnet) GetFree() (string, error) {
 	ip := s.allocator.AllocateSize(1)
 	if ip == nil {
-		return "", fmt.Errorf("allocator say: no more free IPs in subnet %s", s.CIDR)
+		return "", fmt.Errorf("allocator says: no more free IPs in subnet %s", s.CIDR)
 	}
 
 	return strings.Split(ip.String(), "/")[0], nil

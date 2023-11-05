@@ -48,11 +48,7 @@ func New(ctx *pulumi.Context, nodes []*config.Node) *Hetzner {
 		}
 
 		if node.Server.Firewall == nil {
-			node.Server.Firewall = &config.Firewall{
-				Firewalld: &config.FWFirewalld{
-					Enabled: false,
-				},
-			}
+			node.Server.Firewall = &config.Firewall{}
 		}
 
 		if node.Server.Firewall.Hetzner == nil {
@@ -170,7 +166,7 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 			srv.Server.UserPasswd = info.Servers[id].LocalPassword
 		}
 
-		internalIP, pool := "none", ""
+		internalIP, pool := "", ""
 		if h.Network.Config.Enabled {
 			pool = h.FindInPools(id)
 			internalIP, err = net.Subnets[pool].GetFree()

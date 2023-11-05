@@ -3,6 +3,8 @@ package sshd
 import (
 	"bytes"
 	"fmt"
+
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 )
 
 type Config struct {
@@ -21,8 +23,8 @@ func (c *Config) String() string {
 	}
 
 	b := new(bytes.Buffer)
-	for k, v := range params {
-		fmt.Fprintf(b, "%s %s\n", k, v)
+	for _, k := range utils.SortedMapKeys(params) {
+		fmt.Fprintf(b, "%s %s\n", k, params[k])
 	}
 
 	return b.String()

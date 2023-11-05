@@ -14,9 +14,10 @@ type Connection struct {
 
 func (c *Connection) RemoteCommand() *remote.ConnectionArgs {
 	return &remote.ConnectionArgs{
-		Host:       c.IP,
-		User:       pulumi.String(c.User),
-		PrivateKey: pulumi.String(c.PrivateKey),
+		Host:           c.IP,
+		User:           pulumi.String(c.User),
+		PrivateKey:     pulumi.String(c.PrivateKey),
+		DialErrorLimit: pulumi.Int(20),
 	}
 }
 

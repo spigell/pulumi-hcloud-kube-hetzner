@@ -1,0 +1,47 @@
+package k3s
+
+import (
+	"fmt"
+	"path"
+	"strings"
+
+	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
+)
+
+var (
+	installCommand = fmt.Sprintf(strings.Join([]string{
+		// Check if binary already installed.
+		"sudo mkdir -p %s && if [[ -e /usr/local/bin/k3s ]]; then restart=true; fi",
+		"curl -sfL https://get.k3s.io | sudo -E sh - 2>&1 >> /tmp/k3s-pulumi.log",
+		// If binary is installed then restart.
+		// Since the main installer will not restart it restart it.
+		"if [[ $restart ]]; then sudo systemctl restart k3s*; fi",
+	}, " && "), path.Dir(cfgPath))
+)
+
+func (k *K3S) install(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.Resource) (pulumi.Resource, error) {
+	k3sExec := k.role
+
+	installed, err := remote.NewCommand(ctx, fmt.Sprintf("install-k3s-%s", k.ID), &remote.CommandArgs{
+		Connection: con.RemoteCommand(),
+		Environment: pulumi.StringMap{
+			"INSTALL_K3S_SKIP_START":       pulumi.String("true"),
+			"INSTALL_K3S_SKIP_SELINUX_RPM": pulumi.String("true"),
+			"INSTALL_K3S_VERSION":          pulumi.String(k.Config.Version),
+			"INSTALL_K3S_EXEC":             pulumi.String(k3sExec),
+		},
+		Create: pulumi.String(installCommand),
+		Delete: pulumi.String("/usr/local/bin/k3s-killall.sh"),
+	},
+		pulumi.DependsOn(deps),
+		pulumi.RetainOnDelete(!k.Config.CleanDataOnUpgrade),
+	)
+	if err != nil {
+		err = fmt.Errorf("error install a k3s cluster via script: %w", err)
+		return nil, err
+	}
+
+	return installed, nil
+}

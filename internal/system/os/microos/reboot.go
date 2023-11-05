@@ -3,6 +3,7 @@ package microos
 import (
 	"fmt"
 
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/local"
@@ -13,8 +14,9 @@ import (
 func (m *MicroOS) Reboot(ctx *pulumi.Context, con *connection.Connection) error {
 	rebooted, err := remote.NewCommand(ctx, fmt.Sprintf("reboot-%s", m.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
-		Create:     pulumi.String("(sleep 1 && sudo shutdown -r now) &"),
-		Triggers:   extractRemoteCommandResources(m.resources),
+		// Use very primitive way to reboot node.
+		Create:   pulumi.String("(sleep 1 && sudo shutdown -r now) &"),
+		Triggers: utils.ExtractRemoteCommandResources(m.resources),
 	}, pulumi.DependsOn(m.resources))
 	if err != nil {
 		err = fmt.Errorf("error reboot node: %w", err)
@@ -25,7 +27,7 @@ func (m *MicroOS) Reboot(ctx *pulumi.Context, con *connection.Connection) error 
 
 	waited, err := local.NewCommand(ctx, fmt.Sprintf("local-wait-%s", m.ID), &local.CommandArgs{
 		Create:   pulumi.Sprintf("sleep 120 && until nc -z %s 22; do sleep 5; done", con.IP),
-		Triggers: extractRemoteCommandResources(m.resources),
+		Triggers: utils.ExtractRemoteCommandResources(m.resources),
 	}, pulumi.DependsOn([]pulumi.Resource{rebooted}),
 		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m"}),
 	)
@@ -36,21 +38,4 @@ func (m *MicroOS) Reboot(ctx *pulumi.Context, con *connection.Connection) error 
 	m.resources = append(m.resources, waited)
 
 	return nil
-}
-
-func extractRemoteCommandResources(resources []pulumi.Resource) pulumi.Array {
-	var res pulumi.Array
-	for _, r := range resources {
-		if r == nil {
-			continue
-		}
-		c, ok := r.(*remote.Command)
-		if !ok {
-			continue
-		}
-
-		res = append(res, c.Connection)
-		res = append(res, c.Create)
-	}
-	return res
 }

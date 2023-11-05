@@ -14,7 +14,7 @@ func (c *Config) Validate(nodes []*Node) error {
 	leaderFounded := false
 	for _, node := range nodes {
 		if node.Leader {
-			if node.Role == "agent" {
+			if node.Role == AgentRole {
 				return errAgentLeader
 			}
 

@@ -43,6 +43,11 @@ make pulumi-config PULUMI_CONFIG_SOURCE=/path/to/file
 All valid conbinations between defauls{agents/servers}/nodepools.config/nodes are considered to be supported and changeable on the fly without cluster recreation (cluster recreation means `pulumi destroy` and `pulumi up`).
 If you find any panic (due accessing to a null value or like that), please create an issue!
 
+### Nodepools and Nodes
+Adding or Deleting nodepools/nodes are supported with several limitation.
+
+Due the nature of non-statefull ip allocation for **internal** Hetzner network, we must ensure to keep order of all nodepools and nodes. All nodes and nodepools are sorted alphabetical in `compilation` stage. Thus, changing order in configuration file does not affect on cluster. However, adding or deleting nodepools/nodes can change order. So, when planning new cluster, please consider naming convention for nodes and nodepools. For example, you can use digit prefix like `01-control-plane-nodepool`. For deleting node, it is recomended to add property `deleted: true` for nodepool and node instead of removing them from configuration file. Remember, this only affects internal network. Wireguard network and public Hetzner ips are statefull and do not depend on order.
+
 ### Network changes
 PHKH supports several types of communication between nodes of cluster:
 - using only public ip (network.enabled: false);
@@ -72,12 +77,16 @@ $ make test-project
 
 # RoadMap
 ## Code
-- [ ] Rewrite wireguard part
+- [ ] Rewrite wireguard stage
 - [ ] Rewrite ssh checker
-- [ ] Add reasonable defaults for variables
+- [x] Add reasonable defaults for variables
 - [ ] K3s token generation
 - [ ] Add arm64 support
 - [ ] Allow change config from code
+- [ ] Implement non-parallel provisioning (useful while upgrading in manual mode). All nodes waits for leader now.
+- [ ] Package stage: reboot if changes detected only
+- [x] Restart k3s if wireguard restarted (!)
+- [ ] Add more validation rules
 
 ## Tests
 - [ ] Add idempotent tests for all runs

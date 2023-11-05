@@ -1,8 +1,16 @@
 config:
   pulumi-hcloud-kube-hetzner:network:
-    enabled: true
-    # It is highly recommended to set a cidr for the private network for at least /20
-    cidr: 10.22.0.0/16
+    hetzner:
+      enabled: true
+      # It is highly recommended to set a cidr for the private network for at least /20
+      cidr: 10.22.0.0/16
+    wireguard:
+      enabled: true
+      firewall:
+        hetzner:
+          # Allow establish tunnel only from the ips for servers node only!
+          allowed-ips:
+            - '0.0.0.0/0'
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: big-nodes
@@ -51,8 +59,6 @@ config:
             - k3os.io/upgrade=disabled
           token: token
         version: v1.26.4+k3s1
-      wireguard:
-        enabled: true
     servers:
       k3s:
         config:

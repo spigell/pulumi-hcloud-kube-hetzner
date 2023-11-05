@@ -6,8 +6,29 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	//	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
+
+type Config struct {
+	Enabled         bool
+	IP              string
+	Firewall        *Firewall
+	CIDR            string           `json:"cidr"`
+	AdditionalPeers []AdditionalPeer `json:"additional-peers" yaml:"additional-peers"`
+}
+
+type Firewall struct {
+	Hetzner *ServiceFirewall
+}
+
+type AdditionalPeer struct {
+	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
+	Endpoint   string
+	PublicKey  string
+}
+
+type ServiceFirewall struct {
+	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
+}
 
 type Peer struct {
 	ID                  string
