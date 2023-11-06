@@ -28,6 +28,14 @@ type Provisioned struct {
 	resources []pulumi.Resource
 }
 
+var packages = map[string][]string{
+	"microos": {"k3s-selinux"},
+}
+
+func GetRequiredPkgs(os string) []string {
+	return packages[os]
+}
+
 func New(id string, role string, os info.OSInfo, config *Config) *K3S {
 	if role == variables.ServerRole {
 		config.K3S = config.K3S.WithServerDefaults()

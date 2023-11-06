@@ -15,6 +15,8 @@ import (
 )
 
 const (
+	// Name of OS
+	Name = "microos"
 	// sftp-server is preinstalled in microos based images.
 	SFTPServerPath = "/usr/libexec/ssh/sftp-server"
 
@@ -120,7 +122,7 @@ func (m *MicroOS) SFTPServerPath() string {
 }
 
 func (m *MicroOS) SetupWireguard(config *wireguard.Config) {
-	m.AddAdditionalRequiredPackages(wireguard.GetRequiredPkgs("microos"))
+	m.AddAdditionalRequiredPackages(wireguard.GetRequiredPkgs(Name))
 
 	module := wireguard.New(m.ID, &MicroOS{}, config)
 	module.SetOrder(AfterReboot)
@@ -135,6 +137,7 @@ func (m *MicroOS) SetupSSHD(config *sshd.Config) {
 }
 
 func (m *MicroOS) AddK3SModule(role string, config *k3s.Config) {
+	m.AddAdditionalRequiredPackages(k3s.GetRequiredPkgs(Name))
 	module := k3s.New(m.ID, role, &MicroOS{}, config)
 
 	module.SetOrder(SystemServices)

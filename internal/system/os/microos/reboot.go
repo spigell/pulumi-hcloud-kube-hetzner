@@ -32,7 +32,7 @@ func (m *MicroOS) Reboot(ctx *pulumi.Context, con *connection.Connection) error 
 	}, " && "), con.RemoteCommand().Host, con.User)
 
 	waited, err := local.NewCommand(ctx, fmt.Sprintf("local-wait-%s", m.ID), &local.CommandArgs{
-		Create:   waitCommand,
+		Create: waitCommand,
 		Environment: pulumi.StringMap{
 			"CHECKER_SSH_PRIVATE_KEY": pulumi.String(con.PrivateKey),
 		},
