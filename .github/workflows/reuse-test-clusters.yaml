@@ -33,16 +33,9 @@ jobs:
         with:
           create-stack: true
           google-credentials: ${{ secrets.google-credentials }}
-      - uses: actions/upload-artifact@v3
-        with:
-          name: Pulumi configuration for stack
-          path: "test-project/Pulumi.${{ env.PULUMI_STACK }}.yaml"
-      - uses: pulumi/actions@v4
-        name: Preview
-        with:
-          command: preview
-          stack-name: ${{ env.PULUMI_STACK }}
-          work-dir: test-project
+      - name: Preview
+        run: pulumi preview -s ${{ env.PULUMI_STACK }} -v=9 --logtostderr 2> preview.log
+        working-directory: test-project
         env:
           HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
           GITHUB_TOKEN: ${{ secrets.github-token }}
@@ -55,6 +48,12 @@ jobs:
         env:
           HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
           GITHUB_TOKEN: ${{ secrets.github-token }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Pulumi configuration for stack
+          path: |
+            "test-project/Pulumi.${{ env.PULUMI_STACK }}.yaml"
+            "test-project/preview.log"
 
   external-ssh-reachability:
     needs: deploy

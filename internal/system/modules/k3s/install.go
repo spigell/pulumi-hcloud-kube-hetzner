@@ -14,7 +14,7 @@ var installCommand = fmt.Sprintf(strings.Join([]string{
 	// Check if initial install or upgrade.
 	"sudo mkdir -p %s && if [[ -e /usr/local/bin/k3s ]]; then restart=true; fi",
 	"curl -sfL https://get.k3s.io | sudo -E sh - 2>&1 >> /tmp/k3s-pulumi.log",
-	"systemctl daemon-reload",
+	"sudo systemctl daemon-reload",
 	// If the old binary is installed then restart after upgrade.
 	// Since the main installer will not restart it.
 	"if [[ $restart ]]; then sudo systemctl restart k3s*; fi",
