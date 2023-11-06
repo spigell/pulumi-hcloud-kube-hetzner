@@ -90,7 +90,7 @@ func rebooted(output []byte) bool {
 		log.Fatal(err)
 	}
 
-	if i < 180 {
+	if i < 600 {
 		return true
 	}
 
