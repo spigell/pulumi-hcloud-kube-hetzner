@@ -19,10 +19,8 @@ const (
 	WgCommunicationMethod       = Wireguard
 )
 
-var (
-	Ifaces = map[string]string{
-		DefaultCommunicationMethod:  PublicIface,
-		InternalCommunicationMethod: PrivateIface,
-		WgCommunicationMethod:       WGIface,
-	}
-)
+var Ifaces = map[string]string{
+	DefaultCommunicationMethod:  PublicIface,
+	InternalCommunicationMethod: PrivateIface,
+	WgCommunicationMethod:       WGIface,
+}

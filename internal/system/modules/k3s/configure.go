@@ -2,6 +2,7 @@ package k3s
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -9,6 +10,8 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 )
+
+var ()
 
 func (k *K3S) configure(ctx *pulumi.Context, con *connection.Connection, config pulumi.StringOutput, deps []pulumi.Resource) ([]pulumi.Resource, error) {
 	svcName := "k3s"
@@ -35,7 +38,7 @@ func (k *K3S) configure(ctx *pulumi.Context, con *connection.Connection, config 
 	// We need to maintain k3s restart with wireguard network interface.
 	// K3S config based on WG config, but sometimes it is not enough to restart k3s service because config can be the same.
 	// So, we need to restart it manually somehow.
-	// The main reason of this is find our dependenices and build trigger array for only them.
+	// The main reason of this is find our dependencies and build trigger array for only them.
 	// But set dependencies for both our deps and leader.
 	triggers := pulumi.Array{
 		deployed.Content,
@@ -60,13 +63,22 @@ func (k *K3S) configure(ctx *pulumi.Context, con *connection.Connection, config 
 			}).(pulumi.AnyOutput)
 
 		triggers = append(triggers, t)
-
 	}
+
+	// Restart k3s service.
+	restartCommand := pulumi.Sprintf(strings.Join([]string{
+		"sudo systemctl disable --now %s",
+		"sudo systemctl enable --now %s",
+		"sudo systemctl status %s",
+		"echo 'systemctl status command returned' $? exit code",
+	}, " && "), svcName, svcName, svcName)
+
 	restared, err := remote.NewCommand(ctx, fmt.Sprintf("k3s-restart-%s", k.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
-		Create:     pulumi.Sprintf("sudo systemctl disable --now %s && sudo systemctl enable --now %s", svcName, svcName),
+		Create:     restartCommand,
 		Triggers:   triggers,
 	}, pulumi.DependsOn(result),
+		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m"}),
 		pulumi.DeleteBeforeReplace(false),
 	)
 	if err != nil {

@@ -1,9 +1,10 @@
 package utils
 
 import (
+	"sort"
+
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"sort"
 )
 
 func SortedMapKeys[V any](unsorted map[string]V) []string {

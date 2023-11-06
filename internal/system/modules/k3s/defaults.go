@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 )
 
 const (
@@ -60,9 +61,28 @@ func (k *K3sConfig) WithServerDefaults() *K3sConfig {
 		k.ServiceCidr = defaultServiceCIDR
 	}
 
-	for key, value := range defaultKubeControllerManagerArgs {
+	for _, key := range utils.SortedMapKeys(defaultKubeControllerManagerArgs) {
+		value := defaultKubeControllerManagerArgs[key]
 		if !containsKey(k.KubeControllerManagerArgs, key) {
 			k.KubeControllerManagerArgs = append(k.KubeControllerManagerArgs,
+				strings.Join([]string{key, value}, "="),
+			)
+		}
+	}
+
+	for _, key := range utils.SortedMapKeys(defaultKubeAPIServerArgs) {
+		value := defaultKubeAPIServerArgs[key]
+		if !containsKey(k.KubeAPIServerArgs, key) {
+			k.KubeAPIServerArgs = append(k.KubeAPIServerArgs,
+				strings.Join([]string{key, value}, "="),
+			)
+		}
+	}
+
+	for _, key := range utils.SortedMapKeys(defaultsKubeletArgs[variables.ServerRole]) {
+		value := defaultsKubeletArgs[variables.ServerRole][key]
+		if !containsKey(k.KubeletArgs, key) {
+			k.KubeletArgs = append(k.KubeletArgs,
 				strings.Join([]string{key, value}, "="),
 			)
 		}
@@ -70,7 +90,7 @@ func (k *K3sConfig) WithServerDefaults() *K3sConfig {
 	return k
 }
 
-// containsKey checks if a key exists in a slice
+// containsKey checks if a key exists in a slice.
 func containsKey(slice []string, key string) bool {
 	for _, s := range slice {
 		if strings.Split(s, "=")[0] == key {

@@ -10,16 +10,15 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 )
 
-var (
-	installCommand = fmt.Sprintf(strings.Join([]string{
-		// Check if binary already installed.
-		"sudo mkdir -p %s && if [[ -e /usr/local/bin/k3s ]]; then restart=true; fi",
-		"curl -sfL https://get.k3s.io | sudo -E sh - 2>&1 >> /tmp/k3s-pulumi.log",
-		// If binary is installed then restart.
-		// Since the main installer will not restart it restart it.
-		"if [[ $restart ]]; then sudo systemctl restart k3s*; fi",
-	}, " && "), path.Dir(cfgPath))
-)
+var installCommand = fmt.Sprintf(strings.Join([]string{
+	// Check if initial install or upgrade.
+	"sudo mkdir -p %s && if [[ -e /usr/local/bin/k3s ]]; then restart=true; fi",
+	"curl -sfL https://get.k3s.io | sudo -E sh - 2>&1 >> /tmp/k3s-pulumi.log",
+	"systemctl daemon-reload",
+	// If the old binary is installed then restart after upgrade.
+	// Since the main installer will not restart it.
+	"if [[ $restart ]]; then sudo systemctl restart k3s*; fi",
+}, " && "), path.Dir(cfgPath))
 
 func (k *K3S) install(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.Resource) (pulumi.Resource, error) {
 	k3sExec := k.role
@@ -28,6 +27,7 @@ func (k *K3S) install(ctx *pulumi.Context, con *connection.Connection, deps []pu
 		Connection: con.RemoteCommand(),
 		Environment: pulumi.StringMap{
 			"INSTALL_K3S_SKIP_START":       pulumi.String("true"),
+			"INSTALL_K3S_SKIP_ENABLE":      pulumi.String("true"),
 			"INSTALL_K3S_SKIP_SELINUX_RPM": pulumi.String("true"),
 			"INSTALL_K3S_VERSION":          pulumi.String(k.Config.Version),
 			"INSTALL_K3S_EXEC":             pulumi.String(k3sExec),
@@ -36,6 +36,7 @@ func (k *K3S) install(ctx *pulumi.Context, con *connection.Connection, deps []pu
 		Delete: pulumi.String("/usr/local/bin/k3s-killall.sh"),
 	},
 		pulumi.DependsOn(deps),
+		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m", Delete: "10m"}),
 		pulumi.RetainOnDelete(!k.Config.CleanDataOnUpgrade),
 	)
 	if err != nil {

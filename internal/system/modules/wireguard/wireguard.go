@@ -14,15 +14,21 @@ import (
 	remotefile "github.com/spigell/pulumi-file/sdk/go/file/remote"
 )
 
+var (
+	restartCommand = pulumi.Sprintf(strings.Join([]string{
+		"sudo systemctl disable --now wg-quick@%s",
+		"sudo systemctl enable --now wg-quick@%s",
+		"sudo systemctl status wg-quick@%s",
+	}, " && "), Iface, Iface, Iface)
+)
+
 const (
 	// Iface is the name of interface. It is not allowed to change it.
 	defaultListenPort = 51822
 	defaultCIDR       = "192.168.180.0/24"
 )
 
-var (
-	Iface = variables.WGIface
-)
+var Iface = variables.WGIface
 
 type Wireguard struct {
 	order int
@@ -96,11 +102,6 @@ func (w *Wireguard) Up(ctx *pulumi.Context, con *connection.Connection, deps []p
 	}
 	resources = append(resources, deployed)
 
-	restartCommand := pulumi.Sprintf(strings.Join([]string{
-		"sudo systemctl disable --now wg-quick@%s",
-		"sudo systemctl enable --now wg-quick@%s",
-	}, " && "), Iface, Iface)
-
 	restarted, err := remote.NewCommand(ctx, fmt.Sprintf("wg-restart-%s", w.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     restartCommand,
@@ -111,6 +112,7 @@ func (w *Wireguard) Up(ctx *pulumi.Context, con *connection.Connection, deps []p
 			deployed.Path,
 		},
 	}, pulumi.DependsOn([]pulumi.Resource{deployed}),
+		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "5m"}),
 		pulumi.DeleteBeforeReplace(true),
 	)
 	if err != nil {

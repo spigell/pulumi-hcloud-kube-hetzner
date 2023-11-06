@@ -7,6 +7,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
@@ -72,6 +73,14 @@ func newCluster(ctx *pulumi.Context, config *config.Config, keyPair *keypair.ECD
 				AcceptEnv: "INSTALL_K3S_*",
 			})
 			os.AddK3SModule(node.Role, node.K3s)
+
+			// By default, use default taints for server node if they are not set and agents nodes exist.
+			if node.Role == variables.ServerRole &&
+				!node.K3s.DisableDefaultsTaints &&
+				len(node.K3s.K3S.NodeTaints) == 0 &&
+				len(config.Nodepools.Agents) > 0 {
+				node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
+			}
 		default:
 			return nil, errors.New("unknown kubernetes distribution")
 		}

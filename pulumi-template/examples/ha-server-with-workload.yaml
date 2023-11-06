@@ -26,8 +26,7 @@ config:
         config:
           # This nodes can be used for workload. Taints will not be added.
           k3s:
-            config:
-              node-taint: []
+            disable-default-taints: true
         nodes:
         - id: server02
         - id: server03

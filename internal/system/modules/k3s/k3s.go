@@ -52,7 +52,7 @@ func chooseDNSIP(s string) (string, error) {
 	// Set the last octet to 10
 	ip.To4()[3] = 10
 
-	return net.IP(ip).To4().String(), nil
+	return ip.To4().String(), nil
 }
 
 func (k *K3S) WithSysInfo(info *info.Info) *K3S {
@@ -132,7 +132,6 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 	}
 
 	configure, err := k.configure(ctx, con, config, res)
-
 	if err != nil {
 		return nil, fmt.Errorf("error while configuring: %w", err)
 	}

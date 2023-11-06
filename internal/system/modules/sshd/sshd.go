@@ -82,6 +82,7 @@ func (s *SSHD) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi
 		},
 	}, pulumi.DependsOn(resources),
 		pulumi.DeleteBeforeReplace(true),
+		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "2m"}),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to restart sshd: %w", err)

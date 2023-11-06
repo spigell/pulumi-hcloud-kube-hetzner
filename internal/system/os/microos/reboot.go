@@ -2,6 +2,7 @@ package microos
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
@@ -17,23 +18,30 @@ func (m *MicroOS) Reboot(ctx *pulumi.Context, con *connection.Connection) error 
 		// Use very primitive way to reboot node.
 		Create:   pulumi.String("(sleep 1 && sudo shutdown -r now) &"),
 		Triggers: utils.ExtractRemoteCommandResources(m.resources),
-	}, pulumi.DependsOn(m.resources))
+	}, pulumi.DependsOn(m.resources),
+		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "2m"}),
+	)
 	if err != nil {
-		err = fmt.Errorf("error reboot node: %w", err)
-		return err
+		return fmt.Errorf("error reboot node: %w", err)
 	}
 
 	m.resources = append(m.resources, rebooted)
 
+	waitCommand := pulumi.Sprintf(strings.Join([]string{
+		"go run ./scripts/ssh-uptime-checker/main.go %s %s",
+	}, " && "), con.RemoteCommand().Host, con.User)
+
 	waited, err := local.NewCommand(ctx, fmt.Sprintf("local-wait-%s", m.ID), &local.CommandArgs{
-		Create:   pulumi.Sprintf("sleep 120 && until nc -z %s 22; do sleep 5; done", con.IP),
+		Create:   waitCommand,
+		Environment: pulumi.StringMap{
+			"CHECKER_SSH_PRIVATE_KEY": pulumi.String(con.PrivateKey),
+		},
 		Triggers: utils.ExtractRemoteCommandResources(m.resources),
 	}, pulumi.DependsOn([]pulumi.Resource{rebooted}),
 		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m"}),
 	)
 	if err != nil {
-		err = fmt.Errorf("error waiting for node: %w", err)
-		return err
+		return fmt.Errorf("error waiting for node: %w", err)
 	}
 	m.resources = append(m.resources, waited)
 

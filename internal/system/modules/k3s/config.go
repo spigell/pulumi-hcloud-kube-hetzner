@@ -20,6 +20,8 @@ type Config struct {
 	// [Experimental] clean-data-on-upgrade is used to delete all data while upgrade.
 	// This is based on the script https://docs.k3s.io/upgrades/killall
 	CleanDataOnUpgrade bool `json:"clean-data-on-upgrade"`
+	// Do not add default taints to the server node.
+	DisableDefaultsTaints bool `json:"disable-default-taints"`
 	// The real config of k3s service.
 	K3S *K3sConfig `json:"config"`
 }
@@ -43,7 +45,7 @@ type K3sConfig struct {
 	// NodeTaints are used to taint the node with key=value:effect.
 	// By default, server node is tainted with a couple of taints if number of agents nodes more than 0.
 	NodeTaints                []string `json:"node-taint" yaml:"node-taint,omitempty"`
-	KubeleteArgs              []string `json:"kubelet-arg" yaml:"kubelet-arg,omitempty"`
+	KubeletArgs               []string `json:"kubelet-arg" yaml:"kubelet-arg,omitempty"`
 	KubeControllerManagerArgs []string `json:"kube-controller-manager-arg" yaml:"kube-controller-manager-arg,omitempty"`
 	KubeAPIServerArgs         []string `json:"kube-apiserver-arg" yaml:"kube-apiserver-arg,omitempty"`
 	ExternalNodeIP            string   `json:"-" yaml:"node-external-ip,omitempty"`
@@ -60,7 +62,7 @@ func (k *K3sConfig) WithoutDuplicates() *K3sConfig {
 	k.NodeLabels = slices.Compact(k.NodeLabels)
 	k.Disable = slices.Compact(k.Disable)
 	k.NodeTaints = slices.Compact(k.NodeTaints)
-	k.KubeleteArgs = slices.Compact(k.KubeleteArgs)
+	k.KubeletArgs = slices.Compact(k.KubeletArgs)
 	k.KubeControllerManagerArgs = slices.Compact(k.KubeControllerManagerArgs)
 	k.KubeAPIServerArgs = slices.Compact(k.KubeAPIServerArgs)
 

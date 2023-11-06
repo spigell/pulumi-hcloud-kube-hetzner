@@ -11,7 +11,6 @@ import (
 	hnetwork "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 )
 
 const (
@@ -93,11 +92,6 @@ func New(ctx *pulumi.Context) *Config {
 
 		if pool.Config.K3s.K3S == nil {
 			nodepools.Servers[i].Config.K3s.K3S = &k3s.K3sConfig{}
-		}
-
-		if len(nodepools.Agents) > 0 && pool.Config.K3s.K3S.NodeTaints == nil {
-			// Hack for identify if user has set node taints.
-			nodepools.Servers[i].Config.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
 		}
 
 		for j, node := range pool.Nodes {

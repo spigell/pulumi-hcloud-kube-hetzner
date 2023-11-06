@@ -28,8 +28,7 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 	}
 
 	if c.Leader().OS.Wireguard() != nil {
-		leaderIPS[variables.WgCommunicationMethod] =
-			pulumi.String(c.Leader().OS.Wireguard().Self.PrivateAddr).ToStringOutput()
+		leaderIPS[variables.WgCommunicationMethod] = pulumi.String(c.Leader().OS.Wireguard().Self.PrivateAddr).ToStringOutput()
 	}
 
 	for _, v := range *c {

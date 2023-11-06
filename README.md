@@ -76,17 +76,38 @@ $ make test-project
 
 
 # RoadMap
+## Documentation
+- [ ] Add doc generation from structs
+- [ ] Describe network modes
+- [ ] Spelling
+
 ## Code
-- [ ] Rewrite wireguard stage
-- [ ] Rewrite ssh checker
-- [x] Add reasonable defaults for variables
+### High (pre-release)
+- [x] Rewrite ssh checker
+- [x] Error checking for systemctl services
+- [x] Set timeouts for Command resources
+- [ ] Add more validation rules
 - [ ] K3s token generation
+- [ ] Add fw rules for the public network mode
+- [ ] Add basic k8s apps (VM, metrics-server, etc, hetzner MCC, upgrader, kured)
+
+### Bugs
+- [x] Fix taints for master node
+- [ ] Use external ip for master wireguard connection always.
+
+### Non-high
+- [ ] Rewrite wireguard stage
+- [x] Add reasonable defaults for variables
 - [ ] Add arm64 support
 - [ ] Allow change config from code
 - [ ] Implement non-parallel provisioning (useful while upgrading in manual mode). All nodes waits for leader now.
 - [ ] Package stage: reboot if changes detected only
 - [x] Restart k3s if wireguard restarted (!)
-- [ ] Add more validation rules
+
+## CI
+- [ ] Add linter run for every PR
+- [ ] Add go test run for every PR
+- [ ] Use pulumi cli instead of actions for up and preview. Collect logs.
 
 ## Tests
 - [ ] Add idempotent tests for all runs
