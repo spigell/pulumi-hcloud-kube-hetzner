@@ -15,6 +15,7 @@ type Cluster []*System
 
 type Deployed struct {
 	Wireguard *WgCluster
+	K3s       *k3s.Outputs
 }
 
 func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deployed) (*Deployed, error) {
@@ -31,6 +32,7 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 		leaderIPS[variables.WgCommunicationMethod] = pulumi.String(c.Leader().OS.Wireguard().Self.PrivateAddr).ToStringOutput()
 	}
 
+	var k3sOutputs *k3s.Outputs
 	for _, v := range *c {
 		// Cluster is sorted by seniority.
 		// So, agents and non-leader servers will wait for leader to be ready.
@@ -39,7 +41,7 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 
 		for k, module := range v.OS.Modules() {
 			if k == variables.K3s {
-				v.OS.Modules()[k] = module.(*k3s.K3S).WithSysInfo(v.info).WithLeaderIp(
+				v.OS.Modules()[k] = module.(*k3s.K3S).WithSysInfo(v.info).WithLeaderIP(
 					leaderIPS[v.info.CommunicationMethod()],
 				)
 			}
@@ -54,11 +56,13 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 			if k == variables.Wireguard {
 				provisionedWGPeers.Peers[v.ID] = module.Value().(pulumi.AnyOutput)
 			}
-			// Cluster is sorted by seniority.
-			// So, workers and non-leader nodes will wait for leader to be ready.
 			if k == variables.K3s {
+				// Cluster is sorted by seniority.
+				// So, workers and non-leader nodes will wait for leader to be ready.
 				if v.ID == c.Leader().ID {
 					kubeDependecies["leader"] = module.Resources()
+
+					k3sOutputs = module.Value().(*k3s.Outputs)
 				}
 			}
 		}
@@ -66,6 +70,7 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 
 	return &Deployed{
 		Wireguard: provisionedWGPeers,
+		K3s:       k3sOutputs,
 	}, nil
 }
 

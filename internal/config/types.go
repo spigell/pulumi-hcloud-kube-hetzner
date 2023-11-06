@@ -61,3 +61,31 @@ type Server struct {
 type Firewall struct {
 	Hetzner *firewall.Config
 }
+
+func (d *Defaults) WithInited() *Defaults {
+	if d == nil {
+		d = &Defaults{}
+	}
+
+	if d.Global == nil {
+		d.Global = &Node{}
+	}
+
+	if d.Agents == nil {
+		d.Agents = &Node{}
+	}
+
+	if d.Servers == nil {
+		d.Servers = &Node{}
+	}
+
+	if d.Global.K3s == nil {
+		d.Global.K3s = &k3s.Config{}
+	}
+
+	if d.Global.K3s.K3S == nil {
+		d.Global.K3s.K3S = &k3s.K3sConfig{}
+	}
+
+	return d
+}

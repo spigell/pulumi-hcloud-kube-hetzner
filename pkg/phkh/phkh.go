@@ -25,7 +25,12 @@ func New(ctx *pulumi.Context) (*PHKH, error) {
 		return nil, err
 	}
 
-	cluster, err := newCluster(ctx, cfg, keys)
+	token, err := state.k3sToken()
+	if err != nil {
+		return nil, err
+	}
+
+	cluster, err := newCluster(ctx, token, cfg, keys)
 	if err != nil {
 		return nil, err
 	}
@@ -63,8 +68,9 @@ func (c *PHKH) Up() error {
 	}
 
 	c.state.exportHetznerInfra(cloud)
-	c.state.exportWGInfo(sys.Wireguard)
 	c.state.exportSSHKeyPair(keys)
+	c.state.exportWGInfo(sys.Wireguard)
+	c.state.exportK3SToken(sys.K3s.Token)
 
 	return nil
 }

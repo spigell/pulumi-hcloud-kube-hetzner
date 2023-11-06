@@ -156,6 +156,7 @@ func (n *Network) Up() (*Deployed, error) {
 	if err != nil {
 		return nil, err
 	}
+	//nolint: gocritic // this is the only way to convert string to int
 	converted := net.ID().ApplyT(func(id string) (int, error) {
 		return strconv.Atoi(id)
 	}).(pulumi.IntOutput)

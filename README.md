@@ -87,8 +87,9 @@ $ make test-project
 - [x] Error checking for systemctl services
 - [x] Set timeouts for Command resources
 - [ ] Add more validation rules
-- [ ] K3s token generation
+- [x] K3s token generation
 - [ ] Add fw rules for the public network mode
+- [ ] Mark all sensitive values as secrets
 - [ ] Add basic k8s apps (VM, metrics-server, etc, hetzner MCC, upgrader, kured)
 
 ### Bugs

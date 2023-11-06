@@ -9,7 +9,7 @@ import (
 
 const (
 	defaultServiceCIDR = "10.140.0.0/16"
-	defaultClusterCIDR = "10.140.0.0/16"
+	defaultClusterCIDR = "10.141.0.0/16"
 )
 
 // This is very opinionated values and it is based on my expirience with k3s.

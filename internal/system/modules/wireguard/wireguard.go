@@ -14,13 +14,11 @@ import (
 	remotefile "github.com/spigell/pulumi-file/sdk/go/file/remote"
 )
 
-var (
-	restartCommand = pulumi.Sprintf(strings.Join([]string{
-		"sudo systemctl disable --now wg-quick@%s",
-		"sudo systemctl enable --now wg-quick@%s",
-		"sudo systemctl status wg-quick@%s",
-	}, " && "), Iface, Iface, Iface)
-)
+var restartCommand = pulumi.Sprintf(strings.Join([]string{
+	"sudo systemctl disable --now wg-quick@%s",
+	"sudo systemctl enable --now wg-quick@%s",
+	"sudo systemctl status wg-quick@%s",
+}, " && "), Iface, Iface, Iface)
 
 const (
 	// Iface is the name of interface. It is not allowed to change it.

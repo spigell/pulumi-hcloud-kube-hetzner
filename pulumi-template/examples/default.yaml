@@ -54,10 +54,8 @@ config:
               allow: true
       k3s:
         config:
-          node-ip: 127.0.0.1
           node-label:
             - k3os.io/upgrade=disabled
-          token: token
         version: v1.26.4+k3s1
     servers:
       k3s:
@@ -78,6 +76,7 @@ config:
             - node-status-update-frequency=20s
             - system-reserved=cpu=1,memory=1Gi
           node-taint:
+            # This is default for control-plane nodes
             - CriticalAddonsOnly=true:NoExecute
             - node-role.kubernetes.io/control-plane:NoSchedule
           service-cidr: 10.141.0.0/16

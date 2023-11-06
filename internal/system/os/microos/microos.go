@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	// Name of OS
+	// Name of OS.
 	Name = "microos"
 	// sftp-server is preinstalled in microos based images.
 	SFTPServerPath = "/usr/libexec/ssh/sftp-server"

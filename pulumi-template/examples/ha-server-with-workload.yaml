@@ -1,7 +1,7 @@
 # This is a simple example of HA cluster with internal network and native wireguard cluster.
 # It has one main k3s server known as leader and 2 node without taints.
 # It also has an additional worker node.
-# 
+
 config:
   pulumi-hcloud-kube-hetzner:network:
     hetzner:
@@ -36,8 +36,6 @@ config:
         firewall:
           enabled: true
       k3s:
-        config:
-          token: token
         version: v1.27.7+k3s1
     servers:
       k3s:

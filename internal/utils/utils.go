@@ -1,7 +1,9 @@
 package utils
 
 import (
+	"math/rand"
 	"sort"
+	"time"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -34,4 +36,18 @@ func ExtractRemoteCommandResources(resources []pulumi.Resource) pulumi.Array {
 		res = append(res, c.Create)
 	}
 	return res
+}
+
+func GenerateRandomString(length int) string {
+	charset := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
+	//nolint: gosec
+	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	random := make([]byte, length)
+	for i := range random {
+		random[i] = charset[seededRand.Intn(len(charset))]
+	}
+
+	return string(random)
 }

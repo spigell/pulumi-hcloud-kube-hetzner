@@ -11,8 +11,6 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 )
 
-var ()
-
 func (k *K3S) configure(ctx *pulumi.Context, con *connection.Connection, config pulumi.StringOutput, deps []pulumi.Resource) ([]pulumi.Resource, error) {
 	svcName := "k3s"
 	if k.role == variables.AgentRole {

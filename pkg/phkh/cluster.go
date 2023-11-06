@@ -25,9 +25,13 @@ type Cluster struct {
 	Hetzner    *hetzner.Hetzner
 }
 
-func newCluster(ctx *pulumi.Context, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Cluster, error) {
+func newCluster(ctx *pulumi.Context, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Cluster, error) {
 	// This is the only supported kubernetes distribution right now.
 	kube := defaultKube
+
+	// Since token is part of k3s config the easiest method to pass token to k3s module is via global value.
+	// However, we do not want to expose token to the user in DumpConfig().
+	config.Defaults.Global.K3s.K3S.Token = token
 
 	nodes, err := config.Nodes()
 	if err != nil {

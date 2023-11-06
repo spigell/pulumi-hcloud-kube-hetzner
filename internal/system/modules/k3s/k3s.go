@@ -26,6 +26,12 @@ type K3S struct {
 
 type Provisioned struct {
 	resources []pulumi.Resource
+	Outputs   *Outputs
+}
+
+type Outputs struct {
+	Token      string
+	Kubeconfig pulumi.StringOutput
 }
 
 var packages = map[string][]string{
@@ -69,7 +75,7 @@ func (k *K3S) WithSysInfo(info *info.Info) *K3S {
 	return k
 }
 
-func (k *K3S) WithLeaderIp(ip pulumi.StringOutput) *K3S {
+func (k *K3S) WithLeaderIP(ip pulumi.StringOutput) *K3S {
 	k.leaderIP = ip
 
 	return k
@@ -148,11 +154,14 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 
 	return &Provisioned{
 		resources: res,
+		Outputs: &Outputs{
+			Token: k.Config.K3S.Token,
+		},
 	}, nil
 }
 
 func (p *Provisioned) Value() interface{} {
-	return nil
+	return p.Outputs
 }
 
 func (p *Provisioned) Resources() []pulumi.Resource {

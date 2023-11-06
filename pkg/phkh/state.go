@@ -6,6 +6,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
@@ -16,6 +17,7 @@ import (
 const (
 	keyPairKey        = "ssh:keypair"
 	wgInfoKey         = "wireguard:info"
+	k3sTokenKey       = "k3s:token"
 	wgMasterConKey    = "wireguard:connection"
 	hetznerServersKey = "hetzer:servers"
 	publicKey         = "PublicKey"
@@ -164,4 +166,22 @@ func (s *State) exportWGInfo(cluster *system.WgCluster) {
 	}).(pulumi.StringMapMapOutput)))
 
 	s.ctx.Export(wgMasterConKey, pulumi.ToSecret(cluster.MasterConnection))
+}
+
+func (s *State) exportK3SToken(token string) {
+	s.ctx.Export(k3sTokenKey, pulumi.ToSecret(pulumi.String(token)))
+}
+
+func (s *State) k3sToken() (string, error) {
+	decoded, err := s.Stack.GetOutputDetails(k3sTokenKey)
+	if err != nil {
+		return "", err
+	}
+
+	token, ok := decoded.SecretValue.(string)
+	if !ok {
+		token = utils.GenerateRandomString(48)
+	}
+
+	return token, nil
 }

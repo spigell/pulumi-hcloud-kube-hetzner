@@ -3,14 +3,13 @@ package server
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -97,7 +96,7 @@ func New(srv *config.Server, key *hcloud.SshKey) *Server {
 		// Default is hashed password, but we need plain text.
 		// TODO: maybe we can use hashed password?
 		// I do not how to do it with current knowledges :(
-		userdata.Chpasswd.Users[0].Password = generatePassword()
+		userdata.Chpasswd.Users[0].Password = utils.GenerateRandomString(12)
 	}
 
 	if !strings.HasPrefix(userdata.Chpasswd.Users[0].Password, "$6") {
@@ -200,18 +199,4 @@ func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool 
 		Resource: created,
 		Password: s.Userdata.Chpasswd.Users[0].Password,
 	}, nil
-}
-
-func generatePassword() string {
-	charset := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
-	//nolint: gosec
-	seededRand := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	userPassword := make([]byte, 12)
-	for i := range userPassword {
-		userPassword[i] = charset[seededRand.Intn(len(charset))]
-	}
-
-	return string(userPassword)
 }

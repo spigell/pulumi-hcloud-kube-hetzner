@@ -37,21 +37,7 @@ func New(ctx *pulumi.Context) *Config {
 	c.RequireSecretObject("nodepools", &nodepools)
 	c.RequireSecretObject("network", &network)
 
-	if defaults == nil {
-		defaults = &Defaults{}
-	}
-
-	if defaults.Global == nil {
-		defaults.Global = &Node{}
-	}
-
-	if defaults.Agents == nil {
-		defaults.Agents = &Node{}
-	}
-
-	if defaults.Servers == nil {
-		defaults.Servers = &Node{}
-	}
+	defaults.WithInited()
 
 	for i, pool := range nodepools.Agents {
 		if pool.Config == nil {
@@ -145,7 +131,8 @@ func New(ctx *pulumi.Context) *Config {
 }
 
 // Nodes returns the nodes for the cluster.
-// They are sorted by majority.
+// They are merged with the defaults and nodepool config values.
+// They are sorted by majority as well.
 func (c *Config) Nodes() ([]*Node, error) {
 	nodes := make([]*Node, 0)
 
