@@ -176,7 +176,10 @@ func (k *K3S) CompleteConfig(ip, leaderIP, externalIP string) *CompletedConfig {
 	k.Config.K3S.Server = fmt.Sprintf("https://%s:6443", leaderIP)
 
 	if k.role == variables.ServerRole {
-		k.Config.K3S.BindAddress = ip
+		// Do not bind server API to specific ip.
+		// Security is handled by firewall.
+		// If user decides to use k3s without firewall or allow public access, then it is his own responsibility.
+		// k.Config.K3S.BindAddress = ip
 		k.Config.K3S.AdvertiseAddr = ip
 	}
 

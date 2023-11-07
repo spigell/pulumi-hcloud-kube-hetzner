@@ -34,7 +34,7 @@ jobs:
           google-credentials: ${{ secrets.google-credentials }}
       - uses: actions/upload-artifact@v3
         with:
-          name: Pulumi configuration for stack
+          name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: "test-project/Pulumi.${{ env.PULUMI_STACK }}.yaml"
       - name: Preview
         run: pulumi preview -s ${{ env.PULUMI_STACK }} -v=9 --color=always --logtostderr 2> preview.log
@@ -51,7 +51,7 @@ jobs:
       - name: Gather logs
         uses: actions/upload-artifact@v3
         with:
-          name: Pulumi configuration for stack
+          name: pulumi-logs-${{ env.PULUMI_STACK }}
           path: "test-project/*.log"
 
   external-ssh-reachability:

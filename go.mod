@@ -7,6 +7,7 @@ toolchain go1.21.1
 require (
 	dario.cat/mergo v1.0.0
 	github.com/BurntSushi/toml v0.3.1
+	github.com/hetznercloud/hcloud-go/v2 v2.4.0
 	github.com/pulumi/pulumi-hcloud/sdk v1.16.1
 	github.com/pulumi/pulumi/sdk/v3 v3.91.0
 	github.com/sanity-io/litter v1.5.5
@@ -103,8 +104,8 @@ require (
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/term v1.1.0 // indirect
-	github.com/prometheus/client_golang v1.16.0 // indirect
-	github.com/prometheus/client_model v0.4.0 // indirect
+	github.com/prometheus/client_golang v1.17.0 // indirect
+	github.com/prometheus/client_model v0.4.1-0.20230718164431-9a2bf3000d16 // indirect
 	github.com/prometheus/common v0.44.0 // indirect
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/pulumi/esc v0.5.6 // indirect
@@ -134,7 +135,7 @@ require (
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
 	golang.org/x/arch v0.5.0 // indirect
-	golang.org/x/exp v0.0.0-20231006140011-7918f672742d // indirect
+	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
 	golang.org/x/mod v0.13.0 // indirect
 	golang.org/x/net v0.17.0 // indirect
 	golang.org/x/sync v0.4.0 // indirect

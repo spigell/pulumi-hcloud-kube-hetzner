@@ -52,6 +52,10 @@ func New(ctx *pulumi.Context) *Config {
 			nodepools.Agents[i].Config.K3s.K3S = &k3s.K3sConfig{}
 		}
 
+		if pool.Config.Server == nil {
+			nodepools.Agents[i].Config.Server = &Server{}
+		}
+
 		for j, node := range pool.Nodes {
 			if node.Server == nil {
 				nodepools.Agents[i].Nodes[j].Server = &Server{}
@@ -78,6 +82,10 @@ func New(ctx *pulumi.Context) *Config {
 
 		if pool.Config.K3s.K3S == nil {
 			nodepools.Servers[i].Config.K3s.K3S = &k3s.K3sConfig{}
+		}
+
+		if pool.Config.Server == nil {
+			nodepools.Servers[i].Config.Server = &Server{}
 		}
 
 		for j, node := range pool.Nodes {
@@ -137,6 +145,9 @@ func (c *Config) Nodes() ([]*Node, error) {
 	nodes := make([]*Node, 0)
 
 	for agentpoolIdx, agentpool := range c.Nodepools.Agents {
+		if hetznerFirewallConfigured(agentpool.Config.Server) {
+			c.Nodepools.Agents[agentpoolIdx].Config.Server.Firewall.Hetzner.MarkWithDedicatedPool()
+		}
 		for i, a := range agentpool.Nodes {
 			a.Role = AgentRole
 			if hetznerFirewallConfigured(a.Server) {

@@ -11,13 +11,31 @@ config:
           # Allow establish tunnel only from the this cidr!
           # Remember: it only affects external network. Nodes in the internal network can establish tunnels from any ip
           # because THEY consider the private networks to be "secure".
+          # Remember: all traffic between is allowed.
           allowed-ips:
             - '102.0.0.0/8'
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
-      - id: small-2
+      - id: 01-small-nodes
+        config:
+          server:
+            firewall:
+              hetzner:
+                # You should explicitly enable firewall for every layer of the configuration.
+                enabled: true
+                # Do not allow ping only this server node explicitly.
+                allow-icmp: false
+                additional-rules: 
+                  - description: custom rule
+                    port: "100"
+                    protocol: tcp
+                    sourceIps:
+                      - 0.0.0.0/0
         nodes:
           - id: k3s-agent01
+      - id: 02-small-nodes
+        nodes:
+          - id: k3s-agent02
     servers:
       - id: control-plane
         nodes:

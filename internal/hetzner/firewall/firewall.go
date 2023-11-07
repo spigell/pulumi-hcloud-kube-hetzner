@@ -68,13 +68,19 @@ func (f *Firewall) Up(ctx *pulumi.Context, name string) (*Firewall, error) {
 			rule.Protocol = "tcp"
 		}
 
-		rules = append(rules, hcloud.FirewallRuleArgs{
+		r := hcloud.FirewallRuleArgs{
 			Direction:   pulumi.String("in"),
 			Description: pulumi.String(rule.Description),
 			Protocol:    pulumi.String(rule.Protocol),
 			Port:        pulumi.String(rule.Port),
 			SourceIps:   pulumi.ToStringArray(rule.SourceIps),
-		})
+		}
+
+		if rule.pulumiSourceIps != nil {
+			r.SourceIps = rule.pulumiSourceIps
+		}
+
+		rules = append(rules, r)
 	}
 
 	created, err := hcloud.NewFirewall(ctx, name, &hcloud.FirewallArgs{

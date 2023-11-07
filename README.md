@@ -48,27 +48,6 @@ Adding or Deleting nodepools/nodes are supported with several limitation.
 
 Due the nature of non-statefull ip allocation for **internal** Hetzner network, we must ensure to keep order of all nodepools and nodes. All nodes and nodepools are sorted alphabetical in `compilation` stage. Thus, changing order in configuration file does not affect on cluster. However, adding or deleting nodepools/nodes can change order. So, when planning new cluster, please consider naming convention for nodes and nodepools. For example, you can use digit prefix like `01-control-plane-nodepool`. For deleting node, it is recomended to add property `deleted: true` for nodepool and node instead of removing them from configuration file. Remember, this only affects internal network. Wireguard network and public Hetzner ips are statefull and do not depend on order.
 
-### Network changes
-PHKH supports several types of communication between nodes of cluster:
-- using only public ip (network.enabled: false);
-- using private hetnzer network (network.enabled: true);
-- using wireguard built on top of public ips (wireguard.enabled: true and network.enabled: false);
-- using wireguard on private ips (wireguard.enabled: true and network.enabled: true);
-
-Switching between modes on the fly is supported except switching from scenarios where `network.enabled: false -> network.enabled: true`.
-Since NetworkManager configured on stage of cluster creation, it is not possible to switch between these scenarios. You should recreate cluster.
-
-#### Useful commands and snippets
-### Get ssh keys
-```
-pulumi stack output --show-secrets   -j ssh:keypair | jq .PrivateKey -r
-```
-
-### Get wg master key
-```
-pulumi stack output --show-secrets   wireguard:connection > ~/wg-dev.conf && wg-quick down ~/wg-dev.conf ; wg-quick up ~/wg-dev.conf
-```
-
 ## Development
 ```
 $ make test-project
@@ -86,9 +65,12 @@ $ make test-project
 - [x] Rewrite ssh checker
 - [x] Error checking for systemctl services
 - [x] Set timeouts for Command resources
-- [ ] Add more validation rules
+- [ ] Expose kubeApiServer endpoint
+- [ ] Expose kubeconfig
+- [ ] Add more validation rules (size of the net, difference between servers flags)
 - [x] K3s token generation
-- [ ] Add fw rules for the public network mode
+- [x] Add fw rules for the public network mode
+- [ ] Add the docker workbench
 - [ ] Mark all sensitive values as secrets
 - [ ] Add basic k8s apps (VM, metrics-server, etc, hetzner MCC, upgrader, kured)
 

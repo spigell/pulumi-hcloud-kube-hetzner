@@ -1,8 +1,13 @@
 package firewall
 
+import (
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+)
+
 type Config struct {
-	dedicated bool
-	rules     []*Rule
+	dedicated     bool
+	dedicatedPool bool
+	rules         []*Rule
 
 	Enabled         bool
 	AllowICMP       bool `json:"allow-icmp" yaml:"allow-icmp"`
@@ -16,6 +21,8 @@ type SSH struct {
 }
 
 type Rule struct {
+	pulumiSourceIps pulumi.StringArray
+
 	Protocol    string
 	Port        string
 	SourceIps   []string
@@ -29,6 +36,14 @@ func (c *Config) MarkAsDedicated() {
 
 func (c *Config) Dedicated() bool {
 	return c.dedicated
+}
+
+func (c *Config) MarkWithDedicatedPool() {
+	c.dedicatedPool = true
+}
+
+func (c *Config) DedicatedPool() bool {
+	return c.dedicatedPool
 }
 
 func (c *Config) AddRules(rules []*Rule) {

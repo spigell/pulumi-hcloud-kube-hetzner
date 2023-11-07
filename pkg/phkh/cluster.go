@@ -44,19 +44,30 @@ func newCluster(ctx *pulumi.Context, token string, config *config.Config, keyPai
 
 	infra := hetzner.New(ctx, nodes).WithNetwork(config.Network.Hetzner)
 
-	if config.Network.Hetzner.Enabled {
-		for _, pool := range config.Nodepools.Agents {
-			for _, node := range pool.Nodes {
-				// Pools are used only in network mode
-				infra.AddToPool(pool.ID, node.ID)
-			}
-			infra.Network.PickSubnet(pool.ID, network.FromStart)
+	for _, pool := range config.Nodepools.Agents {
+		if pool.Nodes[0].Server.Firewall.Hetzner.DedicatedPool() {
+			infra.Firewalls[pool.ID] = pool.Config.Server.Firewall.Hetzner
 		}
 
-		for _, pool := range config.Nodepools.Servers {
-			for _, node := range pool.Nodes {
-				infra.AddToPool(pool.ID, node.ID)
-			}
+		for _, node := range pool.Nodes {
+			infra.AddToPool(pool.ID, node.ID)
+		}
+
+		if config.Network.Hetzner.Enabled {
+			infra.Network.PickSubnet(pool.ID, network.FromStart)
+		}
+	}
+
+	for _, pool := range config.Nodepools.Servers {
+		if pool.Nodes[0].Server.Firewall.Hetzner.DedicatedPool() {
+			infra.Firewalls[pool.ID] = pool.Config.Server.Firewall.Hetzner
+		}
+
+		for _, node := range pool.Nodes {
+			infra.AddToPool(pool.ID, node.ID)
+		}
+
+		if config.Network.Hetzner.Enabled {
 			infra.Network.PickSubnet(pool.ID, network.FromEnd)
 		}
 	}
@@ -91,7 +102,7 @@ func newCluster(ctx *pulumi.Context, token string, config *config.Config, keyPai
 
 		if config.Network.Wireguard.Enabled {
 			os.SetupWireguard(config.Network.Wireguard)
-			fw, err := infra.FirewallConfigByIDOrRole(node.ID)
+			fw, err := infra.FirewallConfigByID(node.ID, infra.FindInPools(node.ID))
 			if err != nil {
 				if !errors.Is(err, hetzner.ErrFirewallDisabled) {
 					return nil, err

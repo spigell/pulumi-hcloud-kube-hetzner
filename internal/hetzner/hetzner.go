@@ -9,6 +9,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/server"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
@@ -67,12 +68,12 @@ func New(ctx *pulumi.Context, nodes []*config.Node) *Hetzner {
 			}
 		}
 
-		if !node.Server.Firewall.Hetzner.Dedicated() && node.Server.Firewall.Hetzner.Enabled {
+		if !node.Server.Firewall.Hetzner.Dedicated() && node.Server.Firewall.Hetzner.Enabled && !node.Server.Firewall.Hetzner.DedicatedPool() {
 			switch node.Role {
-			case "server":
-				firewalls["server"] = node.Server.Firewall.Hetzner
-			case "agent":
-				firewalls["agent"] = node.Server.Firewall.Hetzner
+			case variables.ServerRole:
+				firewalls[variables.ServerRole] = node.Server.Firewall.Hetzner
+			case variables.AgentRole:
+				firewalls[variables.AgentRole] = node.Server.Firewall.Hetzner
 			}
 		}
 	}
@@ -108,22 +109,32 @@ func (h *Hetzner) FindInPools(node string) string {
 	return ""
 }
 
-func (h *Hetzner) FirewallConfigByIDOrRole(id string) (*firewall.Config, error) {
+// FirewallConfigByID returns the firewall config for the node.
+// If not found, then search a config for nodepool.
+// If not found again, then return a config for role.
+func (h *Hetzner) FirewallConfigByID(id, pool string) (*firewall.Config, error) {
 	node := h.Servers[id]
 	fw := node.Server.Firewall.Hetzner
 	if enabled := fw.Enabled; !enabled {
 		return nil, ErrFirewallDisabled
 	}
 
+	// For node
 	if fw.Dedicated() {
 		return fw, nil
 	}
 
+	// For pool
+	poolFw := h.Firewalls[pool]
+	if poolFw != nil {
+		return poolFw, nil
+	}
+
 	switch role := node.Role; role {
-	case "server":
-		return h.Firewalls["server"], nil
-	case "agent":
-		return h.Firewalls["agent"], nil
+	case variables.ServerRole:
+		return h.Firewalls[variables.ServerRole], nil
+	case variables.AgentRole:
+		return h.Firewalls[variables.AgentRole], nil
 	default:
 		return nil, fmt.Errorf("unknown node role %s", role)
 	}
@@ -133,6 +144,7 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 	nodes := make(map[string]*Server)
 	firewalls := make(map[string]*firewall.Firewall)
 	firewallsByNodeRole := make(map[string]pulumi.IntArray)
+	firewallsByNodepool := make(map[string]pulumi.IntArray)
 
 	key, err := h.NewSSHKey(keys.PublicKey)
 	if err != nil {
@@ -148,13 +160,23 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 	}
 
 	// Create a dedicated firewall for master (servers) and agents (if exists) nodes separattely
-	for kind, fw := range h.Firewalls {
-		firewall, err := firewall.New(fw).Up(h.ctx, fmt.Sprintf("role-%s", kind))
+	for name, fw := range h.Firewalls {
+		// If name is not role, then it is a pool name.
+		fmt.Println(h.Firewalls)
+		kind := "pool"
+		if name == variables.ServerRole || name == variables.AgentRole {
+			kind = "role"
+		}
+		firewall, err := firewall.New(fw).Up(h.ctx, fmt.Sprintf("%s-%s", kind, name))
 		if err != nil {
 			return nil, err
 		}
-		firewalls[kind] = firewall
+		firewalls[name] = firewall
 	}
+
+	fmt.Println("firewalls", firewalls)
+
+	interFw := NewInterconnectFirewall()
 
 	for _, id := range utils.SortedMapKeys(h.Servers) {
 		srv := h.Servers[id]
@@ -166,9 +188,8 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 			srv.Server.UserPasswd = info.Servers[id].LocalPassword
 		}
 
-		internalIP, pool := "", ""
+		internalIP, pool := "", h.FindInPools(id)
 		if h.Network.Config.Enabled {
-			pool = h.FindInPools(id)
 			internalIP, err = net.Subnets[pool].GetFree()
 			if err != nil {
 				return nil, fmt.Errorf("failed to get free ip for node %s: %w", id, err)
@@ -195,36 +216,58 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 			},
 		}
 
-		if srv.Server.Firewall.Hetzner.Enabled && srv.Server.Firewall.Hetzner.Dedicated() {
-			firewall, err := firewall.New(srv.Server.Firewall.Hetzner).
-				Up(h.ctx, id)
-			if err != nil {
-				return nil, fmt.Errorf("failed to create dedicated firewall for node %s: %w", id, err)
-			}
-			_, err = firewall.Attach(h.ctx, id,
-				//nolint: gocritic // this is the only way to convert string to int
-				pulumi.IntArray{node.Resource.ID().ToIDOutput().ApplyT(func(id string) (int, error) {
-					return strconv.Atoi(id)
-				}).(pulumi.IntOutput)},
-			)
-			if err != nil {
-				return nil, fmt.Errorf("failed to attach dedicated firewall for node %s: %w", id, err)
-			}
-			continue
-		}
+		//nolint: gocritic // this is the only way to convert string to int
+		nodeId := node.Resource.ID().ToStringOutput().ApplyT(func(id string) (int, error) {
+			return strconv.Atoi(id)
+		}).(pulumi.IntOutput)
 
 		if srv.Server.Firewall.Hetzner.Enabled {
-			//nolint: gocritic // this is the only way to convert string to int
-			firewallsByNodeRole[srv.Role] = append(firewallsByNodeRole[srv.Role], node.Resource.ID().ToStringOutput().ApplyT(func(id string) (int, error) {
-				return strconv.Atoi(id)
-			}).(pulumi.IntOutput))
+			// All nodes with enabled FW must be added to the interconnect firewall
+			interFw.Ips = append(interFw.Ips, pulumi.Sprintf("%s/32", node.Resource.Ipv4Address))
+			interFw.Ids = append(interFw.Ids, nodeId)
+
+			if srv.Server.Firewall.Hetzner.Dedicated() {
+				firewall, err := firewall.New(srv.Server.Firewall.Hetzner).Up(h.ctx, id)
+				if err != nil {
+					return nil, fmt.Errorf("failed to create a dedicated firewall for node %s: %w", id, err)
+				}
+				_, err = firewall.Attach(h.ctx, id, pulumi.IntArray{nodeId})
+				if err != nil {
+					return nil, fmt.Errorf("failed to attach a dedicated firewall to node %s: %w", id, err)
+				}
+
+				continue
+			}
+
+			if firewalls[pool] != nil {
+				firewallsByNodepool[pool] = append(firewallsByNodepool[pool], nodeId)
+				continue
+			}
+			fmt.Println(pool)
+
+			firewallsByNodeRole[srv.Role] = append(firewallsByNodeRole[srv.Role], nodeId)
 		}
 	}
 
 	for kind, ids := range firewallsByNodeRole {
+		fmt.Println(kind)
 		_, err := firewalls[kind].Attach(h.ctx, fmt.Sprintf("role-%s", kind), ids)
 		if err != nil {
-			return nil, fmt.Errorf("failed to attach the group level firewall for nodes: %w", err)
+			return nil, fmt.Errorf("failed to attach the group firewall for nodes: %w", err)
+		}
+	}
+
+	for pool, ids := range firewallsByNodepool {
+		_, err := firewalls[pool].Attach(h.ctx, fmt.Sprintf("pool-%s", pool), ids)
+		if err != nil {
+			return nil, fmt.Errorf("failed to attach the nodepool firewall for nodes: %w", err)
+		}
+	}
+
+	// Create a global firewall to allow communication between all nodes
+	if len(interFw.Ids) != 0 {
+		if err := interFw.Up(h.ctx); err != nil {
+			return nil, fmt.Errorf("failed to create a interconnect firewall for nodes: %w", err)
 		}
 	}
 

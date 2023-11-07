@@ -45,8 +45,6 @@ config:
     global:
       server:
         firewall:
-          firewalld:
-            enabled: false
           hetzner:
             enabled: true
             allow-icmp: true
