@@ -2,8 +2,6 @@ package k8s
 
 import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 
