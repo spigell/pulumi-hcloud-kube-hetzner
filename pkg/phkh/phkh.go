@@ -5,7 +5,6 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-
 )
 
 type PHKH struct {
@@ -68,11 +67,10 @@ func (c *PHKH) Up() error {
 		return err
 	}
 
-	err = c.compiled.K8S.Up(sys.K3s.Kubeconfig)
+	err = c.compiled.K8S.Up(sys.K3s.Kubeconfig, sys.Resources)
 	if err != nil {
 		return err
 	}
-
 
 	c.state.exportHetznerInfra(cloud)
 	c.state.exportSSHKeyPair(keys)

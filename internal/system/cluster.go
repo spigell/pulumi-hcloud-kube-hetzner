@@ -17,12 +17,18 @@ type Cluster []*System
 type Deployed struct {
 	Wireguard *WgCluster
 	K3s       *k3s.Outputs
+	Resources []pulumi.Resource
 }
 
 func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deployed) (*Deployed, error) {
 	provisionedWGPeers := c.NewWgCluster(wgInfo, deps.Servers)
 
-	kubeDependecies := make(map[string][]pulumi.Resource)
+	// We must wait for all nodes to be ready before we can use kube api.
+	// resources is used to keep for all k3s modules Resources().
+	// It is enough for waiting.
+	resources := make([]pulumi.Resource, 0)
+
+	kubeDependencies := make(map[string][]pulumi.Resource)
 
 	leaderIPS := map[string]pulumi.StringOutput{
 		variables.InternalCommunicationMethod: pulumi.String(deps.Servers[c.Leader().ID].InternalIP).ToStringOutput(),
@@ -38,7 +44,8 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 		// Cluster is sorted by seniority.
 		// So, agents and non-leader servers will wait for leader to be ready.
 		// After that, agents will wait for non-leader servers.
-		v.kubeDependecies = kubeDependecies
+		// kubeDependencies["leader"] is used to wait for leader.
+		v.kubeDependecies = kubeDependencies
 
 		for k, module := range v.OS.Modules() {
 			if k == variables.K3s {
@@ -61,7 +68,7 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 				// Cluster is sorted by seniority.
 				// So, workers and non-leader nodes will wait for leader to be ready.
 				if v.ID == c.Leader().ID {
-					kubeDependecies["leader"] = module.Resources()
+					v.kubeDependecies["leader"] = module.Resources()
 
 					k3sOutputs = module.Value().(*k3s.Outputs)
 
@@ -78,6 +85,9 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 						},
 					).(pulumi.AnyOutput)
 				}
+					
+			resources = append(resources, module.Resources()...)
+			
 			}
 		}
 	}
@@ -85,6 +95,7 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 	return &Deployed{
 		Wireguard: provisionedWGPeers,
 		K3s:       k3sOutputs,
+		Resources: resources,
 	}, nil
 }
 
