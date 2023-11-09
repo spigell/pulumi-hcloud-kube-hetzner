@@ -3,14 +3,9 @@ package phkh
 import (
 	"github.com/sanity-io/litter"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/tools/clientcmd/api"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 
-	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes"
-
-	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
 )
 
 type PHKH struct {
@@ -48,7 +43,7 @@ func New(ctx *pulumi.Context) (*PHKH, error) {
 	}, nil
 }
 
-func (c *PHKH) Up(ctx *pulumi.Context) error {
+func (c *PHKH) Up() error {
 	hetznerInfo, err := c.state.hetznerInfra()
 	if err != nil {
 		return err
@@ -73,36 +68,11 @@ func (c *PHKH) Up(ctx *pulumi.Context) error {
 		return err
 	}
 
-	//
-
-	prov, err := kubernetes.NewProvider(ctx, "test", &kubernetes.ProviderArgs{
-		// Make it configurable
-		DeleteUnreachable: pulumi.Bool(false),
-		Kubeconfig: sys.K3s.Kubeconfig.ApplyT(func(s interface{}) string {
-			kubeconfig := s.(*api.Config)
-
-			k, _ := clientcmd.Write(*kubeconfig)
-
-			return string(k)
-		}).(pulumi.StringOutput),
-	})
-
+	err = c.compiled.K8S.Up(sys.K3s.Kubeconfig)
 	if err != nil {
 		return err
 	}
 
-	_, err = corev1.NewPod(ctx, "pod", &corev1.PodArgs{
-		Spec: corev1.PodSpecArgs{
-			Containers: corev1.ContainerArray{
-				corev1.ContainerArgs{
-					Name:  pulumi.String("nginx"),
-					Image: pulumi.String("nginx"),
-				},
-			},
-		}}, pulumi.Provider(prov), pulumi.RetainOnDelete(true))
-	if err != nil {
-		return err
-	}
 
 	c.state.exportHetznerInfra(cloud)
 	c.state.exportSSHKeyPair(keys)

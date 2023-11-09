@@ -10,6 +10,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -23,6 +24,7 @@ const (
 type Compiled struct {
 	SysCluster system.Cluster
 	Hetzner    *hetzner.Hetzner
+	K8S *k8s.K8S
 }
 
 func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Compiled, error) {
@@ -138,10 +140,14 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		}
 
 		s = append(s, sys.WithOS(os))
+
 	}
+
+	kubeCluster := k8s.New(ctx)
 
 	return &Compiled{
 		Hetzner:    infra,
 		SysCluster: s,
+		K8S: kubeCluster,
 	}, nil
 }

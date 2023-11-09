@@ -9,7 +9,8 @@ require (
 	github.com/BurntSushi/toml v0.3.1
 	github.com/hetznercloud/hcloud-go/v2 v2.4.0
 	github.com/pulumi/pulumi-hcloud/sdk v1.16.1
-	github.com/pulumi/pulumi/sdk/v3 v3.91.0
+	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.5.4
+	github.com/pulumi/pulumi/sdk/v3 v3.92.0
 	github.com/sanity-io/litter v1.5.5
 	github.com/seancfoley/ipaddress-go v1.5.5
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99
