@@ -69,7 +69,6 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 				// So, workers and non-leader nodes will wait for leader to be ready.
 				if v.ID == c.Leader().ID {
 					v.kubeDependecies["leader"] = module.Resources()
-					resources = append(resources, module.Resources()...)
 
 					k3sOutputs = module.Value().(*k3s.Outputs)
 
@@ -86,6 +85,9 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 						},
 					).(pulumi.AnyOutput)
 				}
+					
+			resources = append(resources, module.Resources()...)
+			
 			}
 		}
 	}
