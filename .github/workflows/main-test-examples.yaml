@@ -23,11 +23,7 @@ jobs:
       - uses: benjlevesque/short-sha@v2.2
         id: short-sha
         with:
-          length: 12
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
+          length: 6
     outputs:
       short-sha: ${{ steps.short-sha.outputs.sha }}
 
