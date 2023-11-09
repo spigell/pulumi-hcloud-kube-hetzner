@@ -61,7 +61,7 @@ func New(id string, os info.OSInfo, cfg *Config) *Wireguard {
 
 	if cfg.Firewall == nil {
 		cfg.Firewall = &Firewall{
-			Hetzner: &ServiceFirewall{
+			Hetzner: &HetznerFirewall{
 				AllowedIps: FWAllowedIps,
 			},
 		}

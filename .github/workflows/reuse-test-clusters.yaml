@@ -109,7 +109,7 @@ jobs:
           google-credentials: ${{ secrets.google-credentials }}
       - uses: actions/download-artifact@v3
         with:
-          name: Pulumi configuration for stack
+          name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: test-project
       - name: Cleanup
         uses: pulumi/actions@v4

@@ -162,7 +162,6 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 	// Create a dedicated firewall for master (servers) and agents (if exists) nodes separattely
 	for name, fw := range h.Firewalls {
 		// If name is not role, then it is a pool name.
-		fmt.Println(h.Firewalls)
 		kind := "pool"
 		if name == variables.ServerRole || name == variables.AgentRole {
 			kind = "role"
@@ -173,8 +172,6 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 		}
 		firewalls[name] = firewall
 	}
-
-	fmt.Println("firewalls", firewalls)
 
 	interFw := NewInterconnectFirewall()
 
@@ -243,14 +240,12 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 				firewallsByNodepool[pool] = append(firewallsByNodepool[pool], nodeId)
 				continue
 			}
-			fmt.Println(pool)
 
 			firewallsByNodeRole[srv.Role] = append(firewallsByNodeRole[srv.Role], nodeId)
 		}
 	}
 
 	for kind, ids := range firewallsByNodeRole {
-		fmt.Println(kind)
 		_, err := firewalls[kind].Attach(h.ctx, fmt.Sprintf("role-%s", kind), ids)
 		if err != nil {
 			return nil, fmt.Errorf("failed to attach the group firewall for nodes: %w", err)

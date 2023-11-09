@@ -20,16 +20,16 @@ const (
 )
 
 // Cluster is a collection of Hetzner, System and k8s clusters.
-type Cluster struct {
+type Compiled struct {
 	SysCluster system.Cluster
 	Hetzner    *hetzner.Hetzner
 }
 
-func newCluster(ctx *pulumi.Context, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Cluster, error) {
+func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Compiled, error) {
 	// This is the only supported kubernetes distribution right now.
 	kube := defaultKube
 
-	// Since token is part of k3s config the easiest method to pass token to k3s module is via global value.
+	// Since token is part of k3s config the easiest method to pass the token to k3s module is via global value.
 	// However, we do not want to expose token to the user in DumpConfig().
 	config.Defaults.Global.K3s.K3S.Token = token
 
@@ -74,7 +74,13 @@ func newCluster(ctx *pulumi.Context, token string, config *config.Config, keyPai
 
 	s := make(system.Cluster, 0)
 	for _, node := range nodes {
-		sys := system.New(ctx, node.ID, keyPair).WithCommunicationMethod(variables.DefaultCommunicationMethod)
+		sys := system.New(ctx, node.ID, keyPair).
+			WithCommunicationMethod(variables.DefaultCommunicationMethod).
+			WithK8SEndpointType(config.K8S.Endpoint.Type)
+
+		if node.Leader {
+			sys.MarkAsLeader()
+		}
 		os := sys.MicroOS()
 
 		if config.Network.Hetzner.Enabled {
@@ -88,6 +94,22 @@ func newCluster(ctx *pulumi.Context, token string, config *config.Config, keyPai
 				AcceptEnv: "INSTALL_K3S_*",
 			})
 			os.AddK3SModule(node.Role, node.K3s)
+
+			// Firewall rule is needed only for public networks
+			if config.K8S.Endpoint.Type == variables.DefaultCommunicationMethod {
+				fw, err := infra.FirewallConfigByID(node.ID, infra.FindInPools(node.ID))
+				if err != nil {
+					if !errors.Is(err, hetzner.ErrFirewallDisabled) {
+						return nil, err
+					}
+				}
+
+				if fw != nil {
+					if node.Role == variables.ServerRole {
+						fw.AddRules(k3s.HetznerRulesWithSources(config.K8S.Endpoint.Firewall.HetznerPublic.AllowedIps))
+					}
+				}
+			}
 
 			// By default, use default taints for server node if they are not set and agents nodes exist.
 			if node.Role == variables.ServerRole &&
@@ -118,7 +140,7 @@ func newCluster(ctx *pulumi.Context, token string, config *config.Config, keyPai
 		s = append(s, sys.WithOS(os))
 	}
 
-	return &Cluster{
+	return &Compiled{
 		Hetzner:    infra,
 		SysCluster: s,
 	}, nil

@@ -17,7 +17,7 @@ type Config struct {
 }
 
 type Firewall struct {
-	Hetzner *ServiceFirewall
+	Hetzner *HetznerFirewall
 }
 
 type AdditionalPeer struct {
@@ -26,7 +26,7 @@ type AdditionalPeer struct {
 	PublicKey  string
 }
 
-type ServiceFirewall struct {
+type HetznerFirewall struct {
 	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 

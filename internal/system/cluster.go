@@ -9,6 +9,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
 
 type Cluster []*System
@@ -63,6 +64,19 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 					kubeDependecies["leader"] = module.Resources()
 
 					k3sOutputs = module.Value().(*k3s.Outputs)
+
+					// Replace leader IP in kubeconfig with IP based on specified method.
+					k3sOutputs.Kubeconfig = pulumi.All(
+						k3sOutputs.Kubeconfig, leaderIPS[v.info.K8SEndpointType()],
+					).ApplyT(
+						func(args []interface{}) interface{} {
+							kubeconfig := args[0].(*api.Config)
+							ip := args[1].(string)
+							kubeconfig.Clusters["default"].Server = fmt.Sprintf("https://%s:6443", ip)
+
+							return kubeconfig
+						},
+					).(pulumi.AnyOutput)
 				}
 			}
 		}

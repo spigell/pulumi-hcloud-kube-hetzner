@@ -65,8 +65,8 @@ $ make test-project
 - [x] Rewrite ssh checker
 - [x] Error checking for systemctl services
 - [x] Set timeouts for Command resources
-- [ ] Expose kubeApiServer endpoint
-- [ ] Expose kubeconfig
+- [x] Expose kubeApiServer endpoint
+- [x] Expose kubeconfig
 - [ ] Add more validation rules (size of the net, difference between servers flags)
 - [x] K3s token generation
 - [x] Add fw rules for the public network mode

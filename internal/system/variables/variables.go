@@ -1,5 +1,5 @@
 // This package contains variables used by all system subpackages.
-// Please do not import this another packages here in system package
+// Please do not import another packages here.
 package variables
 
 const (

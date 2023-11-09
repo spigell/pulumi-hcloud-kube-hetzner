@@ -31,7 +31,7 @@ type Provisioned struct {
 
 type Outputs struct {
 	Token      string
-	Kubeconfig pulumi.StringOutput
+	Kubeconfig pulumi.AnyOutput
 }
 
 var packages = map[string][]string{
@@ -152,10 +152,19 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 
 	res = append(res, configure...)
 
+	var kubeconfig pulumi.AnyOutput
+	if k.Sys.Leader() {
+		kubeconfig, err = k.kubeconfig(ctx, con, res)
+		if err != nil {
+			return nil, fmt.Errorf("error while grabbing kubeconfig: %w", err)
+		}
+	}
+
 	return &Provisioned{
 		resources: res,
 		Outputs: &Outputs{
-			Token: k.Config.K3S.Token,
+			Token:      k.Config.K3S.Token,
+			Kubeconfig: kubeconfig,
 		},
 	}, nil
 }

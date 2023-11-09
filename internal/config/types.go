@@ -5,6 +5,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 )
 
 type WithID interface {
@@ -26,6 +27,23 @@ type Nodepool struct {
 	ID     string
 	Config *Node
 	Nodes  []*Node
+}
+
+type K8S struct {
+	Endpoint *K8SEndpoint
+}
+
+type K8SEndpoint struct {
+	Type     string
+	Firewall *BasicFirewall
+}
+
+type BasicFirewall struct {
+	HetznerPublic *HetnzerBasidFirewall `json:"hetzner-public"`
+}
+
+type HetnzerBasidFirewall struct {
+	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
 type Network struct {
@@ -88,4 +106,25 @@ func (d *Defaults) WithInited() *Defaults {
 	}
 
 	return d
+}
+
+func (k *K8S) WithInited() *K8S {
+	if k.Endpoint == nil {
+		k.Endpoint = &K8SEndpoint{}
+	}
+
+	if k.Endpoint.Type == "" {
+		k.Endpoint.Type = variables.DefaultCommunicationMethod
+	}
+
+	if k.Endpoint.Firewall == nil {
+		k.Endpoint.Firewall = &BasicFirewall{
+			HetznerPublic: &HetnzerBasidFirewall{
+				AllowedIps: firewall.ICMPRule.SourceIps,
+			},
+		}
+	}
+
+	return k
+
 }

@@ -9,8 +9,12 @@ type OSInfo interface {
 }
 
 type Info struct {
+	leader bool
+
 	communicationMethod string
 	communicationIface  string
+
+	k8sEndpointType string
 }
 
 func New() *Info {
@@ -27,10 +31,30 @@ func (i *Info) WithCommunicationMethod(method string) *Info {
 	return i
 }
 
+func (i *Info) WithK8SEndpointType(t string) *Info {
+	i.k8sEndpointType = t
+
+	return i
+}
+
+func (i *Info) K8SEndpointType() string {
+	return i.k8sEndpointType
+}
+
+func (i *Info) MarkAsLeader() *Info {
+	i.leader = true
+
+	return i
+}
+
 func (i *Info) CommunicationMethod() string {
 	return i.communicationMethod
 }
 
 func (i *Info) CommunicationIface() string {
 	return i.communicationIface
+}
+
+func (i *Info) Leader() bool {
+	return i.leader
 }

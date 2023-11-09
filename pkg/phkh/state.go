@@ -12,12 +12,16 @@ import (
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"golang.zx2c4.com/wireguard/wgctrl/wgtypes"
+
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
 
 const (
 	keyPairKey        = "ssh:keypair"
 	wgInfoKey         = "wireguard:info"
 	k3sTokenKey       = "k3s:token"
+	k3sKubeconfigKey  = "k3s:kubeconfig"
 	wgMasterConKey    = "wireguard:connection"
 	hetznerServersKey = "hetzer:servers"
 	publicKey         = "PublicKey"
@@ -29,7 +33,7 @@ type State struct {
 	Stack *pulumi.StackReference
 }
 
-func newState(ctx *pulumi.Context) (*State, error) {
+func state(ctx *pulumi.Context) (*State, error) {
 	self, err := pulumi.NewStackReference(ctx, fmt.Sprintf("%s/%s/%s", ctx.Organization(), ctx.Project(), ctx.Stack()), nil)
 	if err != nil {
 		return nil, err
@@ -184,4 +188,15 @@ func (s *State) k3sToken() (string, error) {
 	}
 
 	return token, nil
+}
+
+func (s *State) exportK3SKubeconfig(kube pulumi.AnyOutput) {
+	s.ctx.Export(k3sKubeconfigKey, pulumi.ToSecret(kube.ApplyT(
+		func(v interface{}) (string, error) {
+			kubeconfig := v.(*api.Config)
+
+			k, _ := clientcmd.Write(*kubeconfig)
+			return string(k), nil
+		},
+	).(pulumi.StringOutput)))
 }

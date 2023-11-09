@@ -22,6 +22,7 @@ type Config struct {
 	Nodepools *Nodepools
 	Defaults  *Defaults
 	Network   *Network
+	K8S       *K8S
 }
 
 // New returns the configuration for the cluster.
@@ -31,13 +32,16 @@ func New(ctx *pulumi.Context) *Config {
 	var defaults *Defaults
 	var nodepools *Nodepools
 	var network *Network
+	var k8s *K8S
 	c := config.New(ctx, "")
 
 	c.RequireSecretObject("defaults", &defaults)
 	c.RequireSecretObject("nodepools", &nodepools)
 	c.RequireSecretObject("network", &network)
+	c.RequireSecretObject("k8s", &k8s)
 
 	defaults.WithInited()
+	k8s.WithInited()
 
 	for i, pool := range nodepools.Agents {
 		if pool.Config == nil {
@@ -135,6 +139,7 @@ func New(ctx *pulumi.Context) *Config {
 		Nodepools: nodepools,
 		Network:   network,
 		Defaults:  defaults,
+		K8S:       k8s,
 	}
 }
 

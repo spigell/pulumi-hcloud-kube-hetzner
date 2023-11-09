@@ -7,9 +7,13 @@ config:
     hetzner:
       enabled: true
       # It is highly recommended to set a cidr for the private network for at least /20
-      cidr: 192.168.16.0/20
+      cidr: 10.20.0.0/16
     wireguard:
       enabled: true
+  pulumi-hcloud-kube-hetzner:k8s:
+    # By default, the firewall allows access to the k8s api from all ip addresses (if firewall for node is enabled).
+    endpoint:
+      type: public
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: 01-agent
@@ -34,7 +38,11 @@ config:
     global:
       server:
         firewall:
-          enabled: true
+          hetzner:
+            enabled: true
+            allow-icmp: true
+            ssh:
+              allow: true
       k3s:
         version: v1.27.7+k3s1
     servers:

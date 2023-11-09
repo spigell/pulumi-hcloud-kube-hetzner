@@ -55,6 +55,18 @@ func (s *System) WithCommunicationMethod(method string) *System {
 	return s
 }
 
+func (s *System) WithK8SEndpointType(t string) *System {
+	s.info = s.info.WithK8SEndpointType(t)
+
+	return s
+}
+
+func (s *System) MarkAsLeader() *System {
+	s.info = s.info.MarkAsLeader()
+
+	return s
+}
+
 func (s *System) Up(server *hetzner.Server) (*SysProvisioned, error) {
 	os, err := s.OS.Up(s.ctx, server, s.kubeDependecies)
 	if err != nil {
