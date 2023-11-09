@@ -20,7 +20,7 @@ func New(ctx *pulumi.Context) *K8S{
 	}
 }
 
-func (k *K8S) Up(kubeconfig pulumi.AnyOutput) error {
+func (k *K8S) Up() error {
 
 	prov, err := kubernetes.NewProvider(k.ctx, "main", &kubernetes.ProviderArgs{
 		// TO DO: Make it configurable
