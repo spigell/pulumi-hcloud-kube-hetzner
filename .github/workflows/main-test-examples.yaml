@@ -11,6 +11,7 @@ on:
         options:
           - default
           - with-rich-firewall-rules
+          - ha-server-with-workload
           - all
 
 
@@ -47,6 +48,18 @@ jobs:
     with:
       pulumi-stack: with-rich-firewall-rules-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/with-rich-firewall-rules.yaml
+    secrets:
+      google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+      hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  ha-server-with-workload:
+    needs: init
+    name: The HA cluster with workload servers for ${{ needs.init.outputs.short-sha }}
+    if: contains(fromJson('["all", "ha-server-with-workload"]'), inputs.example) || github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/reuse-test-clusters.yaml
+    with:
+      pulumi-stack: ha-server-with-workload-${{ needs.init.outputs.short-sha }}
+      pulumi-config-source: examples/ha-server-with-workload.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
