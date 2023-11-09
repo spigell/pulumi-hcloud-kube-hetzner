@@ -118,11 +118,14 @@ func (k *K8S) WithInited() *K8S {
 	}
 
 	if k.Endpoint.Firewall == nil {
-		k.Endpoint.Firewall = &BasicFirewall{
-			HetznerPublic: &HetnzerBasidFirewall{
-				AllowedIps: firewall.ICMPRule.SourceIps,
-			},
-		}
+	}
+
+	if k.Endpoint.Firewall.HetznerPublic == nil {
+		k.Endpoint.Firewall.HetznerPublic = &HetnzerBasidFirewall{}
+	}
+
+	if k.Endpoint.Firewall.HetznerPublic.AllowedIps == nil {
+		k.Endpoint.Firewall.HetznerPublic.AllowedIps = firewall.ICMPRule.SourceIps
 	}
 
 	return k

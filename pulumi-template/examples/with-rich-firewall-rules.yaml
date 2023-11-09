@@ -23,7 +23,7 @@ config:
         hetzner-public:
           # Allow access to the k8s api from the this cidr!
           allowed-ips:
-            - '102.0.0.0/8'
+            - '0.0.0.0/0'
 
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
