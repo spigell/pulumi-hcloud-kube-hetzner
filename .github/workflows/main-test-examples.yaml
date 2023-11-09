@@ -34,7 +34,7 @@ jobs:
   default:
     needs: init
     name: Default cluster for ${{ needs.init.outputs.short-sha }}
-    if: contains(fromJson('[]'), inputs.example)
+    if: contains(fromJson('[]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: default-${{ needs.init.outputs.short-sha }}
@@ -46,7 +46,7 @@ jobs:
   with-rich-firewall-rules:
     needs: init
     name: The cluster with rich firewalls rules for ${{ needs.init.outputs.short-sha }}
-    if: contains(fromJson('["all", "with-rich-firewall-rules"]'), inputs.example) || ${{ github.ref == 'refs/heads/main' }}
+    if: contains(fromJson('["all", "with-rich-firewall-rules"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: with-rich-firewall-rules-${{ needs.init.outputs.short-sha }}
