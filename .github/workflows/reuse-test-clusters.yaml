@@ -27,10 +27,6 @@ jobs:
       PULUMI_CONFIG_SOURCE: ${{ inputs.pulumi-config-source }}
     steps:
       - uses: actions/checkout@v3
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
       - uses: ./.github/actions/prepare-pulumi
         name: Prepare pulumi environment
         with:
