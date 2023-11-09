@@ -49,6 +49,7 @@ jobs:
           HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
           GITHUB_TOKEN: ${{ secrets.github-token }}
       - name: Gather logs
+        if: always()
         uses: actions/upload-artifact@v3
         with:
           name: pulumi-logs-${{ env.PULUMI_STACK }}
