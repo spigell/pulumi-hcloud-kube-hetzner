@@ -2,6 +2,8 @@ package k8s
 
 import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 
@@ -14,13 +16,13 @@ type K8S struct {
 	ctx *pulumi.Context
 }
 
-func New(ctx *pulumi.Context) *K8S{
+func New(ctx *pulumi.Context) *K8S {
 	return &K8S{
 		ctx: ctx,
 	}
 }
 
-func (k *K8S) Up(kubeconfig pulumi.AnyOutput) error {
+func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
 
 	prov, err := kubernetes.NewProvider(k.ctx, "main", &kubernetes.ProviderArgs{
 		// TO DO: Make it configurable
@@ -32,7 +34,7 @@ func (k *K8S) Up(kubeconfig pulumi.AnyOutput) error {
 
 			return string(k)
 		}).(pulumi.StringOutput),
-	})
+	}, pulumi.DependsOn(deps))
 
 	if err != nil {
 		return err

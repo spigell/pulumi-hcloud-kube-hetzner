@@ -9,12 +9,12 @@ import (
 )
 
 var (
-	errNoLeader       = errors.New("there is no a leader. Please set it in config")
-	errAgentLeader    = errors.New("agent can't be a leader")
-	errManyLeaders    = errors.New("there is more than one leader")
-	errK8SUnknownType = fmt.Errorf("unknown k8s endpoint type. Valid types: %v", validConnectionTypes)
+	errNoLeader                = errors.New("there is no a leader. Please set it in config")
+	errAgentLeader             = errors.New("agent can't be a leader")
+	errManyLeaders             = errors.New("there is more than one leader")
+	errK8SUnknownType          = fmt.Errorf("unknown k8s endpoint type. Valid types: %v", validConnectionTypes)
 	errInternalNetworkDisabled = errors.New("internal endpoint type requires hetzner network to be enabled")
-	errWGNetworkDisabled = errors.New("wireguard endpoint type requires wireguard to be enabled")
+	errWGNetworkDisabled       = errors.New("wireguard endpoint type requires wireguard to be enabled")
 
 	validConnectionTypes = []string{
 		variables.DefaultCommunicationMethod,
