@@ -1,7 +1,6 @@
 package k3s
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
@@ -22,11 +21,7 @@ func (k *K3S) kubeconfig(ctx *pulumi.Context, con *connection.Connection, deps [
 	}
 
 	kube := grabbed.Stdout.ApplyT(func(v interface{}) (*api.Config, error) {
-		stdout, ok := v.(string)
-
-		//if !ok && ctx.DryRun() {
-		//	return nil, ErrKubeconfigDryRun
-		//}
+		stdout := v.(string)
 
 		kubeconfig, err := clientcmd.Load([]byte(stdout))
 		if err != nil {

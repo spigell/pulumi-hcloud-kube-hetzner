@@ -25,3 +25,20 @@ For every override on `nodepool` and `node` level you will have additional firew
 Also, the additional firewall will be created for internal communication between servers via a public network.
 
 For every role (server, worker) firewall will be created If you want to disable the firewall for a specific node, you can set `firewall.enabled: false` for this node.
+
+### Wireguard
+
+
+### K8S APIServer access
+By default, a hetzner firewall rule allows all traffic to 6443 port if `k8s.endpoint.type` specified as `public` (this is a default value). If you want to restrict access to the apiserver from the public network, you can use the following configuration:
+```yaml
+    endpoint:
+      type: public
+      firewall:
+        # This only works for the public endpoint.
+        hetzner-public:
+          allowed-ips:
+            - '102.0.0.0/8' # <--- Allow access to the k8s api from the this cidr!
+```
+
+Internal networks and wireguard networks are considered as *secured*. So, no rules will be applied for them.
