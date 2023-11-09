@@ -23,14 +23,14 @@ jobs:
       - uses: benjlevesque/short-sha@v2.2
         id: short-sha
         with:
-          length: 6
+          length: 12
     outputs:
       short-sha: ${{ steps.short-sha.outputs.sha }}
 
   default:
     needs: init
     name: Default cluster for ${{ needs.init.outputs.short-sha }}
-    if: contains(fromJson('["all", "default"]'), inputs.example) || ${{ github.ref == 'refs/heads/main' }}
+    if: contains(fromJson('[]'), inputs.example) || ${{ github.ref == 'refs/heads/main' }}
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: default-${{ needs.init.outputs.short-sha }}
