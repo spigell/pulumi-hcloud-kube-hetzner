@@ -30,7 +30,7 @@ type Nodepool struct {
 }
 
 type K8S struct {
-	Endpoint *K8SEndpoint
+	KubeApiEndpoint *K8SEndpoint `json:"kube-api-endpoint"`
 }
 
 type K8SEndpoint struct {
@@ -109,23 +109,23 @@ func (d *Defaults) WithInited() *Defaults {
 }
 
 func (k *K8S) WithInited() *K8S {
-	if k.Endpoint == nil {
-		k.Endpoint = &K8SEndpoint{}
+	if k.KubeApiEndpoint == nil {
+		k.KubeApiEndpoint = &K8SEndpoint{}
 	}
 
-	if k.Endpoint.Type == "" {
-		k.Endpoint.Type = variables.DefaultCommunicationMethod
+	if k.KubeApiEndpoint.Type == "" {
+		k.KubeApiEndpoint.Type = variables.DefaultCommunicationMethod
 	}
 
-	if k.Endpoint.Firewall == nil {
+	if k.KubeApiEndpoint.Firewall == nil {
 	}
 
-	if k.Endpoint.Firewall.HetznerPublic == nil {
-		k.Endpoint.Firewall.HetznerPublic = &HetnzerBasidFirewall{}
+	if k.KubeApiEndpoint.Firewall.HetznerPublic == nil {
+		k.KubeApiEndpoint.Firewall.HetznerPublic = &HetnzerBasidFirewall{}
 	}
 
-	if k.Endpoint.Firewall.HetznerPublic.AllowedIps == nil {
-		k.Endpoint.Firewall.HetznerPublic.AllowedIps = firewall.ICMPRule.SourceIps
+	if k.KubeApiEndpoint.Firewall.HetznerPublic.AllowedIps == nil {
+		k.KubeApiEndpoint.Firewall.HetznerPublic.AllowedIps = firewall.ICMPRule.SourceIps
 	}
 
 	return k
