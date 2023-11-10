@@ -40,7 +40,7 @@ func (c *Cluster) NewWgCluster(wgInfo map[string]*wireguard.WgConfig, servers ma
 	// Even if it disabled for all nodes.
 	master.Neighbours = peers.Without(wgMasterID)
 	master.Self = peers.Peer(wgMasterID)
-	master.NeighboursIPS = peers.IPS
+	master.NeighboursIPS = peers.MasterIPS
 	cfg := master.CompleteConfig()
 
 	provisionedWGPeers[wgMasterID] = cfg.Content().(pulumi.AnyOutput)
@@ -68,7 +68,8 @@ func (c *Cluster) NewWgMaster() *wireguard.Wireguard {
 }
 
 func (c *Cluster) BuildWgPeers(info map[string]*wireguard.WgConfig, servers map[string]*hetzner.Server) *WGPeers {
-	ips := make(pulumi.StringMap)
+	connectionIPS := make(pulumi.StringMap)
+	internalIPS := make(pulumi.StringMap)
 
 	start, _, _ := net.ParseCIDR(wgMasterCIDR)
 	masterIP := netaddr.MustParseIP(start.String())
@@ -148,10 +149,10 @@ func (c *Cluster) BuildWgPeers(info map[string]*wireguard.WgConfig, servers map[
 			PrivateAddr: m[sys.ID].String(),
 		}
 
-		ips[sys.ID] = servers[sys.ID].Connection.IP
+		connectionIPS[sys.ID] = servers[sys.ID].Connection.IP
 
 		if servers[sys.ID].InternalIP != "" {
-			ips[sys.ID] = pulumi.String(servers[sys.ID].InternalIP).ToStringOutput()
+			internalIPS[sys.ID] = pulumi.String(servers[sys.ID].InternalIP).ToStringOutput()
 		}
 
 		peers = append(peers, peer)
@@ -159,7 +160,7 @@ func (c *Cluster) BuildWgPeers(info map[string]*wireguard.WgConfig, servers map[
 
 	return &WGPeers{
 		Peers: peers,
-		IPS:   ips.ToStringMapOutput(),
+		ConnectionIPS:   connnectionIPS.ToStringMapOutput(),
 	}
 }
 
