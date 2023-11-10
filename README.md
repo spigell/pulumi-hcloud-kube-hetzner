@@ -67,6 +67,7 @@ $ make test-project
 - [x] Set timeouts for Command resources
 - [x] Expose kubeApiServer endpoint
 - [x] Expose kubeconfig
+- [ ] Add external ip of the program to FW rules
 - [ ] Add more validation rules (size of the net, difference between servers flags)
 - [x] K3s token generation
 - [x] Add fw rules for the public network mode
