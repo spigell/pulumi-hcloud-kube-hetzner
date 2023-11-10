@@ -27,16 +27,16 @@ func (c *Config) Validate(nodes []*Node) error {
 	leaderFounded := false
 	// k8s endpoint types are the same as communication methods.
 	// Let's reuse it
-	if c.K8S.Endpoint.Type != "" {
-		if !slices.Contains(validConnectionTypes, c.K8S.Endpoint.Type) {
+	if c.K8S.KubeApiEndpoint.Type != "" {
+		if !slices.Contains(validConnectionTypes, c.K8S.KubeApiEndpoint.Type) {
 			return errK8SUnknownType
 		}
 
-		if c.K8S.Endpoint.Type == variables.InternalCommunicationMethod && !c.Network.Hetzner.Enabled {
+		if c.K8S.KubeApiEndpoint.Type == variables.InternalCommunicationMethod && !c.Network.Hetzner.Enabled {
 			return errInternalNetworkDisabled
 		}
 
-		if c.K8S.Endpoint.Type == variables.WgCommunicationMethod && !c.Network.Wireguard.Enabled {
+		if c.K8S.KubeApiEndpoint.Type == variables.WgCommunicationMethod && !c.Network.Wireguard.Enabled {
 			return errWGNetworkDisabled
 		}
 	}

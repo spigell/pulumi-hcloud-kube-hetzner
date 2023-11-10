@@ -1,5 +1,7 @@
 ## Limitations
-Right now it is not possible to create nodes without ipv4 and ipv6 public addresses.
+Right now it is not possible to create nodes without ipv4 or ipv6 addresses. Main reasons:
+- The wireguard master connection based on public addresses;
+- The Pulumi kubernetes provider uses public addresses as cluster endpoint;
 
 ## Network modes
 PHKH supports several types of network modes (communication between nodes in cluster):
@@ -11,6 +13,7 @@ PHKH supports several types of network modes (communication between nodes in clu
 Switching between modes on the fly is supported except switching from scenarios where `network.enabled: false -> network.enabled: true`.
 Since NetworkManager is configured on the stage of cluster creation, it is not possible to reconfigure it on the fly right now. Changing `network.enabled: false -> network.enabled: true` will lead to an unstable and unreachable cluster.
 You should recreate the cluster instead.
+
 
 ## Firewall
 Since the firewall property belongs to `Node` structure, the hetzner firewall can be enabled or disabled on all layers of configuration. The count of firewalls depends on several factors:
@@ -27,18 +30,13 @@ Also, the additional firewall will be created for internal communication between
 For every role (server, worker) firewall will be created If you want to disable the firewall for a specific node, you can set `firewall.enabled: false` for this node.
 
 ### Wireguard
-
-
-### K8S APIServer access
-By default, a hetzner firewall rule allows all traffic to 6443 port if `k8s.endpoint.type` specified as `public` (this is a default value). If you want to restrict access to the apiserver from the public network, you can use the following configuration:
+By default, a hetzner firewall rule is added to allow all traffic to **51822** port for every traffic if wireguard enabled for in-cluster communication method. Restriction can be applied by specifying the following configuration:
 ```yaml
-    endpoint:
-      type: public
+<project>:network:
+    wireguard:
+      enabled: true
       firewall:
-        # This only works for the public endpoint.
-        hetzner-public:
+        hetzner:
           allowed-ips:
-            - '102.0.0.0/8' # <--- Allow access to the k8s api from the this cidr!
+            - '102.0.0.0/8'
 ```
-
-Internal networks and wireguard networks are considered as *secured*. So, no rules will be applied for them.

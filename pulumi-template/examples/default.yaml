@@ -12,7 +12,7 @@ config:
           allowed-ips:
             - '0.0.0.0/0'
   pulumi-hcloud-kube-hetzner:k8s:
-    endpoint:
+    kube-api-endpoint:
       # public|internal|wireguard
       type: public
       # By default, the firewall allows access to the k8s api from all ip addresses (if firewall for node enabled)

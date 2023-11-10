@@ -85,9 +85,9 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 						},
 					).(pulumi.AnyOutput)
 				}
-					
-			resources = append(resources, module.Resources()...)
-			
+
+				resources = append(resources, module.Resources()...)
+
 			}
 		}
 	}
