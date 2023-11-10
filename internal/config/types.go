@@ -118,6 +118,7 @@ func (k *K8S) WithInited() *K8S {
 	}
 
 	if k.KubeApiEndpoint.Firewall == nil {
+		k.KubeApiEndpoint.Firewall = &BasicFirewall{}
 	}
 
 	if k.KubeApiEndpoint.Firewall.HetznerPublic == nil {
