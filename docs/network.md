@@ -2,6 +2,7 @@
 Right now it is not possible to create nodes without ipv4 or ipv6 addresses. Main reasons:
 - The wireguard master connection based on public addresses;
 - The Pulumi kubernetes provider uses public addresses as cluster endpoint;
+- There is no way to use existing internal network yet;
 
 ## Network modes
 PHKH supports several types of network modes (communication between nodes in cluster):

@@ -125,7 +125,7 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 				return string(rendered), err
 			},
 		).(pulumi.StringOutput)
-	case variables.DefaultCommunicationMethod:
+	case variables.PublicCommunicationMethod:
 		config, _ = pulumi.All(k.leaderIP, con.IP).ApplyT(
 			func(args []interface{}) (string, error) {
 				rendered, err := k.CompleteConfig(args[1].(string), args[0].(string), args[1].(string)).render()

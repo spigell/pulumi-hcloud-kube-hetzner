@@ -114,7 +114,7 @@ func (k *K8S) WithInited() *K8S {
 	}
 
 	if k.KubeApiEndpoint.Type == "" {
-		k.KubeApiEndpoint.Type = variables.DefaultCommunicationMethod
+		k.KubeApiEndpoint.Type = variables.PublicCommunicationMethod
 	}
 
 	if k.KubeApiEndpoint.Firewall == nil {
@@ -130,5 +130,4 @@ func (k *K8S) WithInited() *K8S {
 	}
 
 	return k
-
 }

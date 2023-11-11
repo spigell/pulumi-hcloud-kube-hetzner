@@ -17,7 +17,7 @@ var (
 	errWGNetworkDisabled       = errors.New("wireguard endpoint type requires wireguard to be enabled")
 
 	validConnectionTypes = []string{
-		variables.DefaultCommunicationMethod,
+		variables.PublicCommunicationMethod,
 		variables.WgCommunicationMethod,
 		variables.InternalCommunicationMethod,
 	}

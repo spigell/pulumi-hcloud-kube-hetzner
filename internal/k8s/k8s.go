@@ -21,7 +21,6 @@ func New(ctx *pulumi.Context) *K8S {
 }
 
 func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
-
 	prov, err := kubernetes.NewProvider(k.ctx, "main", &kubernetes.ProviderArgs{
 		Kubeconfig: kubeconfig.ApplyT(func(s interface{}) string {
 			kubeconfig := s.(*api.Config)
@@ -31,7 +30,6 @@ func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
 			return string(k)
 		}).(pulumi.StringOutput),
 	}, pulumi.DependsOn(deps))
-
 	if err != nil {
 		return err
 	}
@@ -44,7 +42,8 @@ func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
 					Image: pulumi.String("nginx"),
 				},
 			},
-		}}, pulumi.Provider(prov))
+		},
+	}, pulumi.Provider(prov))
 	if err != nil {
 		return err
 	}

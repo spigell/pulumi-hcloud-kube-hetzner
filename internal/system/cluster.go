@@ -32,7 +32,7 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 
 	leaderIPS := map[string]pulumi.StringOutput{
 		variables.InternalCommunicationMethod: pulumi.String(deps.Servers[c.Leader().ID].InternalIP).ToStringOutput(),
-		variables.DefaultCommunicationMethod:  deps.Servers[c.Leader().ID].Connection.IP,
+		variables.PublicCommunicationMethod:   deps.Servers[c.Leader().ID].Connection.IP,
 	}
 
 	if c.Leader().OS.Wireguard() != nil {
@@ -87,7 +87,6 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 				}
 
 				resources = append(resources, module.Resources()...)
-
 			}
 		}
 	}

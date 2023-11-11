@@ -3,24 +3,35 @@ config:
     hetzner:
       enabled: true
       # It is highly recommended to set a cidr for the private network for at least /20
-      cidr: 10.18.0.0/16
+      cidr: 10.22.0.0/16
     wireguard:
-      # wireguard layer is disabled.
-      enabled: false
+      enabled: true
   pulumi-hcloud-kube-hetzner:k8s:
     kube-api-endpoint:
       # public|internal|wireguard
       type: public
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
-      - id: 01-agents
+      - id: 01-big-nodes
+        config:
+          server:
+            server-type: cpx31
         nodes:
-        - id: k3s-fsn-agent01
+        - id: k3s-big-agent01
+      - id: 02-ingress-nodes
+        config:
           server:
-            location: fsn1
-        - id: k3s-hel1-agent01
-          server:
-            location: hel1
+            # There is no need to use a big server for ingress nodes
+            # The cpx11 is the minimal for the program
+            server-type: cpx11
+          k3s:
+            config:
+              node-label:
+              - kubernetes.io/role=ingress
+            node-taint:
+            - node-role.kubernetes.io/ingress:NoSchedule
+        nodes:
+        - id: k3s-ingress01
     servers:
       - id: 01-control-plane
         config:
@@ -29,6 +40,8 @@ config:
         nodes:
         - id: k3s-server01
           leader: true
+          server:
+            location: fsn1
   pulumi-hcloud-kube-hetzner:defaults:
     global:
       server:
@@ -39,7 +52,10 @@ config:
             ssh:
               allow: true
       k3s:
-        version: v1.27.2+k3s1
+        config:
+          node-label:
+            - k3os.io/upgrade=disabled
+        version: v1.26.4+k3s1
     servers:
       k3s:
         config:
