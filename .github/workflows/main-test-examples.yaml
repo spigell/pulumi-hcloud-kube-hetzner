@@ -9,7 +9,7 @@ on:
         description: the desired example (all for all examples)
         type: choice
         options:
-          - k3s-private-non-ha
+          - k3s-private-non-ha-simple
           - k3s-wireguard-non-ha-firewall-rules
           - k3s-wireguard-ha-no-taints
           - all
@@ -35,7 +35,7 @@ jobs:
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: default-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-private-non-ha.yaml
+      pulumi-config-source: examples/k3s-private-non-ha-simple.yaml
       disable-wg-check: true
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
