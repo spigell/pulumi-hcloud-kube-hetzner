@@ -77,7 +77,7 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 	s := make(system.Cluster, 0)
 	for _, node := range nodes {
 		sys := system.New(ctx, node.ID, keyPair).
-			WithCommunicationMethod(variables.DefaultCommunicationMethod).
+			WithCommunicationMethod(variables.PublicCommunicationMethod).
 			WithK8SEndpointType(config.K8S.KubeApiEndpoint.Type)
 
 		if node.Leader {
@@ -98,7 +98,7 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 			os.AddK3SModule(node.Role, node.K3s)
 
 			// Firewall rule is needed only for public networks
-			if config.K8S.KubeApiEndpoint.Type == variables.DefaultCommunicationMethod {
+			if config.K8S.KubeApiEndpoint.Type == variables.PublicCommunicationMethod {
 				fw, err := infra.FirewallConfigByID(node.ID, infra.FindInPools(node.ID))
 				if err != nil {
 					if !errors.Is(err, hetzner.ErrFirewallDisabled) {
@@ -140,7 +140,6 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		}
 
 		s = append(s, sys.WithOS(os))
-
 	}
 
 	kubeCluster := k8s.New(ctx)

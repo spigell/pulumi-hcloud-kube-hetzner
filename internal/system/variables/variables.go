@@ -14,13 +14,13 @@ const (
 	SSHD      = "sshd"
 	Wireguard = "wireguard"
 	// Communication methods.
-	DefaultCommunicationMethod  = "public"
+	PublicCommunicationMethod   = "public"
 	InternalCommunicationMethod = "internal"
 	WgCommunicationMethod       = Wireguard
 )
 
 var Ifaces = map[string]string{
-	DefaultCommunicationMethod:  PublicIface,
+	PublicCommunicationMethod:   PublicIface,
 	InternalCommunicationMethod: PrivateIface,
 	WgCommunicationMethod:       WGIface,
 }

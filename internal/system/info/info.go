@@ -19,8 +19,8 @@ type Info struct {
 
 func New() *Info {
 	return &Info{
-		communicationMethod: variables.DefaultCommunicationMethod,
-		communicationIface:  variables.Ifaces[variables.DefaultCommunicationMethod],
+		communicationMethod: variables.PublicCommunicationMethod,
+		communicationIface:  variables.Ifaces[variables.PublicCommunicationMethod],
 	}
 }
 

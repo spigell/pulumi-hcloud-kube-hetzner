@@ -15,7 +15,6 @@ func (k *K3S) kubeconfig(ctx *pulumi.Context, con *connection.Connection, deps [
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.String("sudo cat /etc/rancher/k3s/k3s.yaml"),
 	}, pulumi.DependsOn(deps))
-
 	if err != nil {
 		return pulumi.AnyOutput{}, fmt.Errorf("error grab kubeconfig: %w", err)
 	}
@@ -35,7 +34,6 @@ func (k *K3S) kubeconfig(ctx *pulumi.Context, con *connection.Connection, deps [
 		kubeconfig.CurrentContext = ctxName
 
 		return kubeconfig, nil
-
 	}).(pulumi.AnyOutput)
 
 	return kube, nil
