@@ -10,6 +10,9 @@ on:
       pulumi-config-source:
         required: true
         type: string
+      disable-wg-check:
+        required: false
+        type: boolean
     secrets:
       google-credentials:
         required: true
@@ -76,6 +79,7 @@ jobs:
     needs: deploy
     name: Wireguard Reachability
     runs-on: ubuntu-latest
+    if: ${{ ! inputs.disable-wg-check }}
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
     steps:

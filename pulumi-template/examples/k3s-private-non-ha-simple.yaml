@@ -1,3 +1,5 @@
+# This is the example with 1 server and 2 agents.
+# It is a pretty simple configuration with reasonable defaults.
 config:
   pulumi-hcloud-kube-hetzner:network:
     hetzner:
