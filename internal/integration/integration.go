@@ -21,9 +21,9 @@ const (
 	exampleK3SWGNonHaFwRules     = "k3s-wireguard-non-ha-firewall-rules"
 	exampleK3SWGHANoTaints       = "k3s-wireguard-ha-no-taints"
 
-	testSSHConnectivity = "ssh-connectivity"
 	testWGConnectivity  = "wireguard-connectivity"
 	testKubeVersion     = "kube-version"
+	testSSHConnectivity = "ssh-connectivity"
 )
 
 var (

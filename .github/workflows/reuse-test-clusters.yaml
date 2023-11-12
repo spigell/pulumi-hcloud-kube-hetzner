@@ -73,7 +73,7 @@ jobs:
         with:
           create-stack: false
           google-credentials: ${{ secrets.google-credentials }}
-      - run: go-test -v -parallel=10 -tags=connectivity,linux
+      - run: go test -v -parallel=10 -tags=connectivity,linux
         working-directory: internal/integration
 
   cleanup:

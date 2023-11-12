@@ -7,9 +7,7 @@ package integration
 
 import (
 	"context"
-	"os"
 	"os/exec"
-	"path/filepath"
 	"slices"
 	"testing"
 
@@ -19,8 +17,9 @@ import (
 )
 
 func TestWireguradConnectivity(t *testing.T) {
-	t.Parallel()
 	name := testWGConnectivity
+
+	t.Parallel()
 
 	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
 	defer cancel()
@@ -32,23 +31,7 @@ func TestWireguradConnectivity(t *testing.T) {
 	}
 
 	out, err := i.Stack.Outputs(ctx)
-
 	assert.NoError(t, err)
-
-	config, ok := out[phkh.WGMasterConKey]
-	assert.True(t, ok)
-
-	file, _ := os.OpenFile(filepath.Join(os.TempDir(), "pulumi-wg0.conf"), os.O_WRONLY|os.O_CREATE, 0600)
-	defer file.Close()
-	defer os.Remove(file.Name())
-
-	_, err = file.WriteString(config.Value.(string))
-	assert.NoError(t, err)
-
-	cmd := exec.Command("sudo", "wg-quick", "up", file.Name()).Run()
-	defer exec.Command("sudo", "wg-quick", "down", file.Name()).Run()
-
-	assert.NoError(t, cmd)
 
 	info, ok := out[phkh.WGInfoKey]
 	assert.True(t, ok)

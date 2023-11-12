@@ -16,16 +16,17 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
 )
 
+const ()
+
 func TestSSHConnectivity(t *testing.T) {
 	t.Parallel()
-	name := testSSHConnectivity
 
 	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
 	defer cancel()
 
 	i, _ := New(ctx)
 
-	if !slices.Contains(TestsByExampleName[i.Example.Name], name) {
+	if !slices.Contains(TestsByExampleName[i.Example.Name], testSSHConnectivity) {
 		t.Skip()
 	}
 
