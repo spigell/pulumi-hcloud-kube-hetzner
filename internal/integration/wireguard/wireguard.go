@@ -11,7 +11,7 @@ type Wireguard struct {
 }
 
 func Up(config string) (*Wireguard, error) {
-	file, _ := os.OpenFile(filepath.Join(os.TempDir(), "pulumi-wg0.conf"), os.O_WRONLY|os.O_CREATE, 0600)
+	file, _ := os.OpenFile(filepath.Join(os.TempDir(), "pulumi-wg0.conf"), os.O_WRONLY|os.O_CREATE, 0o600)
 
 	_, err := file.WriteString(config)
 	if err != nil {
@@ -32,9 +32,5 @@ func (w *Wireguard) Close() error {
 		return err
 	}
 
-	if err := os.Remove(w.configPath); err != nil {
-		return err
-	}
-
-	return nil
+	return os.Remove(w.configPath)
 }
