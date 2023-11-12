@@ -1,6 +1,6 @@
 SHELL := bash
 
-GH_EXAMPLE ?= default
+GH_EXAMPLE ?= k3s-private-non-ha-simple
 
 test-project: clean
 	@mkdir -p test-project
