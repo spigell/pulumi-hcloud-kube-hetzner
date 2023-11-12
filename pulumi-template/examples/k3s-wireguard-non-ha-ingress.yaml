@@ -1,3 +1,6 @@
+# This example shows how to create a k3s cluster with wireguard native layer based on private Hetzner network.
+# The cluster has 1 control plane node and 2 agent nodepools.
+# One of the agent nodepool is labeled as ingress and taints the nodes with NoSchedule.
 config:
   pulumi-hcloud-kube-hetzner:network:
     hetzner:
@@ -9,7 +12,7 @@ config:
   pulumi-hcloud-kube-hetzner:k8s:
     kube-api-endpoint:
       # public|internal|wireguard
-      type: public
+      type: wireguard
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: 01-big-nodes

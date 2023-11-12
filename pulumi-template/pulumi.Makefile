@@ -3,7 +3,7 @@ PULUMI_STACK ?=
 PULUMI_SSH_KEY_FILE ?= /tmp/phkh.key
 # Default is pulumi service
 PULUMI_BACKEND ?=
-PULUMI_CONFIG_SOURCE ?= examples/default.yaml
+PULUMI_CONFIG_SOURCE ?= examples/k3s-private-non-ha-simple.yaml
 PULUMI_STACK_INIT_FLAGS ?=
 HCLOUD_IMAGE ?= 
 
