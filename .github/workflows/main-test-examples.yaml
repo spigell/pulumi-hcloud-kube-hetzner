@@ -34,7 +34,7 @@ jobs:
     if: contains(fromJson('["all", "k3s-private-non-ha-simple"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
-      pulumi-stack: default-${{ needs.init.outputs.short-sha }}
+      pulumi-stack: k3s-private-non-ha-simple-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-private-non-ha-simple.yaml
       disable-wg-check: true
     secrets:
@@ -47,7 +47,7 @@ jobs:
     if: contains(fromJson('["all", "k3s-wireguard-non-ha-firewall-rules"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
-      pulumi-stack: with-rich-firewall-rules-${{ needs.init.outputs.short-sha }}
+      pulumi-stack: k3s-wireguard-non-ha-firewall-rules-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-wireguard-non-ha-firewall-rules.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
@@ -59,7 +59,7 @@ jobs:
     if: contains(fromJson('["all", "k3s-wireguard-ha-no-taints"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
-      pulumi-stack: ha-server-with-workload-${{ needs.init.outputs.short-sha }}
+      pulumi-stack: k3s-wireguard-ha-no-taint-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-wireguard-ha-no-taints.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
