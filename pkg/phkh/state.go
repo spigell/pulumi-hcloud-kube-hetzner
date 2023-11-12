@@ -18,14 +18,14 @@ import (
 )
 
 const (
-	keyPairKey        = "ssh:keypair"
+	KeyPairKey        = "ssh:keypair"
 	wgInfoKey         = "wireguard:info"
 	k3sTokenKey       = "k3s:token"
-	k3sKubeconfigKey  = "k3s:kubeconfig"
+	KubeconfigKey     = "kubeconfig"
 	wgMasterConKey    = "wireguard:connection"
-	hetznerServersKey = "hetzer:servers"
+	HetznerServersKey = "hetzner:servers"
 	publicKey         = "PublicKey"
-	privateKey        = "PrivateKey"
+	PrivateKey        = "PrivateKey"
 )
 
 type State struct {
@@ -48,7 +48,7 @@ func state(ctx *pulumi.Context) (*State, error) {
 func (s *State) hetznerInfra() (*hetzner.Deployed, error) {
 	info := &hetzner.Deployed{Servers: make(map[string]*hetzner.Server)}
 
-	decoded, err := s.Stack.GetOutputDetails(hetznerServersKey)
+	decoded, err := s.Stack.GetOutputDetails(HetznerServersKey)
 	if err != nil {
 		return nil, err
 	}
@@ -91,11 +91,11 @@ func (s *State) exportHetznerInfra(deployed *hetzner.Deployed) {
 		export[k]["local-password"] = v.LocalPassword
 	}
 
-	s.ctx.Export(hetznerServersKey, pulumi.ToSecret(export))
+	s.ctx.Export(HetznerServersKey, pulumi.ToSecret(export))
 }
 
 func (s *State) sshKeyPair() (*keypair.ECDSAKeyPair, error) {
-	decoded, err := s.Stack.GetOutputDetails(keyPairKey)
+	decoded, err := s.Stack.GetOutputDetails(KeyPairKey)
 	if err != nil {
 		return nil, err
 	}
@@ -105,7 +105,7 @@ func (s *State) sshKeyPair() (*keypair.ECDSAKeyPair, error) {
 		created, err := keypair.NewECDSA()
 		keys = make(map[string]interface{})
 		keys[publicKey] = created.PublicKey
-		keys[privateKey] = created.PrivateKey
+		keys[PrivateKey] = created.PrivateKey
 		if err != nil {
 			return nil, err
 		}
@@ -114,14 +114,14 @@ func (s *State) sshKeyPair() (*keypair.ECDSAKeyPair, error) {
 	return &keypair.ECDSAKeyPair{
 		// It can be only strings
 		PublicKey:  keys[publicKey].(string),
-		PrivateKey: keys[privateKey].(string),
+		PrivateKey: keys[PrivateKey].(string),
 	}, nil
 }
 
 func (s *State) exportSSHKeyPair(keyPair *keypair.ECDSAKeyPair) {
-	s.ctx.Export(keyPairKey, pulumi.ToSecret(pulumi.ToMap(
+	s.ctx.Export(KeyPairKey, pulumi.ToSecret(pulumi.ToMap(
 		map[string](interface{}){
-			privateKey: keyPair.PrivateKey,
+			PrivateKey: keyPair.PrivateKey,
 			publicKey:  keyPair.PublicKey,
 		},
 	)))
@@ -146,7 +146,7 @@ func (s *State) wgInfo() (map[string]*wireguard.WgConfig, error) {
 		info[k] = &wireguard.WgConfig{
 			Interface: wireguard.WgInterface{
 				Address:    p["ip"].(string),
-				PrivateKey: p[privateKey].(string),
+				PrivateKey: p[PrivateKey].(string),
 			},
 		}
 	}
@@ -163,7 +163,7 @@ func (s *State) exportWGInfo(cluster *system.WgCluster) {
 			pk, _ := wgtypes.ParseKey(p.Interface.PrivateKey)
 			m[name] = make(map[string]string)
 			m[name]["ip"] = p.Interface.Address
-			m[name][privateKey] = p.Interface.PrivateKey
+			m[name][PrivateKey] = p.Interface.PrivateKey
 			m[name][publicKey] = pk.PublicKey().String()
 		}
 		return m
@@ -191,7 +191,7 @@ func (s *State) k3sToken() (string, error) {
 }
 
 func (s *State) exportK3SKubeconfig(kube pulumi.AnyOutput) {
-	s.ctx.Export(k3sKubeconfigKey, pulumi.ToSecret(kube.ApplyT(
+	s.ctx.Export(KubeconfigKey, pulumi.ToSecret(kube.ApplyT(
 		func(v interface{}) (string, error) {
 			kubeconfig := v.(*api.Config)
 
