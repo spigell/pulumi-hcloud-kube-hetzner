@@ -1,8 +1,12 @@
+//go:build kubernetes
+// +build kubernetes
+
 package integration
 
 import (
 	"context"
 	"slices"
+	"strings"
 	"testing"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/integration/k8s"
@@ -28,10 +32,21 @@ func TestKubeVersion(t *testing.T) {
 
 	kubeconfig, ok := out[phkh.KubeconfigKey].Value.(string)
 	assert.True(t, ok)
-	
 
-	ver, err := k8s.KubeletVersion(kubeconfig, "test")
+	k8s, err := k8s.New(ctx, kubeconfig)
 	assert.NoError(t, err)
 
-	assert.Equal(t, ver, i.Example.Decoded.Defaults.Global.K3s.Version)
+	nodes, err := k8s.Nodes()
+	assert.NoError(t, err)
+
+	for _, n := range nodes {
+		for k, v := range i.Example.UniqConfigsByNodes() {
+			if strings.HasSuffix(n.Name, k) && v.K3s != nil && v.K3s.Version != "" {
+				assert.Equal(t, n.Status.NodeInfo.KubeletVersion, v.K3s.Version)
+				continue
+			}
+		}
+
+		assert.Equal(t, n.Status.NodeInfo.KubeletVersion, i.Example.Decoded.Defaults.Global.K3s.Version)
+	}
 }

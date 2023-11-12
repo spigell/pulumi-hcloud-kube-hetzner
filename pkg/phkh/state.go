@@ -19,10 +19,10 @@ import (
 
 const (
 	KeyPairKey        = "ssh:keypair"
-	wgInfoKey         = "wireguard:info"
+	WGInfoKey         = "wireguard:info"
 	k3sTokenKey       = "k3s:token"
 	KubeconfigKey     = "kubeconfig"
-	wgMasterConKey    = "wireguard:connection"
+	WGMasterConKey    = "wireguard:connection"
 	HetznerServersKey = "hetzner:servers"
 	publicKey         = "PublicKey"
 	PrivateKey        = "PrivateKey"
@@ -129,7 +129,7 @@ func (s *State) exportSSHKeyPair(keyPair *keypair.ECDSAKeyPair) {
 
 func (s *State) wgInfo() (map[string]*wireguard.WgConfig, error) {
 	info := make(map[string]*wireguard.WgConfig)
-	decoded, err := s.Stack.GetOutputDetails(wgInfoKey)
+	decoded, err := s.Stack.GetOutputDetails(WGInfoKey)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func (s *State) wgInfo() (map[string]*wireguard.WgConfig, error) {
 }
 
 func (s *State) exportWGInfo(cluster *system.WgCluster) {
-	s.ctx.Export(wgInfoKey, pulumi.ToSecret(cluster.Peers.ToMapOutput().ApplyT(func(v map[string]interface{}) map[string]map[string]string {
+	s.ctx.Export(WGInfoKey, pulumi.ToSecret(cluster.Peers.ToMapOutput().ApplyT(func(v map[string]interface{}) map[string]map[string]string {
 		m := make(map[string]map[string]string)
 		for name, cfg := range v {
 			p := cfg.(*wireguard.WgConfig)
@@ -169,7 +169,7 @@ func (s *State) exportWGInfo(cluster *system.WgCluster) {
 		return m
 	}).(pulumi.StringMapMapOutput)))
 
-	s.ctx.Export(wgMasterConKey, pulumi.ToSecret(cluster.MasterConnection))
+	s.ctx.Export(WGMasterConKey, pulumi.ToSecret(cluster.MasterConnection))
 }
 
 func (s *State) exportK3SToken(token string) {

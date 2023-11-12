@@ -1,3 +1,6 @@
+//go:build connectivity
+// +build connectivity
+
 // This package contains all the integration suites for the pulumi program.
 // The integration suites are used to test the pulumi program against a real deployed pulumi stack.
 package integration
@@ -51,7 +54,7 @@ func TestSSHConnectivity(t *testing.T) {
 		assert.NotEmpty(t, user)
 
 		// Port is 22 by hardcoded now.
-		err := ssh.SimpleCheck(ip + ":22", user, privatekey)
+		err := ssh.SimpleCheck(ip+":22", user, privatekey)
 		assert.NoError(t, err)
 	}
 }

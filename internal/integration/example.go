@@ -12,8 +12,12 @@ import (
 )
 
 type Example struct {
-	Name string
+	Name    string
 	Decoded *config.Config
+}
+
+type DecodedConfig struct {
+	Config *config.Config `yaml:"config"`
 }
 
 func DiscoverExample(path string) (*Example, error) {
@@ -31,8 +35,44 @@ func DiscoverExample(path string) (*Example, error) {
 	return example, nil
 }
 
-type DecodedConfig struct {
-	Config *config.Config `yaml:"config"`
+func (e *Example) NodesIDs() []string {
+	var ids []string
+
+	for _, pool := range e.Decoded.Nodepools.Agents {
+		for _, n := range pool.Nodes {
+			ids = append(ids, n.ID)
+		}
+	}
+
+	for _, pool := range e.Decoded.Nodepools.Servers {
+		for _, n := range pool.Nodes {
+			ids = append(ids, n.ID)
+		}
+	}
+
+	return ids
+}
+
+func (e *Example) UniqConfigsByNodes() map[string]*config.Node {
+	configs := make(map[string]*config.Node)
+
+	for _, pool := range e.Decoded.Nodepools.Agents {
+		for _, n := range pool.Nodes {
+			if n.Server != nil || n.K3s != nil {
+				configs[n.ID] = n
+			}
+		}
+	}
+
+	for _, pool := range e.Decoded.Nodepools.Servers {
+		for _, n := range pool.Nodes {
+			if n.Server != nil || n.K3s != nil {
+				configs[n.ID] = n
+			}
+		}
+	}
+
+	return configs
 }
 
 func decodeConfig(path string) (*config.Config, error) {

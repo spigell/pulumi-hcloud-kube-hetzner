@@ -13,28 +13,42 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 )
 
-
 const (
 	envConfigSource = "PULUMI_CONFIG_SOURCE"
-	envConfigPath = "PULUMI_STACK_CONFIG"
+	envConfigPath   = "PULUMI_STACK_CONFIG"
 
-	exampleHaServerWithWorkload = "ha-server-with-workload"
+	exampleK3SPrivateNonHASimple = "k3s-private-non-ha-simple"
+	exampleK3SWGNonHaFwRules     = "k3s-wireguard-non-ha-firewall-rules"
+	exampleK3SWGHANoTaints       = "k3s-wireguard-ha-no-taints"
 
 	testSSHConnectivity = "ssh-connectivity"
-	testKubeVersion = "kube-version"
+	testWGConnectivity  = "wireguard-connectivity"
+	testKubeVersion     = "kube-version"
 )
+
 var (
+	defaultDeadline = time.Now().Add(5 * time.Minute)
+
 	TestsByExampleName = map[string][]string{
-		exampleHaServerWithWorkload: {
+		exampleK3SPrivateNonHASimple: {
 			testSSHConnectivity,
 			testKubeVersion,
 		},
+		exampleK3SWGNonHaFwRules: {
+			testSSHConnectivity,
+			testWGConnectivity,
+			testKubeVersion,
+		},
+		exampleK3SWGHANoTaints: {
+			testSSHConnectivity,
+			testWGConnectivity,
+			testKubeVersion,
+		},
 	}
-
-	defaultDeadline = time.Now().Add(10 * time.Minute)
 )
 
 type Integration struct {
+	ctx     context.Context
 	Example *Example
 	Stack   auto.Stack
 }
@@ -52,21 +66,14 @@ func New(ctx context.Context) (*Integration, error) {
 		return nil, err
 	}
 	return &Integration{
-		Stack: stack,
+		ctx:     ctx,
+		Stack:   stack,
 		Example: e,
-
 	}, nil
 }
 
-func validate() error {
-	ctx := context.Background()
-	i, err := New(ctx)
-
-	if err != nil {
-		return err
-	}
-
-	out, err := i.Stack.Outputs(ctx)
+func (i *Integration) Validate() error {
+	out, err := i.Stack.Outputs(i.ctx)
 	if err != nil {
 		return fmt.Errorf("failed to get stack outputs: %w", err)
 	}
@@ -90,4 +97,3 @@ func validate() error {
 
 	return nil
 }
-	

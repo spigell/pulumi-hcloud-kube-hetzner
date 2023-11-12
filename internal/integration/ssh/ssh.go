@@ -20,8 +20,8 @@ func SimpleCheck(addr, username, privateKey string) error {
 		Auth: []ssh.AuthMethod{
 			ssh.PublicKeys(signer),
 		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-		Timeout: 1 * time.Second,
+		HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint:gosec
+		Timeout:         1 * time.Second,
 	})
 	if err != nil {
 		return fmt.Errorf("creation of ssh client failed: %w", err)
@@ -39,6 +39,5 @@ func SimpleCheck(addr, username, privateKey string) error {
 			err, output)
 	}
 
-	fmt.Println(string(output))
 	return nil
 }
