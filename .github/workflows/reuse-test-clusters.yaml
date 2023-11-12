@@ -68,12 +68,17 @@ jobs:
       PULUMI_STACK_CONFIG: ../../test-project/Pulumi.${{ inputs.pulumi-stack }}.yaml
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: pulumi-configuration-${{ env.PULUMI_STACK }}
+          path: test-project
       - uses: ./.github/actions/prepare-pulumi
         name: Prepare pulumi environment
         with:
           create-stack: false
           google-credentials: ${{ secrets.google-credentials }}
       - run: go test -v -parallel=10 -tags=connectivity,linux
+        name: Run reachability tests
         working-directory: internal/integration
 
   cleanup:

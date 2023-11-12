@@ -13,20 +13,47 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/integration/wireguard"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
 )
 
-func TestWireguradConnectivity(t *testing.T) {
-	name := testWGConnectivity
+var (
+	up *wireguard.Wireguard
+)
 
+func init() {
+	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
+	defer cancel()
+
+	i, _ := New(ctx)
+
+	out, err := i.Stack.Outputs(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	config, ok := out[phkh.WGMasterConKey].Value.(string)
+	if !ok {
+		panic("failed to get wireguard master connection string")
+	}
+
+	up, err = wireguard.Up(config)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func TestWireguradConnectivity(t *testing.T) {
 	t.Parallel()
+
+	defer up.Close()
 
 	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
 	defer cancel()
 
 	i, _ := New(ctx)
 
-	if !slices.Contains(TestsByExampleName[i.Example.Name], name) {
+	if !slices.Contains(TestsByExampleName[i.Example.Name], testWGConnectivity) {
 		t.Skip()
 	}
 

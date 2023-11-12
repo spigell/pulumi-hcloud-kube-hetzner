@@ -5,9 +5,6 @@ import (
 	"log"
 	"os"
 	"testing"
-
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/integration/wireguard"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
 )
 
 func TestMain(m *testing.M) {
@@ -31,29 +28,9 @@ func TestMain(m *testing.M) {
 		}
 	}
 
-	out, err := i.Stack.Outputs(ctx)
-	if err != nil {
-		log.Fatalf("failed to get stack outputs: %v", err)
-	}
-
-	wg, ok := out[phkh.WGMasterConKey].Value.(string)
-	if !ok {
-		log.Fatalf("failed to get wg master connection string from stack outputs")
-	}
-
-	up, err := wireguard.Up(wg)
-	if err != nil {
-		up.Close()
-		log.Fatalf("failed to run UP for wireguard: %v", err)
-	}
-
 	exitVal := m.Run()
 
 	log.Println("Tearing down...")
-
-	if err := up.Close(); err != nil {
-		log.Fatalf("failed to run CLOSE for wireguard device: %v. Please remove it manually", err)
-	}
 
 	os.Exit(exitVal)
 }
