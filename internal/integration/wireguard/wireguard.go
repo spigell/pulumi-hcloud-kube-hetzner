@@ -1,6 +1,7 @@
 package wireguard
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -18,8 +19,11 @@ func Up(config string) (*Wireguard, error) {
 		return nil, err
 	}
 
-	if err := exec.Command("sudo", "wg-quick", "up", file.Name()).Run(); err != nil {
-		return nil, err
+	cmd := exec.Command("sudo", "wg-quick", "up", file.Name())
+	output, err := cmd.CombinedOutput()
+
+	if err := cmd.Run(); err != nil {
+		return nil, fmt.Errorf("failed to run wg-quick: %w: %s", err, output)
 	}
 
 	return &Wireguard{
