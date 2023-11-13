@@ -20,9 +20,8 @@ func Up(config string) (*Wireguard, error) {
 	}
 
 	cmd := exec.Command("sudo", "wg-quick", "up", file.Name())
-	output, err := cmd.CombinedOutput()
 
-	if err := cmd.Run(); err != nil {
+	if output, err := cmd.CombinedOutput(); err != nil {
 		return nil, fmt.Errorf("failed to run wg-quick: %w: %s", err, output)
 	}
 
