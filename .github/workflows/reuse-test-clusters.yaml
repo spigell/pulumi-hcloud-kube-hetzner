@@ -72,15 +72,15 @@ jobs:
         name: Install system dependencies
         with:
           packages: wireguard-tools
-      - uses: actions/download-artifact@v3
-        with:
-          name: pulumi-configuration-${{ env.PULUMI_STACK }}
-          path: test-project
       - uses: ./.github/actions/prepare-pulumi
         name: Prepare pulumi environment
         with:
           create-stack: false
           google-credentials: ${{ secrets.google-credentials }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: pulumi-configuration-${{ env.PULUMI_STACK }}
+          path: test-project
       - run: go test -v -parallel=10 -tags=connectivity,linux
         name: Run reachability tests
         working-directory: internal/integration
