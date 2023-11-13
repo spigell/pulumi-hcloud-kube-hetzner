@@ -84,6 +84,9 @@ jobs:
       - run: go test -v -parallel=10 -tags=connectivity,linux
         name: Run reachability tests
         working-directory: internal/integration
+        env:
+          HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
+          GITHUB_TOKEN: ${{ secrets.github-token }}
 
   cleanup:
     name: Cleanup
