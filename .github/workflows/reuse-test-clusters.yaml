@@ -88,10 +88,37 @@ jobs:
           HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
           GITHUB_TOKEN: ${{ secrets.github-token }}
 
+  main-integration-tests:
+    needs: deploy
+    name: Main Integration Tests
+    runs-on: ubuntu-latest
+    env:
+      PULUMI_STACK: ${{ inputs.pulumi-stack }}
+      PULUMI_CONFIG_SOURCE: ../../pulumi-template/${{ inputs.pulumi-config-source }}
+      PULUMI_STACK_CONFIG: ../../test-project/Pulumi.${{ inputs.pulumi-stack }}.yaml
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/prepare-pulumi
+        name: Prepare pulumi environment
+        with:
+          create-stack: false
+          google-credentials: ${{ secrets.google-credentials }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: pulumi-configuration-${{ env.PULUMI_STACK }}
+          path: test-project
+      - run: go test -v -parallel=10 -tags=kubernetes
+        name: Run main integration tests
+        working-directory: internal/integration
+        env:
+          HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
+          GITHUB_TOKEN: ${{ secrets.github-token }}
+
   cleanup:
     name: Cleanup
     needs:
       - reachability-tests
+      - main-integration-tests
     runs-on: ubuntu-latest
     if: always()
     env:
