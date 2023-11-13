@@ -54,3 +54,16 @@ func TestRenderConfig(t *testing.T) {
 		fmt.Println("---")
 	}
 }
+
+func TestRenderZeroPeers(t *testing.T) {
+	config := &WgConfig{
+		Peer:      make([]WgPeer, 0),
+		Interface: WgInterface{Address: TestPeers[0].PrivateAddr, PrivateKey: TestPeers[0].PrivateKey, ListenPort: ListenPort},
+	}
+
+	got, err := renderConfig(config)
+	require.NoError(t, err)
+
+	fmt.Println(got)
+	fmt.Println("---")
+}
