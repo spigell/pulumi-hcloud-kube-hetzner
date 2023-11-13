@@ -68,6 +68,10 @@ jobs:
       PULUMI_STACK_CONFIG: ../../test-project/Pulumi.${{ inputs.pulumi-stack }}.yaml
     steps:
       - uses: actions/checkout@v3
+      - uses: awalsh128/cache-apt-pkgs-action@latest
+        name: Install system dependencies
+        with:
+          packages: wireguard-tools
       - uses: actions/download-artifact@v3
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
