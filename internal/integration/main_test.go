@@ -13,7 +13,7 @@ func TestMain(m *testing.M) {
 
 	i, err := New(ctx)
 	if err != nil {
-		log.Fatalf("failed to create integration: %v", err)
+		log.Fatalf("failed to create integration: %v", err) //nolint: gocritic
 	}
 	if err := i.Validate(); err != nil {
 		log.Fatalf("failed to validate: %v", err)

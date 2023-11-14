@@ -27,8 +27,8 @@ type AdditionalPeer struct {
 }
 
 type HetznerFirewall struct {
-	DisallowOwnIp bool `json:"disallow-own-ip"`
-	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
+	DisallowOwnIP bool     `json:"disallow-own-ip"`
+	AllowedIps    []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
 type Peer struct {

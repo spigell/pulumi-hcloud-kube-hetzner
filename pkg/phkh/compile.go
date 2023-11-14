@@ -86,7 +86,7 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 	for _, node := range nodes {
 		sys := system.New(ctx, node.ID, keyPair).
 			WithCommunicationMethod(variables.PublicCommunicationMethod).
-			WithK8SEndpointType(config.K8S.KubeApiEndpoint.Type)
+			WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
 
 		if node.Leader {
 			sys.MarkAsLeader()
@@ -105,7 +105,7 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		}
 
 		// Add firewall rules for SSH access from my IP
-		if fw != nil && node.Server.Firewall.Hetzner.SSH.DisallowOwnIp == false {
+		if fw != nil && !node.Server.Firewall.Hetzner.SSH.DisallowOwnIP {
 			fw.AddRules(sshd.HetznerRulesWithSources([]string{ip2Net(ip)}))
 		}
 
@@ -117,15 +117,15 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 			})
 			os.AddK3SModule(node.Role, node.K3s)
 
-			if fw != nil && ! config.K8S.KubeApiEndpoint.Firewall.HetznerPublic.DisallowOwnIp && node.Role == variables.ServerRole {
+			if fw != nil && !config.K8S.KubeAPIEndpoint.Firewall.HetznerPublic.DisallowOwnIP && node.Role == variables.ServerRole {
 				fw.AddRules(k3s.HetznerRulesWithSources([]string{ip2Net(ip)}))
 			}
 
 			// Firewall rule is needed only for public networks
-			if config.K8S.KubeApiEndpoint.Type == variables.PublicCommunicationMethod {
+			if config.K8S.KubeAPIEndpoint.Type == variables.PublicCommunicationMethod {
 				if fw != nil {
 					if node.Role == variables.ServerRole {
-						fw.AddRules(k3s.HetznerRulesWithSources(config.K8S.KubeApiEndpoint.Firewall.HetznerPublic.AllowedIps))
+						fw.AddRules(k3s.HetznerRulesWithSources(config.K8S.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps))
 					}
 				}
 			}
@@ -148,7 +148,7 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 			if fw != nil {
 				fw.AddRules(os.Wireguard().HetznerRulesWithSources(config.Network.Wireguard.Firewall.Hetzner.AllowedIps))
 
-				if !config.Network.Wireguard.Firewall.Hetzner.DisallowOwnIp {
+				if !config.Network.Wireguard.Firewall.Hetzner.DisallowOwnIP {
 					fw.AddRules(os.Wireguard().HetznerRulesWithSources([]string{ip2Net(ip)}))
 				}
 			}

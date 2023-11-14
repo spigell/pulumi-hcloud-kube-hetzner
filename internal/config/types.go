@@ -30,7 +30,7 @@ type Nodepool struct {
 }
 
 type K8S struct {
-	KubeApiEndpoint *K8SEndpoint `json:"kube-api-endpoint"`
+	KubeAPIEndpoint *K8SEndpoint `json:"kube-api-endpoint"`
 }
 
 type K8SEndpoint struct {
@@ -43,8 +43,8 @@ type BasicFirewall struct {
 }
 
 type HetnzerBasidFirewall struct {
-	DisallowOwnIp bool `json:"disallow-own-ip"`
-	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
+	DisallowOwnIP bool     `json:"disallow-own-ip"`
+	AllowedIps    []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
 type Network struct {
@@ -110,24 +110,24 @@ func (d *Defaults) WithInited() *Defaults {
 }
 
 func (k *K8S) WithInited() *K8S {
-	if k.KubeApiEndpoint == nil {
-		k.KubeApiEndpoint = &K8SEndpoint{}
+	if k.KubeAPIEndpoint == nil {
+		k.KubeAPIEndpoint = &K8SEndpoint{}
 	}
 
-	if k.KubeApiEndpoint.Type == "" {
-		k.KubeApiEndpoint.Type = variables.PublicCommunicationMethod
+	if k.KubeAPIEndpoint.Type == "" {
+		k.KubeAPIEndpoint.Type = variables.PublicCommunicationMethod
 	}
 
-	if k.KubeApiEndpoint.Firewall == nil {
-		k.KubeApiEndpoint.Firewall = &BasicFirewall{}
+	if k.KubeAPIEndpoint.Firewall == nil {
+		k.KubeAPIEndpoint.Firewall = &BasicFirewall{}
 	}
 
-	if k.KubeApiEndpoint.Firewall.HetznerPublic == nil {
-		k.KubeApiEndpoint.Firewall.HetznerPublic = &HetnzerBasidFirewall{}
+	if k.KubeAPIEndpoint.Firewall.HetznerPublic == nil {
+		k.KubeAPIEndpoint.Firewall.HetznerPublic = &HetnzerBasidFirewall{}
 	}
 
-	if k.KubeApiEndpoint.Firewall.HetznerPublic.AllowedIps == nil {
-		k.KubeApiEndpoint.Firewall.HetznerPublic.AllowedIps = firewall.ICMPRule.SourceIps
+	if k.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps == nil {
+		k.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps = firewall.ICMPRule.SourceIps
 	}
 
 	return k
