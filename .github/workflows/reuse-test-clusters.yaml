@@ -134,6 +134,12 @@ jobs:
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: test-project
+      - name: Cancel previous run (if failed)
+        run: pulumi cancel -s ${{ env.PULUMI_STACK }} -y
+        working-directory: test-project
+        env:
+          HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
+          GITHUB_TOKEN: ${{ secrets.github-token }}
       - name: Cleanup
         uses: pulumi/actions@v4
         with:
