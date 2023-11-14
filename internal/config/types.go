@@ -43,6 +43,7 @@ type BasicFirewall struct {
 }
 
 type HetnzerBasidFirewall struct {
+	DisallowOwnIp bool `json:"disallow-own-ip"`
 	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
