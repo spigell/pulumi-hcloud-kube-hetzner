@@ -25,6 +25,7 @@ jobs:
   deploy:
     name: Deploy Cluster
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
       PULUMI_CONFIG_SOURCE: ${{ inputs.pulumi-config-source }}
@@ -62,6 +63,7 @@ jobs:
     needs: deploy
     name: Reachability Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 50
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
       PULUMI_CONFIG_SOURCE: ../../pulumi-template/${{ inputs.pulumi-config-source }}
@@ -92,6 +94,7 @@ jobs:
     needs: deploy
     name: Main Integration Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 50
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
       PULUMI_CONFIG_SOURCE: ../../pulumi-template/${{ inputs.pulumi-config-source }}
