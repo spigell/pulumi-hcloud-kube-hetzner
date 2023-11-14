@@ -58,7 +58,7 @@ type WgInterface struct {
 
 type WgConfig struct {
 	Interface WgInterface
-	Peer      []WgPeer
+	Peer      []WgPeer `toml:",omitempty"`
 }
 
 func ToPeers(peers []Peer) Peers {
@@ -111,6 +111,7 @@ func renderConfig(cfg *WgConfig) (string, error) {
 	if err := toml.NewEncoder(buf).Encode(cfg); err != nil {
 		return "", err
 	}
+
 	return re.ReplaceAllString(
 		strings.ReplaceAll(
 			strings.ReplaceAll(
