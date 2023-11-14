@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/avast/retry-go"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 )
 
@@ -96,4 +97,20 @@ func (i *Integration) Validate() error {
 	}
 
 	return nil
+}
+
+func (i *Integration) UpWithRetry() error {
+	return retry.Do(
+		func() error {
+			_, err := i.Stack.Up(i.ctx)
+
+			if err != nil && ! auto.IsConcurrentUpdateError(err) {
+				return retry.Unrecoverable(err)
+			}
+
+			return nil
+		},
+		retry.Delay(15 * time.Second),
+		retry.Attempts(10),
+	)
 }

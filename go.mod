@@ -7,6 +7,7 @@ toolchain go1.21.1
 require (
 	dario.cat/mergo v1.0.0
 	github.com/BurntSushi/toml v1.3.2
+	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/glendc/go-external-ip v0.1.0
 	github.com/hetznercloud/hcloud-go/v2 v2.4.0
 	github.com/pulumi/pulumi-hcloud/sdk v1.16.2
