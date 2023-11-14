@@ -59,14 +59,6 @@ func New(id string, os info.OSInfo, cfg *Config) *Wireguard {
 		cfg.CIDR = defaultCIDR
 	}
 
-	if cfg.Firewall == nil {
-		cfg.Firewall = &Firewall{
-			Hetzner: &HetznerFirewall{
-				AllowedIps: FWAllowedIps,
-			},
-		}
-	}
-
 	return &Wireguard{
 		ID:         id,
 		OS:         os,

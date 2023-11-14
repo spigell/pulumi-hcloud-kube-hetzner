@@ -1,3 +1,8 @@
+# This example shows how to use the firewall configuration.
+# There are a lot of overrides for the server's firewall configuration.
+# It shows howt to limit access to basic service as well.
+# It is used for testing.
+
 config:
   pulumi-hcloud-kube-hetzner:network:
     hetzner:
@@ -8,12 +13,16 @@ config:
       enabled: true
       firewall:
         hetzner:
+          # Do not add own ip to rules as allowed for service.
+          # If set to true, then allowed-ips must include networks with your ip address.
+          # Otherwise, there will be error.
+          disallow-own-ip: true
           # Allow establish tunnel only from the this cidr!
           # Remember: it only affects external network. Nodes in the internal network can establish tunnels from any ip
           # because THEY consider the private networks to be "secure".
           # Remember: all traffic between nodes is allowed.
           allowed-ips:
-            - '102.0.0.0/8'
+            - "0.0.0.0/0"
   pulumi-hcloud-kube-hetzner:k8s:
     kube-api-endpoint:
       # By default, public endpoint type is used.
@@ -22,8 +31,11 @@ config:
         # This only works for the public endpoint.
         hetzner-public:
           # Allow access to the k8s api from the this cidr!
+          # Despite the fact that the endpoint is not allowed for your ip address, you can use the endpoint,
+          # because ip address is added to the firewall by default.
           allowed-ips:
-            - '0.0.0.0/0'
+            - '127.0.0.1/32'
+            - '100.0.0.0/24'
 
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
@@ -59,10 +71,15 @@ config:
                 enabled: true
                 # Do not allow ping only this server node explicitly.
                 allow-icmp: false
-              ssh:
-                # You should explicitly enable ssh for every layer of the configuration.
-                # If you need it of course
-                allow: true
+                ssh:
+                  # You should explicitly enable ssh for every layer of the configuration.
+                  # If you need it of course
+                  allow: true
+                  # Despite the fact that the ssh is not allowed for your ip address, you can use the ssh service,
+                  # because it is added to the firewall by default.
+                  allowed-ips:
+                    - '127.0.0.1/32'
+                    - '100.0.0.0/24'
             location: fsn1
   pulumi-hcloud-kube-hetzner:defaults:
     agents:
@@ -75,11 +92,16 @@ config:
             allow-icmp: true
             ssh:
               # You should explicitly enable ssh for every layer of the configuration.
-              # If you need it of course
+              # If you need it, of course
               allow: true
+              # Do not add my ip to rules as allowed for ssh.
+              # This is not needed since allowed-ips includes all addresses.
+              disallow-own-ip: true
+              allowed-ips:
+                - '0.0.0.0/0'
             # Append (!) to additional rules this rule for agent nodes only.
             additional-rules:
-              - description: custom rule
+              - description: custom rule 2
                 port: "10000"
                 protocol: tcp
                 sourceIps:
@@ -93,11 +115,10 @@ config:
             enabled: true
             allow-icmp: true
             ssh:
-              allow: true
-              allowed-ips:
-                - '0.0.0.0/0'
+              # SSH is not allowed globally, but can be enabled for specific nodes/nodepools and role (server/agent)
+              allow: false
             additional-rules:
-              - description: custom rule
+              - description: custom rule 1
                 port: "51825"
                 protocol: udp
                 sourceIps:
@@ -105,10 +126,3 @@ config:
                   - ::/0
       k3s:
         version: v1.26.4+k3s1
-    servers:
-      k3s:
-        config:
-          disable:
-            - metrics-server
-            - traefik
-            - servicelb

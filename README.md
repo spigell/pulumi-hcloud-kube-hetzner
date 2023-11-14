@@ -77,7 +77,7 @@ $ make test-project
 
 ### Bugs
 - [x] Fix taints for master node
-- [ ] Use external ip for master wireguard connection always.
+- [x] Use external ip for master wireguard connection always.
 
 ### Non-high
 - [ ] Rewrite wireguard stage

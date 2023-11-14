@@ -2,6 +2,8 @@ package phkh
 
 import (
 	"errors"
+	"fmt"
+	"net"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
@@ -13,6 +15,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
+	externalip "github.com/glendc/go-external-ip"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
@@ -74,6 +77,11 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		}
 	}
 
+	ip, err := externalIP()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get external IP: %w", err)
+	}
+
 	s := make(system.Cluster, 0)
 	for _, node := range nodes {
 		sys := system.New(ctx, node.ID, keyPair).
@@ -89,6 +97,18 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 			sys.WithCommunicationMethod(variables.InternalCommunicationMethod)
 		}
 
+		fw, err := infra.FirewallConfigByID(node.ID, infra.FindInPools(node.ID))
+		if err != nil {
+			if !errors.Is(err, hetzner.ErrFirewallDisabled) {
+				return nil, fmt.Errorf("failed to get firewall config for node: %w", err)
+			}
+		}
+
+		// Add firewall rules for SSH access from my IP
+		if fw != nil && node.Server.Firewall.Hetzner.SSH.DisallowOwnIp == false {
+			fw.AddRules(sshd.HetznerRulesWithSources([]string{ip2Net(ip)}))
+		}
+
 		switch kube {
 		case defaultKube:
 			os.SetupSSHD(&sshd.Config{
@@ -97,15 +117,12 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 			})
 			os.AddK3SModule(node.Role, node.K3s)
 
+			if fw != nil && ! config.K8S.KubeApiEndpoint.Firewall.HetznerPublic.DisallowOwnIp && node.Role == variables.ServerRole {
+				fw.AddRules(k3s.HetznerRulesWithSources([]string{ip2Net(ip)}))
+			}
+
 			// Firewall rule is needed only for public networks
 			if config.K8S.KubeApiEndpoint.Type == variables.PublicCommunicationMethod {
-				fw, err := infra.FirewallConfigByID(node.ID, infra.FindInPools(node.ID))
-				if err != nil {
-					if !errors.Is(err, hetzner.ErrFirewallDisabled) {
-						return nil, err
-					}
-				}
-
 				if fw != nil {
 					if node.Role == variables.ServerRole {
 						fw.AddRules(k3s.HetznerRulesWithSources(config.K8S.KubeApiEndpoint.Firewall.HetznerPublic.AllowedIps))
@@ -126,16 +143,14 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 
 		if config.Network.Wireguard.Enabled {
 			os.SetupWireguard(config.Network.Wireguard)
-			fw, err := infra.FirewallConfigByID(node.ID, infra.FindInPools(node.ID))
-			if err != nil {
-				if !errors.Is(err, hetzner.ErrFirewallDisabled) {
-					return nil, err
-				}
-			}
 			sys.WithCommunicationMethod(variables.WgCommunicationMethod)
 
 			if fw != nil {
-				fw.AddRules(os.Wireguard().HetznerRules())
+				fw.AddRules(os.Wireguard().HetznerRulesWithSources(config.Network.Wireguard.Firewall.Hetzner.AllowedIps))
+
+				if !config.Network.Wireguard.Firewall.Hetzner.DisallowOwnIp {
+					fw.AddRules(os.Wireguard().HetznerRulesWithSources([]string{ip2Net(ip)}))
+				}
 			}
 		}
 
@@ -149,4 +164,15 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		SysCluster: s,
 		K8S:        kubeCluster,
 	}, nil
+}
+
+func externalIP() (net.IP, error) {
+	consensus := externalip.DefaultConsensus(nil, nil)
+	consensus.UseIPProtocol(4)
+
+	return consensus.ExternalIP()
+}
+
+func ip2Net(ip net.IP) string {
+	return ip.String() + "/32"
 }

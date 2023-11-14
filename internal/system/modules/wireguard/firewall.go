@@ -11,13 +11,13 @@ var FWAllowedIps = []string{
 	"::/0",
 }
 
-func (w *Wireguard) HetznerRules() []*firewall.Rule {
+func (w *Wireguard) HetznerRulesWithSources(sources []string) []*firewall.Rule {
 	return []*firewall.Rule{
 		{
 			Protocol:    "udp",
 			Description: "Allow Wireguard",
 			Port:        strconv.Itoa(w.ListenPort),
-			SourceIps:   w.Config.Firewall.Hetzner.AllowedIps,
+			SourceIps:   sources,
 		},
 	}
 }

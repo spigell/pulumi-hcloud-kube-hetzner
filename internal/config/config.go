@@ -135,6 +135,18 @@ func New(ctx *pulumi.Context) *Config {
 		}
 	}
 
+	if network.Wireguard.Firewall == nil {
+		network.Wireguard.Firewall = &wireguard.Firewall{}
+	}
+
+	if network.Wireguard.Firewall.Hetzner == nil {
+		network.Wireguard.Firewall.Hetzner = &wireguard.HetznerFirewall{}
+	}
+
+	if network.Wireguard.Firewall.Hetzner.AllowedIps == nil {
+		network.Wireguard.Firewall.Hetzner.AllowedIps = wireguard.FWAllowedIps
+	}
+
 	return &Config{
 		Nodepools: nodepools,
 		Network:   network,
