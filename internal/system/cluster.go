@@ -72,11 +72,9 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 
 					k3sOutputs = module.Value().(*k3s.Outputs)
 
-					// Replace server IP in kubeconfig with Public IP.
-					// Since we have a rule in firewall for kube endpoint for our ip address (by defualt),
-					// we can use it to connect to cluster all the time.
+					// Replace leader IP in kubeconfig with IP based on specified method.
 					k3sOutputs.Kubeconfig = pulumi.All(
-						k3sOutputs.Kubeconfig, leaderIPS[variables.PublicCommunicationMethod],
+						k3sOutputs.Kubeconfig, leaderIPS[v.info.K8SEndpointType()],
 					).ApplyT(
 						func(args []interface{}) interface{} {
 							kubeconfig := args[0].(*api.Config)
