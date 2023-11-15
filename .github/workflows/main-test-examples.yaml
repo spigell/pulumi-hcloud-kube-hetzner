@@ -36,7 +36,6 @@ jobs:
     with:
       pulumi-stack: k3s-private-non-ha-simple-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-private-non-ha-simple.yaml
-      disable-wg-check: true
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
