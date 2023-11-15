@@ -38,5 +38,5 @@ jobs:
         name: Run the linter
         with:
           skip-pkg-cache: true
+          args: --timeout=10m
           version: v1.54
-          timeout: 5m
