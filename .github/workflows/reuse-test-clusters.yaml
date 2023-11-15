@@ -10,9 +10,6 @@ on:
       pulumi-config-source:
         required: true
         type: string
-      disable-wg-check:
-        required: false
-        type: boolean
     secrets:
       google-credentials:
         required: true
@@ -25,6 +22,7 @@ jobs:
   deploy:
     name: Deploy Cluster
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
       PULUMI_CONFIG_SOURCE: ${{ inputs.pulumi-config-source }}
@@ -62,6 +60,7 @@ jobs:
     needs: deploy
     name: Reachability Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
       PULUMI_CONFIG_SOURCE: ../../pulumi-template/${{ inputs.pulumi-config-source }}
@@ -81,7 +80,7 @@ jobs:
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: test-project
-      - run: go test -v -parallel=10 -tags=connectivity,linux
+      - run: go test -timeout=25m -v -parallel=10 -tags=connectivity,linux
         name: Run reachability tests
         working-directory: internal/integration
         env:
@@ -92,6 +91,7 @@ jobs:
     needs: deploy
     name: Main Integration Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
       PULUMI_CONFIG_SOURCE: ../../pulumi-template/${{ inputs.pulumi-config-source }}
@@ -107,7 +107,7 @@ jobs:
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: test-project
-      - run: go test -v -parallel=10 -tags=kubernetes
+      - run: go test -v -timeout=25m -parallel=10 -tags=kubernetes
         name: Run main integration tests
         working-directory: internal/integration
         env:

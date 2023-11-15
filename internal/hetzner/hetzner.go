@@ -213,7 +213,7 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 			},
 		}
 
-		//nolint: gocritic // this is the only way to convert string to int
+		//nolint: gocritic,revive,stylecheck // this is the only way to convert string to int
 		nodeId := node.Resource.ID().ToStringOutput().ApplyT(func(id string) (int, error) {
 			return strconv.Atoi(id)
 		}).(pulumi.IntOutput)
@@ -223,7 +223,9 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 			interFw.Ips = append(interFw.Ips, pulumi.Sprintf("%s/32", node.Resource.Ipv4Address))
 			interFw.Ids = append(interFw.Ids, nodeId)
 
-			if srv.Server.Firewall.Hetzner.Dedicated() {
+			switch {
+			// We can create and attach firewall to the node right now if it is dedicated.
+			case srv.Server.Firewall.Hetzner.Dedicated():
 				firewall, err := firewall.New(srv.Server.Firewall.Hetzner).Up(h.ctx, id)
 				if err != nil {
 					return nil, fmt.Errorf("failed to create a dedicated firewall for node %s: %w", id, err)
@@ -233,15 +235,14 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 					return nil, fmt.Errorf("failed to attach a dedicated firewall to node %s: %w", id, err)
 				}
 
-				continue
-			}
-
-			if firewalls[pool] != nil {
+			// Otherwise, we need to collect nodeId of all nodes in pool and attach them later.
+			case firewalls[pool] != nil:
 				firewallsByNodepool[pool] = append(firewallsByNodepool[pool], nodeId)
-				continue
-			}
 
-			firewallsByNodeRole[srv.Role] = append(firewallsByNodeRole[srv.Role], nodeId)
+			// If none of dedicated() or pool exist, we need to collect nodeId of all nodes by role and attach them later.
+			default:
+				firewallsByNodeRole[srv.Role] = append(firewallsByNodeRole[srv.Role], nodeId)
+			}
 		}
 	}
 

@@ -13,16 +13,15 @@ config:
       enabled: true
       firewall:
         hetzner:
-          # Do not add own ip to rules as allowed for service.
-          # If set to true, then allowed-ips must include networks with your ip address.
-          # Otherwise, there will be error.
-          disallow-own-ip: true
           # Allow establish tunnel only from the this cidr!
           # Remember: it only affects external network. Nodes in the internal network can establish tunnels from any ip
           # because THEY consider the private networks to be "secure".
           # Remember: all traffic between nodes is allowed.
+          # Despite the fact that the endpoint is not allowed for your ip address, you can use the endpoint,
+          # because ip address is added to the firewall by default.
           allowed-ips:
-            - "0.0.0.0/0"
+            - '127.0.0.1/32'
+            - '100.0.0.0/24'
   pulumi-hcloud-kube-hetzner:k8s:
     kube-api-endpoint:
       # By default, public endpoint type is used.
@@ -30,12 +29,13 @@ config:
       firewall:
         # This only works for the public endpoint.
         hetzner-public:
+          # Do not add own ip to rules as allowed for service.
+          # If set to true, then allowed-ips must include networks with your ip address.
+          # Otherwise, there will be error.
+          disallow-own-ip: true
           # Allow access to the k8s api from the this cidr!
-          # Despite the fact that the endpoint is not allowed for your ip address, you can use the endpoint,
-          # because ip address is added to the firewall by default.
           allowed-ips:
-            - '127.0.0.1/32'
-            - '100.0.0.0/24'
+            - "0.0.0.0/0"
 
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
@@ -52,7 +52,7 @@ config:
                   - description: custom rule
                     port: "100"
                     protocol: tcp
-                    sourceIps:
+                    source-ips:
                       - 0.0.0.0/0
         nodes:
           - id: k3s-agent01
@@ -104,13 +104,11 @@ config:
               - description: custom rule 2
                 port: "10000"
                 protocol: tcp
-                sourceIps:
+                source-ips:
                   - 0.0.0.0/0
     global:
       server:
         firewall:
-          firewalld:
-            enabled: false
           hetzner:
             enabled: true
             allow-icmp: true
@@ -121,7 +119,7 @@ config:
               - description: custom rule 1
                 port: "51825"
                 protocol: udp
-                sourceIps:
+                source-ips:
                   - 102.0.0.0/8
                   - ::/0
       k3s:

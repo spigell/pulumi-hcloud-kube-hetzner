@@ -43,6 +43,7 @@ func New(ctx *pulumi.Context) *Config {
 	defaults.WithInited()
 	k8s.WithInited()
 
+	//nolint: dupl //This is not a dubl
 	for i, pool := range nodepools.Agents {
 		if pool.Config == nil {
 			nodepools.Agents[i].Config = &Node{}
@@ -75,6 +76,7 @@ func New(ctx *pulumi.Context) *Config {
 		}
 	}
 
+	//nolint: dupl //This is not a dubl
 	for i, pool := range nodepools.Servers {
 		if pool.Config == nil {
 			nodepools.Servers[i].Config = &Node{}

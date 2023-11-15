@@ -5,15 +5,25 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
+)
+
+var (
+	// This is a default deadline for tests.
+	//nolint: unused
+	defaultDeadline = time.Now().Add(5 * time.Minute)
+
+	// This deadline is used for tests with pulumi command (only with locking, tho).
+	withPulumiDeadline = time.Now().Add(20 * time.Minute)
 )
 
 func TestMain(m *testing.M) {
-	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
+	ctx, cancel := context.WithDeadline(context.Background(), withPulumiDeadline)
 	defer cancel()
 
 	i, err := New(ctx)
 	if err != nil {
-		log.Fatalf("failed to create integration: %v", err)
+		log.Fatalf("failed to create integration: %v", err) //nolint: gocritic
 	}
 	if err := i.Validate(); err != nil {
 		log.Fatalf("failed to validate: %v", err)
@@ -22,8 +32,7 @@ func TestMain(m *testing.M) {
 	// Skip UP if INTEGRATION_NO_UP_STARTUP is set to true.
 	// Up can be time consuming and we don't need it if we run tests locally sometimes.
 	if os.Getenv("INTEGRATION_NO_UP_STARTUP") != "true" {
-		_, err = i.Stack.Up(ctx)
-		if err != nil {
+		if err := i.UpWithRetry(); err != nil {
 			log.Fatalf("failed to run UP for stack: %v", err)
 		}
 	}

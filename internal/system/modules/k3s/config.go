@@ -19,11 +19,11 @@ type Config struct {
 	Version string
 	// [Experimental] clean-data-on-upgrade is used to delete all data while upgrade.
 	// This is based on the script https://docs.k3s.io/upgrades/killall
-	CleanDataOnUpgrade bool `json:"clean-data-on-upgrade"`
+	CleanDataOnUpgrade bool `json:"clean-data-on-upgrade" yaml:"clean-data-on-upgrade,omitempty"`
 	// Do not add default taints to the server node.
-	DisableDefaultsTaints bool `json:"disable-default-taints"`
+	DisableDefaultsTaints bool `json:"disable-default-taints" yaml:"disable-default-taints,omitempty"`
 	// The real config of k3s service.
-	K3S *K3sConfig `json:"config"`
+	K3S *K3sConfig `json:"config" yaml:"config"`
 }
 
 type K3sConfig struct { //nolint: revive // This name is better

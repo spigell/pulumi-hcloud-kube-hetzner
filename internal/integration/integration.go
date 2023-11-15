@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/avast/retry-go"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 )
 
@@ -26,26 +27,24 @@ const (
 	testSSHConnectivity = "ssh-connectivity"
 )
 
-var (
-	defaultDeadline = time.Now().Add(5 * time.Minute)
-
-	TestsByExampleName = map[string][]string{
-		exampleK3SPrivateNonHASimple: {
-			testSSHConnectivity,
-			testKubeVersion,
-		},
-		exampleK3SWGNonHaFwRules: {
-			testSSHConnectivity,
-			testWGConnectivity,
-			testKubeVersion,
-		},
-		exampleK3SWGHANoTaints: {
-			testSSHConnectivity,
-			testWGConnectivity,
-			testKubeVersion,
-		},
-	}
-)
+// TestsByExampleName is a map of tests and their test cases.
+// Please use this map to add new tests for examples.
+var TestsByExampleName = map[string][]string{
+	exampleK3SPrivateNonHASimple: {
+		testSSHConnectivity,
+		testKubeVersion,
+	},
+	exampleK3SWGNonHaFwRules: {
+		testSSHConnectivity,
+		testWGConnectivity,
+		testKubeVersion,
+	},
+	exampleK3SWGHANoTaints: {
+		testSSHConnectivity,
+		testWGConnectivity,
+		testKubeVersion,
+	},
+}
 
 type Integration struct {
 	ctx     context.Context
@@ -96,4 +95,20 @@ func (i *Integration) Validate() error {
 	}
 
 	return nil
+}
+
+func (i *Integration) UpWithRetry() error {
+	return retry.Do(
+		func() error {
+			_, err := i.Stack.Up(i.ctx)
+
+			if err != nil && !auto.IsConcurrentUpdateError(err) {
+				return retry.Unrecoverable(err)
+			}
+
+			return nil
+		},
+		retry.Delay(15*time.Second),
+		retry.Attempts(10),
+	)
 }

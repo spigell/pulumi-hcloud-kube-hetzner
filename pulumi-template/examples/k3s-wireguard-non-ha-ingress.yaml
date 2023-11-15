@@ -31,8 +31,8 @@ config:
             config:
               node-label:
               - kubernetes.io/role=ingress
-            node-taint:
-            - node-role.kubernetes.io/ingress:NoSchedule
+              node-taint:
+              - node-role.kubernetes.io/ingress:NoSchedule
         nodes:
         - id: k3s-ingress01
     servers:

@@ -19,6 +19,7 @@ func Up(config string) (*Wireguard, error) {
 		return nil, err
 	}
 
+	//nolint: gosec
 	cmd := exec.Command("sudo", "wg-quick", "up", file.Name())
 
 	if output, err := cmd.CombinedOutput(); err != nil {
@@ -31,7 +32,7 @@ func Up(config string) (*Wireguard, error) {
 }
 
 func (w *Wireguard) Close() error {
-	if err := exec.Command("sudo", "wg-quick", "down", w.configPath).Run(); err != nil {
+	if err := exec.Command("sudo", "wg-quick", "down", w.configPath).Run(); err != nil { //nolint: gosec
 		return err
 	}
 

@@ -72,6 +72,5 @@ func TestWireguradConnectivity(t *testing.T) {
 
 		ping := exec.Command("ping", "-c", "2", ip).Run()
 		assert.NoError(t, ping)
-
 	}
 }
