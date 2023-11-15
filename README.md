@@ -91,9 +91,9 @@ $ make test-project
 - [x] Restart k3s if wireguard restarted (!)
 
 ## CI
-- [ ] Add linter run for every PR
-- [ ] Add go test run for every PR
-- [ ] Use pulumi cli instead of actions for up and preview. Collect logs.
+- [x] Add linter run for every branch
+- [x] Add go test run for every branch
+- [x] Use pulumi cli instead of actions for up and preview. Collect logs.
 
 ## Tests
 - [ ] Add idempotent tests for all runs
