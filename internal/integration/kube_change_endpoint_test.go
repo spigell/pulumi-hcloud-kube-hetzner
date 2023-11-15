@@ -31,10 +31,10 @@ func TestKubeChangeEndpoint(t *testing.T) {
 		t.Skip()
 	}
 
-	out, err := i.Stack.Outputs(ctx)
+	old, err := i.Stack.Outputs(ctx)
 	assert.NoError(t, err)
 
-	old, ok := out[phkh.KubeconfigKey].Value.(string)
+	publicKubeconfig, ok := old[phkh.KubeconfigKey].Value.(string)
 	assert.True(t, ok)
 
 	val, err := i.Stack.GetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", &auto.ConfigOptions{Path: true})
@@ -53,7 +53,9 @@ func TestKubeChangeEndpoint(t *testing.T) {
 	assert.NoError(t, i.UpWithRetry())
 	assert.NoError(t, err)
 
-	internalKubeconfig, ok := out[phkh.KubeconfigKey].Value.(string)
+	new, err := i.Stack.Outputs(ctx)
+	assert.NoError(t, err)
+	internalKubeconfig, ok := new[phkh.KubeconfigKey].Value.(string)
 	assert.True(t, ok)
 
 
@@ -79,5 +81,5 @@ func TestKubeChangeEndpoint(t *testing.T) {
 
 
 	// Check that kubeconfig changed
-	assert.NotEqual(t, old, internalKubeconfig)
+	assert.NotEqual(t, publicKubeconfig, internalKubeconfig)
 }
