@@ -39,3 +39,4 @@ jobs:
         with:
           skip-pkg-cache: true
           version: v1.54
+          timeout: 5m
