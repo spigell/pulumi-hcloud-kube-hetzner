@@ -15,9 +15,9 @@ var (
 	retry = strings.Join([]string{
 		"n=0",
 		"until [ $n -ge 5 ]",
-			"do %s && break",
-			"sleep 10",
-			"n=$((n+1))",
+		"do %s && break",
+		"sleep 10",
+		"n=$((n+1))",
 		"done",
 	}, " ; ")
 )

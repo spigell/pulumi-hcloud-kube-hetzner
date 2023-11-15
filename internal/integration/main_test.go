@@ -8,7 +8,7 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
+	ctx, cancel := context.WithDeadline(context.Background(), withPulumiDeadline)
 	defer cancel()
 
 	i, err := New(ctx)

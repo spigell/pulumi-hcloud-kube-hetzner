@@ -17,7 +17,7 @@ type Config struct {
 
 type SSH struct {
 	Allow         bool
-	DisallowOwnIP bool     `json:"disallow-own-ip"`
+	DisallowOwnIP bool     `json:"disallow-own-ip" yaml:"disallow-own-ip"`
 	AllowedIps    []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
@@ -26,7 +26,7 @@ type Rule struct {
 
 	Protocol    string
 	Port        string
-	SourceIps   []string
+	SourceIps   []string `json:"source-ips" yaml:"source-ips"`
 	Direction   string
 	Description string
 }

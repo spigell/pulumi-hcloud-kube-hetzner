@@ -28,8 +28,13 @@ const (
 )
 
 var (
+	// This is a default deadline for tests.
 	defaultDeadline = time.Now().Add(5 * time.Minute)
 
+	// This deadline is used for tests with pulumi command (only with locking, tho).
+	withPulumiDeadline = time.Now().Add(20 * time.Minute)
+
+	// Please use this map to add new tests for examples.
 	TestsByExampleName = map[string][]string{
 		exampleK3SPrivateNonHASimple: {
 			testSSHConnectivity,
@@ -104,13 +109,13 @@ func (i *Integration) UpWithRetry() error {
 		func() error {
 			_, err := i.Stack.Up(i.ctx)
 
-			if err != nil && ! auto.IsConcurrentUpdateError(err) {
+			if err != nil && !auto.IsConcurrentUpdateError(err) {
 				return retry.Unrecoverable(err)
 			}
 
 			return nil
 		},
-		retry.Delay(15 * time.Second),
+		retry.Delay(15*time.Second),
 		retry.Attempts(10),
 	)
 }

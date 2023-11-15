@@ -52,7 +52,7 @@ config:
                   - description: custom rule
                     port: "100"
                     protocol: tcp
-                    sourceIps:
+                    source-ips:
                       - 0.0.0.0/0
         nodes:
           - id: k3s-agent01
@@ -104,13 +104,11 @@ config:
               - description: custom rule 2
                 port: "10000"
                 protocol: tcp
-                sourceIps:
+                source-ips:
                   - 0.0.0.0/0
     global:
       server:
         firewall:
-          firewalld:
-            enabled: false
           hetzner:
             enabled: true
             allow-icmp: true
@@ -121,7 +119,7 @@ config:
               - description: custom rule 1
                 port: "51825"
                 protocol: udp
-                sourceIps:
+                source-ips:
                   - 102.0.0.0/8
                   - ::/0
       k3s:

@@ -30,7 +30,7 @@ type Nodepool struct {
 }
 
 type K8S struct {
-	KubeAPIEndpoint *K8SEndpoint `json:"kube-api-endpoint"`
+	KubeAPIEndpoint *K8SEndpoint `json:"kube-api-endpoint" yaml:"kube-api-endpoint"`
 }
 
 type K8SEndpoint struct {
@@ -39,11 +39,11 @@ type K8SEndpoint struct {
 }
 
 type BasicFirewall struct {
-	HetznerPublic *HetnzerBasidFirewall `json:"hetzner-public"`
+	HetznerPublic *HetnzerBasidFirewall `json:"hetzner-public" yaml:"hetzner-public"`
 }
 
 type HetnzerBasidFirewall struct {
-	DisallowOwnIP bool     `json:"disallow-own-ip"`
+	DisallowOwnIP bool     `json:"disallow-own-ip" yaml:"disallow-own-ip"`
 	AllowedIps    []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
@@ -69,7 +69,7 @@ func (n *Node) GetID() string {
 }
 
 type Server struct {
-	ServerType string `json:"server-type"`
+	ServerType string `json:"server-type" yaml:"server-type"`
 	Firewall   *Firewall
 	Location   string
 	UserName   string
