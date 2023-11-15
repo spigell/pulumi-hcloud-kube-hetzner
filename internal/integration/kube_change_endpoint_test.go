@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto/optpreview"
@@ -37,8 +38,8 @@ func TestKubeChangeEndpoint(t *testing.T) {
 	assert.True(t, ok)
 
 	val, err := i.Stack.GetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", &auto.ConfigOptions{Path: true})
-	assert.NoError(t, err)
-	assert.Equal(t, variables.PublicCommunicationMethod, val.Value)
+	require.NoError(t, err)
+	require.Equal(t, variables.PublicCommunicationMethod, val.Value)
 
 	// Change to internal
 	i.Stack.SetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", auto.ConfigValue{
