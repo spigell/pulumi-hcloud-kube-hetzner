@@ -67,7 +67,7 @@ func (c *PHKH) Up() error {
 		return err
 	}
 
-	err = c.compiled.K8S.Up(sys.K3s.Kubeconfig, sys.Resources)
+	err = c.compiled.K8S.Up(sys.K3s.KubeconfigForUsage, sys.Resources)
 	if err != nil {
 		return err
 	}
@@ -76,7 +76,7 @@ func (c *PHKH) Up() error {
 	c.state.exportSSHKeyPair(keys)
 	c.state.exportWGInfo(sys.Wireguard)
 	c.state.exportK3SToken(sys.K3s.Token)
-	c.state.exportK3SKubeconfig(sys.K3s.Kubeconfig)
+	c.state.exportK3SKubeconfig(sys.K3s.KubeconfigForExport)
 
 	return nil
 }
