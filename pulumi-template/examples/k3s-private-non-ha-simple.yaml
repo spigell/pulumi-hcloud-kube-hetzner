@@ -30,7 +30,6 @@ config:
             server-type: cpx21
         nodes:
         - id: k3s-server01
-          leader: true
   pulumi-hcloud-kube-hetzner:defaults:
     global:
       server:

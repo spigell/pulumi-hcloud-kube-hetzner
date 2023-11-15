@@ -63,7 +63,6 @@ config:
       - id: control-plane
         nodes:
         - id: k3s-server01
-          leader: true
           server:
             firewall:
               hetzner:

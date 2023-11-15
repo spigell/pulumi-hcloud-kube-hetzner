@@ -42,7 +42,6 @@ config:
             server-type: cpx21
         nodes:
         - id: k3s-server01
-          leader: true
           server:
             location: fsn1
   pulumi-hcloud-kube-hetzner:defaults:
