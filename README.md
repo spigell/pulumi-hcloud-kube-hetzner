@@ -70,6 +70,7 @@ $ make test-project
 - [x] Expose kubeconfig
 - [x] Add a external ip of the program to FW rules
 - [ ] Add more validation rules (size of the net, difference between servers flags)
+- [ ] Add dynamic version detection
 - [x] Add an ability to run cluster without leader tag with single master
 - [x] K3s token generation
 - [x] Add fw rules for the public network mode
@@ -91,9 +92,9 @@ $ make test-project
 - [x] Restart k3s if wireguard restarted (!)
 
 ## CI
-- [ ] Add linter run for every PR
-- [ ] Add go test run for every PR
-- [ ] Use pulumi cli instead of actions for up and preview. Collect logs.
+- [x] Add linter run for every branch
+- [x] Add go test run for every branch
+- [x] Use pulumi cli instead of actions for up and preview. Collect logs.
 
 ## Tests
 - [ ] Add idempotent tests for all runs

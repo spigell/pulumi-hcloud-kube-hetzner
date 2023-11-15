@@ -1,4 +1,8 @@
 ## Testing
+### Unit testing
+For every push to any branch, GithubActions runs unit tests. You can run it locally using `go test $(go list ./... | grep -v integration)`. For integration tests, please see below.
+
+There is a golang-ci linter as well. You can run it using `golangci-lint run`.
 
 ### Integration
 Since I am a person from operation world, I prefer integration tests over unit testing.

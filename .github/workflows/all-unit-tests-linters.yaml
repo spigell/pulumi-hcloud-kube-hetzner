@@ -1,0 +1,42 @@
+name: Run tests and linter for all branches
+on:
+  push:
+
+jobs:
+  unit-tests:
+    name: Run unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: benjlevesque/short-sha@v2.2
+      - name: Setup Go ✨
+        uses: actions/setup-go@v4
+        with:
+          cache: false
+          go-version-file: go.mod
+      - name: Downloading dependencies 📦
+        shell: bash
+        run: go mod download
+      - name: Run tests
+        run: go test $(go list ./... | grep -v integration) | grep -v 'no test files'
+
+  golangci-linter:
+    name: Run golangci linter
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: benjlevesque/short-sha@v2.2
+      - name: Setup Go ✨
+        uses: actions/setup-go@v4
+        with:
+          cache: false
+          go-version-file: go.mod
+      - name: Downloading dependencies 📦
+        shell: bash
+        run: go mod download
+      - uses: golangci/golangci-lint-action@v3
+        name: Run the linter
+        with:
+          skip-pkg-cache: true
+          args: --timeout=10m
+          version: v1.54

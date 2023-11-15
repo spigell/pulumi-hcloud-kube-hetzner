@@ -58,7 +58,6 @@ func TestKubeChangeEndpoint(t *testing.T) {
 	internalKubeconfig, ok := new[phkh.KubeconfigKey].Value.(string)
 	assert.True(t, ok)
 
-
 	// Change to wireguard
 	i.Stack.SetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", auto.ConfigValue{
 		Value: variables.WgCommunicationMethod,
@@ -70,7 +69,6 @@ func TestKubeChangeEndpoint(t *testing.T) {
 	_, err = i.Stack.Preview(ctx, optpreview.ExpectNoChanges())
 	assert.NoError(t, err)
 
-
 	// Change endpoint type back to public to not break deletion step.
 	i.Stack.SetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", auto.ConfigValue{
 		Value: variables.PublicCommunicationMethod,
@@ -78,7 +76,6 @@ func TestKubeChangeEndpoint(t *testing.T) {
 		&auto.ConfigOptions{Path: true},
 	)
 	assert.NoError(t, i.UpWithRetry())
-
 
 	// Check that kubeconfig changed
 	assert.NotEqual(t, publicKubeconfig, internalKubeconfig)
