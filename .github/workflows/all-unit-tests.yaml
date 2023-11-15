@@ -34,5 +34,7 @@ jobs:
       - name: Downloading dependencies 📦
         shell: bash
         run: go mod download
-      - name: Run tests
-        run: golangci-lint run
+      - uses: golangci/golangci-lint-action@v3
+        name: Run tests
+        with:
+          version: v1.54
