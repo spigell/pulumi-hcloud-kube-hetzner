@@ -140,6 +140,7 @@ func (h *Hetzner) FirewallConfigByID(id, pool string) (*firewall.Config, error) 
 	}
 }
 
+// nolint: gocognit // It must be refactored
 func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, error) {
 	nodes := make(map[string]*Server)
 	firewalls := make(map[string]*firewall.Firewall)

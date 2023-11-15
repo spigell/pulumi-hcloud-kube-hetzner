@@ -30,6 +30,7 @@ type Compiled struct {
 	K8S        *k8s.K8S
 }
 
+// nolint: gocognit,gocyclo // This need to be refactored
 func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Compiled, error) {
 	// This is the only supported kubernetes distribution right now.
 	kube := defaultKube

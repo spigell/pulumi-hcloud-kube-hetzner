@@ -8,9 +8,6 @@ import (
 	"dario.cat/mergo"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
-	hnetwork "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 )
 
 const (
@@ -50,75 +47,11 @@ func New(ctx *pulumi.Context) *Config {
 // Nodepools and Nodes returned sorted.
 // This is required for the network module to work correctly when user changes order of nodepools and nodes.
 func (c *Config) WithInited() *Config {
+	c.Network.WithInited()
 	c.Defaults.WithInited()
 	c.K8S.WithInited()
+	c.Nodepools.WithInited()
 	c.Nodepools.SpecifyLeader()
-
-	//nolint: dupl //This is not a dubl
-	for i, pool := range c.Nodepools.Agents {
-		if pool.Config == nil {
-			c.Nodepools.Agents[i].Config = &Node{}
-		}
-
-		if pool.Config.K3s == nil {
-			c.Nodepools.Agents[i].Config.K3s = &k3s.Config{}
-		}
-
-		if pool.Config.K3s.K3S == nil {
-			c.Nodepools.Agents[i].Config.K3s.K3S = &k3s.K3sConfig{}
-		}
-
-		if pool.Config.Server == nil {
-			c.Nodepools.Agents[i].Config.Server = &Server{}
-		}
-
-		for j, node := range pool.Nodes {
-			if node.Server == nil {
-				c.Nodepools.Agents[i].Nodes[j].Server = &Server{}
-			}
-
-			if node.K3s == nil {
-				c.Nodepools.Agents[i].Nodes[j].K3s = &k3s.Config{}
-			}
-
-			if node.K3s.K3S == nil {
-				c.Nodepools.Agents[i].Nodes[j].K3s.K3S = &k3s.K3sConfig{}
-			}
-		}
-	}
-
-	//nolint: dupl //This is not a dubl
-	for i, pool := range c.Nodepools.Servers {
-		if pool.Config == nil {
-			c.Nodepools.Servers[i].Config = &Node{}
-		}
-
-		if pool.Config.K3s == nil {
-			c.Nodepools.Servers[i].Config.K3s = &k3s.Config{}
-		}
-
-		if pool.Config.K3s.K3S == nil {
-			c.Nodepools.Servers[i].Config.K3s.K3S = &k3s.K3sConfig{}
-		}
-
-		if pool.Config.Server == nil {
-			c.Nodepools.Servers[i].Config.Server = &Server{}
-		}
-
-		for j, node := range pool.Nodes {
-			if node.Server == nil {
-				c.Nodepools.Servers[i].Nodes[j].Server = &Server{}
-			}
-
-			if node.K3s == nil {
-				c.Nodepools.Servers[i].Nodes[j].K3s = &k3s.Config{}
-			}
-
-			if node.K3s.K3S == nil {
-				c.Nodepools.Servers[i].Nodes[j].K3s.K3S = &k3s.K3sConfig{}
-			}
-		}
-	}
 
 	// Sort
 	c.Nodepools.Agents = sortByID(c.Nodepools.Agents)
@@ -130,34 +63,6 @@ func (c *Config) WithInited() *Config {
 
 	for i, pool := range c.Nodepools.Servers {
 		c.Nodepools.Servers[i].Nodes = sortByID(pool.Nodes)
-	}
-
-	if c.Network == nil {
-		c.Network = &Network{}
-	}
-
-	if c.Network.Hetzner == nil {
-		c.Network.Hetzner = &hnetwork.Config{
-			Enabled: false,
-		}
-	}
-
-	if c.Network.Wireguard == nil {
-		c.Network.Wireguard = &wireguard.Config{
-			Enabled: false,
-		}
-	}
-
-	if c.Network.Wireguard.Firewall == nil {
-		c.Network.Wireguard.Firewall = &wireguard.Firewall{}
-	}
-
-	if c.Network.Wireguard.Firewall.Hetzner == nil {
-		c.Network.Wireguard.Firewall.Hetzner = &wireguard.HetznerFirewall{}
-	}
-
-	if c.Network.Wireguard.Firewall.Hetzner.AllowedIps == nil {
-		c.Network.Wireguard.Firewall.Hetzner.AllowedIps = wireguard.FWAllowedIps
 	}
 
 	return c
@@ -203,9 +108,9 @@ func (c *Config) Nodes() ([]*Node, error) {
 	return sortByMajority(nodes), nil
 }
 
-func (n *Nodepools) SpecifyLeader() {
-	if len(n.Servers) == 1 && len(n.Servers[0].Nodes) == 1 {
-		n.Servers[0].Nodes[0].Leader = true
+func (no *Nodepools) SpecifyLeader() {
+	if len(no.Servers) == 1 && len(no.Servers[0].Nodes) == 1 {
+		no.Servers[0].Nodes[0].Leader = true
 	}
 }
 
