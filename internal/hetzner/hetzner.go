@@ -140,8 +140,9 @@ func (h *Hetzner) FirewallConfigByID(id, pool string) (*firewall.Config, error) 
 	}
 }
 
-// nolint: gocognit // It must be refactored
-func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, error) {
+// Up creates hetzner cloud infrastructure.
+// It must be refactored.
+func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, error) { //nolint: gocognit
 	nodes := make(map[string]*Server)
 	firewalls := make(map[string]*firewall.Firewall)
 	firewallsByNodeRole := make(map[string]pulumi.IntArray)
