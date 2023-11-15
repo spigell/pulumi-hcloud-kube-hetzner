@@ -58,6 +58,7 @@ $ make test-project
 ## Documentation
 - [ ] Add doc generation from structs
 - [ ] Describe network modes
+- [ ] Describe project layout
 - [ ] Spelling
 
 ## Code
@@ -73,7 +74,7 @@ $ make test-project
 - [x] K3s token generation
 - [x] Add fw rules for the public network mode
 - [ ] Add the docker workbench
-- [ ] Mark all sensitive values as secrets
+- [x] Mark all sensitive values as secrets
 - [ ] Add basic k8s apps (VM, metrics-server, etc, hetzner MCC, upgrader, kured)
 
 ### Bugs
@@ -96,6 +97,6 @@ $ make test-project
 
 ## Tests
 - [ ] Add idempotent tests for all runs
-- [ ] Add tests for wireguard run (check master connection)
+- [x] Add tests for wireguard run (check master connection)
 - [ ] Test with multiple servers
-- [ ] Test with single node cluster (without leader tag)
+- [x] Test with single node cluster (without leader tag)

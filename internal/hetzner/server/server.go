@@ -171,7 +171,7 @@ func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool 
 		dependencies = append(dependencies, net.Subnets[pool].Resource)
 	}
 
-	args.UserData = s.Userdata.render()
+	args.UserData = pulumi.ToSecret(s.Userdata.render()).(pulumi.StringOutput)
 
 	if os.Getenv(autoApiApps.EnvAutomaionAPIAddr) != "" {
 		sn, err := snapshots.GetLastSnapshot(&http.Client{}, name)

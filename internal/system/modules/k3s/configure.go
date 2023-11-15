@@ -23,7 +23,7 @@ func (k *K3S) configure(ctx *pulumi.Context, con *connection.Connection, config 
 		Connection: con.RemoteFile(),
 		UseSudo:    pulumi.Bool(true),
 		Path:       pulumi.String(cfgPath),
-		Content:    config,
+		Content:    pulumi.ToSecret(config).(pulumi.StringOutput),
 		SftpPath:   pulumi.String(k.OS.SFTPServerPath()),
 	}, pulumi.DependsOn(deps), pulumi.RetainOnDelete(true))
 	if err != nil {
