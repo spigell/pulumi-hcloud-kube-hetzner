@@ -22,9 +22,10 @@ const (
 	exampleK3SWGNonHaFwRules     = "k3s-wireguard-non-ha-firewall-rules"
 	exampleK3SWGHANoTaints       = "k3s-wireguard-ha-no-taints"
 
-	testWGConnectivity  = "wireguard-connectivity"
-	testKubeVersion     = "kube-version"
-	testSSHConnectivity = "ssh-connectivity"
+	testWGConnectivity         = "wireguard-connectivity"
+	testKubeVersion            = "kube-version"
+	testSSHConnectivity        = "ssh-connectivity"
+	testKubeChangeEndpointType = "kube-change-endpoint-type"
 )
 
 // TestsByExampleName is a map of tests and their test cases.
@@ -38,6 +39,7 @@ var TestsByExampleName = map[string][]string{
 		testSSHConnectivity,
 		testWGConnectivity,
 		testKubeVersion,
+		testKubeChangeEndpointType,
 	},
 	exampleK3SWGHANoTaints: {
 		testSSHConnectivity,

@@ -37,10 +37,6 @@ func (i *Info) WithK8SEndpointType(t string) *Info {
 	return i
 }
 
-func (i *Info) K8SEndpointType() string {
-	return i.k8sEndpointType
-}
-
 func (i *Info) MarkAsLeader() *Info {
 	i.leader = true
 

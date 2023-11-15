@@ -29,7 +29,11 @@ func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
 
 			return string(k)
 		}).(pulumi.StringOutput),
-	}, pulumi.DependsOn(deps))
+	},
+		pulumi.DependsOn(deps),
+		// Ignore kubeconfig changes because it leads to recreation of all k8s resources.
+		pulumi.IgnoreChanges([]string{"kubeconfig"}),
+	)
 	if err != nil {
 		return err
 	}
