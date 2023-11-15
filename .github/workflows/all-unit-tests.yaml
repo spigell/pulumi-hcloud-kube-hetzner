@@ -21,7 +21,7 @@ jobs:
         run: go test $(go list ./... | grep -v integration) | grep -v 'no test files'
 
   golangci-linter:
-    name: Run unit tests
+    name: Run golangci linter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -35,6 +35,6 @@ jobs:
         shell: bash
         run: go mod download
       - uses: golangci/golangci-lint-action@v3
-        name: Run linter
+        name: Run the linter
         with:
           version: v1.54
