@@ -27,31 +27,24 @@ const (
 	testSSHConnectivity = "ssh-connectivity"
 )
 
-var (
-	// This is a default deadline for tests.
-	defaultDeadline = time.Now().Add(5 * time.Minute)
-
-	// This deadline is used for tests with pulumi command (only with locking, tho).
-	withPulumiDeadline = time.Now().Add(20 * time.Minute)
-
-	// Please use this map to add new tests for examples.
-	TestsByExampleName = map[string][]string{
-		exampleK3SPrivateNonHASimple: {
-			testSSHConnectivity,
-			testKubeVersion,
-		},
-		exampleK3SWGNonHaFwRules: {
-			testSSHConnectivity,
-			testWGConnectivity,
-			testKubeVersion,
-		},
-		exampleK3SWGHANoTaints: {
-			testSSHConnectivity,
-			testWGConnectivity,
-			testKubeVersion,
-		},
-	}
-)
+// TestsByExampleName is a map of tests and their test cases.
+// Please use this map to add new tests for examples.
+var TestsByExampleName = map[string][]string{
+	exampleK3SPrivateNonHASimple: {
+		testSSHConnectivity,
+		testKubeVersion,
+	},
+	exampleK3SWGNonHaFwRules: {
+		testSSHConnectivity,
+		testWGConnectivity,
+		testKubeVersion,
+	},
+	exampleK3SWGHANoTaints: {
+		testSSHConnectivity,
+		testWGConnectivity,
+		testKubeVersion,
+	},
+}
 
 type Integration struct {
 	ctx     context.Context

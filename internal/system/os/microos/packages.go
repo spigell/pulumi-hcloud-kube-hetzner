@@ -11,16 +11,14 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-var (
-	retry = strings.Join([]string{
-		"n=0",
-		"until [ $n -ge 5 ]",
-		"do %s && break",
-		"sleep 10",
-		"n=$((n+1))",
-		"done",
-	}, " ; ")
-)
+var retry = strings.Join([]string{
+	"n=0",
+	"until [ $n -ge 5 ]",
+	"do %s && break",
+	"sleep 10",
+	"n=$((n+1))",
+	"done",
+}, " ; ")
 
 func (m *MicroOS) Packages(ctx *pulumi.Context, con *connection.Connection) error {
 	zypper := "zypper up -y"
