@@ -29,11 +29,8 @@ config:
       firewall:
         # This only works for the public endpoint.
         hetzner-public:
-          # Do not add own ip to rules as allowed for service.
-          # If set to true, then allowed-ips must include networks with your ip address.
-          # Otherwise, there will be error.
-          disallow-own-ip: true
           # Allow access to the k8s api from the this cidr!
+          # Applied only if firewall enabled and kube-api-endpoint.type == public
           allowed-ips:
             - "0.0.0.0/0"
 
