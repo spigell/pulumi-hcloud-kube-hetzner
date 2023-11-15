@@ -25,10 +25,13 @@ config:
   pulumi-hcloud-kube-hetzner:k8s:
     kube-api-endpoint:
       # By default, public endpoint type is used.
-      type: wireguard
+      type: public
       firewall:
         # This only works for the public endpoint.
         hetzner-public:
+          # Do not add my ip to rules as allowed for ssh.
+          # This is not needed since allowed-ips includes all addresses.
+          disallow-own-ip: true
           # Allow access to the k8s api from the this cidr!
           # Applied only if firewall enabled and kube-api-endpoint.type == public
           allowed-ips:

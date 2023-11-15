@@ -17,7 +17,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
 )
 
-// TestKubeChangeEndpoint tests that changing endpoint type from wireguard to internal and checking that kubeconfig changed.
+// TestKubeChangeEndpoint tests that changing endpoint type from public to internal and checking that kubeconfig changed.
 func TestKubeChangeEndpoint(t *testing.T) {
 	t.Parallel()
 
@@ -38,7 +38,7 @@ func TestKubeChangeEndpoint(t *testing.T) {
 
 	val, err := i.Stack.GetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", &auto.ConfigOptions{Path: true})
 	assert.NoError(t, err)
-	assert.Equal(t, variables.WgCommunicationMethod, val.Value)
+	assert.Equal(t, variables.PublicCommunicationMethod, val.Value)
 
 	i.Stack.SetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", auto.ConfigValue{
 		Value: variables.InternalCommunicationMethod,
@@ -46,11 +46,20 @@ func TestKubeChangeEndpoint(t *testing.T) {
 		&auto.ConfigOptions{Path: true},
 	)
 
-	_, err = i.Stack.Preview(ctx, optpreview.ExpectNoChanges())
+	// Make UP for update kubeconfig output
+	// Also allowed rules will be removed
+	assert.NoError(t, i.UpWithRetry())
 	assert.NoError(t, err)
 
-	// Make UP for update kubeconfig output
-	assert.NoError(t, i.UpWithRetry())
+	// Change to wireguard
+	i.Stack.SetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", auto.ConfigValue{
+		Value: variables.WgCommunicationMethod,
+	},
+		&auto.ConfigOptions{Path: true},
+	)
+
+	// Check that preview is ok and no changes
+	_, err = i.Stack.Preview(ctx, optpreview.ExpectNoChanges())
 	assert.NoError(t, err)
 
 	// Change endpoint type back to public to not break deletion step.
