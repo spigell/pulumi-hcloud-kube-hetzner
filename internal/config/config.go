@@ -25,9 +25,7 @@ type Config struct {
 	K8S       *K8S
 }
 
-// New returns the configuration for the cluster.
-// Nodepools and Nodes returned sorted.
-// This is required for the network module to work correctly when user changes order of nodepools and nodes.
+// New returns the parsed configuration for the cluster as is without any modifications.
 func New(ctx *pulumi.Context) *Config {
 	var defaults *Defaults
 	var nodepools *Nodepools
@@ -40,121 +38,129 @@ func New(ctx *pulumi.Context) *Config {
 	c.RequireSecretObject("network", &network)
 	c.RequireSecretObject("k8s", &k8s)
 
-	defaults.WithInited()
-	k8s.WithInited()
-
-	//nolint: dupl //This is not a dubl
-	for i, pool := range nodepools.Agents {
-		if pool.Config == nil {
-			nodepools.Agents[i].Config = &Node{}
-		}
-
-		if pool.Config.K3s == nil {
-			nodepools.Agents[i].Config.K3s = &k3s.Config{}
-		}
-
-		if pool.Config.K3s.K3S == nil {
-			nodepools.Agents[i].Config.K3s.K3S = &k3s.K3sConfig{}
-		}
-
-		if pool.Config.Server == nil {
-			nodepools.Agents[i].Config.Server = &Server{}
-		}
-
-		for j, node := range pool.Nodes {
-			if node.Server == nil {
-				nodepools.Agents[i].Nodes[j].Server = &Server{}
-			}
-
-			if node.K3s == nil {
-				nodepools.Agents[i].Nodes[j].K3s = &k3s.Config{}
-			}
-
-			if node.K3s.K3S == nil {
-				nodepools.Agents[i].Nodes[j].K3s.K3S = &k3s.K3sConfig{}
-			}
-		}
-	}
-
-	//nolint: dupl //This is not a dubl
-	for i, pool := range nodepools.Servers {
-		if pool.Config == nil {
-			nodepools.Servers[i].Config = &Node{}
-		}
-
-		if pool.Config.K3s == nil {
-			nodepools.Servers[i].Config.K3s = &k3s.Config{}
-		}
-
-		if pool.Config.K3s.K3S == nil {
-			nodepools.Servers[i].Config.K3s.K3S = &k3s.K3sConfig{}
-		}
-
-		if pool.Config.Server == nil {
-			nodepools.Servers[i].Config.Server = &Server{}
-		}
-
-		for j, node := range pool.Nodes {
-			if node.Server == nil {
-				nodepools.Servers[i].Nodes[j].Server = &Server{}
-			}
-
-			if node.K3s == nil {
-				nodepools.Servers[i].Nodes[j].K3s = &k3s.Config{}
-			}
-
-			if node.K3s.K3S == nil {
-				nodepools.Servers[i].Nodes[j].K3s.K3S = &k3s.K3sConfig{}
-			}
-		}
-	}
-
-	// Sort
-	nodepools.Agents = sortByID(nodepools.Agents)
-	nodepools.Servers = sortByID(nodepools.Servers)
-
-	for i, pool := range nodepools.Agents {
-		nodepools.Agents[i].Nodes = sortByID(pool.Nodes)
-	}
-
-	for i, pool := range nodepools.Servers {
-		nodepools.Servers[i].Nodes = sortByID(pool.Nodes)
-	}
-
-	if network == nil {
-		network = &Network{}
-	}
-
-	if network.Hetzner == nil {
-		network.Hetzner = &hnetwork.Config{
-			Enabled: false,
-		}
-	}
-
-	if network.Wireguard == nil {
-		network.Wireguard = &wireguard.Config{
-			Enabled: false,
-		}
-	}
-
-	if network.Wireguard.Firewall == nil {
-		network.Wireguard.Firewall = &wireguard.Firewall{}
-	}
-
-	if network.Wireguard.Firewall.Hetzner == nil {
-		network.Wireguard.Firewall.Hetzner = &wireguard.HetznerFirewall{}
-	}
-
-	if network.Wireguard.Firewall.Hetzner.AllowedIps == nil {
-		network.Wireguard.Firewall.Hetzner.AllowedIps = wireguard.FWAllowedIps
-	}
-
 	return &Config{
 		Nodepools: nodepools,
 		Network:   network,
 		Defaults:  defaults,
 		K8S:       k8s,
 	}
+}
+
+// WithInited returns the parsed configuration for the cluster with all the defaults set.
+// Nodepools and Nodes returned sorted.
+// This is required for the network module to work correctly when user changes order of nodepools and nodes.
+func (c *Config) WithInited() *Config {
+	c.Defaults.WithInited()
+	c.K8S.WithInited()
+	c.Nodepools.SpecifyLeader()
+
+	//nolint: dupl //This is not a dubl
+	for i, pool := range c.Nodepools.Agents {
+		if pool.Config == nil {
+			c.Nodepools.Agents[i].Config = &Node{}
+		}
+
+		if pool.Config.K3s == nil {
+			c.Nodepools.Agents[i].Config.K3s = &k3s.Config{}
+		}
+
+		if pool.Config.K3s.K3S == nil {
+			c.Nodepools.Agents[i].Config.K3s.K3S = &k3s.K3sConfig{}
+		}
+
+		if pool.Config.Server == nil {
+			c.Nodepools.Agents[i].Config.Server = &Server{}
+		}
+
+		for j, node := range pool.Nodes {
+			if node.Server == nil {
+				c.Nodepools.Agents[i].Nodes[j].Server = &Server{}
+			}
+
+			if node.K3s == nil {
+				c.Nodepools.Agents[i].Nodes[j].K3s = &k3s.Config{}
+			}
+
+			if node.K3s.K3S == nil {
+				c.Nodepools.Agents[i].Nodes[j].K3s.K3S = &k3s.K3sConfig{}
+			}
+		}
+	}
+
+	//nolint: dupl //This is not a dubl
+	for i, pool := range c.Nodepools.Servers {
+		if pool.Config == nil {
+			c.Nodepools.Servers[i].Config = &Node{}
+		}
+
+		if pool.Config.K3s == nil {
+			c.Nodepools.Servers[i].Config.K3s = &k3s.Config{}
+		}
+
+		if pool.Config.K3s.K3S == nil {
+			c.Nodepools.Servers[i].Config.K3s.K3S = &k3s.K3sConfig{}
+		}
+
+		if pool.Config.Server == nil {
+			c.Nodepools.Servers[i].Config.Server = &Server{}
+		}
+
+		for j, node := range pool.Nodes {
+			if node.Server == nil {
+				c.Nodepools.Servers[i].Nodes[j].Server = &Server{}
+			}
+
+			if node.K3s == nil {
+				c.Nodepools.Servers[i].Nodes[j].K3s = &k3s.Config{}
+			}
+
+			if node.K3s.K3S == nil {
+				c.Nodepools.Servers[i].Nodes[j].K3s.K3S = &k3s.K3sConfig{}
+			}
+		}
+	}
+
+	// Sort
+	c.Nodepools.Agents = sortByID(c.Nodepools.Agents)
+	c.Nodepools.Servers = sortByID(c.Nodepools.Servers)
+
+	for i, pool := range c.Nodepools.Agents {
+		c.Nodepools.Agents[i].Nodes = sortByID(pool.Nodes)
+	}
+
+	for i, pool := range c.Nodepools.Servers {
+		c.Nodepools.Servers[i].Nodes = sortByID(pool.Nodes)
+	}
+
+	if c.Network == nil {
+		c.Network = &Network{}
+	}
+
+	if c.Network.Hetzner == nil {
+		c.Network.Hetzner = &hnetwork.Config{
+			Enabled: false,
+		}
+	}
+
+	if c.Network.Wireguard == nil {
+		c.Network.Wireguard = &wireguard.Config{
+			Enabled: false,
+		}
+	}
+
+	if c.Network.Wireguard.Firewall == nil {
+		c.Network.Wireguard.Firewall = &wireguard.Firewall{}
+	}
+
+	if c.Network.Wireguard.Firewall.Hetzner == nil {
+		c.Network.Wireguard.Firewall.Hetzner = &wireguard.HetznerFirewall{}
+	}
+
+	if c.Network.Wireguard.Firewall.Hetzner.AllowedIps == nil {
+		c.Network.Wireguard.Firewall.Hetzner.AllowedIps = wireguard.FWAllowedIps
+	}
+
+	return c
 }
 
 // Nodes returns the nodes for the cluster.
@@ -195,6 +201,12 @@ func (c *Config) Nodes() ([]*Node, error) {
 	}
 
 	return sortByMajority(nodes), nil
+}
+
+func (n *Nodepools) SpecifyLeader() {
+	if len(n.Servers) == 1 && len(n.Servers[0].Nodes) == 1 {
+		n.Servers[0].Nodes[0].Leader = true
+	}
 }
 
 // sortByMajority sorts nodes by majority.

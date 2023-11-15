@@ -14,7 +14,7 @@ type PHKH struct {
 }
 
 func New(ctx *pulumi.Context) (*PHKH, error) {
-	cfg := config.New(ctx)
+	cfg := config.New(ctx).WithInited()
 	state, err := state(ctx)
 	if err != nil {
 		return nil, err
