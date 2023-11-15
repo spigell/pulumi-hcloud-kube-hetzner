@@ -25,7 +25,7 @@ config:
   pulumi-hcloud-kube-hetzner:k8s:
     kube-api-endpoint:
       # By default, public endpoint type is used.
-      # type: public
+      type: public
       firewall:
         # This only works for the public endpoint.
         hetzner-public:

@@ -73,17 +73,8 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 					k3sOutputs = module.Value().(*k3s.Outputs)
 
 					// Replace leader IP in kubeconfig with IP based on specified method.
-					k3sOutputs.Kubeconfig = pulumi.All(
-						k3sOutputs.Kubeconfig, leaderIPS[v.info.K8SEndpointType()],
-					).ApplyT(
-						func(args []interface{}) interface{} {
-							kubeconfig := args[0].(*api.Config)
-							ip := args[1].(string)
-							kubeconfig.Clusters["default"].Server = fmt.Sprintf("https://%s:6443", ip)
-
-							return kubeconfig
-						},
-					).(pulumi.AnyOutput)
+					k3sOutputs.KubeconfigForExport = replaceKubeServer(k3sOutputs.KubeconfigForExport, leaderIPS[v.info.K8SEndpointType()])
+					k3sOutputs.KubeconfigForUsage = replaceKubeServer(k3sOutputs.KubeconfigForUsage, leaderIPS[variables.PublicCommunicationMethod])
 				}
 
 				resources = append(resources, module.Resources()...)
@@ -105,4 +96,16 @@ func (c *Cluster) Leader() *System {
 		return v
 	}
 	return nil
+}
+
+func replaceKubeServer(kubeconfig pulumi.AnyOutput, ip pulumi.StringOutput) pulumi.AnyOutput {
+	return pulumi.All(kubeconfig, ip).ApplyT(
+		func(args []interface{}) interface{} {
+			kubeconfig := args[0].(*api.Config)
+			ip := args[1].(string)
+			kubeconfig.Clusters["default"].Server = fmt.Sprintf("https://%s:6443", ip)
+
+			return kubeconfig
+		},
+	).(pulumi.AnyOutput)
 }

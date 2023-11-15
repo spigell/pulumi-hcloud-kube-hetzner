@@ -30,8 +30,9 @@ type Provisioned struct {
 }
 
 type Outputs struct {
-	Token      string
-	Kubeconfig pulumi.AnyOutput
+	Token               string
+	KubeconfigForExport pulumi.AnyOutput
+	KubeconfigForUsage  pulumi.AnyOutput
 }
 
 var packages = map[string][]string{
@@ -163,8 +164,9 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 	return &Provisioned{
 		resources: res,
 		Outputs: &Outputs{
-			Token:      k.Config.K3S.Token,
-			Kubeconfig: kubeconfig,
+			Token:               k.Config.K3S.Token,
+			KubeconfigForUsage:  kubeconfig,
+			KubeconfigForExport: kubeconfig,
 		},
 	}, nil
 }
