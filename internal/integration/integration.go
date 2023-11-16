@@ -18,9 +18,10 @@ const (
 	envConfigSource = "PULUMI_CONFIG_SOURCE"
 	envConfigPath   = "PULUMI_STACK_CONFIG"
 
-	exampleK3SPrivateNonHASimple = "k3s-private-non-ha-simple"
-	exampleK3SWGNonHaFwRules     = "k3s-wireguard-non-ha-firewall-rules"
-	exampleK3SWGHANoTaints       = "k3s-wireguard-ha-no-taints"
+	exampleK3SPrivateNonHASimple  = "k3s-private-non-ha-simple"
+	exampleK3SWGNonHaFwRules      = "k3s-wireguard-non-ha-firewall-rules"
+	exampleK3SWGHANoTaints        = "k3s-wireguard-ha-no-taints"
+	exampleK3SPublicNonHADefaults = "k3s-public-non-ha-with-defaults"
 
 	testWGConnectivity         = "wireguard-connectivity"
 	testKubeVersion            = "kube-version"
@@ -45,6 +46,9 @@ var TestsByExampleName = map[string][]string{
 		testSSHConnectivity,
 		testWGConnectivity,
 		testKubeVersion,
+	},
+	exampleK3SPublicNonHADefaults: {
+		testSSHConnectivity,
 	},
 }
 

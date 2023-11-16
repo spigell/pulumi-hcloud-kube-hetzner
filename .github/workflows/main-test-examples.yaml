@@ -1,8 +1,9 @@
-name: Deploy examples
+name: The cluster deployment for examples for long-living branches
 on:
   push:
     branches:
       - main
+      - preview
   workflow_dispatch:
     inputs:
       example:
@@ -12,6 +13,7 @@ on:
           - k3s-private-non-ha-simple
           - k3s-wireguard-non-ha-firewall-rules
           - k3s-wireguard-ha-no-taints
+          - k3s-public-non-ha-with-defaults
           - all
 
 
@@ -30,7 +32,7 @@ jobs:
 
   default:
     needs: init
-    name: The simple cluster for ${{ needs.init.outputs.short-sha }}
+    name: The simple private cluster
     if: contains(fromJson('["all", "k3s-private-non-ha-simple"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
@@ -42,7 +44,7 @@ jobs:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   with-rich-firewall-rules:
     needs: init
-    name: The cluster with rich firewalls rules for ${{ needs.init.outputs.short-sha }}
+    name: The cluster with rich firewalls rules
     if: contains(fromJson('["all", "k3s-wireguard-non-ha-firewall-rules"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
@@ -54,12 +56,24 @@ jobs:
       github-token: ${{ secrets.GITHUB_TOKEN }}
   ha-server-with-workload:
     needs: init
-    name: The HA cluster with workload servers for ${{ needs.init.outputs.short-sha }}
+    name: The HA cluster with workload servers
     if: contains(fromJson('["all", "k3s-wireguard-ha-no-taints"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-wireguard-ha-no-taint-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-wireguard-ha-no-taints.yaml
+    secrets:
+      google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+      hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  simple:
+    needs: init
+    name: The simplest cluster with defaults
+    if: contains(fromJson('["all", "k3s-public-non-ha-with-defaults"]'), inputs.example) || contains(fromJson('["refs/heads/preview", "refs/heads/main"]'), github.ref)
+    uses: ./.github/workflows/reuse-test-clusters.yaml
+    with:
+      pulumi-stack: k3s-public-non-ha-with-defaults-${{ needs.init.outputs.short-sha }}
+      pulumi-config-source: examples/k3s-public-non-ha-with-defaults.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
