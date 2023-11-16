@@ -2,9 +2,9 @@
 # This cluster will be created without firewalls and internal network
 # This example used for testing purposes.
 config:
-  pulumi-hcloud-kube-hetzner:network:
-  pulumi-hcloud-kube-hetzner:defaults:
-  pulumi-hcloud-kube-hetzner:k8s:
+  pulumi-hcloud-kube-hetzner:network: {}
+  pulumi-hcloud-kube-hetzner:defaults: {}
+  pulumi-hcloud-kube-hetzner:k8s: {}
   pulumi-hcloud-kube-hetzner:nodepools:
     servers:
       - id: control-plane

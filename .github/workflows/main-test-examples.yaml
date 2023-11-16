@@ -1,8 +1,9 @@
-name: Deploy examples
+name: The cluster deployment for examples for long-living branches
 on:
   push:
     branches:
       - main
+      - preview
   workflow_dispatch:
     inputs:
       example:
@@ -12,6 +13,7 @@ on:
           - k3s-private-non-ha-simple
           - k3s-wireguard-non-ha-firewall-rules
           - k3s-wireguard-ha-no-taints
+          - k3s-public-non-ha-with-defaults
           - all
 
 
@@ -60,6 +62,18 @@ jobs:
     with:
       pulumi-stack: k3s-wireguard-ha-no-taint-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-wireguard-ha-no-taints.yaml
+    secrets:
+      google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+      hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  simple:
+    needs: init
+    name: The simplest cluster with defaults for ${{ needs.init.outputs.short-sha }}
+    if: contains(fromJson('["all", "k3s-public-non-ha-with-defaults"]'), inputs.example) || contains(fromJson('["refs/heads/preview", "refs/heads/main"]'), github.ref)
+    uses: ./.github/workflows/reuse-test-clusters.yaml
+    with:
+      pulumi-stack: k3s-public-non-ha-with-defaults-${{ needs.init.outputs.short-sha }}
+      pulumi-config-source: examples/k3s-public-non-ha-with-defaults.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
