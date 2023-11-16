@@ -5,7 +5,6 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 )
 
 type WithID interface {
@@ -27,24 +26,6 @@ type Nodepool struct {
 	ID     string
 	Config *Node
 	Nodes  []*Node
-}
-
-type K8S struct {
-	KubeAPIEndpoint *K8SEndpoint `json:"kube-api-endpoint" yaml:"kube-api-endpoint"`
-}
-
-type K8SEndpoint struct {
-	Type     string
-	Firewall *BasicFirewall
-}
-
-type BasicFirewall struct {
-	HetznerPublic *HetnzerBasidFirewall `json:"hetzner-public" yaml:"hetzner-public"`
-}
-
-type HetnzerBasidFirewall struct {
-	DisallowOwnIP bool     `json:"disallow-own-ip" yaml:"disallow-own-ip"`
-	AllowedIps    []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
 type Network struct {
@@ -107,103 +88,4 @@ func (d *Defaults) WithInited() *Defaults {
 	}
 
 	return d
-}
-
-func (k *K8S) WithInited() *K8S {
-	if k.KubeAPIEndpoint == nil {
-		k.KubeAPIEndpoint = &K8SEndpoint{}
-	}
-
-	if k.KubeAPIEndpoint.Type == "" {
-		k.KubeAPIEndpoint.Type = variables.PublicCommunicationMethod
-	}
-
-	if k.KubeAPIEndpoint.Firewall == nil {
-		k.KubeAPIEndpoint.Firewall = &BasicFirewall{}
-	}
-
-	if k.KubeAPIEndpoint.Firewall.HetznerPublic == nil {
-		k.KubeAPIEndpoint.Firewall.HetznerPublic = &HetnzerBasidFirewall{}
-	}
-
-	if k.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps == nil {
-		k.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps = firewall.ICMPRule.SourceIps
-	}
-
-	return k
-}
-
-func (n *Network) WithInited() *Network {
-	if n.Hetzner == nil {
-		n.Hetzner = &network.Config{
-			Enabled: false,
-		}
-	}
-
-	if n.Wireguard == nil {
-		n.Wireguard = &wireguard.Config{
-			Enabled: false,
-		}
-	}
-
-	if n.Wireguard.Firewall == nil {
-		n.Wireguard.Firewall = &wireguard.Firewall{}
-	}
-
-	if n.Wireguard.Firewall.Hetzner == nil {
-		n.Wireguard.Firewall.Hetzner = &wireguard.HetznerFirewall{}
-	}
-
-	if n.Wireguard.Firewall.Hetzner.AllowedIps == nil {
-		n.Wireguard.Firewall.Hetzner.AllowedIps = wireguard.FWAllowedIps
-	}
-
-	return n
-}
-
-func (no *Nodepools) WithInited() *Nodepools {
-	no.Agents = initNodepools(no.Agents)
-	no.Servers = initNodepools(no.Servers)
-
-	return no
-}
-
-func initNodepools(pools []*Nodepool) []*Nodepool {
-	no := make([]*Nodepool, 0)
-
-	for i, pool := range pools {
-		no = append(no, pool)
-
-		if pool.Config == nil {
-			no[i].Config = &Node{}
-		}
-
-		if pool.Config.K3s == nil {
-			no[i].Config.K3s = &k3s.Config{}
-		}
-
-		if pool.Config.K3s.K3S == nil {
-			no[i].Config.K3s.K3S = &k3s.K3sConfig{}
-		}
-
-		if pool.Config.Server == nil {
-			no[i].Config.Server = &Server{}
-		}
-
-		for j, node := range pool.Nodes {
-			if node.Server == nil {
-				no[i].Nodes[j].Server = &Server{}
-			}
-
-			if node.K3s == nil {
-				no[i].Nodes[j].K3s = &k3s.Config{}
-			}
-
-			if node.K3s.K3S == nil {
-				no[i].Nodes[j].K3s.K3S = &k3s.K3sConfig{}
-			}
-		}
-	}
-
-	return no
 }

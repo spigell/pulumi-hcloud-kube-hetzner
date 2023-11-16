@@ -9,6 +9,8 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/mcc"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
@@ -83,6 +85,8 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 	if err != nil {
 		return nil, fmt.Errorf("failed to get external IP: %w", err)
 	}
+	
+	kubeCluster := k8s.New(ctx, config.K8S.Addons)
 
 	s := make(system.Cluster, 0)
 	for _, node := range nodes {
@@ -159,12 +163,33 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		s = append(s, sys.WithOS(os))
 	}
 
-	kubeCluster := k8s.New(ctx)
+	var distr distributions.Distribution
+
+	switch kube {
+	case defaultKube:
+		distr = kubeCluster.K3S().WithAddons(kubeCluster.Addons())
+		if err := distr.Validate(); err != nil {
+			return nil, fmt.Errorf("failed to validate k3s cluster: %w", err)
+		}
+
+		for _, addon := range kubeCluster.Addons() {
+			switch name := addon.Name(); name {
+			case mcc.Name:
+				a := addon.(*mcc.MCC)
+				a.SetClusterCIDR(s.Leader().OS.Modules()[defaultKube].(*k3s.K3S).Config.K3S.ClusterCidr)
+			}
+		}
+
+
+	}
+
+
 
 	return &Compiled{
 		Hetzner:    infra,
 		SysCluster: s,
 		K8S:        kubeCluster,
+
 	}, nil
 }
 

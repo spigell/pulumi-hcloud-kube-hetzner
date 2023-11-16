@@ -2,55 +2,43 @@ package k8s
 
 import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/tools/clientcmd/api"
-
-	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes"
-
-	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
 )
 
 type K8S struct {
 	ctx *pulumi.Context
+	distr string
+	addons   []addons.Addon
 }
 
-func New(ctx *pulumi.Context) *K8S {
+func New(ctx *pulumi.Context, adds *addons.Addons) *K8S {
 	return &K8S{
-		ctx: ctx,
+		ctx:      ctx,
+		addons: addons.New(adds),
 	}
+}
+
+func (k *K8S) K3S() *k3s.K3S {
+	k.distr = k3s.DistrName
+
+	return k3s.New(k.ctx)
+}
+
+func (k *K8S) Distr() string {
+	return k.distr
+}
+
+func (k *K8S) Addons() []addons.Addon {
+	return k.addons
 }
 
 func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
-	prov, err := kubernetes.NewProvider(k.ctx, "main", &kubernetes.ProviderArgs{
-		Kubeconfig: kubeconfig.ApplyT(func(s interface{}) string {
-			kubeconfig := s.(*api.Config)
+	prov, err := k.Provider(kubeconfig, deps)
 
-			k, _ := clientcmd.Write(*kubeconfig)
-
-			return string(k)
-		}).(pulumi.StringOutput),
-	},
-		pulumi.DependsOn(deps),
-		// Ignore kubeconfig changes because it leads to recreation of all k8s resources.
-		pulumi.IgnoreChanges([]string{"kubeconfig"}),
-	)
 	if err != nil {
 		return err
 	}
 
-	_, err = corev1.NewPod(k.ctx, "pod", &corev1.PodArgs{
-		Spec: corev1.PodSpecArgs{
-			Containers: corev1.ContainerArray{
-				corev1.ContainerArgs{
-					Name:  pulumi.String("nginx"),
-					Image: pulumi.String("nginx"),
-				},
-			},
-		},
-	}, pulumi.Provider(prov))
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return k.NewRunner().Run(prov)
 }
