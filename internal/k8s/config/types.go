@@ -1,4 +1,4 @@
-package k8s
+package config
 
 import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
@@ -26,6 +26,10 @@ type HetnzerBasicFirewall struct {
 }
 
 func (k *Config) WithInited() *Config {
+	if k.Addons == nil {
+		k.Addons = &addons.Addons{}
+	}
+
 	if k.KubeAPIEndpoint == nil {
 		k.KubeAPIEndpoint = &K8SEndpoint{}
 	}

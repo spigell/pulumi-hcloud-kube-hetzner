@@ -21,7 +21,11 @@ var (
 		// So, it is better to wait a bit longer for a node to come back than to lose it.
 		"node-monitor-grace-period": "2m",
 	}
-
+	defaultsKubeCloudControllerManagerArgs = map[string]string{
+		// https://github.com/k3s-io/k3s/discussions/6452#discussioncomment-4080240
+		// It can conflict with hetzner CCM
+		"secure-port": "0",
+	}
 	defaultKubeAPIServerArgs = map[string]string{
 		// If the node is down there is no need to wait more than 60s.
 		"default-not-ready-toleration-seconds":   "60",

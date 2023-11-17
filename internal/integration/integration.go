@@ -27,6 +27,7 @@ const (
 	testKubeVersion            = "kube-version"
 	testSSHConnectivity        = "ssh-connectivity"
 	testKubeChangeEndpointType = "kube-change-endpoint-type"
+	testKubeHetznerCCM         = "kube-hetzner-ccm"
 )
 
 // TestsByExampleName is a map of tests and their test cases.
@@ -35,17 +36,20 @@ var TestsByExampleName = map[string][]string{
 	exampleK3SPrivateNonHASimple: {
 		testSSHConnectivity,
 		testKubeVersion,
+		testKubeHetznerCCM,
 	},
 	exampleK3SWGNonHaFwRules: {
 		testSSHConnectivity,
 		testWGConnectivity,
 		testKubeVersion,
 		testKubeChangeEndpointType,
+		testKubeHetznerCCM,
 	},
 	exampleK3SWGHANoTaints: {
 		testSSHConnectivity,
 		testWGConnectivity,
 		testKubeVersion,
+		testKubeHetznerCCM,
 	},
 	exampleK3SPublicNonHADefaults: {
 		testSSHConnectivity,

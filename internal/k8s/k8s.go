@@ -7,14 +7,14 @@ import (
 )
 
 type K8S struct {
-	ctx *pulumi.Context
-	distr string
-	addons   []addons.Addon
+	ctx    *pulumi.Context
+	distr  string
+	addons []addons.Addon
 }
 
 func New(ctx *pulumi.Context, adds *addons.Addons) *K8S {
 	return &K8S{
-		ctx:      ctx,
+		ctx:    ctx,
 		addons: addons.New(adds),
 	}
 }
@@ -31,6 +31,10 @@ func (k *K8S) Distr() string {
 
 func (k *K8S) Addons() []addons.Addon {
 	return k.addons
+}
+
+func (k *K8S) Validate() error {
+	return addons.Validate(k.addons)
 }
 
 func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {

@@ -37,7 +37,11 @@ config:
           # Applied only if firewall enabled and kube-api-endpoint.type == public
           allowed-ips:
             - "0.0.0.0/0"
-
+    addons:
+      ccm:
+        enabled: true
+        loadbalancers-enabled: false
+        networking: false
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: 01-small-nodes

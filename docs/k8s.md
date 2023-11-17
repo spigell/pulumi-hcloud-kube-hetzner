@@ -22,6 +22,8 @@ For `wireguard` type you can use master connection for wireguard cluster to esta
 ### K8S APIServer external access
 By default, a hetzner firewall rule allows all traffic to **6443** port if `k8s.endpoint.type` is specified as `public` (this is a default value). If you want to restrict access to the apiserver from the public network, you can use the following configuration:
 ```yaml
+config:
+  <project>:k8s:
     endpoint:
       type: public
       firewall:
@@ -31,3 +33,18 @@ By default, a hetzner firewall rule allows all traffic to **6443** port if `k8s.
             - '102.0.0.0/8' # <--- Allow access to the k8s api from the this cidr!
 ```
 Internal networks and wireguard networks are considered as *secured*. So, no rules will be applied for them.
+
+### Addons
+Additional components can be installed to the cluster using `addons` property:
+```yaml
+config:
+  <project>:k8s:
+    addons:
+      ccm:
+        enabled: true
+        default-loadbalancers-location: fsn1
+        loadbalancers-enabled: true
+        helm:
+          version: v1.2.0
+```
+Most of the addons are installed using helm. So, you can specify `helm` property to override the default helm version for the addon. The default helm versions are specified in the (default-helm-versions.yaml)[../../pulumi-template/versions/default-helm-versions.yaml] file.

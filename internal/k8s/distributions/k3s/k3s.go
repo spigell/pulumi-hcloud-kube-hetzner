@@ -10,10 +10,11 @@ import (
 const (
 	DistrName = "k3s"
 )
+
 type K3S struct {
 	ctx *pulumi.Context
 
-	addons   []addons.Addon
+	addons []addons.Addon
 }
 
 func New(ctx *pulumi.Context) *K3S {

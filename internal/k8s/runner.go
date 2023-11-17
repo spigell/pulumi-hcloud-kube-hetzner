@@ -7,17 +7,17 @@ import (
 )
 
 type Runner struct {
-	ctx     *pulumi.Context
+	ctx *pulumi.Context
 
-	addons  []addons.Addon
+	addons []addons.Addon
 }
 
 func (k *K8S) NewRunner() *Runner {
 	return &Runner{
-		ctx: k.ctx,
+		ctx:    k.ctx,
 		addons: k.addons,
 	}
-	
+
 }
 
 func (r *Runner) Run(prov *kubernetes.Provider) error {

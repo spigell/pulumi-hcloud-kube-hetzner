@@ -9,6 +9,7 @@ import (
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
@@ -19,8 +20,8 @@ import (
 
 const (
 	defaultServerType = "cx21"
-	defaultLocation   = "hel1"
 	defaultUserName   = "rancher"
+	defaultLocation   = variables.DefaultLocation
 
 	// Allow user to be superuser.
 	sudo = "ALL=(ALL) NOPASSWD:ALL"

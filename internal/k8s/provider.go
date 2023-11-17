@@ -8,7 +8,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func (k *K8S) Provider(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) (*kubernetes.Provider, error ) {
+func (k *K8S) Provider(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) (*kubernetes.Provider, error) {
 	return kubernetes.NewProvider(k.ctx, "main", &kubernetes.ProviderArgs{
 		Kubeconfig: kubeconfig.ApplyT(func(s interface{}) string {
 			kubeconfig := s.(*api.Config)

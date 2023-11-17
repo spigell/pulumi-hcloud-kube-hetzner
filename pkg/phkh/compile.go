@@ -9,7 +9,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/mcc"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
@@ -85,8 +85,6 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 	if err != nil {
 		return nil, fmt.Errorf("failed to get external IP: %w", err)
 	}
-	
-	kubeCluster := k8s.New(ctx, config.K8S.Addons)
 
 	s := make(system.Cluster, 0)
 	for _, node := range nodes {
@@ -136,12 +134,25 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 				}
 			}
 
-			// By default, use default taints for server node if they are not set and agents nodes exist.
-			if node.Role == variables.ServerRole &&
-				!node.K3s.DisableDefaultsTaints &&
-				len(node.K3s.K3S.NodeTaints) == 0 &&
-				len(config.Nodepools.Agents) > 0 {
-				node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
+			if config.K8S.Addons.CCM.Enabled {
+				node.K3s.K3S.KubeletArgs = append(node.K3s.K3S.KubeletArgs, "cloud-provider=external")
+			}
+
+			if node.Role == variables.ServerRole {
+				// By default, use default taints for server node if they are not set and agents nodes exist.
+				if !node.K3s.DisableDefaultsTaints && len(node.K3s.K3S.NodeTaints) == 0 && len(config.Nodepools.Agents) > 0 {
+					node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
+				}
+
+				if config.K8S.Addons.CCM.Enabled {
+					ctx.Log.Debug("Hetzner CCM is enabled, force disabling built-in cloud-controller", nil)
+					node.K3s.K3S.DisableCloudController = true
+
+					if config.K8S.Addons.CCM.LoadbalancersEnabled {
+						ctx.Log.Debug("Hetzner CCM is enabled with LB support, force disabling built-in klipper lb", nil)
+						node.K3s.K3S.Disable = append(node.K3s.K3S.Disable, "servicelb")
+					}
+				}
 			}
 		default:
 			return nil, errors.New("unknown kubernetes distribution")
@@ -162,6 +173,10 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 
 		s = append(s, sys.WithOS(os))
 	}
+	kubeCluster := k8s.New(ctx, config.K8S.Addons)
+	if err := kubeCluster.Validate(); err != nil {
+		return nil, fmt.Errorf("failed to validate k8s addons: %w", err)
+	}
 
 	var distr distributions.Distribution
 
@@ -174,22 +189,21 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 
 		for _, addon := range kubeCluster.Addons() {
 			switch name := addon.Name(); name {
-			case mcc.Name:
-				a := addon.(*mcc.MCC)
+			case ccm.Name:
+				a := addon.(*ccm.CCM)
 				a.SetClusterCIDR(s.Leader().OS.Modules()[defaultKube].(*k3s.K3S).Config.K3S.ClusterCidr)
+				// Private network is validated already. It is present and enabled.
+				if config.K8S.Addons.CCM.Networking {
+					a.SetLoadbalancerPrivateIPUsage()
+				}
 			}
 		}
-
-
 	}
-
-
 
 	return &Compiled{
 		Hetzner:    infra,
 		SysCluster: s,
 		K8S:        kubeCluster,
-
 	}, nil
 }
 

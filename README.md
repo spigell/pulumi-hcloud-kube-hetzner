@@ -60,6 +60,7 @@ $ make test-project
 - [ ] Describe network modes
 - [ ] Describe project layout
 - [ ] Spelling
+- [ ] Add roadmap for autoscaling
 
 ## Code
 ### High (pre-release)

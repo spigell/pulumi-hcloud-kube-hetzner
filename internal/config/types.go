@@ -89,3 +89,77 @@ func (d *Defaults) WithInited() *Defaults {
 
 	return d
 }
+
+func (n *Network) WithInited() *Network {
+	if n.Hetzner == nil {
+		n.Hetzner = &network.Config{
+			Enabled: false,
+		}
+	}
+
+	if n.Wireguard == nil {
+		n.Wireguard = &wireguard.Config{
+			Enabled: false,
+		}
+	}
+
+	if n.Wireguard.Firewall == nil {
+		n.Wireguard.Firewall = &wireguard.Firewall{}
+	}
+
+	if n.Wireguard.Firewall.Hetzner == nil {
+		n.Wireguard.Firewall.Hetzner = &wireguard.HetznerFirewall{}
+	}
+
+	if n.Wireguard.Firewall.Hetzner.AllowedIps == nil {
+		n.Wireguard.Firewall.Hetzner.AllowedIps = wireguard.FWAllowedIps
+	}
+
+	return n
+}
+
+func (no *Nodepools) WithInited() *Nodepools {
+	no.Agents = initNodepools(no.Agents)
+	no.Servers = initNodepools(no.Servers)
+
+	return no
+}
+
+func initNodepools(pools []*Nodepool) []*Nodepool {
+	no := make([]*Nodepool, 0)
+
+	for i, pool := range pools {
+		no = append(no, pool)
+		if pool.Config == nil {
+			no[i].Config = &Node{}
+		}
+
+		if pool.Config.K3s == nil {
+			no[i].Config.K3s = &k3s.Config{}
+		}
+
+		if pool.Config.K3s.K3S == nil {
+			no[i].Config.K3s.K3S = &k3s.K3sConfig{}
+		}
+
+		if pool.Config.Server == nil {
+			no[i].Config.Server = &Server{}
+		}
+
+		for j, node := range pool.Nodes {
+			if node.Server == nil {
+				no[i].Nodes[j].Server = &Server{}
+			}
+
+			if node.K3s == nil {
+				no[i].Nodes[j].K3s = &k3s.Config{}
+			}
+
+			if node.K3s.K3S == nil {
+				no[i].Nodes[j].K3s.K3S = &k3s.K3sConfig{}
+			}
+		}
+	}
+
+	return no
+}

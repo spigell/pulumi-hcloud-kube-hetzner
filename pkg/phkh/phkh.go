@@ -76,12 +76,12 @@ func (c *PHKH) Up() error {
 		c.state.exportK3SToken(sys.K3s.Token)
 		err = c.compiled.K8S.Up(sys.K3s.KubeconfigForUsage, sys.Resources)
 
+		if err != nil {
+			return err
+		}
+
 	default:
 		return fmt.Errorf("unsupported kubernetes distribution: %s", distr)
-	}
-
-	if err != nil {
-		return err
 	}
 
 	c.state.exportHetznerInfra(cloud)
