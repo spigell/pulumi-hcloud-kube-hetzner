@@ -215,7 +215,7 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 				}
 
 				// Private network is validated already. It is present and enabled.
-				if config.K8S.Addons.CCM.Networking {
+				if kubeCluster.CCM().Networking() {
 					a.WithLoadbalancerPrivateIPUsage()
 				}
 			}
