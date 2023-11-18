@@ -152,6 +152,7 @@ func (n *Network) PickSubnet(id string, from string) error {
 func (n *Network) Up() (*Deployed, error) {
 	net, err := hcloud.NewNetwork(n.ctx, fmt.Sprintf("%s-%s", n.ctx.Project(), n.ctx.Stack()), &hcloud.NetworkArgs{
 		IpRange: pulumi.String(n.Config.CIDR),
+		Name:    pulumi.String(fmt.Sprintf("%s-%s", n.ctx.Project(), n.ctx.Stack())),
 	})
 	if err != nil {
 		return nil, err

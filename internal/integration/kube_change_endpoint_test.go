@@ -39,11 +39,11 @@ func TestKubeChangeEndpoint(t *testing.T) {
 
 	val, err := i.Stack.GetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", &auto.ConfigOptions{Path: true})
 	require.NoError(t, err)
-	require.Equal(t, variables.PublicCommunicationMethod, val.Value)
+	require.Equal(t, variables.PublicCommunicationMethod.String(), val.Value)
 
 	// Change to internal
 	i.Stack.SetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", auto.ConfigValue{
-		Value: variables.InternalCommunicationMethod,
+		Value: variables.InternalCommunicationMethod.String(),
 	},
 		&auto.ConfigOptions{Path: true},
 	)
@@ -60,7 +60,7 @@ func TestKubeChangeEndpoint(t *testing.T) {
 
 	// Change to wireguard
 	i.Stack.SetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", auto.ConfigValue{
-		Value: variables.WgCommunicationMethod,
+		Value: variables.WgCommunicationMethod.String(),
 	},
 		&auto.ConfigOptions{Path: true},
 	)
@@ -71,7 +71,7 @@ func TestKubeChangeEndpoint(t *testing.T) {
 
 	// Change endpoint type back to public to not break deletion step.
 	i.Stack.SetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", auto.ConfigValue{
-		Value: variables.PublicCommunicationMethod,
+		Value: variables.PublicCommunicationMethod.String(),
 	},
 		&auto.ConfigOptions{Path: true},
 	)

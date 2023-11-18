@@ -7,6 +7,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/info"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os/microos"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -49,10 +50,14 @@ func (s *System) WithOS(os os.OperationSystem) *System {
 	return s
 }
 
-func (s *System) WithCommunicationMethod(method string) *System {
+func (s *System) WithCommunicationMethod(method variables.CommunicationMethod) *System {
 	s.info = s.info.WithCommunicationMethod(method)
 
 	return s
+}
+
+func (s *System) CommunicationMethod() variables.CommunicationMethod {
+	return s.info.CommunicationMethod()
 }
 
 func (s *System) WithK8SEndpointType(t string) *System {

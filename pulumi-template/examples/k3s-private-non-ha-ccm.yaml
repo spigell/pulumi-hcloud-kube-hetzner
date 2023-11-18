@@ -1,0 +1,34 @@
+# The simple cluster with only hcloud cloud controller manager installed.
+# Show how to use hcloud cloud controller manager.
+config:
+  pulumi-hcloud-kube-hetzner:network:
+    hetzner:
+      enabled: true
+      cidr: 10.1.0.0/16
+  pulumi-hcloud-kube-hetzner:defaults:
+    servers:
+      k3s:
+        config:
+          disable:
+            # disable traefik to avoid loadbalancer leaking
+            - traefik
+  pulumi-hcloud-kube-hetzner:k8s:
+    addons:
+      ccm:
+        enabled: true
+        loadbalancers-default-location: fsn1
+        loadbalancers-enabled: true
+        networking: true
+        # with helm v3 you can use the following:
+        # version can be specified. Otherwise the default version will be used.
+        # helm: 
+        #   version: v1.2.0
+  pulumi-hcloud-kube-hetzner:nodepools:
+    servers:
+      - id: 01-control-plane
+        nodes:
+        - id: k3s-server01
+    agents:
+      - id: 01-agents
+        nodes:
+        - id: k3s-agent01
