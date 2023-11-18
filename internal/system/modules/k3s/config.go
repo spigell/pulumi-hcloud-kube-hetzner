@@ -51,11 +51,12 @@ type K3sConfig struct { //nolint: revive // This name is better
 	DisableNetworkPolicy bool     `json:"disable-network-policy" yaml:"disable-network-policy,omitempty"`
 	// NodeTaints are used to taint the node with key=value:effect.
 	// By default, server node is tainted with a couple of taints if number of agents nodes more than 0.
-	NodeTaints                []string `json:"node-taint" yaml:"node-taint,omitempty"`
-	KubeletArgs               []string `json:"kubelet-arg" yaml:"kubelet-arg,omitempty"`
-	KubeControllerManagerArgs []string `json:"kube-controller-manager-arg" yaml:"kube-controller-manager-arg,omitempty"`
-	KubeAPIServerArgs         []string `json:"kube-apiserver-arg" yaml:"kube-apiserver-arg,omitempty"`
-	DisableCloudController    bool     `json:"disable-cloud-controller" yaml:"disable-cloud-controller,omitempty"`
+	NodeTaints                     []string `json:"node-taint" yaml:"node-taint,omitempty"`
+	KubeletArgs                    []string `json:"kubelet-arg" yaml:"kubelet-arg,omitempty"`
+	KubeControllerManagerArgs      []string `json:"kube-controller-manager-arg" yaml:"kube-controller-manager-arg,omitempty"`
+	KubeCloudControllerManagerArgs []string `json:"kube-cloud-controller-manager-arg" yaml:"kube-cloud-controller-manager-arg,omitempty"`
+	KubeAPIServerArgs              []string `json:"kube-apiserver-arg" yaml:"kube-apiserver-arg,omitempty"`
+	DisableCloudController         bool     `json:"disable-cloud-controller" yaml:"disable-cloud-controller,omitempty"`
 	// Disable is a list to disable some services.
 	Disable []string `yaml:"disable,omitempty"`
 }

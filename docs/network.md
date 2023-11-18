@@ -9,6 +9,10 @@ Switching between modes on the fly is supported except switching from scenarios 
 Since NetworkManager is configured on the stage of cluster creation, it is not possible to reconfigure it on the fly right now. Changing `network.enabled: false -> network.enabled: true` will lead to an unstable and unreachable cluster.
 You should recreate the cluster instead.
 
+*Note*: Although the network mode can be changed on the fly, the most of kubernetes clusters can't survive such change if 
+`node-ip` for kubelet is changed. For k3s, you should recretate cluster. The reason is that the etcd stores the node ip in the cluster state and automatically can't be changed.
+
+
 ## SSH access
 The program creates a keypair for ssh access to the servers. The private key is stored in the pulumi state and can be retrieved by `pulumi stack output --show-secrets -j ssh:keypair` command. The reason for this is that many people use weak and unsupported keys and the program can not move further. 
 In the future, there will be a possibility to add your own public key.

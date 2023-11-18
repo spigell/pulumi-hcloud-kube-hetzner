@@ -31,12 +31,12 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 	kubeDependencies := make(map[string][]pulumi.Resource)
 
 	leaderIPS := map[string]pulumi.StringOutput{
-		variables.InternalCommunicationMethod: pulumi.String(deps.Servers[c.Leader().ID].InternalIP).ToStringOutput(),
-		variables.PublicCommunicationMethod:   deps.Servers[c.Leader().ID].Connection.IP,
+		variables.InternalCommunicationMethod.String(): pulumi.String(deps.Servers[c.Leader().ID].InternalIP).ToStringOutput(),
+		variables.PublicCommunicationMethod.String():   deps.Servers[c.Leader().ID].Connection.IP,
 	}
 
 	if c.Leader().OS.Wireguard() != nil {
-		leaderIPS[variables.WgCommunicationMethod] = pulumi.String(c.Leader().OS.Wireguard().Self.PrivateAddr).ToStringOutput()
+		leaderIPS[variables.WgCommunicationMethod.String()] = pulumi.String(c.Leader().OS.Wireguard().Self.PrivateAddr).ToStringOutput()
 	}
 
 	var k3sOutputs *k3s.Outputs
@@ -50,7 +50,7 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 		for k, module := range v.OS.Modules() {
 			if k == variables.K3s {
 				v.OS.Modules()[k] = module.(*k3s.K3S).WithSysInfo(v.info).WithLeaderIP(
-					leaderIPS[v.info.CommunicationMethod()],
+					leaderIPS[v.info.CommunicationMethod().String()],
 				)
 			}
 		}
@@ -74,7 +74,7 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 
 					// Replace leader IP in kubeconfig with IP based on specified method.
 					k3sOutputs.KubeconfigForExport = replaceKubeServer(k3sOutputs.KubeconfigForExport, leaderIPS[v.info.K8SEndpointType()])
-					k3sOutputs.KubeconfigForUsage = replaceKubeServer(k3sOutputs.KubeconfigForUsage, leaderIPS[variables.PublicCommunicationMethod])
+					k3sOutputs.KubeconfigForUsage = replaceKubeServer(k3sOutputs.KubeconfigForUsage, leaderIPS[variables.PublicCommunicationMethod.String()])
 				}
 
 				resources = append(resources, module.Resources()...)

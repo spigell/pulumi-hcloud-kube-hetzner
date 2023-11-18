@@ -14,13 +14,26 @@ const (
 	SSHD      = "sshd"
 	Wireguard = "wireguard"
 	// Communication methods.
-	PublicCommunicationMethod   = "public"
-	InternalCommunicationMethod = "internal"
-	WgCommunicationMethod       = Wireguard
 )
 
-var Ifaces = map[string]string{
-	PublicCommunicationMethod:   PublicIface,
-	InternalCommunicationMethod: PrivateIface,
-	WgCommunicationMethod:       WGIface,
+type CommunicationMethod string
+
+var (
+	PublicCommunicationMethod   CommunicationMethod = "public"
+	InternalCommunicationMethod CommunicationMethod = "internal"
+	WgCommunicationMethod       CommunicationMethod = Wireguard
+
+	Ifaces = map[CommunicationMethod]string{
+		PublicCommunicationMethod:   PublicIface,
+		InternalCommunicationMethod: PrivateIface,
+		WgCommunicationMethod:       WGIface,
+	}
+)
+
+func (c CommunicationMethod) String() string {
+	return string(c)
+}
+
+func (c CommunicationMethod) HetznerBased() bool {
+	return c != WgCommunicationMethod
 }

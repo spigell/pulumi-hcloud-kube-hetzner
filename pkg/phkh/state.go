@@ -190,7 +190,7 @@ func (s *State) k3sToken() (string, error) {
 	return token, nil
 }
 
-func (s *State) exportK3SKubeconfig(kube pulumi.AnyOutput) {
+func (s *State) exportKubeconfig(kube pulumi.AnyOutput) {
 	s.ctx.Export(KubeconfigKey, pulumi.ToSecret(kube.ApplyT(
 		func(v interface{}) (string, error) {
 			kubeconfig := v.(*api.Config)

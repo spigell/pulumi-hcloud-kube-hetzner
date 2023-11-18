@@ -8,6 +8,7 @@ import (
 	"dario.cat/mergo"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
+	k8sconfig "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config"
 )
 
 const (
@@ -19,7 +20,7 @@ type Config struct {
 	Nodepools *Nodepools
 	Defaults  *Defaults
 	Network   *Network
-	K8S       *K8S
+	K8S       *k8sconfig.Config
 }
 
 // New returns the parsed configuration for the cluster as is without any modifications.
@@ -27,7 +28,7 @@ func New(ctx *pulumi.Context) *Config {
 	var defaults *Defaults
 	var nodepools *Nodepools
 	var network *Network
-	var k8s *K8S
+	var k8s *k8sconfig.Config
 	c := config.New(ctx, "")
 
 	c.RequireSecretObject("defaults", &defaults)

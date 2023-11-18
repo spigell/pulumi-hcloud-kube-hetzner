@@ -13,6 +13,12 @@ config:
     kube-api-endpoint:
       # public|internal|wireguard
       type: public
+    addons:
+      ccm:
+        enabled: true
+        loadbalancers-default-location: fsn1
+        loadbalancers-enabled: false
+        networking: true
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: 01-agents
@@ -47,4 +53,3 @@ config:
           disable:
             - metrics-server
             - traefik
-            - servicelb
