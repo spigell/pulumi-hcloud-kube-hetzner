@@ -31,8 +31,10 @@ var (
 // If checking requires only one specific part of the configuration in Validate() method of that part.
 func (c *Config) Validate(nodes []*Node) error {
 	errs := make([]string, 0)
-	validators := []func() error{
-		c.ValidateCCM,
+	validators := make([]func() error, 0)
+
+	if ccm := c.K8S.Addons.CCM; ccm != nil {
+		validators = append(validators, c.ValidateCCM)
 	}
 
 	for _, validator := range validators {
