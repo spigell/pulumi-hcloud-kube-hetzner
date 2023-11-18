@@ -57,7 +57,7 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider) error {
 				"controllers":          pulumi.String(strings.Join(m.controllers, ",")),
 			},
 			"networking": pulumi.Map{
-				"enabled":     pulumi.String(strconv.FormatBool(m.networking)),
+				"enabled":     pulumi.Bool(m.networking),
 				"clusterCIDR": pulumi.String(m.clusterCIDR),
 			},
 

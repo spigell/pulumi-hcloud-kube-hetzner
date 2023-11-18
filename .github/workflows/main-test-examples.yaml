@@ -75,6 +75,7 @@ jobs:
     with:
       pulumi-stack: k3s-public-ha-kube-addons-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-public-ha-kube-addons.yaml
+      open-kubeapi-for-public-net: true
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
