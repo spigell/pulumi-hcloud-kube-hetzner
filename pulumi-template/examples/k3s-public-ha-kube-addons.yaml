@@ -19,7 +19,7 @@ config:
         enabled: true
         loadbalancers-default-location: fsn1
         loadbalancers-enabled: false
-        networking: true
+        networking: false
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: 01-agents
@@ -42,6 +42,7 @@ config:
           server:
             location: hel1
         - id: k3s-ngb-server02
+          leader: true
           server:
             location: nbg1
         - id: k3s-fns-server03
