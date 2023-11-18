@@ -142,7 +142,7 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 			// Firewall rule is needed only for public networks
 			if config.K8S.KubeAPIEndpoint.Type == variables.PublicCommunicationMethod.String() {
 				if fw != nil {
-					if node.Role == variables.ServerRole {
+					if node.Role == variables.ServerRole && len(config.K8S.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps) > 0 {
 						fw.AddRules(k3s.HetznerRulesWithSources(config.K8S.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps))
 					}
 				}
@@ -181,7 +181,9 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 			os.SetupWireguard(config.Network.Wireguard)
 
 			if fw != nil {
-				fw.AddRules(os.Wireguard().HetznerRulesWithSources(config.Network.Wireguard.Firewall.Hetzner.AllowedIps))
+				if allowedIPs := config.Network.Wireguard.Firewall.Hetzner.AllowedIps; len(allowedIPs) > 0 {
+					fw.AddRules(os.Wireguard().HetznerRulesWithSources(allowedIPs))
+				}
 
 				if !config.Network.Wireguard.Firewall.Hetzner.DisallowOwnIP {
 					fw.AddRules(os.Wireguard().HetznerRulesWithSources([]string{ip2Net(ip)}))

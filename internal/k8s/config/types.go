@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
@@ -47,6 +49,8 @@ func (k *Config) WithInited() *Config {
 	}
 
 	if k.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps == nil {
+		fmt.Println("Setting default allowed IPs for Hetzner public firewall")
+		fmt.Println(len(k.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps))
 		k.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps = firewall.ICMPRule.SourceIps
 	}
 

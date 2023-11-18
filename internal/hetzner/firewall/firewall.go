@@ -51,12 +51,14 @@ func (f *Firewall) Up(ctx *pulumi.Context, name string) (*Firewall, error) {
 		f.Config.rules = append(f.Config.rules, ICMPRule)
 	}
 
-	if f.Config.SSH.Allow {
-		if f.Config.SSH.AllowedIps != nil {
+	if ssh := f.Config.SSH; ssh.Allow {
+		if ssh.AllowedIps != nil {
 			SSHRule.SourceIps = f.Config.SSH.AllowedIps
 		}
 
-		f.Config.rules = append(f.Config.rules, SSHRule)
+		if len(ssh.AllowedIps) > 0 {
+			f.Config.rules = append(f.Config.rules, SSHRule)
+		}
 	}
 
 	if f.Config.AdditionalRules != nil {

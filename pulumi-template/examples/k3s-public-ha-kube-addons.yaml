@@ -11,9 +11,8 @@ config:
     kube-api-endpoint:
       type: public
       firewall:
-        hetzner:
-          hetzner-public:
-            allowed-ips: []
+        hetzner-public:
+          allowed-ips: []
     addons:
       ccm:
         enabled: true
@@ -58,6 +57,8 @@ config:
             allow-icmp: true
             ssh:
               allow: true
+              # Empty allowed-ips means that ssh is not allowed
+              # It is synonym for allow: false
               allowed-ips: []
       k3s:
         version: v1.27.2+k3s1
