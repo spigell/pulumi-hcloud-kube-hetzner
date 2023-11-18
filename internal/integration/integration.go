@@ -43,13 +43,11 @@ var TestsByExampleName = map[string][]string{
 		testWGConnectivity,
 		testKubeVersion,
 		testKubeChangeEndpointType,
-		testKubeHetznerCCM,
 	},
 	exampleK3SWGHANoTaints: {
 		testSSHConnectivity,
 		testWGConnectivity,
 		testKubeVersion,
-		testKubeHetznerCCM,
 	},
 	exampleK3SPublicNonHADefaults: {
 		testSSHConnectivity,

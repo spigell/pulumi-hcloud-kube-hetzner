@@ -34,6 +34,7 @@ type CCM struct {
 	loadbalancersUsePrivateIP    bool
 	token                        string
 	networking                   bool
+	controllers                  []string
 }
 
 func New(cfg *Config) *CCM {
@@ -49,6 +50,9 @@ func New(cfg *Config) *CCM {
 		m.defaultLoadbalancersLocation = hvariables.DefaultLocation
 	}
 
+	m.controllers = []string{
+		"cloud-node-lifecycle-controller", "node-route-controller", "service-lb-controller",
+	}
 	m.enabled = cfg.Enabled
 	m.token = cfg.Token
 	m.networking = cfg.Networking
@@ -70,11 +74,15 @@ func (m *CCM) Name() string {
 	return Name
 }
 
-func (m *CCM) IsEnabled() bool {
+func (m *CCM) Enabled() bool {
 	return m.enabled
 }
 
-func (m *CCM) IsSupported(distr string) bool {
+func (m *CCM) LoadbalancersEnabled() bool {
+	return m.loadbalancersEnabled
+}
+
+func (m *CCM) Supported(distr string) bool {
 	switch distr {
 	case "k3s":
 		return true
@@ -87,6 +95,14 @@ func (m *CCM) SetClusterCIDR(cidr string) {
 	m.clusterCIDR = cidr
 }
 
-func (m *CCM) SetLoadbalancerPrivateIPUsage() {
+func (m *CCM) WithLoadbalancerPrivateIPUsage() *CCM {
 	m.loadbalancersUsePrivateIP = true
+
+	return m
+}
+
+func (m *CCM) WithEnableNodeController() *CCM {
+	m.controllers = append(m.controllers, "cloud-node-controller")
+
+	return m
 }

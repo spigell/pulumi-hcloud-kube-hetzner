@@ -40,7 +40,6 @@ func TestKubeHcloudCCM(t *testing.T) {
 
 	for _, n := range nodes {
 		externalIP := false
-		ready := false
 		for _, addr := range n.Status.Addresses {
 			if addr.Type == "ExternalIP" {
 				externalIP = true
@@ -48,14 +47,8 @@ func TestKubeHcloudCCM(t *testing.T) {
 			}
 		}
 
-		for _, c := range n.Status.Conditions {
-			if c.Type == "Ready" {
-				ready = true
-			}
-		}
-
 		assert.True(t, externalIP, fmt.Sprintf("no externalIP found for node %s", n.Name))
-		assert.True(t, ready, fmt.Sprintf("node %s is not ready", n.Name))
 		assert.Contains(t, n.Labels, "node.kubernetes.io/instance-type", fmt.Sprintf("no instance-type label found for node %s", n.Name))
+		assert.NotContains(t, n.Spec.Taints, "node.cloudprovider.kubernetes.io/uninitialized", fmt.Sprintf("uninitialized taints found for node %s", n.Name))
 	}
 }

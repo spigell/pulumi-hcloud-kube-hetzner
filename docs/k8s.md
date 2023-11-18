@@ -48,3 +48,6 @@ config:
           version: v1.2.0
 ```
 Most of the addons are installed using helm. So, you can specify `helm` property to override the default helm version for the addon. The default helm versions are specified in the (default-helm-versions.yaml)[../../pulumi-template/versions/default-helm-versions.yaml] file.
+
+#### Hetzner CCM
+Please note that Hetzner CCM is disabled by default. It is used to provision loadbalancers in the Hetzner cloud and other cool things. You can enabled it by setting `ccm.enabled` to `true`, but according to the [documentation](https://github.com/hetznercloud/hcloud-cloud-controller-manager/issues/80) you should recreate a cluster with enabled CCM to add the --cloud-manager=external to kubelet args.

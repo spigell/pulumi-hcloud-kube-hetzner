@@ -3,6 +3,7 @@ package k8s
 import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
 )
 
@@ -33,16 +34,29 @@ func (k *K8S) Addons() []addons.Addon {
 	return k.addons
 }
 
+func (k *K8S) CCM() *ccm.CCM {
+	return k.addon(ccm.Name).(*ccm.CCM)
+}
+
 func (k *K8S) Validate() error {
 	return addons.Validate(k.addons)
 }
 
 func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
 	prov, err := k.Provider(kubeconfig, deps)
-
 	if err != nil {
 		return err
 	}
 
 	return k.NewRunner().Run(prov)
+}
+
+func (k *K8S) addon(name string) addons.Addon {
+	for _, addon := range k.addons {
+		if addon.Name() == name {
+			return addon
+		}
+	}
+
+	return nil
 }

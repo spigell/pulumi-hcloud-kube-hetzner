@@ -11,7 +11,7 @@ type OSInfo interface {
 type Info struct {
 	leader bool
 
-	communicationMethod string
+	communicationMethod variables.CommunicationMethod
 	communicationIface  string
 
 	k8sEndpointType string
@@ -24,7 +24,7 @@ func New() *Info {
 	}
 }
 
-func (i *Info) WithCommunicationMethod(method string) *Info {
+func (i *Info) WithCommunicationMethod(method variables.CommunicationMethod) *Info {
 	i.communicationMethod = method
 	i.communicationIface = variables.Ifaces[method]
 
@@ -47,7 +47,7 @@ func (i *Info) MarkAsLeader() *Info {
 	return i
 }
 
-func (i *Info) CommunicationMethod() string {
+func (i *Info) CommunicationMethod() variables.CommunicationMethod {
 	return i.communicationMethod
 }
 

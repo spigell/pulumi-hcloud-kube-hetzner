@@ -14,12 +14,6 @@ config:
     # By default, the firewall allows access to the k8s api from all ip addresses (if firewall for node is enabled).
     kube-api-endpoint:
       type: public
-    addons:
-      ccm:
-        enabled: true
-        loadbalancers-default-location: fsn1
-        loadbalancers-enabled: false
-        networking: true
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: 01-agent

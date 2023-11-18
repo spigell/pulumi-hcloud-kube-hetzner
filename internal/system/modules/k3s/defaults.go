@@ -74,6 +74,15 @@ func (k *K3sConfig) WithServerDefaults() *K3sConfig {
 		}
 	}
 
+	for _, key := range utils.SortedMapKeys(defaultsKubeCloudControllerManagerArgs) {
+		value := defaultsKubeCloudControllerManagerArgs[key]
+		if !containsKey(k.KubeCloudControllerManagerArgs, key) {
+			k.KubeCloudControllerManagerArgs = append(k.KubeCloudControllerManagerArgs,
+				strings.Join([]string{key, value}, "="),
+			)
+		}
+	}
+
 	for _, key := range utils.SortedMapKeys(defaultKubeAPIServerArgs) {
 		value := defaultKubeAPIServerArgs[key]
 		if !containsKey(k.KubeAPIServerArgs, key) {

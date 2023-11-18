@@ -17,12 +17,11 @@ func (k *K8S) NewRunner() *Runner {
 		ctx:    k.ctx,
 		addons: k.addons,
 	}
-
 }
 
 func (r *Runner) Run(prov *kubernetes.Provider) error {
 	for _, addon := range r.addons {
-		if addon.IsEnabled() {
+		if addon.Enabled() {
 			if err := addon.Manage(r.ctx, prov); err != nil {
 				return err
 			}

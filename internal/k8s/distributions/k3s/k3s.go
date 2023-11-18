@@ -31,8 +31,8 @@ func (k *K3S) WithAddons(addons []addons.Addon) *K3S {
 
 func (k *K3S) Validate() error {
 	for _, addon := range k.addons {
-		if addon.IsEnabled() {
-			if !addon.IsSupported(DistrName) {
+		if addon.Enabled() {
+			if !addon.Supported(DistrName) {
 				return fmt.Errorf("addon %s is not supported for %s", addon.Name(), DistrName)
 			}
 		}

@@ -27,7 +27,6 @@ func GetDefaultVersion(addon string) (string, error) {
 	}
 
 	return v.(string), nil
-
 }
 
 func parseDefaultVersionsFile() (map[string]interface{}, error) {

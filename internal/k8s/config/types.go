@@ -35,7 +35,7 @@ func (k *Config) WithInited() *Config {
 	}
 
 	if k.KubeAPIEndpoint.Type == "" {
-		k.KubeAPIEndpoint.Type = variables.PublicCommunicationMethod
+		k.KubeAPIEndpoint.Type = variables.PublicCommunicationMethod.String()
 	}
 
 	if k.KubeAPIEndpoint.Firewall == nil {

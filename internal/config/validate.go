@@ -15,13 +15,14 @@ var (
 	errManyLeaders                              = errors.New("there is more than one leader")
 	errK8SUnknownType                           = fmt.Errorf("unknown k8s endpoint type. Valid types: %v", validConnectionTypes)
 	errInternalNetworkDisabled                  = errors.New("internal endpoint type requires hetzner network to be enabled")
-	errCCMNetworkingWithInternalNetworkDisabled = errors.New("Hetzner CCM networking is required hetzner network to be enabled")
+	errCCMNetworkingWithInternalNetworkDisabled = errors.New("hetzner CCM networking is required hetzner network to be enabled")
+	errCCMWGConflict                            = errors.New("hetzner CCM is not compatible with wireguard network yet")
 	errWGNetworkDisabled                        = errors.New("wireguard endpoint type requires wireguard to be enabled")
 
 	validConnectionTypes = []string{
-		variables.PublicCommunicationMethod,
-		variables.WgCommunicationMethod,
-		variables.InternalCommunicationMethod,
+		variables.PublicCommunicationMethod.String(),
+		variables.WgCommunicationMethod.String(),
+		variables.InternalCommunicationMethod.String(),
 	}
 )
 
@@ -48,11 +49,11 @@ func (c *Config) Validate(nodes []*Node) error {
 			return errK8SUnknownType
 		}
 
-		if c.K8S.KubeAPIEndpoint.Type == variables.InternalCommunicationMethod && !c.Network.Hetzner.Enabled {
+		if c.K8S.KubeAPIEndpoint.Type == variables.InternalCommunicationMethod.String() && !c.Network.Hetzner.Enabled {
 			return errInternalNetworkDisabled
 		}
 
-		if c.K8S.KubeAPIEndpoint.Type == variables.WgCommunicationMethod && !c.Network.Wireguard.Enabled {
+		if c.K8S.KubeAPIEndpoint.Type == variables.WgCommunicationMethod.String() && !c.Network.Wireguard.Enabled {
 			return errWGNetworkDisabled
 		}
 	}
@@ -81,6 +82,9 @@ func (c *Config) Validate(nodes []*Node) error {
 }
 
 func (c *Config) ValidateCCM() error {
+	if c.K8S.Addons.CCM.Enabled && c.Network.Wireguard.Enabled {
+		return errCCMWGConflict
+	}
 	if !c.Network.Hetzner.Enabled && c.K8S.Addons.CCM.Networking {
 		return errCCMNetworkingWithInternalNetworkDisabled
 	}

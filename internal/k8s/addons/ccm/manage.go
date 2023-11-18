@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes"
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
@@ -26,15 +27,17 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider) error {
 
 	secret, err := corev1.NewSecret(ctx, name, &corev1.SecretArgs{
 		Metadata: &metav1.ObjectMetaArgs{
-			Name:      pulumi.String(name),
+			// hcloud is hardcoded secretn name in ccm helm chart.
+			Name:      pulumi.String("hcloud"),
 			Namespace: pulumi.String(namespace),
 		},
 		StringData: pulumi.StringMap{
-			"token":   pulumi.String(token),
+			"token": pulumi.String(token),
+			// If networking is disabled it is doesn't used.
+			// But it will be created anyway.
 			"network": pulumi.Sprintf("%s-%s", ctx.Project(), ctx.Stack()),
 		},
 	}, pulumi.Provider(prov))
-
 	if err != nil {
 		return fmt.Errorf("unable to create secret: %w", err)
 	}
@@ -48,28 +51,17 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider) error {
 			Repo: pulumi.String(HelmRepo),
 		},
 		Values: pulumi.Map{
+			"args": pulumi.Map{
+				"cloud-provider":       pulumi.String("hcloud"),
+				"allow-untagged-cloud": pulumi.String(""),
+				"controllers":          pulumi.String(strings.Join(m.controllers, ",")),
+			},
 			"networking": pulumi.Map{
 				"enabled":     pulumi.String(strconv.FormatBool(m.networking)),
 				"clusterCIDR": pulumi.String(m.clusterCIDR),
-				"network": pulumi.Map{
-					"valueFrom": pulumi.Map{
-						"secretKeyRef": pulumi.Map{
-							"name": secret.Metadata.Name(),
-							"key":  pulumi.String("network"),
-						},
-					},
-				},
 			},
 
 			"env": pulumi.Map{
-				"HCLOUD_TOKEN": pulumi.Map{
-					"valueFrom": pulumi.Map{
-						"secretKeyRef": pulumi.Map{
-							"name": secret.Metadata.Name(),
-							"key":  pulumi.String("token"),
-						},
-					},
-				},
 				"HCLOUD_LOAD_BALANCERS_ENABLED": pulumi.Map{
 					"value": pulumi.String(strconv.FormatBool(m.loadbalancersEnabled)),
 				},
@@ -84,6 +76,7 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider) error {
 	},
 		pulumi.Provider(prov),
 		pulumi.DeleteBeforeReplace(true),
+		pulumi.DependsOn([]pulumi.Resource{secret}),
 	)
 
 	if err != nil {
@@ -105,6 +98,6 @@ func (m *CCM) discoverHcloudToken(ctx *pulumi.Context) (string, error) {
 	case os.Getenv("HCLOUD_TOKEN") != "":
 		return os.Getenv("HCLOUD_TOKEN"), nil
 	default:
-		return "", fmt.Errorf("Can't discover hcloud token via env or configs")
+		return "", fmt.Errorf("can't discover hcloud token via env or configs")
 	}
 }

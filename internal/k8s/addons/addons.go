@@ -14,9 +14,9 @@ type Addons struct {
 
 type Addon interface {
 	Name() string
-	IsEnabled() bool
+	Enabled() bool
 	Manage(*pulumi.Context, *kubernetes.Provider) error
-	IsSupported(string) bool
+	Supported(string) bool
 	Helm() *helm.Config
 	SetHelm(*helm.Config)
 }
@@ -38,7 +38,6 @@ func Validate(a []Addon) error {
 	}
 
 	return nil
-
 }
 
 func WithHelmInited(addon Addon) Addon {
@@ -52,7 +51,6 @@ func WithHelmInited(addon Addon) Addon {
 		defVer, _ := helm.GetDefaultVersion(addon.Name())
 
 		h.Version = defVer
-
 	}
 
 	addon.SetHelm(h)

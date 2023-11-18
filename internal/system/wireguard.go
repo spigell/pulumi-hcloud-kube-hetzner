@@ -29,7 +29,7 @@ type WgCluster struct {
 
 type WGPeers struct {
 	Peers []wireguard.Peer
-	IPS   map[string]pulumi.StringMapOutput
+	IPS   map[variables.CommunicationMethod]pulumi.StringMapOutput
 }
 
 func (c *Cluster) NewWgCluster(wgInfo map[string]*wireguard.WgConfig, servers map[string]*hetzner.Server) *WgCluster {
@@ -73,7 +73,7 @@ func (c *Cluster) NewWgMaster() *wireguard.Wireguard {
 }
 
 func (c *Cluster) BuildWgPeers(info map[string]*wireguard.WgConfig, servers map[string]*hetzner.Server) *WGPeers {
-	ips := make(map[string]pulumi.StringMapOutput)
+	ips := make(map[variables.CommunicationMethod]pulumi.StringMapOutput)
 
 	start, _, _ := net.ParseCIDR(wgMasterCIDR)
 	masterIP := netaddr.MustParseIP(start.String())
