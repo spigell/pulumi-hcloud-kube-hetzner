@@ -82,6 +82,10 @@ func (m *CCM) LoadbalancersEnabled() bool {
 	return m.loadbalancersEnabled
 }
 
+func (m *CCM) Networking() bool {
+	return m.networking
+}
+
 func (m *CCM) Supported(distr string) bool {
 	switch distr {
 	case "k3s":
