@@ -56,7 +56,7 @@ func (f *Firewall) Up(ctx *pulumi.Context, name string) (*Firewall, error) {
 			SSHRule.SourceIps = f.Config.SSH.AllowedIps
 		}
 
-		if len(ssh.AllowedIps) > 0 {
+		if len(SSHRule.SourceIps) > 0 {
 			f.Config.rules = append(f.Config.rules, SSHRule)
 		}
 	}

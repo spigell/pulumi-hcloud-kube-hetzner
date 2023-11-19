@@ -22,7 +22,9 @@ config:
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: 01-agents
-        server-type: cx31
+        config:
+          server:
+            server-type: cx31
         nodes:
         - id: k3s-fsn-agent01
           server:

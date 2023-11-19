@@ -18,7 +18,8 @@ jobs:
         shell: bash
         run: go mod download
       - name: Run tests
-        run: go test $(go list ./... | grep -v integration) | grep -v 'no test files'
+        shell: bash
+        run: set -o pipefail ; go test $(go list ./... | grep -v integration) | grep -v 'no test files'
 
   golangci-linter:
     name: Run golangci linter
