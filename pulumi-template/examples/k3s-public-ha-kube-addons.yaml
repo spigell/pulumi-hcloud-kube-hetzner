@@ -1,0 +1,66 @@
+# This is the example with 3 servers and 2 agents nodes.
+# It is a pretty solid cluster with all kubernetes addons enabled.
+# It uses a public network with firewall rules applied.
+config:
+  pulumi-hcloud-kube-hetzner:network:
+    hetzner:
+      enabled: false
+    wireguard:
+      enabled: false
+  pulumi-hcloud-kube-hetzner:k8s:
+    kube-api-endpoint:
+      type: public
+      firewall:
+        hetzner-public:
+          allowed-ips: []
+    addons:
+      ccm:
+        enabled: true
+        loadbalancers-default-location: fsn1
+        loadbalancers-enabled: false
+        networking: false
+  pulumi-hcloud-kube-hetzner:nodepools:
+    agents:
+      - id: 01-agents
+        config:
+          server:
+            server-type: cx31
+        nodes:
+        - id: k3s-fsn-agent01
+          server:
+            location: fsn1
+        - id: k3s-hel-agent01
+          server:
+            location: hel1
+    servers:
+      - id: 01-control-plane-nodes
+        config:
+          server:
+            # Increased size of server nodes
+            server-type: cpx21
+        nodes:
+        - id: k3s-hel-server01
+          server:
+            location: hel1
+        - id: k3s-ngb-server02
+          leader: true
+          server:
+            location: nbg1
+        - id: k3s-fns-server03
+          server:
+            location: fsn1
+  pulumi-hcloud-kube-hetzner:defaults:
+    # Basic firewall settings for all nodes
+    global:
+      server:
+        firewall:
+          hetzner:
+            enabled: true
+            allow-icmp: true
+            ssh:
+              allow: true
+              # Empty allowed-ips means that ssh is not allowed
+              # It is synonym for allow: false
+              allowed-ips: []
+      k3s:
+        version: v1.27.2+k3s1

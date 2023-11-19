@@ -14,6 +14,7 @@ on:
           - k3s-wireguard-non-ha-firewall-rules
           - k3s-wireguard-ha-no-taints
           - k3s-public-non-ha-with-defaults
+          - k3s-public-ha-kube-addons
           - all
 
 
@@ -62,6 +63,19 @@ jobs:
     with:
       pulumi-stack: k3s-wireguard-ha-no-taint-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-wireguard-ha-no-taints.yaml
+    secrets:
+      google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+      hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  ha-server-kube-addons:
+    needs: init
+    name: The HA cluster with all kube addons enabled
+    if: contains(fromJson('["all", "k3s-public-ha-kube-addons"]'), inputs.example) || github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/reuse-test-clusters.yaml
+    with:
+      pulumi-stack: k3s-public-ha-kube-addons-${{ needs.init.outputs.short-sha }}
+      pulumi-config-source: examples/k3s-public-ha-kube-addons.yaml
+      open-kubeapi-for-public-net: true
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}

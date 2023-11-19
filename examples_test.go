@@ -1,6 +1,7 @@
 package phkh
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -40,6 +41,6 @@ func TestExampleWithUnknownFields(t *testing.T) {
 		decoder := yaml.NewDecoder(strings.NewReader(res))
 		decoder.KnownFields(true)
 
-		assert.NoError(t, decoder.Decode(&decoded))
+		assert.NoError(t, decoder.Decode(&decoded), fmt.Sprintf("%s failed to decode", f.Name()))
 	}
 }
