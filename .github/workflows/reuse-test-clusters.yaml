@@ -38,8 +38,9 @@ jobs:
           create-stack: true
           google-credentials: ${{ secrets.google-credentials }}
       - name: Set open kubernetes api in public network
-        run: pulumi config set --path 'k8s.kube-api-endpoint.firewall.hetzner-public.allowed-ips[0]' 0.0.0.0
         if: inputs.open-kubeapi-for-public-net
+        run: pulumi config set --path 'k8s.kube-api-endpoint.firewall.hetzner-public.allowed-ips[0]' 0.0.0.0
+        working-directory: test-project
       - uses: actions/upload-artifact@v3
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
