@@ -81,6 +81,9 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 			if !errors.Is(err, hetzner.ErrFirewallDisabled) {
 				return nil, fmt.Errorf("failed to get firewall config for node: %w", err)
 			}
+			// Create empty firewall config if firewall is disabled.
+			ctx.Log.Debug("firewall is disabled for node", nil)
+			fw = &firewall.Config{}
 		}
 
 		sys := system.New(ctx, node.ID, keyPair).WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
@@ -110,12 +113,7 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		}
 
 		// Firewall
-		switch {
-		case fw == nil:
-			ctx.Log.Debug(fmt.Sprintf("Firewall is disabled for node %s", node.ID), nil)
-
-		// Basic wireguard rules
-		case sys.CommunicationMethod() == variables.WgCommunicationMethod:
+		if sys.CommunicationMethod() == variables.WgCommunicationMethod {
 			if allowedIPs := config.Network.Wireguard.Firewall.Hetzner.AllowedIps; len(allowedIPs) > 0 {
 				fw.AddRules(os.Wireguard().HetznerRulesWithSources(allowedIPs))
 			}
@@ -126,7 +124,7 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		}
 
 		// Add firewall rules for SSH access from my IP
-		if fw != nil && !node.Server.Firewall.Hetzner.SSH.DisallowOwnIP {
+		if !node.Server.Firewall.Hetzner.SSH.DisallowOwnIP {
 			fw.AddRules(sshd.HetznerRulesWithSources([]string{ip2Net(ip)}))
 		}
 
@@ -199,7 +197,7 @@ func ip2Net(ip net.IP) string {
 	return ip.String() + "/32"
 }
 
-func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.Node, myIP net.IP) *firewall.Config {
+func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.Node, myIP net.IP) {
 	if !config.K8S.KubeAPIEndpoint.Firewall.HetznerPublic.DisallowOwnIP && node.Role == variables.ServerRole {
 		fw.AddRules(k3s.HetznerRulesWithSources([]string{ip2Net(myIP)}))
 	}
@@ -210,7 +208,6 @@ func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.
 			fw.AddRules(k3s.HetznerRulesWithSources(config.K8S.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps))
 		}
 	}
-	return fw
 }
 
 func configureK3SNodeForHCCM(ctx *pulumi.Context, sys *system.System, addon *ccm.CCM, node *config.Node) {
