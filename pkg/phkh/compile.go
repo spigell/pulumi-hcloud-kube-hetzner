@@ -93,33 +93,34 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 
 	s := make(system.Cluster, 0)
 	for _, node := range nodes {
+		fw, err := infra.FirewallConfigByID(node.ID, infra.FindInPools(node.ID))
+		if err != nil {
+			if !errors.Is(err, hetzner.ErrFirewallDisabled) {
+				return nil, fmt.Errorf("failed to get firewall config for node: %w", err)
+			}
+		}
+
 		sys := system.New(ctx, node.ID, keyPair).WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
+		os := sys.MicroOS()
+		if node.Leader {
+			sys.MarkAsLeader()
+		}
 
 		switch {
 		// WG over private network
 		case config.Network.Hetzner.Enabled && config.Network.Wireguard.Enabled:
 			sys.WithCommunicationMethod(variables.WgCommunicationMethod)
+			os.SetupWireguard(config.Network.Wireguard)
 		// Plain private network
 		case config.Network.Hetzner.Enabled:
 			sys.WithCommunicationMethod(variables.InternalCommunicationMethod)
 		// WG over public network
 		case config.Network.Wireguard.Enabled:
 			sys.WithCommunicationMethod(variables.WgCommunicationMethod)
+			os.SetupWireguard(config.Network.Wireguard)
 		// By default use public network
 		default:
 			sys.WithCommunicationMethod(variables.PublicCommunicationMethod)
-		}
-
-		if node.Leader {
-			sys.MarkAsLeader()
-		}
-		os := sys.MicroOS()
-
-		fw, err := infra.FirewallConfigByID(node.ID, infra.FindInPools(node.ID))
-		if err != nil {
-			if !errors.Is(err, hetzner.ErrFirewallDisabled) {
-				return nil, fmt.Errorf("failed to get firewall config for node: %w", err)
-			}
 		}
 
 		// Add firewall rules for SSH access from my IP
@@ -177,17 +178,13 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 			return nil, errors.New("unknown kubernetes distribution")
 		}
 
-		if config.Network.Wireguard.Enabled {
-			os.SetupWireguard(config.Network.Wireguard)
+		if fw != nil && config.Network.Wireguard.Enabled {
+			if allowedIPs := config.Network.Wireguard.Firewall.Hetzner.AllowedIps; len(allowedIPs) > 0 {
+				fw.AddRules(os.Wireguard().HetznerRulesWithSources(allowedIPs))
+			}
 
-			if fw != nil {
-				if allowedIPs := config.Network.Wireguard.Firewall.Hetzner.AllowedIps; len(allowedIPs) > 0 {
-					fw.AddRules(os.Wireguard().HetznerRulesWithSources(allowedIPs))
-				}
-
-				if !config.Network.Wireguard.Firewall.Hetzner.DisallowOwnIP {
-					fw.AddRules(os.Wireguard().HetznerRulesWithSources([]string{ip2Net(ip)}))
-				}
+			if !config.Network.Wireguard.Firewall.Hetzner.DisallowOwnIP {
+				fw.AddRules(os.Wireguard().HetznerRulesWithSources([]string{ip2Net(ip)}))
 			}
 		}
 
