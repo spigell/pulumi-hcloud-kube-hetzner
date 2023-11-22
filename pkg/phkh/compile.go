@@ -9,11 +9,15 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions"
+	distrK3S "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
@@ -22,7 +26,9 @@ import (
 )
 
 const (
-	defaultKube = "k3s"
+	defaultKube = distrK3S.DistrName
+	// This is the only supported kubernetes distribution right now.
+	kube = defaultKube
 )
 
 // Cluster is a collection of Hetzner, System and k8s clusters.
@@ -52,9 +58,6 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 // compile create plan of infrastructure and required steps.
 // This need to be refactored.
 func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Compiled, error) { // //lint: gocognit,gocyclo,
-	// This is the only supported kubernetes distribution right now.
-	kube := defaultKube
-
 	// Since token is part of k3s config the easiest method to pass the token to k3s module is via global value.
 	// However, we do not want to expose token to the user in DumpConfig().
 	config.Defaults.Global.K3s.K3S.Token = token
@@ -76,23 +79,13 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 
 	s := make(system.Cluster, 0)
 	for _, node := range nodes {
-		fw, err := compiled.Hetzner.FirewallConfigByID(node.ID, compiled.Hetzner.FindInPools(node.ID))
+		fw, err := fwConfig(ctx, compiled, node.ID)
 		if err != nil {
-			if !errors.Is(err, hetzner.ErrFirewallDisabled) {
-				return nil, fmt.Errorf("failed to get firewall config for node: %w", err)
-			}
-			// Create empty firewall config if firewall is disabled.
-			ctx.Log.Debug("firewall is disabled for node", nil)
-			fw = &firewall.Config{}
+			return nil, err
 		}
 
 		sys := system.New(ctx, node.ID, keyPair).WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
 		os := sys.MicroOS()
-
-		// Mark node as leader for cluster
-		if node.Leader {
-			sys.MarkAsLeader()
-		}
 
 		// Network type
 		switch {
@@ -100,45 +93,32 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		case config.Network.Hetzner.Enabled && config.Network.Wireguard.Enabled:
 			sys.WithCommunicationMethod(variables.WgCommunicationMethod)
 			os.SetupWireguard(config.Network.Wireguard)
+			fwWithWGRUles(fw, config, os.Wireguard(), ip)
+			fwWithSSHRules(fw, node, ip)
 		// Plain private network
 		case config.Network.Hetzner.Enabled:
 			sys.WithCommunicationMethod(variables.InternalCommunicationMethod)
+			fwWithSSHRules(fw, node, ip)
 		// WG over public network
 		case config.Network.Wireguard.Enabled:
 			sys.WithCommunicationMethod(variables.WgCommunicationMethod)
 			os.SetupWireguard(config.Network.Wireguard)
+			fwWithWGRUles(fw, config, os.Wireguard(), ip)
+			fwWithSSHRules(fw, node, ip)
 		// By default use public network
 		default:
 			sys.WithCommunicationMethod(variables.PublicCommunicationMethod)
-		}
-
-		// Firewall
-		if sys.CommunicationMethod() == variables.WgCommunicationMethod {
-			if allowedIPs := config.Network.Wireguard.Firewall.Hetzner.AllowedIps; len(allowedIPs) > 0 {
-				fw.AddRules(os.Wireguard().HetznerRulesWithSources(allowedIPs))
-			}
-
-			if !config.Network.Wireguard.Firewall.Hetzner.DisallowOwnIP {
-				fw.AddRules(os.Wireguard().HetznerRulesWithSources([]string{ip2Net(ip)}))
-			}
-		}
-
-		// Add firewall rules for SSH access from my IP
-		if !node.Server.Firewall.Hetzner.SSH.DisallowOwnIP {
-			fw.AddRules(sshd.HetznerRulesWithSources([]string{ip2Net(ip)}))
+			fwWithSSHRules(fw, node, ip)
 		}
 
 		switch kube {
 		case defaultKube:
-			os.AddK3SModule(node.Role, node.K3s)
-			os.SetupSSHD(&sshd.Config{
-				// TODO: make it discoverable from k3s module
-				AcceptEnv: "INSTALL_K3S_*",
-			})
 			configureFwForK3s(fw, config, node, ip)
+			configureOSForK3S(os, node)
 
 			for _, addon := range compiled.K8S.Addons() {
 				if addon.Enabled() {
+					//nolint: gocritic
 					switch name := addon.Name(); name {
 					case ccm.Name:
 						// Addon has support for k3s already.
@@ -163,26 +143,16 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		s = append(s, sys.WithOS(os))
 	}
 
-	var distr distributions.Distribution
-
-	//nolint: gocritic
-	switch kube {
-	case defaultKube:
-		distr = compiled.K8S.K3S().WithAddons(compiled.K8S.Addons())
-		if err := distr.Validate(); err != nil {
-			return nil, fmt.Errorf("failed to validate k3s cluster: %w", err)
-		}
-
-		for _, addon := range compiled.K8S.Addons() {
-			//nolint: gocritic
-			switch name := addon.Name(); name {
-			case ccm.Name:
-				configureHCCMForK3S(ctx, s.Leader(), addon.(*ccm.CCM))
-			}
-		}
-	}
+	// The first node is always leader
+	//nolint: gosec // G602
+	s[0].MarkAsLeader()
 
 	compiled.SysCluster = s
+
+	if err := compiled.k8sCompile(ctx); err != nil {
+		return nil, err
+	}
+
 	return compiled, nil
 }
 
@@ -197,6 +167,37 @@ func ip2Net(ip net.IP) string {
 	return ip.String() + "/32"
 }
 
+func fwConfig(ctx *pulumi.Context, compiled *Compiled, id string) (*firewall.Config, error) {
+	fw, err := compiled.Hetzner.FirewallConfigByID(id, compiled.Hetzner.FindInPools(id))
+	if err != nil {
+		if !errors.Is(err, hetzner.ErrFirewallDisabled) {
+			return nil, fmt.Errorf("failed to get firewall config for node: %w", err)
+		}
+		// Create empty firewall config if firewall is disabled.
+		ctx.Log.Debug("firewall is disabled for node", nil)
+		fw = &firewall.Config{}
+	}
+
+	return fw, nil
+}
+
+func fwWithWGRUles(fw *firewall.Config, config *config.Config, wg *wireguard.Wireguard, ip net.IP) {
+	if allowedIPs := config.Network.Wireguard.Firewall.Hetzner.AllowedIps; len(allowedIPs) > 0 {
+		fw.AddRules(wg.HetznerRulesWithSources(allowedIPs))
+	}
+
+	if !config.Network.Wireguard.Firewall.Hetzner.DisallowOwnIP {
+		fw.AddRules(wg.HetznerRulesWithSources([]string{ip2Net(ip)}))
+	}
+}
+
+func fwWithSSHRules(fw *firewall.Config, node *config.Node, ip net.IP) {
+	// Add firewall rules for SSH access from my IP
+	if !node.Server.Firewall.Hetzner.SSH.DisallowOwnIP {
+		fw.AddRules(sshd.HetznerRulesWithSources([]string{ip2Net(ip)}))
+	}
+}
+
 func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.Node, myIP net.IP) {
 	if !config.K8S.KubeAPIEndpoint.Firewall.HetznerPublic.DisallowOwnIP && node.Role == variables.ServerRole {
 		fw.AddRules(k3s.HetznerRulesWithSources([]string{ip2Net(myIP)}))
@@ -208,6 +209,14 @@ func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.
 			fw.AddRules(k3s.HetznerRulesWithSources(config.K8S.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps))
 		}
 	}
+}
+
+func configureOSForK3S(os os.OperationSystem, node *config.Node) {
+	os.AddK3SModule(node.Role, node.K3s)
+	os.SetupSSHD(&sshd.Config{
+		// TODO: make it discoverable from k3s module
+		AcceptEnv: "INSTALL_K3S_*",
+	})
 }
 
 func configureK3SNodeForHCCM(ctx *pulumi.Context, sys *system.System, addon *ccm.CCM, node *config.Node) {
@@ -229,16 +238,40 @@ func configureK3SNodeForHCCM(ctx *pulumi.Context, sys *system.System, addon *ccm
 	}
 }
 
-func configureHCCMForK3S(ctx *pulumi.Context, leader *system.System, addon *ccm.CCM) {
-	addon.SetClusterCIDR(leader.OS.Modules()[defaultKube].(*k3s.K3S).Config.K3S.ClusterCidr)
+func (c *Compiled) k8sCompile(ctx *pulumi.Context) error {
+	var distr distributions.Distribution
+
+	//nolint: gocritic
+	switch kube {
+	case defaultKube:
+		distr = c.K8S.K3S().WithAddons(c.K8S.Addons())
+		if err := distr.Validate(); err != nil {
+			return fmt.Errorf("failed to validate k3s cluster: %w", err)
+		}
+
+		for _, addon := range c.K8S.Addons() {
+			//nolint: gocritic
+			switch name := addon.Name(); name {
+			case ccm.Name:
+				configureHCCMForK3S(ctx, c.SysCluster.Leader(), addon.(*ccm.CCM))
+			}
+		}
+	}
+
+	return nil
+}
+
+func configureHCCMForK3S(ctx *pulumi.Context, leader *system.System, addon addons.Addon) {
+	c := addon.(*ccm.CCM)
+	c.SetClusterCIDR(leader.OS.Modules()[defaultKube].(*k3s.K3S).Config.K3S.ClusterCidr)
 
 	if leader.CommunicationMethod().HetznerBased() {
 		ctx.Log.Debug("Hetzner CCM is enabled with hetzner mode, enabling node controller", nil)
-		addon.WithEnableNodeController()
+		c.WithEnableNodeController()
 	}
 
 	// Private network is validated already. It is present and enabled.
-	if addon.Networking() {
-		addon.WithLoadbalancerPrivateIPUsage()
+	if c.Networking() {
+		c.WithLoadbalancerPrivateIPUsage()
 	}
 }
