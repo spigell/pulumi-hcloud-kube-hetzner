@@ -91,10 +91,36 @@ func (h *Hetzner) WithNetwork(cfg *network.Config) *Hetzner {
 	return h
 }
 
-// AddToPool adds a node to the pool.
+func (h *Hetzner) WithNodepools(pools *config.Nodepools) *Hetzner {
+	for _, pool := range pools.Agents {
+		h.configureNodepoolNetwork(pool)
+	}
+
+	for _, pool := range pools.Servers {
+		h.configureNodepoolNetwork(pool)
+	}
+
+	return h
+}
+
+func (h *Hetzner) configureNodepoolNetwork(pool *config.Nodepool) {
+	if pool.Nodes[0].Server.Firewall.Hetzner.DedicatedPool() {
+		h.Firewalls[pool.ID] = pool.Config.Server.Firewall.Hetzner
+	}
+
+	for _, node := range pool.Nodes {
+		h.addToPool(pool.ID, node.ID)
+	}
+
+	if h.Network.Config.Enabled {
+		h.Network.PickSubnet(pool.ID, network.FromStart)
+	}
+}
+
+// addToPool adds a node to the pool.
 // Pool in hetzner stage is a simple slice with id of nodes.
 // It is used to identify subnet for the node.
-func (h *Hetzner) AddToPool(pool, node string) {
+func (h *Hetzner) addToPool(pool, node string) {
 	h.Pools[pool] = append(h.Pools[pool], node)
 }
 
