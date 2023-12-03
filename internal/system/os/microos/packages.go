@@ -23,7 +23,7 @@ var retry = strings.Join([]string{
 func (m *MicroOS) Packages(ctx *pulumi.Context, con *connection.Connection) error {
 	zypper := "zypper up -y"
 	if len(m.RequiredPkgs) > 0 {
-		zypper = fmt.Sprintf("%s && zypper install -y %s", zypper, strings.Join(m.RequiredPkgs, " "))
+		zypper = fmt.Sprintf("%s ; zypper install -y %s", zypper, strings.Join(m.RequiredPkgs, " "))
 	}
 
 	cmd := fmt.Sprintf(`sudo transactional-update -n run bash -c '%s'`, zypper)

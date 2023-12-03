@@ -192,6 +192,7 @@ func (k *K3S) CompleteConfig(ip, leaderIP, externalIP string) *CompletedConfig {
 		// If user decides to use k3s without firewall or allow public access, then it is his own responsibility.
 		// k.Config.K3S.BindAddress = ip
 		k.Config.K3S.AdvertiseAddr = ip
+		k.Config.K3S.TLSSan = externalIP
 	}
 
 	// if we are the leader node

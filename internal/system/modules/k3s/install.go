@@ -13,7 +13,7 @@ import (
 var installCommand = fmt.Sprintf(strings.Join([]string{
 	// Check if initial install or upgrade.
 	"sudo mkdir -p %s && if [[ -e /usr/local/bin/k3s ]]; then restart=true; fi",
-	"curl -sfL https://get.k3s.io | sudo -E sh - 2>&1 >> /tmp/k3s-pulumi.log",
+	"curl -sfL https://get.k3s.io | sudo -E sh -x - 2>&1 >> /tmp/k3s-pulumi.log",
 	"sudo systemctl daemon-reload",
 	// If the old binary is installed then restart after upgrade.
 	// Since the main installer will not restart it.
@@ -40,8 +40,7 @@ func (k *K3S) install(ctx *pulumi.Context, con *connection.Connection, deps []pu
 		pulumi.RetainOnDelete(!k.Config.CleanDataOnUpgrade),
 	)
 	if err != nil {
-		err = fmt.Errorf("error install a k3s cluster via script: %w", err)
-		return nil, err
+		return nil, fmt.Errorf("error install a k3s cluster via script: %w", err)
 	}
 
 	return installed, nil

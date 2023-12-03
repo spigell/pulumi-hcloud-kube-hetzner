@@ -56,6 +56,7 @@ var (
 
 func (k *K3sConfig) WithServerDefaults() *K3sConfig {
 	k.WriteKubeconfigMode = "0644"
+	k.TLSSanSecurity = true
 
 	if k.ClusterCidr == "" {
 		k.ClusterCidr = defaultClusterCIDR
