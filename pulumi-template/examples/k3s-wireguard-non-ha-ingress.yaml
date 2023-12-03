@@ -54,10 +54,10 @@ config:
             ssh:
               allow: true
       k3s:
+        version: v1.28.3+k3s2
         config:
           node-label:
             - k3os.io/upgrade=disabled
-          version: v1.28.3+k3s2
     servers:
       k3s:
         config:
