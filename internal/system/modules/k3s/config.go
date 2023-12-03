@@ -43,6 +43,7 @@ type K3sConfig struct { //nolint: revive // This name is better
 	ClusterInit          bool     `json:"-" yaml:"cluster-init,omitempty"`
 	ExternalNodeIP       string   `json:"-" yaml:"node-external-ip,omitempty"`
 	TLSSanSecurity       bool     `json:"-" yaml:"tls-san-security,omitempty"`
+	TLSSan               string   `json:"-" yaml:"tls-san,omitempty"`
 	ClusterCidr          string   `json:"cluster-cidr" yaml:"cluster-cidr,omitempty"`
 	ServiceCidr          string   `json:"service-cidr" yaml:"service-cidr,omitempty"`
 	ClusterDomain        string   `json:"cluster-domain" yaml:"cluster-domain,omitempty"`

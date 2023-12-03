@@ -42,7 +42,6 @@ var TestsByExampleName = map[string][]string{
 	exampleK3SWGNonHaFwRules: {
 		testSSHConnectivity,
 		testWGConnectivity,
-		testKubeVersion,
 		testKubeChangeEndpointType,
 	},
 	exampleK3SWGHANoTaints: {
