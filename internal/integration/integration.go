@@ -22,6 +22,7 @@ const (
 	exampleK3SWGNonHaFwRules      = "k3s-wireguard-non-ha-firewall-rules"
 	exampleK3SWGHANoTaints        = "k3s-wireguard-ha-no-taints"
 	exampleK3SPublicNonHADefaults = "k3s-public-non-ha-with-defaults"
+	exampleK3SPublicHAKubeAddons  = "k3s-public-ha-kube-addons"
 
 	testWGConnectivity         = "wireguard-connectivity"
 	testKubeVersion            = "kube-version"
@@ -51,6 +52,11 @@ var TestsByExampleName = map[string][]string{
 	},
 	exampleK3SPublicNonHADefaults: {
 		testSSHConnectivity,
+	},
+	exampleK3SPublicHAKubeAddons: {
+		testSSHConnectivity,
+		testKubeVersion,
+		testKubeHetznerCCM,
 	},
 }
 
