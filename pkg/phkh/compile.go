@@ -47,6 +47,14 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 
 	nodeMap := make(map[string]*manager.Node)
 	for _, node := range nodes {
+		// By default, use default taints for server node if they are not set and agents nodes exist.
+		if node.Role == variables.ServerRole &&
+			!node.K3s.DisableDefaultsTaints &&
+			len(node.K3s.K3S.NodeTaints) == 0 &&
+			len(config.Nodepools.Agents) > 0 {
+			node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
+		}
+
 		nodeMap[node.ID] = &manager.Node{
 			ID:     node.Server.Hostname,
 			Taints: node.K3s.K3S.NodeTaints,
@@ -138,13 +146,6 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 				}
 			}
 
-			// By default, use default taints for server node if they are not set and agents nodes exist.
-			if node.Role == variables.ServerRole &&
-				!node.K3s.DisableDefaultsTaints &&
-				len(node.K3s.K3S.NodeTaints) == 0 &&
-				len(config.Nodepools.Agents) > 0 {
-				node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
-			}
 
 		default:
 			return nil, errors.New("unknown kubernetes distribution")
