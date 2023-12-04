@@ -12,6 +12,11 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 )
 
+const (
+	// ManagedLabel is a label for node Label. Used for internal purposes.
+	NodeManagedLabel = "phkh.io/managed=true"
+)
+
 type K3S struct {
 	order    int
 	role     string
@@ -33,6 +38,8 @@ type Outputs struct {
 	Token               string
 	KubeconfigForExport pulumi.AnyOutput
 	KubeconfigForUsage  pulumi.AnyOutput
+	Taints              []string
+	Labels              []string
 }
 
 var packages = map[string][]string{
@@ -167,6 +174,8 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 			Token:               k.Config.K3S.Token,
 			KubeconfigForUsage:  kubeconfig,
 			KubeconfigForExport: kubeconfig,
+			Taints:              k.Config.K3S.NodeTaints,
+			Labels:              k.Config.K3S.NodeLabels,
 		},
 	}, nil
 }

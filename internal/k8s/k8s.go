@@ -1,9 +1,12 @@
 package k8s
 
 import (
+	"fmt"
+
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
+	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
 )
 
@@ -11,12 +14,15 @@ type K8S struct {
 	ctx    *pulumi.Context
 	distr  string
 	addons []addons.Addon
+
+	mgmt *manager.ClusterManager
 }
 
-func New(ctx *pulumi.Context, adds *addons.Addons) *K8S {
+func New(ctx *pulumi.Context, adds *addons.Addons, nodes map[string]*manager.Node) *K8S {
 	return &K8S{
 		ctx:    ctx,
 		addons: addons.New(adds),
+		mgmt:   manager.New(ctx, nodes),
 	}
 }
 
@@ -39,12 +45,19 @@ func (k *K8S) CCM() *ccm.CCM {
 }
 
 func (k *K8S) Validate() error {
+	if err := k.mgmt.ValidateNodePatches(); err != nil {
+		return fmt.Errorf("failed to validate node patches: %w", err)
+	}
 	return addons.Validate(k.addons)
 }
 
 func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
 	prov, err := k.Provider(kubeconfig, deps)
 	if err != nil {
+		return err
+	}
+
+	if err := k.mgmt.ManageNodes(prov); err != nil {
 		return err
 	}
 

@@ -11,6 +11,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
+	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions"
 	distrK3S "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
@@ -44,9 +45,18 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 	}
 	infra := hetzner.New(ctx, nodes).WithNetwork(config.Network.Hetzner).WithNodepools(config.Nodepools)
 
-	kubeCluster := k8s.New(ctx, config.K8S.Addons)
+	nodeMap := make(map[string]*manager.Node)
+	for _, node := range nodes {
+		nodeMap[node.ID] = &manager.Node{
+			ID:     node.Server.Hostname,
+			Taints: node.K3s.K3S.NodeTaints,
+			Labels: append(node.K3s.K3S.NodeLabels, k3s.NodeManagedLabel),
+		}
+	}
+
+	kubeCluster := k8s.New(ctx, config.K8S.Addons, nodeMap)
 	if err := kubeCluster.Validate(); err != nil {
-		return nil, fmt.Errorf("failed to validate k8s addons: %w", err)
+		return nil, fmt.Errorf("failed to validate k8s cluster: %w", err)
 	}
 
 	return &Compiled{
@@ -55,7 +65,7 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 	}, nil
 }
 
-// compile create plan of infrastructure and required steps.
+// compile creates the plan of infrastructure and required steps.
 // This need to be refactored.
 func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Compiled, error) { // //lint: gocognit,gocyclo,
 	// Since token is part of k3s config the easiest method to pass the token to k3s module is via global value.
@@ -246,7 +256,7 @@ func (c *Compiled) k8sCompile(ctx *pulumi.Context) error {
 	case defaultKube:
 		distr = c.K8S.K3S().WithAddons(c.K8S.Addons())
 		if err := distr.Validate(); err != nil {
-			return fmt.Errorf("failed to validate k3s cluster: %w", err)
+			return fmt.Errorf("failed to validate k3s distr: %w", err)
 		}
 
 		for _, addon := range c.K8S.Addons() {

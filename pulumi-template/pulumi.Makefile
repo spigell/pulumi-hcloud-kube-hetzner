@@ -44,6 +44,14 @@ pulumi-ssh-check:
 		'echo "Greetings from `hostname`"' ; \
 	done
 
+pulumi-ssh-to-node:
+	$(PULUMI) stack output --show-secrets -j 'ssh:keypair' | jq .PrivateKey -r > $(PULUMI_SSH_KEY_FILE)
+	chmod 600 $(PULUMI_SSH_KEY_FILE)
+	@JSON=$$(pulumi stack output --show-secrets -j 'hetzner:servers' | jq '.["$(TARGET)"]') && \
+	ssh -i $(PULUMI_SSH_KEY_FILE) -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
+		-l `echo $${JSON} | jq -r .user` \
+		`echo $${JSON} | jq -r .ip`
+
 pulumi-wireguard-check:
 	$(PULUMI) stack output --show-secrets 'wireguard:connection' > ./wg0.conf
 	wg-quick up ./wg0.conf

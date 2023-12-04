@@ -14,9 +14,14 @@ import (
 const (
 	AgentRole  = "agent"
 	ServerRole = "server"
+	// ServerName must be a valid hostname.
+	// Since ctx.Project() can be a quite long string, prefix for server name is 4 character.
+	ServerNamePrefix = "phkh"
 )
 
 type Config struct {
+	ctx *pulumi.Context
+
 	Nodepools *Nodepools
 	Defaults  *Defaults
 	Network   *Network
@@ -37,6 +42,7 @@ func New(ctx *pulumi.Context) *Config {
 	c.RequireSecretObject("k8s", &k8s)
 
 	return &Config{
+		ctx:       ctx,
 		Nodepools: nodepools,
 		Network:   network,
 		Defaults:  defaults,
@@ -51,7 +57,7 @@ func (c *Config) WithInited() *Config {
 	c.Network.WithInited()
 	c.Defaults.WithInited()
 	c.K8S.WithInited()
-	c.Nodepools.WithInited()
+	c.Nodepools.WithInited(c.ctx)
 	c.Nodepools.SpecifyLeader()
 
 	// Sort
