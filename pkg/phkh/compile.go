@@ -151,8 +151,6 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 					}
 				}
 			}
-
-
 		default:
 			return nil, errors.New("unknown kubernetes distribution")
 		}
