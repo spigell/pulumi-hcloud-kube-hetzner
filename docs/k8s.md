@@ -34,20 +34,13 @@ config:
 ```
 Internal networks and wireguard networks are considered as *secured*. So, no rules will be applied for them.
 
-### Addons
-Additional components can be installed to the cluster using `addons` property:
-```yaml
-config:
-  <project>:k8s:
-    addons:
-      ccm:
-        enabled: true
-        default-loadbalancers-location: fsn1
-        loadbalancers-enabled: true
-        helm:
-          version: v1.2.0
-```
+## Node Management
+### Node Labels and Taints and K3S
+Despike the fact that the labels and taints are using only at registration stage the program allows change them after the registration. It is done by cluster-manager that use nodePatch ServerSide Apply to manage labels and taints on the nodes after bootstraping.
+
+## Addons
 Most of the addons are installed using helm. So, you can specify `helm` property to override the default helm version for the addon. The default helm versions are specified in the (default-helm-versions.yaml)[../../pulumi-template/versions/default-helm-versions.yaml] file.
 
-#### Hetzner CCM
+### Hetzner CCM
 Please note that Hetzner CCM is disabled by default. It is used to provision loadbalancers in the Hetzner cloud and other cool things. You can enabled it by setting `ccm.enabled` to `true`, but according to the [documentation](https://github.com/hetznercloud/hcloud-cloud-controller-manager/issues/80) you should recreate a cluster with enabled CCM to add the --cloud-manager=external to kubelet args.
+

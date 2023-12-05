@@ -3,6 +3,7 @@ package utils
 import (
 	"math/rand"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
@@ -50,4 +51,16 @@ func GenerateRandomString(length int) string {
 	}
 
 	return string(random)
+}
+
+func ToPulumiMap(m []string, separator string) pulumi.StringMap {
+	pulumiMap := pulumi.StringMap{}
+
+	for _, s := range m {
+		k := strings.Split(s, separator)[0]
+		v := strings.Split(s, separator)[1]
+		pulumiMap[k] = pulumi.String(v)
+	}
+
+	return pulumiMap
 }

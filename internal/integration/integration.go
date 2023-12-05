@@ -15,6 +15,8 @@ import (
 )
 
 const (
+	// changeMe is a placeholder for values that should be changed by the tests in various suites.
+	changeMe        = "change-me"
 	envConfigSource = "PULUMI_CONFIG_SOURCE"
 	envConfigPath   = "PULUMI_STACK_CONFIG"
 
@@ -29,6 +31,7 @@ const (
 	testSSHConnectivity        = "ssh-connectivity"
 	testKubeChangeEndpointType = "kube-change-endpoint-type"
 	testKubeHetznerCCM         = "kube-hetzner-ccm"
+	testNodeChangeLabelsTaints = "node-change-labels-taints"
 )
 
 // TestsByExampleName is a map of tests and their test cases.
@@ -48,14 +51,17 @@ var TestsByExampleName = map[string][]string{
 		testSSHConnectivity,
 		testWGConnectivity,
 		testKubeVersion,
+		testNodeChangeLabelsTaints,
 	},
 	exampleK3SPublicNonHADefaults: {
 		testSSHConnectivity,
+		testNodeChangeLabelsTaints,
 	},
 	exampleK3SPublicHAKubeAddons: {
 		testSSHConnectivity,
 		testKubeVersion,
 		testKubeHetznerCCM,
+		testNodeChangeLabelsTaints,
 	},
 }
 

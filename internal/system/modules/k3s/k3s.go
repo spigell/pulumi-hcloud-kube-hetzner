@@ -12,6 +12,11 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 )
 
+const (
+	// ManagedLabel is a label for node Label. Used for internal purposes.
+	NodeManagedLabel = "phkh.io/managed=true"
+)
+
 type K3S struct {
 	order    int
 	role     string

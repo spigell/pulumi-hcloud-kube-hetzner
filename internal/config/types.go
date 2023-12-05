@@ -1,6 +1,9 @@
 package config
 
 import (
+	"fmt"
+
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
@@ -51,6 +54,7 @@ func (n *Node) GetID() string {
 
 type Server struct {
 	ServerType string `json:"server-type" yaml:"server-type"`
+	Hostname   string
 	Firewall   *Firewall
 	Location   string
 	UserName   string
@@ -118,14 +122,14 @@ func (n *Network) WithInited() *Network {
 	return n
 }
 
-func (no *Nodepools) WithInited() *Nodepools {
-	no.Agents = initNodepools(no.Agents)
-	no.Servers = initNodepools(no.Servers)
+func (no *Nodepools) WithInited(ctx *pulumi.Context) *Nodepools {
+	no.Agents = initNodepools(ctx, no.Agents)
+	no.Servers = initNodepools(ctx, no.Servers)
 
 	return no
 }
 
-func initNodepools(pools []*Nodepool) []*Nodepool {
+func initNodepools(ctx *pulumi.Context, pools []*Nodepool) []*Nodepool {
 	no := make([]*Nodepool, 0)
 
 	for i, pool := range pools {
@@ -149,6 +153,10 @@ func initNodepools(pools []*Nodepool) []*Nodepool {
 		for j, node := range pool.Nodes {
 			if node.Server == nil {
 				no[i].Nodes[j].Server = &Server{}
+			}
+
+			if node.Server.Hostname == "" {
+				no[i].Nodes[j].Server.Hostname = fmt.Sprintf("%s-%s-%s", ServerNamePrefix, ctx.Stack(), node.ID)
 			}
 
 			if node.K3s == nil {

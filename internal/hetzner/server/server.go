@@ -26,10 +26,6 @@ const (
 	// Allow user to be superuser.
 	sudo = "ALL=(ALL) NOPASSWD:ALL"
 
-	// ServerName must be a valid hostname.
-	// Since ctx.Project() can be a quite long string, prefix for server name is 4 character.
-	serverNamePrefix = "phkh"
-
 	// This labels set in build via packer.
 	selector = "microos-snapshot=yes"
 )
@@ -71,6 +67,7 @@ func New(srv *config.Server, key *hcloud.SshKey) *Server {
 	}
 
 	userdata := &CloudConfig{
+		Hostname: srv.Hostname,
 		GrowPart: &CloudConfigGrowPartConfig{
 			Devices: []string{
 				"/var",
@@ -120,9 +117,6 @@ func (s *Server) Validate() error {
 }
 
 func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool string) (*Deployed, error) {
-	name := fmt.Sprintf("%s-%s-%s", serverNamePrefix, ctx.Stack(), id)
-	s.Userdata.Hostname = name
-
 	// Get image ID from user input
 	image := pulumi.String(s.Config.Image)
 
@@ -148,7 +142,7 @@ func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool 
 	args := &hcloud.ServerArgs{
 		ServerType: pulumi.String(s.Config.ServerType),
 		Location:   pulumi.String(s.Config.Location),
-		Name:       pulumi.String(name),
+		Name:       pulumi.String(s.Config.Hostname),
 		Image:      image,
 		SshKeys: pulumi.StringArray{
 			s.KeyName,
@@ -175,7 +169,7 @@ func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool 
 	args.UserData = pulumi.ToSecret(s.Userdata.render()).(pulumi.StringOutput)
 
 	if os.Getenv(autoApiApps.EnvAutomaionAPIAddr) != "" {
-		sn, err := snapshots.GetLastSnapshot(&http.Client{}, name)
+		sn, err := snapshots.GetLastSnapshot(&http.Client{}, s.Config.Hostname)
 		if err != nil {
 			switch {
 			case errors.Is(err, snapshots.ErrSnapshotNotFound):
