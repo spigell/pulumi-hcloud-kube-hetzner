@@ -24,6 +24,7 @@ import (
 
 	externalip "github.com/glendc/go-external-ip"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	k3supgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
 )
 
 const (
@@ -55,10 +56,15 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 			node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
 		}
 
+		upgradeLabel := fmt.Sprintf("%s=%s", k3supgrader.ControlLabelKey, "false")
+		if upgrader := config.K8S.Addons.K3SSystemUpgrader; upgrader != nil {
+			upgradeLabel = fmt.Sprintf("%s=%t", k3supgrader.ControlLabelKey, upgrader.Enabled)
+		}
+
 		nodeMap[node.ID] = &manager.Node{
 			ID:     node.Server.Hostname,
 			Taints: node.K3s.K3S.NodeTaints,
-			Labels: append(node.K3s.K3S.NodeLabels, k3s.NodeManagedLabel),
+			Labels: append(append(node.K3s.K3S.NodeLabels, k3s.NodeManagedLabel), upgradeLabel),
 		}
 	}
 

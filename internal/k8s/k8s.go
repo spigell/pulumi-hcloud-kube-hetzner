@@ -16,13 +16,18 @@ type K8S struct {
 	addons []addons.Addon
 
 	mgmt *manager.ClusterManager
+	runner *Runner
 }
 
 func New(ctx *pulumi.Context, adds *addons.Addons, nodes map[string]*manager.Node) *K8S {
+	mgmt := manager.New(ctx, nodes)
+	addons := addons.New(adds)
+
 	return &K8S{
 		ctx:    ctx,
-		addons: addons.New(adds),
-		mgmt:   manager.New(ctx, nodes),
+		addons: addons,
+		mgmt:   mgmt,
+		runner: NewRunner(ctx, addons).WithClusterManager(mgmt),
 	}
 }
 
@@ -61,7 +66,7 @@ func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
 		return err
 	}
 
-	return k.NewRunner().Run(prov)
+	return k.runner.Run(prov)
 }
 
 func (k *K8S) addon(name string) addons.Addon {

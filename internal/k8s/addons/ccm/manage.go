@@ -12,6 +12,7 @@ import (
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
+	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 	name      = "hcloud-cloud-controller-manager"
 )
 
-func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider) error {
+func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, _ map[string]*manager.Node) error {
 	token, err := m.discoverHcloudToken(ctx)
 	if err != nil {
 		return fmt.Errorf("unable to discover hcloud token: %w", err)
@@ -44,7 +45,7 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider) error {
 
 	_, err = helmv3.NewRelease(ctx, name, &helmv3.ReleaseArgs{
 		Chart:     pulumi.String(name),
-		Namespace: pulumi.String("kube-system"),
+		Namespace: pulumi.String(namespace),
 		Version:   pulumi.String(m.helm.Version),
 		Name:      pulumi.String(name),
 		RepositoryOpts: helmv3.RepositoryOptsArgs{

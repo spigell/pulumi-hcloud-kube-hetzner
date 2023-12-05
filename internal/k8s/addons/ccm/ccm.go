@@ -3,6 +3,7 @@ package ccm
 import (
 	hvariables "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config/helm"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions"
 )
 
 const (
@@ -88,7 +89,7 @@ func (m *CCM) Networking() bool {
 
 func (m *CCM) Supported(distr string) bool {
 	switch distr {
-	case "k3s":
+	case distributions.K3SDistrName:
 		return true
 	default:
 		return false

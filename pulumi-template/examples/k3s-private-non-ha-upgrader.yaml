@@ -1,0 +1,33 @@
+# The simple cluster with only k3s system upgrader controller
+config:
+  pulumi-hcloud-kube-hetzner:network:
+    hetzner:
+      enabled: true
+      cidr: 10.1.0.0/16
+  pulumi-hcloud-kube-hetzner:defaults:
+    # Disable automatic upgrades for servers
+    servers:
+      k3s:
+        version: v1.28.3+k3s2
+        config:
+          node-label:
+            # with this label the upgrader controller will not upgrade this node
+            - "k3s-upgrade=false"
+  pulumi-hcloud-kube-hetzner:k8s:
+    addons:
+      k3s-upgrade-controller:
+        enabled: true
+        # with helm v3 you can use the following:
+        # version can be specified. Otherwise the default version will be used.
+        # helm: 
+        #   version: v1.2.0
+        target-channel: latest # default is stable
+  pulumi-hcloud-kube-hetzner:nodepools:
+    servers:
+      - id: 01-control-plane
+        nodes:
+        - id: k3s-server01
+    agents:
+      - id: 01-agents
+        nodes:
+        - id: k3s-agent01

@@ -33,6 +33,10 @@ func New(ctx *pulumi.Context, nodes map[string]*Node) *ClusterManager {
 	}
 }
 
+func (m *ClusterManager) Nodes() map[string]*Node {
+	return m.nodes
+}
+
 func (m *ClusterManager) ManageNodes(provider *kubernetes.Provider) error {
 	for _, node := range m.nodes {
 		// Create NodePatch

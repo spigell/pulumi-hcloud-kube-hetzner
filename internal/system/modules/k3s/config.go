@@ -49,12 +49,12 @@ type K3sConfig struct { //nolint: revive // This name is better
 	ServiceCidr          string   `json:"service-cidr" yaml:"service-cidr,omitempty"`
 	ClusterDomain        string   `json:"cluster-domain" yaml:"cluster-domain,omitempty"`
 	ClusterDNS           string   `json:"cluster-dns" yaml:"cluster-dns,omitempty"`
-	NodeLabels           []string `json:"node-label" yaml:"node-label,omitempty"`
+	NodeLabels           []string `json:"node-label" yaml:"-"`
 	FlannelBackend       string   `json:"flannel-backend" yaml:"flannel-backend,omitempty"`
 	DisableNetworkPolicy bool     `json:"disable-network-policy" yaml:"disable-network-policy,omitempty"`
 	// NodeTaints are used to taint the node with key=value:effect.
 	// By default, server node is tainted with a couple of taints if number of agents nodes more than 0.
-	NodeTaints                     []string `json:"node-taint" yaml:"node-taint,omitempty"`
+	NodeTaints                     []string `json:"node-taint" yaml:"-"`
 	KubeletArgs                    []string `json:"kubelet-arg" yaml:"kubelet-arg,omitempty"`
 	KubeControllerManagerArgs      []string `json:"kube-controller-manager-arg" yaml:"kube-controller-manager-arg,omitempty"`
 	KubeCloudControllerManagerArgs []string `json:"kube-cloud-controller-manager-arg" yaml:"kube-cloud-controller-manager-arg,omitempty"`

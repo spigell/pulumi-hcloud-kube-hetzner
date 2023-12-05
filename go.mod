@@ -11,6 +11,7 @@ require (
 	github.com/glendc/go-external-ip v0.1.0
 	github.com/hetznercloud/hcloud-go/v2 v2.4.0
 	github.com/pulumi/pulumi-hcloud/sdk v1.16.2
+	github.com/pulumi/pulumi-kubernetes/sdk/v3 v3.30.2
 	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.5.5
 	github.com/pulumi/pulumi/sdk/v3 v3.94.2
 	github.com/sanity-io/litter v1.5.5
@@ -74,7 +75,7 @@ require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/aymanbagabas/go-osc52/v2 v2.0.1 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
-	github.com/blang/semver v3.5.1+incompatible // indirect
+	github.com/blang/semver v3.5.1+incompatible
 	github.com/bytedance/sonic v1.10.2 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/charmbracelet/bubbles v0.16.1 // indirect
