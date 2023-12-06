@@ -33,7 +33,7 @@ runs:
     - name: Install pulumi cli
       uses: pulumi/actions@v4
       with:
-        pulumi-version: v3.94.0
+        pulumi-version: v3.95.0
     - name: Create a stack
       shell: bash
       if: ${{ inputs.create-stack == 'true'}}
