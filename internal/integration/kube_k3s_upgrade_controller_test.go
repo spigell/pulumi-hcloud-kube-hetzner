@@ -5,12 +5,9 @@ package integration
 
 import (
 	"context"
-	"fmt"
 	"slices"
-	"strings"
 	"testing"
 
-	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/integration/k8s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
@@ -36,7 +33,7 @@ func TestK3SUpgradeControllerPlanValid(t *testing.T) {
 	kubeconfig, ok := out[phkh.KubeconfigKey].Value.(string)
 	require.True(t, ok)
 
-	k8s, err := k8s.New(ctx, kubeconfig)
+	_, err = k8s.New(ctx, kubeconfig)
 	require.NoError(t, err)
 
 }
