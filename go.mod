@@ -13,7 +13,7 @@ require (
 	github.com/pulumi/pulumi-hcloud/sdk v1.16.2
 	github.com/pulumi/pulumi-kubernetes/sdk/v3 v3.30.2
 	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.5.5
-	github.com/pulumi/pulumi/sdk/v3 v3.94.2
+	github.com/pulumi/pulumi/sdk/v3 v3.95.0
 	github.com/sanity-io/litter v1.5.5
 	github.com/seancfoley/ipaddress-go v1.5.5
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99
@@ -45,7 +45,9 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/matttproud/golang_protobuf_extensions/v2 v2.0.0 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
+	github.com/pgavlin/fx v0.1.6 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
+	github.com/pulumi/appdash v0.0.0-20231130102013-538fec2a741d // indirect
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/seancfoley/bintree v1.2.3 // indirect
@@ -183,5 +185,4 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	lukechampine.com/frand v1.4.2 // indirect
-	sourcegraph.com/sourcegraph/appdash v0.0.0-20211028080628-e2786a622600 // indirect
 )
