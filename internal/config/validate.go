@@ -6,8 +6,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	k3supgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 )
 
 var (
@@ -19,9 +19,8 @@ var (
 	errCCMNetworkingWithInternalNetworkDisabled = errors.New("hetzner CCM networking is required hetzner network to be enabled")
 	errCCMWGConflict                            = errors.New("hetzner CCM is not compatible with wireguard network yet")
 	errWGNetworkDisabled                        = errors.New("wireguard endpoint type requires wireguard to be enabled")
-	errConflictBetweenUpgradeMethods = errors.New("node doesn't have `k3s-upgrade=false` label but k3s-upgrade-controller is enabled and version is set")
-	errVersionMustBeSetManually = errors.New("k3s-upgrade-controller is disabled and version is not set. It must be set manually")
-	errConflictBetweenUpgradePlan = errors.New("k3s-upgrade-controller is enabled and version and channel are set. It must be set only one of them")
+	errConflictBetweenUpgradeMethods            = errors.New("node doesn't have `k3s-upgrade=false` label but k3s-upgrade-controller is enabled and version is set")
+	errVersionMustBeSetManually                 = errors.New("k3s-upgrade-controller is disabled and version is not set. It must be set manually")
 
 	validConnectionTypes = []string{
 		variables.PublicCommunicationMethod.String(),
@@ -41,7 +40,7 @@ func (c *Config) Validate(nodes []*Node) error {
 		validators = append(validators, c.ValidateCCM)
 	}
 
-	if k3sUpgrader := c.K8S.Addons.CCM; k3sUpgrader != nil {
+	if k3sUpgrader := c.K8S.Addons.K3SSystemUpgrader; k3sUpgrader != nil {
 		validators = append(validators, c.ValidateK3SUpgradeController)
 	}
 
@@ -112,13 +111,7 @@ func (c *Config) ValidateK3SUpgradeController(merged []*Node) error {
 		if !c.K8S.Addons.K3SSystemUpgrader.Enabled && node.K3s.Version == "" && disableLabelFound {
 			return errVersionMustBeSetManually
 		}
-
-		if c.K8S.Addons.K3SSystemUpgrader.Enabled && 
-			c.K8S.Addons.K3SSystemUpgrader.TargetVersion != "" && 
-			c.K8S.Addons.K3SSystemUpgrader.TargetChannel != "" {
-				return errConflictBetweenUpgradePlan
-			}
-		}
+	}
 
 	return nil
 }

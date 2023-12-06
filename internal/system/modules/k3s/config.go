@@ -69,9 +69,7 @@ func (c *CompletedConfig) render() ([]byte, error) {
 }
 
 func (k *K3sConfig) WithoutDuplicates() *K3sConfig {
-	k.NodeLabels = slices.Compact(k.NodeLabels)
 	k.Disable = slices.Compact(k.Disable)
-	k.NodeTaints = slices.Compact(k.NodeTaints)
 	k.KubeletArgs = slices.Compact(k.KubeletArgs)
 	k.KubeControllerManagerArgs = slices.Compact(k.KubeControllerManagerArgs)
 	k.KubeAPIServerArgs = slices.Compact(k.KubeAPIServerArgs)

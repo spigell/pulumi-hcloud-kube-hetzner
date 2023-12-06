@@ -11,7 +11,7 @@ type Runner struct {
 	ctx *pulumi.Context
 
 	addons []addons.Addon
-	nodes map[string]*manager.Node
+	nodes  map[string]*manager.Node
 }
 
 func NewRunner(ctx *pulumi.Context, addons []addons.Addon) *Runner {

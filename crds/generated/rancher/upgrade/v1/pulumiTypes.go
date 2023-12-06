@@ -22,7 +22,7 @@ type PlanType struct {
 // PlanTypeInput is an input type that accepts PlanTypeArgs and PlanTypeOutput values.
 // You can construct a concrete instance of `PlanTypeInput` via:
 //
-//          PlanTypeArgs{...}
+//	PlanTypeArgs{...}
 type PlanTypeInput interface {
 	pulumi.Input
 
@@ -101,7 +101,7 @@ type PlanSpec struct {
 // PlanSpecInput is an input type that accepts PlanSpecArgs and PlanSpecOutput values.
 // You can construct a concrete instance of `PlanSpecInput` via:
 //
-//          PlanSpecArgs{...}
+//	PlanSpecArgs{...}
 type PlanSpecInput interface {
 	pulumi.Input
 
@@ -146,11 +146,11 @@ func (i PlanSpecArgs) ToPlanSpecPtrOutputWithContext(ctx context.Context) PlanSp
 // PlanSpecPtrInput is an input type that accepts PlanSpecArgs, PlanSpecPtr and PlanSpecPtrOutput values.
 // You can construct a concrete instance of `PlanSpecPtrInput` via:
 //
-//          PlanSpecArgs{...}
+//	        PlanSpecArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecPtrInput interface {
 	pulumi.Input
 
@@ -375,7 +375,7 @@ type PlanSpecDrain struct {
 // PlanSpecDrainInput is an input type that accepts PlanSpecDrainArgs and PlanSpecDrainOutput values.
 // You can construct a concrete instance of `PlanSpecDrainInput` via:
 //
-//          PlanSpecDrainArgs{...}
+//	PlanSpecDrainArgs{...}
 type PlanSpecDrainInput interface {
 	pulumi.Input
 
@@ -418,11 +418,11 @@ func (i PlanSpecDrainArgs) ToPlanSpecDrainPtrOutputWithContext(ctx context.Conte
 // PlanSpecDrainPtrInput is an input type that accepts PlanSpecDrainArgs, PlanSpecDrainPtr and PlanSpecDrainPtrOutput values.
 // You can construct a concrete instance of `PlanSpecDrainPtrInput` via:
 //
-//          PlanSpecDrainArgs{...}
+//	        PlanSpecDrainArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecDrainPtrInput interface {
 	pulumi.Input
 
@@ -614,7 +614,7 @@ type PlanSpecDrainPodSelector struct {
 // PlanSpecDrainPodSelectorInput is an input type that accepts PlanSpecDrainPodSelectorArgs and PlanSpecDrainPodSelectorOutput values.
 // You can construct a concrete instance of `PlanSpecDrainPodSelectorInput` via:
 //
-//          PlanSpecDrainPodSelectorArgs{...}
+//	PlanSpecDrainPodSelectorArgs{...}
 type PlanSpecDrainPodSelectorInput interface {
 	pulumi.Input
 
@@ -650,11 +650,11 @@ func (i PlanSpecDrainPodSelectorArgs) ToPlanSpecDrainPodSelectorPtrOutputWithCon
 // PlanSpecDrainPodSelectorPtrInput is an input type that accepts PlanSpecDrainPodSelectorArgs, PlanSpecDrainPodSelectorPtr and PlanSpecDrainPodSelectorPtrOutput values.
 // You can construct a concrete instance of `PlanSpecDrainPodSelectorPtrInput` via:
 //
-//          PlanSpecDrainPodSelectorArgs{...}
+//	        PlanSpecDrainPodSelectorArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecDrainPodSelectorPtrInput interface {
 	pulumi.Input
 
@@ -756,7 +756,7 @@ type PlanSpecDrainPodSelectorMatchExpressions struct {
 // PlanSpecDrainPodSelectorMatchExpressionsInput is an input type that accepts PlanSpecDrainPodSelectorMatchExpressionsArgs and PlanSpecDrainPodSelectorMatchExpressionsOutput values.
 // You can construct a concrete instance of `PlanSpecDrainPodSelectorMatchExpressionsInput` via:
 //
-//          PlanSpecDrainPodSelectorMatchExpressionsArgs{...}
+//	PlanSpecDrainPodSelectorMatchExpressionsArgs{...}
 type PlanSpecDrainPodSelectorMatchExpressionsInput interface {
 	pulumi.Input
 
@@ -785,7 +785,7 @@ func (i PlanSpecDrainPodSelectorMatchExpressionsArgs) ToPlanSpecDrainPodSelector
 // PlanSpecDrainPodSelectorMatchExpressionsArrayInput is an input type that accepts PlanSpecDrainPodSelectorMatchExpressionsArray and PlanSpecDrainPodSelectorMatchExpressionsArrayOutput values.
 // You can construct a concrete instance of `PlanSpecDrainPodSelectorMatchExpressionsArrayInput` via:
 //
-//          PlanSpecDrainPodSelectorMatchExpressionsArray{ PlanSpecDrainPodSelectorMatchExpressionsArgs{...} }
+//	PlanSpecDrainPodSelectorMatchExpressionsArray{ PlanSpecDrainPodSelectorMatchExpressionsArgs{...} }
 type PlanSpecDrainPodSelectorMatchExpressionsArrayInput interface {
 	pulumi.Input
 
@@ -859,7 +859,7 @@ type PlanSpecDrainPodSelectorMatchLabels struct {
 // PlanSpecDrainPodSelectorMatchLabelsInput is an input type that accepts PlanSpecDrainPodSelectorMatchLabelsArgs and PlanSpecDrainPodSelectorMatchLabelsOutput values.
 // You can construct a concrete instance of `PlanSpecDrainPodSelectorMatchLabelsInput` via:
 //
-//          PlanSpecDrainPodSelectorMatchLabelsArgs{...}
+//	PlanSpecDrainPodSelectorMatchLabelsArgs{...}
 type PlanSpecDrainPodSelectorMatchLabelsInput interface {
 	pulumi.Input
 
@@ -904,7 +904,7 @@ type PlanSpecNodeSelector struct {
 // PlanSpecNodeSelectorInput is an input type that accepts PlanSpecNodeSelectorArgs and PlanSpecNodeSelectorOutput values.
 // You can construct a concrete instance of `PlanSpecNodeSelectorInput` via:
 //
-//          PlanSpecNodeSelectorArgs{...}
+//	PlanSpecNodeSelectorArgs{...}
 type PlanSpecNodeSelectorInput interface {
 	pulumi.Input
 
@@ -940,11 +940,11 @@ func (i PlanSpecNodeSelectorArgs) ToPlanSpecNodeSelectorPtrOutputWithContext(ctx
 // PlanSpecNodeSelectorPtrInput is an input type that accepts PlanSpecNodeSelectorArgs, PlanSpecNodeSelectorPtr and PlanSpecNodeSelectorPtrOutput values.
 // You can construct a concrete instance of `PlanSpecNodeSelectorPtrInput` via:
 //
-//          PlanSpecNodeSelectorArgs{...}
+//	        PlanSpecNodeSelectorArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecNodeSelectorPtrInput interface {
 	pulumi.Input
 
@@ -1046,7 +1046,7 @@ type PlanSpecNodeSelectorMatchExpressions struct {
 // PlanSpecNodeSelectorMatchExpressionsInput is an input type that accepts PlanSpecNodeSelectorMatchExpressionsArgs and PlanSpecNodeSelectorMatchExpressionsOutput values.
 // You can construct a concrete instance of `PlanSpecNodeSelectorMatchExpressionsInput` via:
 //
-//          PlanSpecNodeSelectorMatchExpressionsArgs{...}
+//	PlanSpecNodeSelectorMatchExpressionsArgs{...}
 type PlanSpecNodeSelectorMatchExpressionsInput interface {
 	pulumi.Input
 
@@ -1075,7 +1075,7 @@ func (i PlanSpecNodeSelectorMatchExpressionsArgs) ToPlanSpecNodeSelectorMatchExp
 // PlanSpecNodeSelectorMatchExpressionsArrayInput is an input type that accepts PlanSpecNodeSelectorMatchExpressionsArray and PlanSpecNodeSelectorMatchExpressionsArrayOutput values.
 // You can construct a concrete instance of `PlanSpecNodeSelectorMatchExpressionsArrayInput` via:
 //
-//          PlanSpecNodeSelectorMatchExpressionsArray{ PlanSpecNodeSelectorMatchExpressionsArgs{...} }
+//	PlanSpecNodeSelectorMatchExpressionsArray{ PlanSpecNodeSelectorMatchExpressionsArgs{...} }
 type PlanSpecNodeSelectorMatchExpressionsArrayInput interface {
 	pulumi.Input
 
@@ -1149,7 +1149,7 @@ type PlanSpecNodeSelectorMatchLabels struct {
 // PlanSpecNodeSelectorMatchLabelsInput is an input type that accepts PlanSpecNodeSelectorMatchLabelsArgs and PlanSpecNodeSelectorMatchLabelsOutput values.
 // You can construct a concrete instance of `PlanSpecNodeSelectorMatchLabelsInput` via:
 //
-//          PlanSpecNodeSelectorMatchLabelsArgs{...}
+//	PlanSpecNodeSelectorMatchLabelsArgs{...}
 type PlanSpecNodeSelectorMatchLabelsInput interface {
 	pulumi.Input
 
@@ -1198,7 +1198,7 @@ type PlanSpecPrepare struct {
 // PlanSpecPrepareInput is an input type that accepts PlanSpecPrepareArgs and PlanSpecPrepareOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareInput` via:
 //
-//          PlanSpecPrepareArgs{...}
+//	PlanSpecPrepareArgs{...}
 type PlanSpecPrepareInput interface {
 	pulumi.Input
 
@@ -1238,11 +1238,11 @@ func (i PlanSpecPrepareArgs) ToPlanSpecPreparePtrOutputWithContext(ctx context.C
 // PlanSpecPreparePtrInput is an input type that accepts PlanSpecPrepareArgs, PlanSpecPreparePtr and PlanSpecPreparePtrOutput values.
 // You can construct a concrete instance of `PlanSpecPreparePtrInput` via:
 //
-//          PlanSpecPrepareArgs{...}
+//	        PlanSpecPrepareArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecPreparePtrInput interface {
 	pulumi.Input
 
@@ -1396,7 +1396,7 @@ type PlanSpecPrepareEnvFrom struct {
 // PlanSpecPrepareEnvFromInput is an input type that accepts PlanSpecPrepareEnvFromArgs and PlanSpecPrepareEnvFromOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvFromInput` via:
 //
-//          PlanSpecPrepareEnvFromArgs{...}
+//	PlanSpecPrepareEnvFromArgs{...}
 type PlanSpecPrepareEnvFromInput interface {
 	pulumi.Input
 
@@ -1425,7 +1425,7 @@ func (i PlanSpecPrepareEnvFromArgs) ToPlanSpecPrepareEnvFromOutputWithContext(ct
 // PlanSpecPrepareEnvFromArrayInput is an input type that accepts PlanSpecPrepareEnvFromArray and PlanSpecPrepareEnvFromArrayOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvFromArrayInput` via:
 //
-//          PlanSpecPrepareEnvFromArray{ PlanSpecPrepareEnvFromArgs{...} }
+//	PlanSpecPrepareEnvFromArray{ PlanSpecPrepareEnvFromArgs{...} }
 type PlanSpecPrepareEnvFromArrayInput interface {
 	pulumi.Input
 
@@ -1501,7 +1501,7 @@ type PlanSpecPrepareEnvFromConfigMapRef struct {
 // PlanSpecPrepareEnvFromConfigMapRefInput is an input type that accepts PlanSpecPrepareEnvFromConfigMapRefArgs and PlanSpecPrepareEnvFromConfigMapRefOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvFromConfigMapRefInput` via:
 //
-//          PlanSpecPrepareEnvFromConfigMapRefArgs{...}
+//	PlanSpecPrepareEnvFromConfigMapRefArgs{...}
 type PlanSpecPrepareEnvFromConfigMapRefInput interface {
 	pulumi.Input
 
@@ -1537,11 +1537,11 @@ func (i PlanSpecPrepareEnvFromConfigMapRefArgs) ToPlanSpecPrepareEnvFromConfigMa
 // PlanSpecPrepareEnvFromConfigMapRefPtrInput is an input type that accepts PlanSpecPrepareEnvFromConfigMapRefArgs, PlanSpecPrepareEnvFromConfigMapRefPtr and PlanSpecPrepareEnvFromConfigMapRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvFromConfigMapRefPtrInput` via:
 //
-//          PlanSpecPrepareEnvFromConfigMapRefArgs{...}
+//	        PlanSpecPrepareEnvFromConfigMapRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecPrepareEnvFromConfigMapRefPtrInput interface {
 	pulumi.Input
 
@@ -1642,7 +1642,7 @@ type PlanSpecPrepareEnvFromSecretRef struct {
 // PlanSpecPrepareEnvFromSecretRefInput is an input type that accepts PlanSpecPrepareEnvFromSecretRefArgs and PlanSpecPrepareEnvFromSecretRefOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvFromSecretRefInput` via:
 //
-//          PlanSpecPrepareEnvFromSecretRefArgs{...}
+//	PlanSpecPrepareEnvFromSecretRefArgs{...}
 type PlanSpecPrepareEnvFromSecretRefInput interface {
 	pulumi.Input
 
@@ -1678,11 +1678,11 @@ func (i PlanSpecPrepareEnvFromSecretRefArgs) ToPlanSpecPrepareEnvFromSecretRefPt
 // PlanSpecPrepareEnvFromSecretRefPtrInput is an input type that accepts PlanSpecPrepareEnvFromSecretRefArgs, PlanSpecPrepareEnvFromSecretRefPtr and PlanSpecPrepareEnvFromSecretRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvFromSecretRefPtrInput` via:
 //
-//          PlanSpecPrepareEnvFromSecretRefArgs{...}
+//	        PlanSpecPrepareEnvFromSecretRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecPrepareEnvFromSecretRefPtrInput interface {
 	pulumi.Input
 
@@ -1784,7 +1784,7 @@ type PlanSpecPrepareEnvs struct {
 // PlanSpecPrepareEnvsInput is an input type that accepts PlanSpecPrepareEnvsArgs and PlanSpecPrepareEnvsOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsInput` via:
 //
-//          PlanSpecPrepareEnvsArgs{...}
+//	PlanSpecPrepareEnvsArgs{...}
 type PlanSpecPrepareEnvsInput interface {
 	pulumi.Input
 
@@ -1813,7 +1813,7 @@ func (i PlanSpecPrepareEnvsArgs) ToPlanSpecPrepareEnvsOutputWithContext(ctx cont
 // PlanSpecPrepareEnvsArrayInput is an input type that accepts PlanSpecPrepareEnvsArray and PlanSpecPrepareEnvsArrayOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsArrayInput` via:
 //
-//          PlanSpecPrepareEnvsArray{ PlanSpecPrepareEnvsArgs{...} }
+//	PlanSpecPrepareEnvsArray{ PlanSpecPrepareEnvsArgs{...} }
 type PlanSpecPrepareEnvsArrayInput interface {
 	pulumi.Input
 
@@ -1891,7 +1891,7 @@ type PlanSpecPrepareEnvsValueFrom struct {
 // PlanSpecPrepareEnvsValueFromInput is an input type that accepts PlanSpecPrepareEnvsValueFromArgs and PlanSpecPrepareEnvsValueFromOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsValueFromInput` via:
 //
-//          PlanSpecPrepareEnvsValueFromArgs{...}
+//	PlanSpecPrepareEnvsValueFromArgs{...}
 type PlanSpecPrepareEnvsValueFromInput interface {
 	pulumi.Input
 
@@ -1929,11 +1929,11 @@ func (i PlanSpecPrepareEnvsValueFromArgs) ToPlanSpecPrepareEnvsValueFromPtrOutpu
 // PlanSpecPrepareEnvsValueFromPtrInput is an input type that accepts PlanSpecPrepareEnvsValueFromArgs, PlanSpecPrepareEnvsValueFromPtr and PlanSpecPrepareEnvsValueFromPtrOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsValueFromPtrInput` via:
 //
-//          PlanSpecPrepareEnvsValueFromArgs{...}
+//	        PlanSpecPrepareEnvsValueFromArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecPrepareEnvsValueFromPtrInput interface {
 	pulumi.Input
 
@@ -2065,7 +2065,7 @@ type PlanSpecPrepareEnvsValueFromConfigMapKeyRef struct {
 // PlanSpecPrepareEnvsValueFromConfigMapKeyRefInput is an input type that accepts PlanSpecPrepareEnvsValueFromConfigMapKeyRefArgs and PlanSpecPrepareEnvsValueFromConfigMapKeyRefOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsValueFromConfigMapKeyRefInput` via:
 //
-//          PlanSpecPrepareEnvsValueFromConfigMapKeyRefArgs{...}
+//	PlanSpecPrepareEnvsValueFromConfigMapKeyRefArgs{...}
 type PlanSpecPrepareEnvsValueFromConfigMapKeyRefInput interface {
 	pulumi.Input
 
@@ -2102,11 +2102,11 @@ func (i PlanSpecPrepareEnvsValueFromConfigMapKeyRefArgs) ToPlanSpecPrepareEnvsVa
 // PlanSpecPrepareEnvsValueFromConfigMapKeyRefPtrInput is an input type that accepts PlanSpecPrepareEnvsValueFromConfigMapKeyRefArgs, PlanSpecPrepareEnvsValueFromConfigMapKeyRefPtr and PlanSpecPrepareEnvsValueFromConfigMapKeyRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsValueFromConfigMapKeyRefPtrInput` via:
 //
-//          PlanSpecPrepareEnvsValueFromConfigMapKeyRefArgs{...}
+//	        PlanSpecPrepareEnvsValueFromConfigMapKeyRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecPrepareEnvsValueFromConfigMapKeyRefPtrInput interface {
 	pulumi.Input
 
@@ -2222,7 +2222,7 @@ type PlanSpecPrepareEnvsValueFromFieldRef struct {
 // PlanSpecPrepareEnvsValueFromFieldRefInput is an input type that accepts PlanSpecPrepareEnvsValueFromFieldRefArgs and PlanSpecPrepareEnvsValueFromFieldRefOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsValueFromFieldRefInput` via:
 //
-//          PlanSpecPrepareEnvsValueFromFieldRefArgs{...}
+//	PlanSpecPrepareEnvsValueFromFieldRefArgs{...}
 type PlanSpecPrepareEnvsValueFromFieldRefInput interface {
 	pulumi.Input
 
@@ -2258,11 +2258,11 @@ func (i PlanSpecPrepareEnvsValueFromFieldRefArgs) ToPlanSpecPrepareEnvsValueFrom
 // PlanSpecPrepareEnvsValueFromFieldRefPtrInput is an input type that accepts PlanSpecPrepareEnvsValueFromFieldRefArgs, PlanSpecPrepareEnvsValueFromFieldRefPtr and PlanSpecPrepareEnvsValueFromFieldRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsValueFromFieldRefPtrInput` via:
 //
-//          PlanSpecPrepareEnvsValueFromFieldRefArgs{...}
+//	        PlanSpecPrepareEnvsValueFromFieldRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecPrepareEnvsValueFromFieldRefPtrInput interface {
 	pulumi.Input
 
@@ -2364,7 +2364,7 @@ type PlanSpecPrepareEnvsValueFromResourceFieldRef struct {
 // PlanSpecPrepareEnvsValueFromResourceFieldRefInput is an input type that accepts PlanSpecPrepareEnvsValueFromResourceFieldRefArgs and PlanSpecPrepareEnvsValueFromResourceFieldRefOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsValueFromResourceFieldRefInput` via:
 //
-//          PlanSpecPrepareEnvsValueFromResourceFieldRefArgs{...}
+//	PlanSpecPrepareEnvsValueFromResourceFieldRefArgs{...}
 type PlanSpecPrepareEnvsValueFromResourceFieldRefInput interface {
 	pulumi.Input
 
@@ -2401,11 +2401,11 @@ func (i PlanSpecPrepareEnvsValueFromResourceFieldRefArgs) ToPlanSpecPrepareEnvsV
 // PlanSpecPrepareEnvsValueFromResourceFieldRefPtrInput is an input type that accepts PlanSpecPrepareEnvsValueFromResourceFieldRefArgs, PlanSpecPrepareEnvsValueFromResourceFieldRefPtr and PlanSpecPrepareEnvsValueFromResourceFieldRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsValueFromResourceFieldRefPtrInput` via:
 //
-//          PlanSpecPrepareEnvsValueFromResourceFieldRefArgs{...}
+//	        PlanSpecPrepareEnvsValueFromResourceFieldRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecPrepareEnvsValueFromResourceFieldRefPtrInput interface {
 	pulumi.Input
 
@@ -2522,7 +2522,7 @@ type PlanSpecPrepareEnvsValueFromSecretKeyRef struct {
 // PlanSpecPrepareEnvsValueFromSecretKeyRefInput is an input type that accepts PlanSpecPrepareEnvsValueFromSecretKeyRefArgs and PlanSpecPrepareEnvsValueFromSecretKeyRefOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsValueFromSecretKeyRefInput` via:
 //
-//          PlanSpecPrepareEnvsValueFromSecretKeyRefArgs{...}
+//	PlanSpecPrepareEnvsValueFromSecretKeyRefArgs{...}
 type PlanSpecPrepareEnvsValueFromSecretKeyRefInput interface {
 	pulumi.Input
 
@@ -2559,11 +2559,11 @@ func (i PlanSpecPrepareEnvsValueFromSecretKeyRefArgs) ToPlanSpecPrepareEnvsValue
 // PlanSpecPrepareEnvsValueFromSecretKeyRefPtrInput is an input type that accepts PlanSpecPrepareEnvsValueFromSecretKeyRefArgs, PlanSpecPrepareEnvsValueFromSecretKeyRefPtr and PlanSpecPrepareEnvsValueFromSecretKeyRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareEnvsValueFromSecretKeyRefPtrInput` via:
 //
-//          PlanSpecPrepareEnvsValueFromSecretKeyRefArgs{...}
+//	        PlanSpecPrepareEnvsValueFromSecretKeyRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecPrepareEnvsValueFromSecretKeyRefPtrInput interface {
 	pulumi.Input
 
@@ -2678,7 +2678,7 @@ type PlanSpecPrepareVolumes struct {
 // PlanSpecPrepareVolumesInput is an input type that accepts PlanSpecPrepareVolumesArgs and PlanSpecPrepareVolumesOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareVolumesInput` via:
 //
-//          PlanSpecPrepareVolumesArgs{...}
+//	PlanSpecPrepareVolumesArgs{...}
 type PlanSpecPrepareVolumesInput interface {
 	pulumi.Input
 
@@ -2707,7 +2707,7 @@ func (i PlanSpecPrepareVolumesArgs) ToPlanSpecPrepareVolumesOutputWithContext(ct
 // PlanSpecPrepareVolumesArrayInput is an input type that accepts PlanSpecPrepareVolumesArray and PlanSpecPrepareVolumesArrayOutput values.
 // You can construct a concrete instance of `PlanSpecPrepareVolumesArrayInput` via:
 //
-//          PlanSpecPrepareVolumesArray{ PlanSpecPrepareVolumesArgs{...} }
+//	PlanSpecPrepareVolumesArray{ PlanSpecPrepareVolumesArgs{...} }
 type PlanSpecPrepareVolumesArrayInput interface {
 	pulumi.Input
 
@@ -2783,7 +2783,7 @@ type PlanSpecSecrets struct {
 // PlanSpecSecretsInput is an input type that accepts PlanSpecSecretsArgs and PlanSpecSecretsOutput values.
 // You can construct a concrete instance of `PlanSpecSecretsInput` via:
 //
-//          PlanSpecSecretsArgs{...}
+//	PlanSpecSecretsArgs{...}
 type PlanSpecSecretsInput interface {
 	pulumi.Input
 
@@ -2811,7 +2811,7 @@ func (i PlanSpecSecretsArgs) ToPlanSpecSecretsOutputWithContext(ctx context.Cont
 // PlanSpecSecretsArrayInput is an input type that accepts PlanSpecSecretsArray and PlanSpecSecretsArrayOutput values.
 // You can construct a concrete instance of `PlanSpecSecretsArrayInput` via:
 //
-//          PlanSpecSecretsArray{ PlanSpecSecretsArgs{...} }
+//	PlanSpecSecretsArray{ PlanSpecSecretsArgs{...} }
 type PlanSpecSecretsArrayInput interface {
 	pulumi.Input
 
@@ -2886,7 +2886,7 @@ type PlanSpecTolerations struct {
 // PlanSpecTolerationsInput is an input type that accepts PlanSpecTolerationsArgs and PlanSpecTolerationsOutput values.
 // You can construct a concrete instance of `PlanSpecTolerationsInput` via:
 //
-//          PlanSpecTolerationsArgs{...}
+//	PlanSpecTolerationsArgs{...}
 type PlanSpecTolerationsInput interface {
 	pulumi.Input
 
@@ -2917,7 +2917,7 @@ func (i PlanSpecTolerationsArgs) ToPlanSpecTolerationsOutputWithContext(ctx cont
 // PlanSpecTolerationsArrayInput is an input type that accepts PlanSpecTolerationsArray and PlanSpecTolerationsArrayOutput values.
 // You can construct a concrete instance of `PlanSpecTolerationsArrayInput` via:
 //
-//          PlanSpecTolerationsArray{ PlanSpecTolerationsArgs{...} }
+//	PlanSpecTolerationsArray{ PlanSpecTolerationsArgs{...} }
 type PlanSpecTolerationsArrayInput interface {
 	pulumi.Input
 
@@ -3005,7 +3005,7 @@ type PlanSpecUpgrade struct {
 // PlanSpecUpgradeInput is an input type that accepts PlanSpecUpgradeArgs and PlanSpecUpgradeOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeInput` via:
 //
-//          PlanSpecUpgradeArgs{...}
+//	PlanSpecUpgradeArgs{...}
 type PlanSpecUpgradeInput interface {
 	pulumi.Input
 
@@ -3045,11 +3045,11 @@ func (i PlanSpecUpgradeArgs) ToPlanSpecUpgradePtrOutputWithContext(ctx context.C
 // PlanSpecUpgradePtrInput is an input type that accepts PlanSpecUpgradeArgs, PlanSpecUpgradePtr and PlanSpecUpgradePtrOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradePtrInput` via:
 //
-//          PlanSpecUpgradeArgs{...}
+//	        PlanSpecUpgradeArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecUpgradePtrInput interface {
 	pulumi.Input
 
@@ -3203,7 +3203,7 @@ type PlanSpecUpgradeEnvFrom struct {
 // PlanSpecUpgradeEnvFromInput is an input type that accepts PlanSpecUpgradeEnvFromArgs and PlanSpecUpgradeEnvFromOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvFromInput` via:
 //
-//          PlanSpecUpgradeEnvFromArgs{...}
+//	PlanSpecUpgradeEnvFromArgs{...}
 type PlanSpecUpgradeEnvFromInput interface {
 	pulumi.Input
 
@@ -3232,7 +3232,7 @@ func (i PlanSpecUpgradeEnvFromArgs) ToPlanSpecUpgradeEnvFromOutputWithContext(ct
 // PlanSpecUpgradeEnvFromArrayInput is an input type that accepts PlanSpecUpgradeEnvFromArray and PlanSpecUpgradeEnvFromArrayOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvFromArrayInput` via:
 //
-//          PlanSpecUpgradeEnvFromArray{ PlanSpecUpgradeEnvFromArgs{...} }
+//	PlanSpecUpgradeEnvFromArray{ PlanSpecUpgradeEnvFromArgs{...} }
 type PlanSpecUpgradeEnvFromArrayInput interface {
 	pulumi.Input
 
@@ -3308,7 +3308,7 @@ type PlanSpecUpgradeEnvFromConfigMapRef struct {
 // PlanSpecUpgradeEnvFromConfigMapRefInput is an input type that accepts PlanSpecUpgradeEnvFromConfigMapRefArgs and PlanSpecUpgradeEnvFromConfigMapRefOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvFromConfigMapRefInput` via:
 //
-//          PlanSpecUpgradeEnvFromConfigMapRefArgs{...}
+//	PlanSpecUpgradeEnvFromConfigMapRefArgs{...}
 type PlanSpecUpgradeEnvFromConfigMapRefInput interface {
 	pulumi.Input
 
@@ -3344,11 +3344,11 @@ func (i PlanSpecUpgradeEnvFromConfigMapRefArgs) ToPlanSpecUpgradeEnvFromConfigMa
 // PlanSpecUpgradeEnvFromConfigMapRefPtrInput is an input type that accepts PlanSpecUpgradeEnvFromConfigMapRefArgs, PlanSpecUpgradeEnvFromConfigMapRefPtr and PlanSpecUpgradeEnvFromConfigMapRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvFromConfigMapRefPtrInput` via:
 //
-//          PlanSpecUpgradeEnvFromConfigMapRefArgs{...}
+//	        PlanSpecUpgradeEnvFromConfigMapRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecUpgradeEnvFromConfigMapRefPtrInput interface {
 	pulumi.Input
 
@@ -3449,7 +3449,7 @@ type PlanSpecUpgradeEnvFromSecretRef struct {
 // PlanSpecUpgradeEnvFromSecretRefInput is an input type that accepts PlanSpecUpgradeEnvFromSecretRefArgs and PlanSpecUpgradeEnvFromSecretRefOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvFromSecretRefInput` via:
 //
-//          PlanSpecUpgradeEnvFromSecretRefArgs{...}
+//	PlanSpecUpgradeEnvFromSecretRefArgs{...}
 type PlanSpecUpgradeEnvFromSecretRefInput interface {
 	pulumi.Input
 
@@ -3485,11 +3485,11 @@ func (i PlanSpecUpgradeEnvFromSecretRefArgs) ToPlanSpecUpgradeEnvFromSecretRefPt
 // PlanSpecUpgradeEnvFromSecretRefPtrInput is an input type that accepts PlanSpecUpgradeEnvFromSecretRefArgs, PlanSpecUpgradeEnvFromSecretRefPtr and PlanSpecUpgradeEnvFromSecretRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvFromSecretRefPtrInput` via:
 //
-//          PlanSpecUpgradeEnvFromSecretRefArgs{...}
+//	        PlanSpecUpgradeEnvFromSecretRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecUpgradeEnvFromSecretRefPtrInput interface {
 	pulumi.Input
 
@@ -3591,7 +3591,7 @@ type PlanSpecUpgradeEnvs struct {
 // PlanSpecUpgradeEnvsInput is an input type that accepts PlanSpecUpgradeEnvsArgs and PlanSpecUpgradeEnvsOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsInput` via:
 //
-//          PlanSpecUpgradeEnvsArgs{...}
+//	PlanSpecUpgradeEnvsArgs{...}
 type PlanSpecUpgradeEnvsInput interface {
 	pulumi.Input
 
@@ -3620,7 +3620,7 @@ func (i PlanSpecUpgradeEnvsArgs) ToPlanSpecUpgradeEnvsOutputWithContext(ctx cont
 // PlanSpecUpgradeEnvsArrayInput is an input type that accepts PlanSpecUpgradeEnvsArray and PlanSpecUpgradeEnvsArrayOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsArrayInput` via:
 //
-//          PlanSpecUpgradeEnvsArray{ PlanSpecUpgradeEnvsArgs{...} }
+//	PlanSpecUpgradeEnvsArray{ PlanSpecUpgradeEnvsArgs{...} }
 type PlanSpecUpgradeEnvsArrayInput interface {
 	pulumi.Input
 
@@ -3698,7 +3698,7 @@ type PlanSpecUpgradeEnvsValueFrom struct {
 // PlanSpecUpgradeEnvsValueFromInput is an input type that accepts PlanSpecUpgradeEnvsValueFromArgs and PlanSpecUpgradeEnvsValueFromOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsValueFromInput` via:
 //
-//          PlanSpecUpgradeEnvsValueFromArgs{...}
+//	PlanSpecUpgradeEnvsValueFromArgs{...}
 type PlanSpecUpgradeEnvsValueFromInput interface {
 	pulumi.Input
 
@@ -3736,11 +3736,11 @@ func (i PlanSpecUpgradeEnvsValueFromArgs) ToPlanSpecUpgradeEnvsValueFromPtrOutpu
 // PlanSpecUpgradeEnvsValueFromPtrInput is an input type that accepts PlanSpecUpgradeEnvsValueFromArgs, PlanSpecUpgradeEnvsValueFromPtr and PlanSpecUpgradeEnvsValueFromPtrOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsValueFromPtrInput` via:
 //
-//          PlanSpecUpgradeEnvsValueFromArgs{...}
+//	        PlanSpecUpgradeEnvsValueFromArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecUpgradeEnvsValueFromPtrInput interface {
 	pulumi.Input
 
@@ -3872,7 +3872,7 @@ type PlanSpecUpgradeEnvsValueFromConfigMapKeyRef struct {
 // PlanSpecUpgradeEnvsValueFromConfigMapKeyRefInput is an input type that accepts PlanSpecUpgradeEnvsValueFromConfigMapKeyRefArgs and PlanSpecUpgradeEnvsValueFromConfigMapKeyRefOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsValueFromConfigMapKeyRefInput` via:
 //
-//          PlanSpecUpgradeEnvsValueFromConfigMapKeyRefArgs{...}
+//	PlanSpecUpgradeEnvsValueFromConfigMapKeyRefArgs{...}
 type PlanSpecUpgradeEnvsValueFromConfigMapKeyRefInput interface {
 	pulumi.Input
 
@@ -3909,11 +3909,11 @@ func (i PlanSpecUpgradeEnvsValueFromConfigMapKeyRefArgs) ToPlanSpecUpgradeEnvsVa
 // PlanSpecUpgradeEnvsValueFromConfigMapKeyRefPtrInput is an input type that accepts PlanSpecUpgradeEnvsValueFromConfigMapKeyRefArgs, PlanSpecUpgradeEnvsValueFromConfigMapKeyRefPtr and PlanSpecUpgradeEnvsValueFromConfigMapKeyRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsValueFromConfigMapKeyRefPtrInput` via:
 //
-//          PlanSpecUpgradeEnvsValueFromConfigMapKeyRefArgs{...}
+//	        PlanSpecUpgradeEnvsValueFromConfigMapKeyRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecUpgradeEnvsValueFromConfigMapKeyRefPtrInput interface {
 	pulumi.Input
 
@@ -4029,7 +4029,7 @@ type PlanSpecUpgradeEnvsValueFromFieldRef struct {
 // PlanSpecUpgradeEnvsValueFromFieldRefInput is an input type that accepts PlanSpecUpgradeEnvsValueFromFieldRefArgs and PlanSpecUpgradeEnvsValueFromFieldRefOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsValueFromFieldRefInput` via:
 //
-//          PlanSpecUpgradeEnvsValueFromFieldRefArgs{...}
+//	PlanSpecUpgradeEnvsValueFromFieldRefArgs{...}
 type PlanSpecUpgradeEnvsValueFromFieldRefInput interface {
 	pulumi.Input
 
@@ -4065,11 +4065,11 @@ func (i PlanSpecUpgradeEnvsValueFromFieldRefArgs) ToPlanSpecUpgradeEnvsValueFrom
 // PlanSpecUpgradeEnvsValueFromFieldRefPtrInput is an input type that accepts PlanSpecUpgradeEnvsValueFromFieldRefArgs, PlanSpecUpgradeEnvsValueFromFieldRefPtr and PlanSpecUpgradeEnvsValueFromFieldRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsValueFromFieldRefPtrInput` via:
 //
-//          PlanSpecUpgradeEnvsValueFromFieldRefArgs{...}
+//	        PlanSpecUpgradeEnvsValueFromFieldRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecUpgradeEnvsValueFromFieldRefPtrInput interface {
 	pulumi.Input
 
@@ -4171,7 +4171,7 @@ type PlanSpecUpgradeEnvsValueFromResourceFieldRef struct {
 // PlanSpecUpgradeEnvsValueFromResourceFieldRefInput is an input type that accepts PlanSpecUpgradeEnvsValueFromResourceFieldRefArgs and PlanSpecUpgradeEnvsValueFromResourceFieldRefOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsValueFromResourceFieldRefInput` via:
 //
-//          PlanSpecUpgradeEnvsValueFromResourceFieldRefArgs{...}
+//	PlanSpecUpgradeEnvsValueFromResourceFieldRefArgs{...}
 type PlanSpecUpgradeEnvsValueFromResourceFieldRefInput interface {
 	pulumi.Input
 
@@ -4208,11 +4208,11 @@ func (i PlanSpecUpgradeEnvsValueFromResourceFieldRefArgs) ToPlanSpecUpgradeEnvsV
 // PlanSpecUpgradeEnvsValueFromResourceFieldRefPtrInput is an input type that accepts PlanSpecUpgradeEnvsValueFromResourceFieldRefArgs, PlanSpecUpgradeEnvsValueFromResourceFieldRefPtr and PlanSpecUpgradeEnvsValueFromResourceFieldRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsValueFromResourceFieldRefPtrInput` via:
 //
-//          PlanSpecUpgradeEnvsValueFromResourceFieldRefArgs{...}
+//	        PlanSpecUpgradeEnvsValueFromResourceFieldRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecUpgradeEnvsValueFromResourceFieldRefPtrInput interface {
 	pulumi.Input
 
@@ -4329,7 +4329,7 @@ type PlanSpecUpgradeEnvsValueFromSecretKeyRef struct {
 // PlanSpecUpgradeEnvsValueFromSecretKeyRefInput is an input type that accepts PlanSpecUpgradeEnvsValueFromSecretKeyRefArgs and PlanSpecUpgradeEnvsValueFromSecretKeyRefOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsValueFromSecretKeyRefInput` via:
 //
-//          PlanSpecUpgradeEnvsValueFromSecretKeyRefArgs{...}
+//	PlanSpecUpgradeEnvsValueFromSecretKeyRefArgs{...}
 type PlanSpecUpgradeEnvsValueFromSecretKeyRefInput interface {
 	pulumi.Input
 
@@ -4366,11 +4366,11 @@ func (i PlanSpecUpgradeEnvsValueFromSecretKeyRefArgs) ToPlanSpecUpgradeEnvsValue
 // PlanSpecUpgradeEnvsValueFromSecretKeyRefPtrInput is an input type that accepts PlanSpecUpgradeEnvsValueFromSecretKeyRefArgs, PlanSpecUpgradeEnvsValueFromSecretKeyRefPtr and PlanSpecUpgradeEnvsValueFromSecretKeyRefPtrOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeEnvsValueFromSecretKeyRefPtrInput` via:
 //
-//          PlanSpecUpgradeEnvsValueFromSecretKeyRefArgs{...}
+//	        PlanSpecUpgradeEnvsValueFromSecretKeyRefArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanSpecUpgradeEnvsValueFromSecretKeyRefPtrInput interface {
 	pulumi.Input
 
@@ -4485,7 +4485,7 @@ type PlanSpecUpgradeVolumes struct {
 // PlanSpecUpgradeVolumesInput is an input type that accepts PlanSpecUpgradeVolumesArgs and PlanSpecUpgradeVolumesOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeVolumesInput` via:
 //
-//          PlanSpecUpgradeVolumesArgs{...}
+//	PlanSpecUpgradeVolumesArgs{...}
 type PlanSpecUpgradeVolumesInput interface {
 	pulumi.Input
 
@@ -4514,7 +4514,7 @@ func (i PlanSpecUpgradeVolumesArgs) ToPlanSpecUpgradeVolumesOutputWithContext(ct
 // PlanSpecUpgradeVolumesArrayInput is an input type that accepts PlanSpecUpgradeVolumesArray and PlanSpecUpgradeVolumesArrayOutput values.
 // You can construct a concrete instance of `PlanSpecUpgradeVolumesArrayInput` via:
 //
-//          PlanSpecUpgradeVolumesArray{ PlanSpecUpgradeVolumesArgs{...} }
+//	PlanSpecUpgradeVolumesArray{ PlanSpecUpgradeVolumesArgs{...} }
 type PlanSpecUpgradeVolumesArrayInput interface {
 	pulumi.Input
 
@@ -4592,7 +4592,7 @@ type PlanStatus struct {
 // PlanStatusInput is an input type that accepts PlanStatusArgs and PlanStatusOutput values.
 // You can construct a concrete instance of `PlanStatusInput` via:
 //
-//          PlanStatusArgs{...}
+//	PlanStatusArgs{...}
 type PlanStatusInput interface {
 	pulumi.Input
 
@@ -4630,11 +4630,11 @@ func (i PlanStatusArgs) ToPlanStatusPtrOutputWithContext(ctx context.Context) Pl
 // PlanStatusPtrInput is an input type that accepts PlanStatusArgs, PlanStatusPtr and PlanStatusPtrOutput values.
 // You can construct a concrete instance of `PlanStatusPtrInput` via:
 //
-//          PlanStatusArgs{...}
+//	        PlanStatusArgs{...}
 //
-//  or:
+//	or:
 //
-//          nil
+//	        nil
 type PlanStatusPtrInput interface {
 	pulumi.Input
 
@@ -4765,7 +4765,7 @@ type PlanStatusConditions struct {
 // PlanStatusConditionsInput is an input type that accepts PlanStatusConditionsArgs and PlanStatusConditionsOutput values.
 // You can construct a concrete instance of `PlanStatusConditionsInput` via:
 //
-//          PlanStatusConditionsArgs{...}
+//	PlanStatusConditionsArgs{...}
 type PlanStatusConditionsInput interface {
 	pulumi.Input
 
@@ -4797,7 +4797,7 @@ func (i PlanStatusConditionsArgs) ToPlanStatusConditionsOutputWithContext(ctx co
 // PlanStatusConditionsArrayInput is an input type that accepts PlanStatusConditionsArray and PlanStatusConditionsArrayOutput values.
 // You can construct a concrete instance of `PlanStatusConditionsArrayInput` via:
 //
-//          PlanStatusConditionsArray{ PlanStatusConditionsArgs{...} }
+//	PlanStatusConditionsArray{ PlanStatusConditionsArgs{...} }
 type PlanStatusConditionsArrayInput interface {
 	pulumi.Input
 

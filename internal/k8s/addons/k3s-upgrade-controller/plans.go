@@ -12,54 +12,80 @@ import (
 )
 
 const (
-	channelApiService = "https://update.k3s.io/v1-release/channels"
+	channelAPIService = "https://update.k3s.io/v1-release/channels"
 )
 
+var planEnabledNodeSelector = upgradev1.PlanSpecNodeSelectorMatchExpressionsArray{
+	&upgradev1.PlanSpecNodeSelectorMatchExpressionsArgs{
+		Key:      pulumi.String(ControlLabelKey),
+		Operator: pulumi.String("Exists"),
+	},
+	&upgradev1.PlanSpecNodeSelectorMatchExpressionsArgs{
+		Key:      pulumi.String(ControlLabelKey),
+		Operator: pulumi.String("NotIn"),
+		Values:   pulumi.StringArray{pulumi.String("false")},
+	},
+}
+
 func (u *Upgrader) DeployPlans(ctx *pulumi.Context, ns *corev1.Namespace, prov *kubernetes.Provider, deps []pulumi.Resource, nodes map[string]*manager.Node) error {
-	enabledNodeSelector := upgradev1.PlanSpecNodeSelectorMatchExpressionsArray{
-		&upgradev1.PlanSpecNodeSelectorMatchExpressionsArgs{
-			Key: pulumi.String(ControlLabelKey),
-			Operator: pulumi.String("Exists"),
+	plans := map[string]*upgradev1.PlanSpecArgs{
+		"k3s-control-plane-nodes": {
+			Concurrency:        pulumi.Int(1),
+			ServiceAccountName: pulumi.String(u.serviceAccountName),
+			Cordon:             pulumi.Bool(true),
+			Upgrade: &upgradev1.PlanSpecUpgradeArgs{
+				Image: pulumi.String("rancher/k3s-upgrade"),
+			},
+			NodeSelector: &upgradev1.PlanSpecNodeSelectorArgs{
+				MatchExpressions: append(planEnabledNodeSelector,
+					&upgradev1.PlanSpecNodeSelectorMatchExpressionsArgs{
+						Key:      pulumi.String("node-role.kubernetes.io/master"),
+						Operator: pulumi.String("Exists"),
+					},
+				),
+			},
+			Tolerations: getAllTolerationsFromNodes(nodes),
 		},
-		&upgradev1.PlanSpecNodeSelectorMatchExpressionsArgs{
-			Key: pulumi.String(ControlLabelKey),
-			Operator: pulumi.String("NotIn"),
-			Values: pulumi.StringArray{pulumi.String("false")},
-		},
-	}
-	controlPlaneSpec := &upgradev1.PlanSpecArgs{
-		Concurrency: pulumi.Int(1),
-		ServiceAccountName: pulumi.String(u.serviceAccountName),
-		Cordon: pulumi.Bool(true),
-		Upgrade: &upgradev1.PlanSpecUpgradeArgs{
-			Image: pulumi.String("rancher/k3s-upgrade"),
-		},
-		NodeSelector: &upgradev1.PlanSpecNodeSelectorArgs{
-			MatchExpressions: append(enabledNodeSelector,
-				&upgradev1.PlanSpecNodeSelectorMatchExpressionsArgs{
-					Key: pulumi.String("node-role.kubernetes.io/master"),
-					Operator: pulumi.String("Exists"),
+		"k3s-agent-nodes": {
+			Concurrency:        pulumi.Int(1),
+			ServiceAccountName: pulumi.String(u.serviceAccountName),
+			Upgrade: &upgradev1.PlanSpecUpgradeArgs{
+				Image: pulumi.String("rancher/k3s-upgrade"),
+			},
+			Prepare: &upgradev1.PlanSpecPrepareArgs{
+				Image: pulumi.String("rancher/k3s-upgrade"),
+				Args: pulumi.StringArray{
+					pulumi.String("prepare"),
+					pulumi.String("k3s-server"),
 				},
-			),
+			},
+			Drain: &upgradev1.PlanSpecDrainArgs{
+				Force:                    pulumi.Bool(true),
+				SkipWaitForDeleteTimeout: pulumi.Int(60),
+			},
+			NodeSelector: &upgradev1.PlanSpecNodeSelectorArgs{
+				MatchExpressions: append(planEnabledNodeSelector,
+					&upgradev1.PlanSpecNodeSelectorMatchExpressionsArgs{
+						Key:      pulumi.String("node-role.kubernetes.io/master"),
+						Operator: pulumi.String("DoesNotExist"),
+					},
+				),
+			},
+			Tolerations: getAllTolerationsFromNodes(nodes),
 		},
-		Tolerations: getAllTolerationsFromNodes(nodes),
 	}
 
-	controlPlaneSpec.Channel = pulumi.Sprintf("%s/%s", channelApiService, u.channel)
-
-	if u.version != "" {
-		controlPlaneSpec.Channel = pulumi.String("")
-		controlPlaneSpec.Version = pulumi.String(u.version)
-	}
-
-	if _, err := upgradev1.NewPlan(ctx, "k3s-control-plane-nodes", &upgradev1.PlanArgs{
-		Metadata: &metav1.ObjectMetaArgs{
-			Name: pulumi.String("k3s-control-plane-nodes"),
-			Namespace: ns.Metadata.Name(),
-		},
-		Spec: controlPlaneSpec,
-	}, pulumi.Provider(prov), pulumi.DependsOn(deps)); err != nil {
-		return err
+	for name, spec := range plans {
+		spec = u.specifyVersionAndChannel(spec)
+		if _, err := upgradev1.NewPlan(ctx, name, &upgradev1.PlanArgs{
+			Metadata: &metav1.ObjectMetaArgs{
+				Name:      pulumi.String(name),
+				Namespace: ns.Metadata.Name(),
+			},
+			Spec: spec,
+		}, pulumi.Provider(prov), pulumi.DependsOn(deps)); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -83,9 +109,20 @@ func getAllTolerationsFromNodes(nodes map[string]*manager.Node) upgradev1.PlanSp
 				Value:  pulumi.String(value),
 				Effect: pulumi.String(effect),
 			})
-
 		}
 	}
 
 	return tolerations
+}
+
+func (u *Upgrader) specifyVersionAndChannel(spec *upgradev1.PlanSpecArgs) *upgradev1.PlanSpecArgs {
+	if u.channel != "" {
+		spec.Channel = pulumi.Sprintf("%s/%s", channelAPIService, u.channel)
+	}
+
+	if u.version != "" {
+		spec.Version = pulumi.String(u.version)
+	}
+
+	return spec
 }

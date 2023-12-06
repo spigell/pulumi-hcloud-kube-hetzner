@@ -26,12 +26,13 @@ const (
 	exampleK3SPublicNonHADefaults = "k3s-public-non-ha-with-defaults"
 	exampleK3SPublicHAKubeAddons  = "k3s-public-ha-kube-addons"
 
-	testWGConnectivity         = "wireguard-connectivity"
-	testKubeVersion            = "kube-version"
-	testSSHConnectivity        = "ssh-connectivity"
-	testKubeChangeEndpointType = "kube-change-endpoint-type"
-	testKubeHetznerCCM         = "kube-hetzner-ccm"
-	testNodeChangeLabelsTaints = "node-change-labels-taints"
+	testWGConnectivity                    = "wireguard-connectivity"
+	testKubeVersion                       = "kube-version"
+	testSSHConnectivity                   = "ssh-connectivity"
+	testKubeChangeEndpointType            = "kube-change-endpoint-type"
+	testKubeHetznerCCM                    = "kube-hetzner-ccm"
+	testNodeChangeLabelsTaints            = "node-change-labels-taints"
+	testKubeK3SUpgradeControllerPlanValid = "kube-k3s-upgrade-controller-plan-valid"
 )
 
 // TestsByExampleName is a map of tests and their test cases.
@@ -62,6 +63,7 @@ var TestsByExampleName = map[string][]string{
 		testKubeVersion,
 		testKubeHetznerCCM,
 		testNodeChangeLabelsTaints,
+		testKubeK3SUpgradeControllerPlanValid,
 	},
 }
 

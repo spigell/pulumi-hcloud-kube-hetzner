@@ -15,7 +15,7 @@ type K8S struct {
 	distr  string
 	addons []addons.Addon
 
-	mgmt *manager.ClusterManager
+	mgmt   *manager.ClusterManager
 	runner *Runner
 }
 

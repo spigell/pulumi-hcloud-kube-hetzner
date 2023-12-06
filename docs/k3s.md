@@ -9,10 +9,7 @@ Also the k3s well-known label `k3s-upgrade` will be added if system-upgrade-cont
 
 The following table describes error combinations:
 
-| version (manual) | version (upgrader) | channel (upgrader)  | `k3s-upgrade=false` label | Error type                           |
-|:----------------:|:------------------:|:-------------------:|---------------------------|--------------------------------------|
-|         x        |                    |          x          |                           | Error (either manual or auto)        |
-|         x        |          x         |                     |                           | Error (either manual or auto)        |
-|                  |          x         |                     |             x             | Error (Version must be set manually) |
-|                  |          x         |          x          |                           | Error (ether version or channel)     |
-|                  |                    |          x          |             x             | Error (Version must be set manually) |
+| version (manual) |upgrader enabled (version or channel)| `k3s-upgrade=false` label | Error type |
+|:----------------:|:----------------------------------|-----------------------------|------------|
+|         x        |                 x                 |                             | Either manual or auto|
+|                  |                 x                 |             x               | Version must be set manually) 

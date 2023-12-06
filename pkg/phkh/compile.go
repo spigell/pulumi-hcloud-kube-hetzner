@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"slices"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
@@ -56,15 +57,17 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 			node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
 		}
 
-		upgradeLabel := fmt.Sprintf("%s=%s", k3supgrader.ControlLabelKey, "false")
 		if upgrader := config.K8S.Addons.K3SSystemUpgrader; upgrader != nil {
-			upgradeLabel = fmt.Sprintf("%s=%t", k3supgrader.ControlLabelKey, upgrader.Enabled)
+			node.K3s.K3S.NodeLabels = append(
+				[]string{fmt.Sprintf("%s=%t", k3supgrader.ControlLabelKey, upgrader.Enabled)},
+				node.K3s.K3S.NodeLabels...,
+			)
 		}
 
 		nodeMap[node.ID] = &manager.Node{
 			ID:     node.Server.Hostname,
-			Taints: node.K3s.K3S.NodeTaints,
-			Labels: append(append(node.K3s.K3S.NodeLabels, k3s.NodeManagedLabel), upgradeLabel),
+			Taints: slices.Compact(node.K3s.K3S.NodeTaints),
+			Labels: slices.Compact(append(node.K3s.K3S.NodeLabels, k3s.NodeManagedLabel)),
 		}
 	}
 

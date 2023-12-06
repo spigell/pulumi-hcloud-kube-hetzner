@@ -11,7 +11,7 @@ import (
 )
 
 type Addons struct {
-	CCM *ccm.Config
+	CCM               *ccm.Config
 	K3SSystemUpgrader *k3supgrader.Config `json:"k3s-upgrade-controller" yaml:"k3s-upgrade-controller"`
 }
 

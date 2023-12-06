@@ -93,3 +93,26 @@ func toTaints(taints []string) corev1.TaintPatchArray {
 
 	return t
 }
+
+func ComputeTolerationsFromNodes(nodes map[string]*Node) []map[string]interface{} {
+	tolerations := make([]map[string]interface{}, 0)
+	for _, node := range nodes {
+		for _, taint := range node.Taints {
+			keyValue, effect := strings.Split(taint, ":")[0], strings.Split(taint, ":")[1]
+
+			// Value is optional.
+			key, value := strings.Split(keyValue, "=")[0], ""
+			if l := len(strings.Split(keyValue, "=")); l == 2 {
+				value = strings.Split(keyValue, "=")[1]
+			}
+
+			tolerations = append(tolerations, map[string]interface{}{
+				"key":    pulumi.String(key),
+				"value":  pulumi.String(value),
+				"effect": pulumi.String(effect),
+			})
+		}
+	}
+
+	return tolerations
+}

@@ -9,9 +9,9 @@ const (
 	enabledByDefault = false
 	defaultChannel   = "stable"
 
-	name             = "k3s-upgrade-controller"
+	name = "k3s-upgrade-controller"
 	// ControlLabelKey is a label key to use for enabling k3s-upgrade-controller for specific node.
-	ControlLabelKey  = "k3s-upgrade"
+	ControlLabelKey = "k3s-upgrade"
 )
 
 type Config struct {
@@ -24,13 +24,12 @@ type Config struct {
 }
 
 type Upgrader struct {
-	enabled                      bool
-	helm                         *helm.Config
-	channel                      string
-	version                      string
-	serviceAccountName           string
+	enabled            bool
+	helm               *helm.Config
+	channel            string
+	version            string
+	serviceAccountName string
 }
-
 
 func New(cfg *Config) *Upgrader {
 	u := &Upgrader{}
