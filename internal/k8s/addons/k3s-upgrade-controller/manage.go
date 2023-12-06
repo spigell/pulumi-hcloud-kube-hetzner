@@ -18,7 +18,7 @@ const (
 	namespace = "system-upgrade"
 )
 
-func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, nodes map[string]*manager.Node) error {
+func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *manager.ClusterManager) error {
 	deps := make([]pulumi.Resource, 0)
 	// Create ns
 	ns, err := corev1.NewNamespace(ctx, namespace, &corev1.NamespaceArgs{
@@ -39,7 +39,7 @@ func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, nodes 
 			Repo: pulumi.String(helmRepo),
 		},
 		Values: pulumi.Map{
-			"tolerations": pulumi.ToMapArray(manager.ComputeTolerationsFromNodes(nodes)),
+			"tolerations": pulumi.ToMapArray(manager.ComputeTolerationsFromNodes(mgmt.Nodes())),
 		},
 		Transformations: []yaml.Transformation{
 			func(state map[string]interface{}, opts ...pulumi.ResourceOption) {
@@ -79,5 +79,5 @@ func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, nodes 
 		return fmt.Errorf("unable to create helm release: %w", err)
 	}
 
-	return u.DeployPlans(ctx, ns, prov, deps, nodes)
+	return u.DeployPlans(ctx, ns, prov, deps, mgmt.Nodes())
 }

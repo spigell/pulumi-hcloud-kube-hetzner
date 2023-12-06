@@ -2,6 +2,7 @@ package manager
 
 import (
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -15,7 +16,8 @@ import (
 type ClusterManager struct {
 	ctx *pulumi.Context
 
-	nodes map[string]*Node
+	nodes     map[string]*Node
+	resources []pulumi.Resource
 }
 
 // Node is a representation of kubernetes node.
@@ -28,8 +30,9 @@ type Node struct {
 
 func New(ctx *pulumi.Context, nodes map[string]*Node) *ClusterManager {
 	return &ClusterManager{
-		ctx:   ctx,
-		nodes: nodes,
+		ctx:       ctx,
+		nodes:     nodes,
+		resources: make([]pulumi.Resource, 0),
 	}
 }
 
@@ -37,10 +40,19 @@ func (m *ClusterManager) Nodes() map[string]*Node {
 	return m.nodes
 }
 
+func (m *ClusterManager) Resources() []pulumi.Resource {
+	return m.resources
+}
+
 func (m *ClusterManager) ManageNodes(provider *kubernetes.Provider) error {
 	for _, node := range m.nodes {
+		existed, err := corev1.GetNode(m.ctx, node.ID, pulumi.ID(node.ID), nil, pulumi.Provider(provider))
+		if err != nil {
+			return err
+		}
+
 		// Create NodePatch
-		_, err := corev1.NewNodePatch(m.ctx, fmt.Sprintf("taints-%s", node.ID), &corev1.NodePatchArgs{
+		taints, err := corev1.NewNodePatch(m.ctx, fmt.Sprintf("taints-%s", node.ID), &corev1.NodePatchArgs{
 			Metadata: &metav1.ObjectMetaPatchArgs{
 				Name: pulumi.String(node.ID),
 				Annotations: pulumi.StringMap{
@@ -48,14 +60,30 @@ func (m *ClusterManager) ManageNodes(provider *kubernetes.Provider) error {
 				},
 			},
 			Spec: &corev1.NodeSpecPatchArgs{
-				Taints: toTaints(node.Taints),
+				Taints: pulumi.All(existed.Spec.Taints(), node.Taints).ApplyT(
+					func(args []interface{}) []corev1.TaintPatch {
+						current := args[0].([]corev1.Taint)
+						additional := args[1].([]string)
+
+						return slices.CompactFunc(
+							append(toPatchTaintsFromTaintSlice(current),
+								toPatchTaintsFromStringSlice(additional)...,
+							),
+							func(k, j corev1.TaintPatch) bool {
+								return *k.Key == *j.Key && *k.Effect == *j.Effect
+							},
+						)
+					},
+				).(corev1.TaintPatchArrayOutput),
 			},
 		}, pulumi.Provider(provider))
 		if err != nil {
 			return err
 		}
 
-		_, err = corev1.NewNodePatch(m.ctx, fmt.Sprintf("labels-%s", node.ID), &corev1.NodePatchArgs{
+		m.resources = append(m.resources, taints)
+
+		labels, err := corev1.NewNodePatch(m.ctx, fmt.Sprintf("labels-%s", node.ID), &corev1.NodePatchArgs{
 			Metadata: &metav1.ObjectMetaPatchArgs{
 				Name: pulumi.String(node.ID),
 				Annotations: pulumi.StringMap{
@@ -67,13 +95,15 @@ func (m *ClusterManager) ManageNodes(provider *kubernetes.Provider) error {
 		if err != nil {
 			return err
 		}
+
+		m.resources = append(m.resources, labels)
 	}
 
 	return nil
 }
 
-func toTaints(taints []string) corev1.TaintPatchArray {
-	var t corev1.TaintPatchArray
+func toPatchTaintsFromStringSlice(taints []string) []corev1.TaintPatch {
+	t := make([]corev1.TaintPatch, 0)
 
 	for _, taint := range taints {
 		keyValue, effect := strings.Split(taint, ":")[0], strings.Split(taint, ":")[1]
@@ -84,10 +114,10 @@ func toTaints(taints []string) corev1.TaintPatchArray {
 			value = strings.Split(keyValue, "=")[1]
 		}
 
-		t = append(t, corev1.TaintPatchArgs{
-			Key:    pulumi.String(key),
-			Value:  pulumi.String(value),
-			Effect: pulumi.String(effect),
+		t = append(t, corev1.TaintPatch{
+			Key:    &key,
+			Value:  &value,
+			Effect: &effect,
 		})
 	}
 
@@ -115,4 +145,18 @@ func ComputeTolerationsFromNodes(nodes map[string]*Node) []map[string]interface{
 	}
 
 	return tolerations
+}
+
+func toPatchTaintsFromTaintSlice(taints []corev1.Taint) []corev1.TaintPatch {
+	t := make([]corev1.TaintPatch, 0)
+
+	for i := range taints {
+		t = append(t, corev1.TaintPatch{
+			Key:    &taints[i].Key,
+			Value:  taints[i].Value,
+			Effect: &taints[i].Effect,
+		})
+	}
+
+	return t
 }

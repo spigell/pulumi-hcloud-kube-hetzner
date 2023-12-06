@@ -74,7 +74,6 @@ func (s *SSHD) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi
 		Create:     pulumi.String("sudo systemctl restart sshd"),
 		Triggers: pulumi.Array{
 			deployed.Md5sum,
-			deployed.Permissions,
 			deployed.Connection,
 			deployed.Path,
 			deployed.Connection,

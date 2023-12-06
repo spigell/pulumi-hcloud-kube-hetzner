@@ -20,7 +20,7 @@ const (
 	name      = "hcloud-cloud-controller-manager"
 )
 
-func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, _ map[string]*manager.Node) error {
+func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *manager.ClusterManager) error {
 	token, err := m.discoverHcloudToken(ctx)
 	if err != nil {
 		return fmt.Errorf("unable to discover hcloud token: %w", err)
@@ -38,7 +38,7 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, _ map[strin
 			// But it will be created anyway.
 			"network": pulumi.Sprintf("%s-%s", ctx.Project(), ctx.Stack()),
 		},
-	}, pulumi.Provider(prov))
+	}, pulumi.Provider(prov), pulumi.DependsOn(mgmt.Resources()))
 	if err != nil {
 		return fmt.Errorf("unable to create secret: %w", err)
 	}
@@ -63,6 +63,9 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, _ map[strin
 			},
 
 			"env": pulumi.Map{
+				"HCLOUD_DEBUG": pulumi.Map{
+					"value": pulumi.String("true"),
+				},
 				"HCLOUD_LOAD_BALANCERS_ENABLED": pulumi.Map{
 					"value": pulumi.String(strconv.FormatBool(m.loadbalancersEnabled)),
 				},

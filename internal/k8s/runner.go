@@ -10,8 +10,8 @@ import (
 type Runner struct {
 	ctx *pulumi.Context
 
-	addons []addons.Addon
-	nodes  map[string]*manager.Node
+	addons  []addons.Addon
+	manager *manager.ClusterManager
 }
 
 func NewRunner(ctx *pulumi.Context, addons []addons.Addon) *Runner {
@@ -22,7 +22,7 @@ func NewRunner(ctx *pulumi.Context, addons []addons.Addon) *Runner {
 }
 
 func (r *Runner) WithClusterManager(m *manager.ClusterManager) *Runner {
-	r.nodes = m.Nodes()
+	r.manager = m
 
 	return r
 }
@@ -30,7 +30,7 @@ func (r *Runner) WithClusterManager(m *manager.ClusterManager) *Runner {
 func (r *Runner) Run(prov *kubernetes.Provider) error {
 	for _, addon := range r.addons {
 		if addon.Enabled() {
-			if err := addon.Manage(r.ctx, prov, r.nodes); err != nil {
+			if err := addon.Manage(r.ctx, prov, r.manager); err != nil {
 				return err
 			}
 		}

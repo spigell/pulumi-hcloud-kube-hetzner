@@ -18,7 +18,7 @@ type Addons struct {
 type Addon interface {
 	Name() string
 	Enabled() bool
-	Manage(*pulumi.Context, *kubernetes.Provider, map[string]*manager.Node) error
+	Manage(*pulumi.Context, *kubernetes.Provider, *manager.ClusterManager) error
 	Supported(string) bool
 	Helm() *helm.Config
 	SetHelm(*helm.Config)

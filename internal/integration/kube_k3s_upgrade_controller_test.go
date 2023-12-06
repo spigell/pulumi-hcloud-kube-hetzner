@@ -8,7 +8,6 @@ import (
 	"slices"
 	"testing"
 
-
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/integration/k8s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
 	"github.com/stretchr/testify/assert"
