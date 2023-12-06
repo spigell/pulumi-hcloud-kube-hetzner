@@ -50,12 +50,12 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 	nodeMap := make(map[string]*manager.Node)
 	for _, node := range nodes {
 		// By default, use default taints for server node if they are not set and agents nodes exist.
-		if node.Role == variables.ServerRole &&
-			!node.K3s.DisableDefaultsTaints &&
-			len(node.K3s.K3S.NodeTaints) == 0 &&
-			len(config.Nodepools.Agents) > 0 {
-			node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
-		}
+		// if node.Role == variables.ServerRole &&
+		//	!node.K3s.DisableDefaultsTaints &&
+		//	len(node.K3s.K3S.NodeTaints) == 0 &&
+		//	len(config.Nodepools.Agents) > 0 {
+		//	node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
+		//}
 
 		if upgrader := config.K8S.Addons.K3SSystemUpgrader; upgrader != nil {
 			node.K3s.K3S.NodeLabels = append(
