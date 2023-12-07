@@ -23,16 +23,15 @@ config:
         - id: k3s-big-agent01
       - id: 02-ingress-nodes
         config:
+          k8s:
+            node-label:
+            - kubernetes.io/role=ingress
+            node-taint:
+            - node-role.kubernetes.io/ingress:NoSchedule
           server:
             # There is no need to use a big server for ingress nodes
             # The cpx11 is the minimal for the program
             server-type: cpx11
-          k3s:
-            config:
-              node-label:
-              - kubernetes.io/role=ingress
-              node-taint:
-              - node-role.kubernetes.io/ingress:NoSchedule
         nodes:
         - id: k3s-ingress01
     servers:
@@ -46,6 +45,9 @@ config:
             location: fsn1
   pulumi-hcloud-kube-hetzner:defaults:
     global:
+      k8s:
+        node-label:
+          - k3os.io/upgrade=disabled
       server:
         firewall:
           hetzner:
@@ -55,9 +57,6 @@ config:
               allow: true
       k3s:
         version: v1.28.3+k3s2
-        config:
-          node-label:
-            - k3os.io/upgrade=disabled
     servers:
       k3s:
         config:

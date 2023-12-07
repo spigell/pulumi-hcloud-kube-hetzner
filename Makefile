@@ -27,3 +27,6 @@ up-template-deps: test-project
 	cp ./test-project/go.mod ./pulumi-template/go.mod
 	sed -i "1s/.*/module \\\$${PROJECT}/" ./pulumi-template/go.mod
 	cp ./test-project/go.sum ./pulumi-template/go.sum
+
+unit-tests:
+	set -o pipefail ; go test $$(go list ./... | grep -v integration | grep -v crds/generated) | grep -v 'no test files'

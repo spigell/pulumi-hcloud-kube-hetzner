@@ -38,8 +38,6 @@ type Outputs struct {
 	Token               string
 	KubeconfigForExport pulumi.AnyOutput
 	KubeconfigForUsage  pulumi.AnyOutput
-	Taints              []string
-	Labels              []string
 }
 
 var packages = map[string][]string{
@@ -174,8 +172,6 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 			Token:               k.Config.K3S.Token,
 			KubeconfigForUsage:  kubeconfig,
 			KubeconfigForExport: kubeconfig,
-			Taints:              k.Config.K3S.NodeTaints,
-			Labels:              k.Config.K3S.NodeLabels,
 		},
 	}, nil
 }

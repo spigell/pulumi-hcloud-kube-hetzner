@@ -7,12 +7,12 @@ config:
   pulumi-hcloud-kube-hetzner:defaults:
     # Disable automatic upgrades for servers
     servers:
+      k8s:
+        node-label:
+          # with this label the upgrader controller will not upgrade this node
+          - "k3s-upgrade=false"
       k3s:
         version: v1.28.3+k3s2
-        config:
-          node-label:
-            # with this label the upgrader controller will not upgrade this node
-            - "k3s-upgrade=false"
   pulumi-hcloud-kube-hetzner:k8s:
     addons:
       k3s-upgrade-controller:

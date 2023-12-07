@@ -117,7 +117,7 @@ func (c *Config) ValidateK3SUpgradeController(merged []*Node) error {
 }
 
 func findLabel(node *Node, target string) bool {
-	for _, label := range node.K3s.K3S.NodeLabels {
+	for _, label := range node.K8S.NodeLabels {
 		if label == target {
 			return true
 		}

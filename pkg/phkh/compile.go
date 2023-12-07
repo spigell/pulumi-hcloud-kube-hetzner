@@ -52,22 +52,22 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 		// By default, use default taints for server node if they are not set and agents nodes exist.
 		if node.Role == variables.ServerRole &&
 			!node.K3s.DisableDefaultsTaints &&
-			len(node.K3s.K3S.NodeTaints) == 0 &&
+			len(node.K8S.NodeTaints) == 0 &&
 			len(config.Nodepools.Agents) > 0 {
-			node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
+			node.K8S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
 		}
 
 		if upgrader := config.K8S.Addons.K3SSystemUpgrader; upgrader != nil {
-			node.K3s.K3S.NodeLabels = append(
+			node.K8S.NodeLabels = append(
 				[]string{fmt.Sprintf("%s=%t", k3supgrader.ControlLabelKey, upgrader.Enabled)},
-				node.K3s.K3S.NodeLabels...,
+				node.K8S.NodeLabels...,
 			)
 		}
 
 		nodeMap[node.ID] = &manager.Node{
 			ID:     node.Server.Hostname,
-			Taints: slices.Compact(node.K3s.K3S.NodeTaints),
-			Labels: slices.Compact(append(node.K3s.K3S.NodeLabels, k3s.NodeManagedLabel)),
+			Taints: slices.Compact(node.K8S.NodeTaints),
+			Labels: slices.Compact(append(node.K8S.NodeLabels, k3s.NodeManagedLabel)),
 		}
 	}
 
