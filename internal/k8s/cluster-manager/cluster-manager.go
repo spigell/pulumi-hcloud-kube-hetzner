@@ -3,6 +3,7 @@ package manager
 import (
 	"fmt"
 	"slices"
+	"sort"
 	"strings"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -65,12 +66,32 @@ func (m *ClusterManager) ManageNodes(provider *kubernetes.Provider) error {
 						current := args[0].([]corev1.Taint)
 						additional := args[1].([]string)
 
-						return slices.CompactFunc(
-							append(toPatchTaintsFromTaintSlice(current),
-								toPatchTaintsFromStringSlice(additional)...,
-							),
+						keys := make([]string, 0)
+
+						merged := append(toPatchTaintsFromTaintSlice(current), toPatchTaintsFromStringSlice(additional)...)
+
+						for _, t := range merged {
+							keys = append(keys, *t.Key)
+						}
+
+						sort.Strings(keys)
+
+						// Simple sort by key.
+						sorted := make([]corev1.TaintPatch, 0)
+						for k := range keys {
+							for _, t := range merged {
+								if *t.Key == keys[k] {
+									sorted = append(sorted, t)
+								}
+							}
+						}
+
+						return slices.CompactFunc(sorted,
 							func(k, j corev1.TaintPatch) bool {
-								return *k.Key == *j.Key && *k.Effect == *j.Effect
+								if *k.Key == *j.Key && *k.Effect == *j.Effect {
+									return true
+								}
+								return false
 							},
 						)
 					},
