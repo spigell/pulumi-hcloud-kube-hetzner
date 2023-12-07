@@ -47,6 +47,9 @@ func TestKubeVersion(t *testing.T) {
 			}
 		}
 
-		assert.Equal(t, n.Status.NodeInfo.KubeletVersion, i.Example.Decoded.Defaults.Global.K3s.Version)
+		// If k3s-upgrade-controller is disabled, then kubelet version must be equal to k3s version of node specified in config
+		if !i.Example.Decoded.K8S.Addons.K3SSystemUpgrader.Enabled {
+			assert.Equal(t, n.Status.NodeInfo.KubeletVersion, i.Example.Decoded.Defaults.Global.K3s.Version)
+		}
 	}
 }

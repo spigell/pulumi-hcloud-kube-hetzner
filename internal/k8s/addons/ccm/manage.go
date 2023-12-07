@@ -51,6 +51,7 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *manag
 		RepositoryOpts: helmv3.RepositoryOptsArgs{
 			Repo: pulumi.String(HelmRepo),
 		},
+		ValueYamlFiles: m.helm.ValuesFiles,
 		Values: pulumi.Map{
 			"args": pulumi.Map{
 				"cloud-provider":       pulumi.String("hcloud"),

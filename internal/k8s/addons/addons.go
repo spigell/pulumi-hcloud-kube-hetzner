@@ -57,6 +57,14 @@ func WithHelmInited(addon Addon) Addon {
 		h.Version = defVer
 	}
 
+	if len(h.ValuesFilePath) > 0 {
+		var values pulumi.AssetOrArchiveArray
+		for _, p := range h.ValuesFilePath {
+			values = append(values, pulumi.NewFileAsset(p))
+		}
+		h.ValuesFiles = values
+	}
+
 	addon.SetHelm(h)
 
 	return addon

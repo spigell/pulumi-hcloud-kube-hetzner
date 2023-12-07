@@ -2,28 +2,27 @@ package manager
 
 import (
 	"fmt"
-	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
-	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
-	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"slices"
 	"sort"
 	"strings"
+
+	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
+	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-var (
-	// whitelistedTaints is a list of taints that should not be treated as user-defined.
-	whitelistedTaints = []string{
-		// This taint is used by cloud controllers
-		"node.cloudprovider.kubernetes.io/uninitialized",
-		// Next taints are used by kubernetes itself and can be added by controllers
-		"node.kubernetes.io/unreachable",
-		"node.kubernetes.io/network-unavailable",
-		"node.kubernetes.io/disk-pressure",
-		"node.kubernetes.io/memory-pressure",
-		"node.kubernetes.io/pid-pressure",
-		"node.kubernetes.io/not-ready",
-	}
-)
+// whitelistedTaints is a list of taints that should not be treated as user-defined.
+var whitelistedTaints = []string{
+	// This taint is used by cloud controllers
+	"node.cloudprovider.kubernetes.io/uninitialized",
+	// Next taints are used by kubernetes itself and can be added by controllers
+	"node.kubernetes.io/unreachable",
+	"node.kubernetes.io/network-unavailable",
+	"node.kubernetes.io/disk-pressure",
+	"node.kubernetes.io/memory-pressure",
+	"node.kubernetes.io/pid-pressure",
+	"node.kubernetes.io/not-ready",
+}
 
 func (m *ClusterManager) ManageTaints(node *Node) error {
 	existed, err := corev1.GetNode(m.ctx, node.ID, pulumi.ID(node.ID), nil, pulumi.Provider(m.provider))

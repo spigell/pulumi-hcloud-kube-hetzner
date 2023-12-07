@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"gopkg.in/yaml.v3"
 )
 
@@ -12,7 +13,10 @@ const (
 )
 
 type Config struct {
-	Version string
+	ValuesFiles pulumi.AssetOrArchiveArray `json:"-"`
+
+	ValuesFilePath []string `json:"values-files" yaml:"values-files"`
+	Version        string
 }
 
 func GetDefaultVersion(addon string) (string, error) {

@@ -40,8 +40,8 @@ const (
 var TestsByExampleName = map[string][]string{
 	exampleK3SPrivateNonHASimple: {
 		testSSHConnectivity,
-		testKubeVersion,
 		testKubeHetznerCCM,
+		testKubeK3SUpgradeControllerPlanValid,
 	},
 	exampleK3SWGNonHaFwRules: {
 		testSSHConnectivity,
@@ -53,6 +53,7 @@ var TestsByExampleName = map[string][]string{
 		testWGConnectivity,
 		testKubeVersion,
 		testNodeChangeLabelsTaints,
+		testKubeK3SUpgradeControllerPlanValid,
 	},
 	exampleK3SPublicNonHADefaults: {
 		testSSHConnectivity,
@@ -60,7 +61,6 @@ var TestsByExampleName = map[string][]string{
 	},
 	exampleK3SPublicHAKubeAddons: {
 		testSSHConnectivity,
-		testKubeVersion,
 		testKubeHetznerCCM,
 		testNodeChangeLabelsTaints,
 		testKubeK3SUpgradeControllerPlanValid,

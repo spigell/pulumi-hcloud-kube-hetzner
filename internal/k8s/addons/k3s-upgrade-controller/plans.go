@@ -12,7 +12,9 @@ import (
 )
 
 const (
-	channelAPIService = "https://update.k3s.io/v1-release/channels"
+	ControlPlanNodesPlanName = "k3s-control-plane-nodes"
+	AgentNodesPlanName       = "k3s-agent-nodes"
+	channelAPIService        = "https://update.k3s.io/v1-release/channels"
 )
 
 var planEnabledNodeSelector = upgradev1.PlanSpecNodeSelectorMatchExpressionsArray{
@@ -29,7 +31,7 @@ var planEnabledNodeSelector = upgradev1.PlanSpecNodeSelectorMatchExpressionsArra
 
 func (u *Upgrader) DeployPlans(ctx *pulumi.Context, ns *corev1.Namespace, prov *kubernetes.Provider, deps []pulumi.Resource, nodes map[string]*manager.Node) error {
 	plans := map[string]*upgradev1.PlanSpecArgs{
-		"k3s-control-plane-nodes": {
+		ControlPlanNodesPlanName: {
 			Concurrency:        pulumi.Int(1),
 			ServiceAccountName: pulumi.String(u.serviceAccountName),
 			Cordon:             pulumi.Bool(true),
@@ -46,18 +48,11 @@ func (u *Upgrader) DeployPlans(ctx *pulumi.Context, ns *corev1.Namespace, prov *
 			},
 			Tolerations: getAllTolerationsFromNodes(nodes),
 		},
-		"k3s-agent-nodes": {
+		AgentNodesPlanName: {
 			Concurrency:        pulumi.Int(1),
 			ServiceAccountName: pulumi.String(u.serviceAccountName),
 			Upgrade: &upgradev1.PlanSpecUpgradeArgs{
 				Image: pulumi.String("rancher/k3s-upgrade"),
-			},
-			Prepare: &upgradev1.PlanSpecPrepareArgs{
-				Image: pulumi.String("rancher/k3s-upgrade"),
-				Args: pulumi.StringArray{
-					pulumi.String("prepare"),
-					pulumi.String("k3s-server"),
-				},
 			},
 			Drain: &upgradev1.PlanSpecDrainArgs{
 				Force:                    pulumi.Bool(true),

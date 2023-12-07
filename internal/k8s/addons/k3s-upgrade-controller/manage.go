@@ -15,15 +15,19 @@ import (
 const (
 	helmRepo  = "https://nimbolus.github.io/helm-charts"
 	helmChart = "system-upgrade-controller"
-	namespace = "system-upgrade"
+	Namespace = "system-upgrade"
 )
 
 func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *manager.ClusterManager) error {
+	if u.helm.ValuesFiles != nil {
+		return fmt.Errorf("values-files is not supported for %s", u.Name())
+	}
+
 	deps := make([]pulumi.Resource, 0)
 	// Create ns
-	ns, err := corev1.NewNamespace(ctx, namespace, &corev1.NamespaceArgs{
+	ns, err := corev1.NewNamespace(ctx, Namespace, &corev1.NamespaceArgs{
 		Metadata: &metav1.ObjectMetaArgs{
-			Name: pulumi.String(namespace),
+			Name: pulumi.String(Namespace),
 		},
 	}, pulumi.Provider(prov))
 	if err != nil {
