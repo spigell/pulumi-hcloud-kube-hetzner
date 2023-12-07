@@ -62,11 +62,7 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *manag
 				"enabled":     pulumi.Bool(m.networking),
 				"clusterCIDR": pulumi.String(m.clusterCIDR),
 			},
-
 			"env": pulumi.Map{
-				"HCLOUD_DEBUG": pulumi.Map{
-					"value": pulumi.String("true"),
-				},
 				"HCLOUD_LOAD_BALANCERS_ENABLED": pulumi.Map{
 					"value": pulumi.String(strconv.FormatBool(m.loadbalancersEnabled)),
 				},

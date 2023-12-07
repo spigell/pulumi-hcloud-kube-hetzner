@@ -10,6 +10,7 @@ import (
 	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/yaml"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 )
 
 const (
@@ -44,6 +45,7 @@ func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *
 		},
 		Values: pulumi.Map{
 			"tolerations": pulumi.ToMapArray(manager.ComputeTolerationsFromNodes(mgmt.Nodes())),
+			"configEnv":   utils.ToPulumiMap(u.configEnv, "="),
 		},
 		Transformations: []yaml.Transformation{
 			func(state map[string]interface{}, opts ...pulumi.ResourceOption) {

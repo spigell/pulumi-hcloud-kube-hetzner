@@ -22,6 +22,9 @@ config:
         # helm: 
         #   version: v1.2.0
         target-channel: latest # default is stable
+        config-env:
+          - "SYSTEM_UPGRADE_JOB_TTL_SECONDS_AFTER_FINISH=10"
+          - "SYSTEM_UPGRADE_PLAN_POLLING_INTERVAL=1m"
   pulumi-hcloud-kube-hetzner:nodepools:
     servers:
       - id: 01-control-plane

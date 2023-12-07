@@ -289,7 +289,8 @@ func configureHCCMForK3S(ctx *pulumi.Context, leader *system.System, addon addon
 	}
 
 	// Private network is validated already. It is present and enabled.
-	if c.Networking() {
+	if leader.CommunicationMethod() == variables.InternalCommunicationMethod {
+		c.WithNetworking()
 		c.WithLoadbalancerPrivateIPUsage()
 	}
 }

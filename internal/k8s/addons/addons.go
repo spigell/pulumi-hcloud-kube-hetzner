@@ -47,7 +47,7 @@ func Validate(a []Addon) error {
 func WithHelmInited(addon Addon) Addon {
 	h := addon.Helm()
 
-	if addon.Helm() == nil {
+	if h == nil {
 		h = &helm.Config{}
 	}
 
@@ -58,11 +58,11 @@ func WithHelmInited(addon Addon) Addon {
 	}
 
 	if len(h.ValuesFilePath) > 0 {
-		var values pulumi.AssetOrArchiveArray
-		for _, p := range h.ValuesFilePath {
-			values = append(values, pulumi.NewFileAsset(p))
+		var assets pulumi.AssetOrArchiveArray
+		for _, asset := range h.ValuesFilePath {
+			assets = append(assets, pulumi.NewFileAsset(asset))
 		}
-		h.ValuesFiles = values
+		h.ValuesFiles = assets
 	}
 
 	addon.SetHelm(h)

@@ -39,7 +39,10 @@ Internal networks and wireguard networks are considered as *secured*. So, no rul
 Despike the fact that the labels and taints are using only at registration stage the program allows change them after the registration. It is done by cluster-manager that use nodePatch ServerSide Apply to manage labels and taints on the nodes after bootstraping.
 
 ## Addons
-Most of the addons are installed using helm. So, you can specify `helm` property to override the default helm version for the addon. The default helm versions are specified in the (default-helm-versions.yaml)[../../pulumi-template/versions/default-helm-versions.yaml] file.
+Most of the addons are installed using helm. So, you can specify `helm` property to configure some values:
+
+- `version`: The version of helm chart. The default helm versions are specified in the (default-helm-versions.yaml)[../../pulumi-template/versions/default-helm-versions.yaml] file.
+- `values-files`: A list of values files to be used with helm chart. It can be used to override unmanaged settings. Not all addons support this feature.
 
 ### Addons
 Additional components can be installed to the cluster using `addons` property:
@@ -53,7 +56,23 @@ config:
         loadbalancers-enabled: true
         helm:
           version: v1.2.0
+          values-files:
+            - ./yaml/ccm/values.yaml
 ```
 
 #### Hetzner CCM
 Please note that Hetzner CCM is disabled by default. It is used to provision loadbalancers in the Hetzner cloud and other cool things. You can enabled it by setting `ccm.enabled` to `true`, but according to the [documentation](https://github.com/hetznercloud/hcloud-cloud-controller-manager/issues/80) you should recreate a cluster with enabled CCM to add the --cloud-manager=external to kubelet args.
+
+#### K3S Upgrade Controller
+K3S upgrade controller is used to upgrade k3s cluster to the specified `target-version` and/or `target-channel`. It is disabled by default and utilize the [system-upgrade-controller chart by nimbolus](https://github.com/nimbolus/helm-charts/blob/main/charts/system-upgrade-controller). It doesn't support `values-files` property. But settings of the upgrader can be configured using `config-env` property:
+```yaml
+config:
+  <project>:k8s:
+    addons:
+      k3s-upgrade-controller:
+        enabled: true
+        target-channel: v1.28
+        config-env:
+          - "SYSTEM_UPGRADE_CONTROLLER_DEBUG=false"
+```
+Please see all available variables in the [chart default values](https://github.com/nimbolus/helm-charts/blob/main/charts/system-upgrade-controller/values.yaml).

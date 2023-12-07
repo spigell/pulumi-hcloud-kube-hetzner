@@ -11,16 +11,15 @@ import (
 )
 
 var (
-	errNoLeader                                 = errors.New("there is no a leader. Please set it in config")
-	errAgentLeader                              = errors.New("agent can't be a leader")
-	errManyLeaders                              = errors.New("there is more than one leader")
-	errK8SUnknownType                           = fmt.Errorf("unknown k8s endpoint type. Valid types: %v", validConnectionTypes)
-	errInternalNetworkDisabled                  = errors.New("internal endpoint type requires hetzner network to be enabled")
-	errCCMNetworkingWithInternalNetworkDisabled = errors.New("hetzner CCM networking is required hetzner network to be enabled")
-	errCCMWGConflict                            = errors.New("hetzner CCM is not compatible with wireguard network yet")
-	errWGNetworkDisabled                        = errors.New("wireguard endpoint type requires wireguard to be enabled")
-	errConflictBetweenUpgradeMethods            = errors.New("node doesn't have `k3s-upgrade=false` label but k3s-upgrade-controller is enabled and version is set")
-	errVersionMustBeSetManually                 = errors.New("k3s-upgrade-controller is disabled and version is not set. It must be set manually")
+	errNoLeader                      = errors.New("there is no a leader. Please set it in config")
+	errAgentLeader                   = errors.New("agent can't be a leader")
+	errManyLeaders                   = errors.New("there is more than one leader")
+	errK8SUnknownType                = fmt.Errorf("unknown k8s endpoint type. Valid types: %v", validConnectionTypes)
+	errInternalNetworkDisabled       = errors.New("internal endpoint type requires hetzner network to be enabled")
+	errCCMWGConflict                 = errors.New("hetzner CCM is not compatible with wireguard network yet")
+	errWGNetworkDisabled             = errors.New("wireguard endpoint type requires wireguard to be enabled")
+	errConflictBetweenUpgradeMethods = errors.New("node doesn't have `k3s-upgrade=false` label but k3s-upgrade-controller is enabled and version is set")
+	errVersionMustBeSetManually      = errors.New("k3s-upgrade-controller is disabled and version is not set. It must be set manually")
 
 	validConnectionTypes = []string{
 		variables.PublicCommunicationMethod.String(),
@@ -93,9 +92,6 @@ func (c *Config) Validate(nodes []*Node) error {
 func (c *Config) ValidateCCM(_ []*Node) error {
 	if c.K8S.Addons.CCM.Enabled && c.Network.Wireguard.Enabled {
 		return errCCMWGConflict
-	}
-	if !c.Network.Hetzner.Enabled && c.K8S.Addons.CCM.Networking {
-		return errCCMNetworkingWithInternalNetworkDisabled
 	}
 
 	return nil

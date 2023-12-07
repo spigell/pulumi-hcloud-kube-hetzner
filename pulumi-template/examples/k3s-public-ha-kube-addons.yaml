@@ -23,7 +23,6 @@ config:
         enabled: true
         loadbalancers-default-location: fsn1
         loadbalancers-enabled: false
-        networking: false
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: 01-agents

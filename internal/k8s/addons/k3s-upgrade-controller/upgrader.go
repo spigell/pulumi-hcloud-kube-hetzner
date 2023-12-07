@@ -21,6 +21,8 @@ type Config struct {
 	TargetVersion string `json:"target-version" yaml:"target-version"`
 	// Channel is a channel to use for the upgrade. Conflicts with Version.
 	TargetChannel string `json:"target-channel" yaml:"target-channel"`
+	// ConfigEnv is a map of environment variables to pass to the controller.
+	ConfigEnv []string `json:"config-env" yaml:"config-env"`
 }
 
 type Upgrader struct {
@@ -29,6 +31,7 @@ type Upgrader struct {
 	channel            string
 	version            string
 	serviceAccountName string
+	configEnv          []string
 }
 
 func New(cfg *Config) *Upgrader {
@@ -36,7 +39,8 @@ func New(cfg *Config) *Upgrader {
 
 	if cfg == nil {
 		cfg = &Config{
-			Enabled: enabledByDefault,
+			Enabled:   enabledByDefault,
+			ConfigEnv: make([]string, 0),
 		}
 	}
 
@@ -44,9 +48,11 @@ func New(cfg *Config) *Upgrader {
 		cfg.TargetChannel = defaultChannel
 	}
 
+	u.helm = cfg.Helm
 	u.enabled = cfg.Enabled
 	u.channel = cfg.TargetChannel
 	u.version = cfg.TargetVersion
+	u.configEnv = cfg.ConfigEnv
 	// Hardcoded in the helm chart.
 	u.serviceAccountName = "system-upgrade"
 
