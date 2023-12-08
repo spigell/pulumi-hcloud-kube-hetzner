@@ -29,7 +29,7 @@ var planEnabledNodeSelector = upgradev1.PlanSpecNodeSelectorMatchExpressionsArra
 	},
 }
 
-func (u *Upgrader) DeployPlans(ctx *pulumi.Context, ns *corev1.Namespace, prov *kubernetes.Provider, deps []pulumi.Resource, nodes map[string]*manager.Node) error {
+func (u *Upgrader) DeployPlans(ctx *pulumi.Context, ns *corev1.Namespace, prov *kubernetes.Provider, deps pulumi.ResourceArrayOutput, nodes map[string]*manager.Node) error {
 	plans := map[string]*upgradev1.PlanSpecArgs{
 		ControlPlanNodesPlanName: {
 			Concurrency:        pulumi.Int(1),
@@ -78,7 +78,7 @@ func (u *Upgrader) DeployPlans(ctx *pulumi.Context, ns *corev1.Namespace, prov *
 				Namespace: ns.Metadata.Name(),
 			},
 			Spec: spec,
-		}, pulumi.Provider(prov), pulumi.DependsOn(deps)); err != nil {
+		}, pulumi.Provider(prov), pulumi.DependsOnInputs(deps)); err != nil {
 			return err
 		}
 	}

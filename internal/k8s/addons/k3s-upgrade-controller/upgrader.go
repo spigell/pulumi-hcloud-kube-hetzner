@@ -9,7 +9,7 @@ const (
 	enabledByDefault = false
 	defaultChannel   = "stable"
 
-	name = "k3s-upgrade-controller"
+	Name = "k3s-upgrade-controller"
 	// ControlLabelKey is a label key to use for enabling k3s-upgrade-controller for specific node.
 	ControlLabelKey = "k3s-upgrade"
 )
@@ -68,11 +68,15 @@ func (u *Upgrader) SetHelm(h *helm.Config) {
 }
 
 func (u *Upgrader) Name() string {
-	return name
+	return Name
 }
 
 func (u *Upgrader) Enabled() bool {
 	return u.enabled
+}
+
+func (u *Upgrader) Version() string {
+	return u.version
 }
 
 func (u *Upgrader) Supported(distr string) bool {

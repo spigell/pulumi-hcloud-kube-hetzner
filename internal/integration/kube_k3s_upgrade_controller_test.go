@@ -70,9 +70,15 @@ func TestK3SUpgradeControllerPlan(t *testing.T) {
 				assert.Equal(t, "LatestResolved", c["type"].(string))
 				assert.Equal(t, "True", c["status"].(string))
 			}
+
+			if reason == "Version" {
+				resolved = true
+				assert.Equal(t, "LatestResolved", c["type"].(string))
+				assert.Equal(t, "True", c["status"].(string))
+			}
 		}
 		assert.True(t, validated, "Plan is not validated")
-		assert.True(t, resolved, "Channel is not resolved")
+		assert.True(t, resolved, "Channel or Version are not resolved")
 	}
 }
 

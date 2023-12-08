@@ -24,7 +24,6 @@ func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *
 		return fmt.Errorf("values-files is not supported for %s", u.Name())
 	}
 
-	deps := make([]pulumi.Resource, 0)
 	// Create ns
 	ns, err := corev1.NewNamespace(ctx, Namespace, &corev1.NamespaceArgs{
 		Metadata: &metav1.ObjectMetaArgs{
@@ -36,7 +35,7 @@ func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *
 	}
 
 	// Use Chart in sake of Transformations.
-	deployed, err := helmv3.NewChart(ctx, name, helmv3.ChartArgs{
+	deployed, err := helmv3.NewChart(ctx, Name, helmv3.ChartArgs{
 		Chart:     pulumi.String(helmChart),
 		Namespace: ns.Metadata.Name().Elem(),
 		Version:   pulumi.String(u.helm.Version),
@@ -78,12 +77,9 @@ func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *
 		pulumi.Provider(prov),
 		pulumi.DeleteBeforeReplace(true),
 	)
-
-	deps = append(deps, deployed)
-
 	if err != nil {
 		return fmt.Errorf("unable to create helm release: %w", err)
 	}
 
-	return u.DeployPlans(ctx, ns, prov, deps, mgmt.Nodes())
+	return u.DeployPlans(ctx, ns, prov, deployed.Ready, mgmt.Nodes())
 }

@@ -145,12 +145,13 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 
 			for _, addon := range compiled.K8S.Addons() {
 				if addon.Enabled() {
-					//nolint: gocritic
 					switch name := addon.Name(); name {
 					case ccm.Name:
 						// Addon has support for k3s already.
 						// It was validated.
 						configureK3SNodeForHCCM(ctx, sys, addon.(*ccm.CCM), node)
+					case k3supgrader.Name:
+						configureK3SNodeForK3SUpgrader(ctx, addon.(*k3supgrader.Upgrader), node)
 					}
 				}
 			}
@@ -253,6 +254,15 @@ func configureK3SNodeForHCCM(ctx *pulumi.Context, sys *system.System, addon *ccm
 			ctx.Log.Debug("Hetzner CCM is enabled with LB support, force disabling built-in klipper lb", nil)
 			node.K3s.K3S.Disable = append(node.K3s.K3S.Disable, "servicelb")
 		}
+	}
+}
+
+func configureK3SNodeForK3SUpgrader(ctx *pulumi.Context, addon *k3supgrader.Upgrader, node *config.Node) {
+	// If k3s-upgrade-controller version is set and k3s version is empty, set k3s version.
+	// If k3s version is not set, node managed by manual approach.
+	if addon.Version() != "" && node.K3s.Version == "" {
+		ctx.Log.Debug("k3s-upgrade-controller is enabled for the node with version, force setting k3s version for installer", nil)
+		node.K3s.Version = addon.Version()
 	}
 }
 
