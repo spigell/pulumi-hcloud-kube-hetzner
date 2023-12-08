@@ -19,6 +19,8 @@ config:
       k3s-upgrade-controller:
         enabled: true
         target-channel: v1.28
+        config-env:
+          - "SYSTEM_UPGRADE_CONTROLLER_THREADS=1"
       ccm:
         enabled: true
         loadbalancers-default-location: fsn1
