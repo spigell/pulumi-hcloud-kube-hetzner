@@ -12,7 +12,7 @@ require (
 	github.com/hetznercloud/hcloud-go/v2 v2.4.0
 	github.com/pulumi/pulumi-hcloud/sdk v1.16.2
 	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.5.5
-	github.com/pulumi/pulumi/sdk/v3 v3.95.0
+	github.com/pulumi/pulumi/sdk/v3 v3.96.1
 	github.com/sanity-io/litter v1.5.5
 	github.com/seancfoley/ipaddress-go v1.5.5
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99
@@ -46,7 +46,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/pgavlin/fx v0.1.6 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
-	github.com/pulumi/appdash v0.0.0-20231130102013-538fec2a741d // indirect
+	github.com/pulumi/appdash v0.0.0-20231130102222-75f619a67231 // indirect
 	github.com/sagikazarmark/locafero v0.3.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/seancfoley/bintree v1.2.3 // indirect
