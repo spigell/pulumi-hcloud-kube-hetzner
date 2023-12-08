@@ -15,6 +15,7 @@ on:
           - k3s-wireguard-ha-no-taints
           - k3s-public-non-ha-with-defaults
           - k3s-public-ha-kube-addons
+          - k3s-private-non-ha-upgrader
           - all
 
 
@@ -89,6 +90,18 @@ jobs:
     with:
       pulumi-stack: k3s-public-non-ha-with-defaults-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-public-non-ha-with-defaults.yaml
+    secrets:
+      google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
+      hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
+      github-token: ${{ secrets.GITHUB_TOKEN }}
+  dev-with-upgrader:
+    needs: init
+    name: The cluster for k3s-upgrade-controller addon development
+    if: contains(fromJson('["k3s-private-non-ha-upgrader", "all"]'), inputs.example)
+    uses: ./.github/workflows/reuse-test-clusters.yaml
+    with:
+      pulumi-stack: k3s-private-non-ha-upgrader-${{ needs.init.outputs.short-sha }}
+      pulumi-config-source: examples/k3s-private-non-ha-upgrader.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
