@@ -2,6 +2,8 @@ package addons
 
 import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
+	k3supgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
+	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config/helm"
 
 	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes"
@@ -9,13 +11,14 @@ import (
 )
 
 type Addons struct {
-	CCM *ccm.Config
+	CCM               *ccm.Config
+	K3SSystemUpgrader *k3supgrader.Config `json:"k3s-upgrade-controller" yaml:"k3s-upgrade-controller"`
 }
 
 type Addon interface {
 	Name() string
 	Enabled() bool
-	Manage(*pulumi.Context, *kubernetes.Provider) error
+	Manage(*pulumi.Context, *kubernetes.Provider, *manager.ClusterManager) error
 	Supported(string) bool
 	Helm() *helm.Config
 	SetHelm(*helm.Config)
@@ -24,6 +27,7 @@ type Addon interface {
 func New(addons *Addons) []Addon {
 	a := []Addon{
 		WithHelmInited(ccm.New(addons.CCM)),
+		WithHelmInited(k3supgrader.New(addons.K3SSystemUpgrader)),
 	}
 
 	return a
@@ -43,7 +47,7 @@ func Validate(a []Addon) error {
 func WithHelmInited(addon Addon) Addon {
 	h := addon.Helm()
 
-	if addon.Helm() == nil {
+	if h == nil {
 		h = &helm.Config{}
 	}
 
@@ -51,6 +55,14 @@ func WithHelmInited(addon Addon) Addon {
 		defVer, _ := helm.GetDefaultVersion(addon.Name())
 
 		h.Version = defVer
+	}
+
+	if len(h.ValuesFilePath) > 0 {
+		var assets pulumi.AssetOrArchiveArray
+		for _, asset := range h.ValuesFilePath {
+			assets = append(assets, pulumi.NewFileAsset(asset))
+		}
+		h.ValuesFiles = assets
 	}
 
 	addon.SetHelm(h)

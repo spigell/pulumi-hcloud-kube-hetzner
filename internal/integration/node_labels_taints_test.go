@@ -59,11 +59,11 @@ func TestLabelsTaintsChange(t *testing.T) {
 	assert.NotEqual(t, targetLabelValue, fmt.Sprintf("target label is not changed for node %s. Is node exist?", nodeID.Value))
 
 	// Try to patch node labels and taints with new values
-	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k3s.config.node-label[0]", auto.ConfigValue{
+	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-label[0]", auto.ConfigValue{
 		Value: fmt.Sprintf("%s=%s", targetLabelKey, desiredLabelValue),
 	}, &auto.ConfigOptions{Path: true})
 
-	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k3s.config.node-taint[0]", auto.ConfigValue{
+	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint[0]", auto.ConfigValue{
 		Value: desiredTaint,
 	}, &auto.ConfigOptions{Path: true})
 
@@ -89,8 +89,8 @@ func TestLabelsTaintsChange(t *testing.T) {
 		}
 	}
 
-	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k3s.config.node-label[0]", &auto.ConfigOptions{Path: true})
-	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k3s.config.node-taint[0]", &auto.ConfigOptions{Path: true})
+	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-label[0]", &auto.ConfigOptions{Path: true})
+	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint[0]", &auto.ConfigOptions{Path: true})
 	require.NoError(t, i.UpWithRetry())
 	require.NoError(t, err)
 
@@ -100,7 +100,7 @@ func TestLabelsTaintsChange(t *testing.T) {
 	for _, n := range withoutLabelsTaints {
 		if strings.HasSuffix(n.Name, nodeID.Value) {
 			// TO DO: check that label is removed
-			// assert.NotContains(t, n.Labels, targetLabelKey, fmt.Sprintf("The label found for node %s", n.Name))
+			assert.NotContains(t, n.Labels, targetLabelKey, fmt.Sprintf("The label found for node %s", n.Name))
 			// It is enough to check only key existence for now
 			exist := false
 			for _, taint := range n.Spec.Taints {

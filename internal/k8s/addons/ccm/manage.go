@@ -12,6 +12,7 @@ import (
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
+	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
 )
 
 const (
@@ -19,7 +20,7 @@ const (
 	name      = "hcloud-cloud-controller-manager"
 )
 
-func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider) error {
+func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *manager.ClusterManager) error {
 	token, err := m.discoverHcloudToken(ctx)
 	if err != nil {
 		return fmt.Errorf("unable to discover hcloud token: %w", err)
@@ -37,19 +38,20 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider) error {
 			// But it will be created anyway.
 			"network": pulumi.Sprintf("%s-%s", ctx.Project(), ctx.Stack()),
 		},
-	}, pulumi.Provider(prov))
+	}, pulumi.Provider(prov), pulumi.DependsOn(mgmt.Resources()))
 	if err != nil {
 		return fmt.Errorf("unable to create secret: %w", err)
 	}
 
 	_, err = helmv3.NewRelease(ctx, name, &helmv3.ReleaseArgs{
 		Chart:     pulumi.String(name),
-		Namespace: pulumi.String("kube-system"),
+		Namespace: pulumi.String(namespace),
 		Version:   pulumi.String(m.helm.Version),
 		Name:      pulumi.String(name),
 		RepositoryOpts: helmv3.RepositoryOptsArgs{
 			Repo: pulumi.String(HelmRepo),
 		},
+		ValueYamlFiles: m.helm.ValuesFiles,
 		Values: pulumi.Map{
 			"args": pulumi.Map{
 				"cloud-provider":       pulumi.String("hcloud"),
@@ -60,7 +62,6 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider) error {
 				"enabled":     pulumi.Bool(m.networking),
 				"clusterCIDR": pulumi.String(m.clusterCIDR),
 			},
-
 			"env": pulumi.Map{
 				"HCLOUD_LOAD_BALANCERS_ENABLED": pulumi.Map{
 					"value": pulumi.String(strconv.FormatBool(m.loadbalancersEnabled)),

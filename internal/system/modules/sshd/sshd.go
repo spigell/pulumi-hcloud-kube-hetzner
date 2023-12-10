@@ -58,11 +58,12 @@ func (s *SSHD) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi
 	resources = append(resources, deleted)
 
 	deployed, err := remotefile.NewFile(ctx, fmt.Sprintf("add-sshd-config-%s", s.ID), &remotefile.FileArgs{
-		Connection: con.RemoteFile(),
-		UseSudo:    pulumi.Bool(true),
-		Path:       pulumi.String("/etc/ssh/sshd_config.d/phkh.conf"),
-		Content:    pulumi.String(s.Config.String()),
-		SftpPath:   pulumi.String(s.OS.SFTPServerPath()),
+		Connection:  con.RemoteFile(),
+		UseSudo:     pulumi.Bool(true),
+		Path:        pulumi.String("/etc/ssh/sshd_config.d/phkh.conf"),
+		Content:     pulumi.String(s.Config.String()),
+		SftpPath:    pulumi.String(s.OS.SFTPServerPath()),
+		Permissions: pulumi.String("664"),
 	}, pulumi.RetainOnDelete(true), pulumi.DependsOn(deps))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ssh configuration file: %w", err)
@@ -74,7 +75,6 @@ func (s *SSHD) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi
 		Create:     pulumi.String("sudo systemctl restart sshd"),
 		Triggers: pulumi.Array{
 			deployed.Md5sum,
-			deployed.Permissions,
 			deployed.Connection,
 			deployed.Path,
 			deployed.Connection,
