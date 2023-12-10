@@ -3,6 +3,7 @@ package ccm
 import (
 	hvariables "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config/helm"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions"
 )
 
 const (
@@ -21,8 +22,6 @@ type Config struct {
 	LoadbalancersDefaultLocation string `json:"loadbalancers-default-location" yaml:"loadbalancers-default-location"`
 	// Token is a hcloud token to access hcloud API for CCM.
 	Token string
-	// Networking is a flag to enable or disable networking management.
-	Networking bool
 }
 
 type CCM struct {
@@ -53,9 +52,9 @@ func New(cfg *Config) *CCM {
 	m.controllers = []string{
 		"cloud-node-lifecycle-controller", "node-route-controller", "service-lb-controller",
 	}
+	m.helm = cfg.Helm
 	m.enabled = cfg.Enabled
 	m.token = cfg.Token
-	m.networking = cfg.Networking
 	m.loadbalancersEnabled = cfg.LoadbalancersEnabled
 	m.defaultLoadbalancersLocation = cfg.LoadbalancersDefaultLocation
 
@@ -82,13 +81,9 @@ func (m *CCM) LoadbalancersEnabled() bool {
 	return m.loadbalancersEnabled
 }
 
-func (m *CCM) Networking() bool {
-	return m.networking
-}
-
 func (m *CCM) Supported(distr string) bool {
 	switch distr {
-	case "k3s":
+	case distributions.K3SDistrName:
 		return true
 	default:
 		return false
@@ -107,6 +102,12 @@ func (m *CCM) WithLoadbalancerPrivateIPUsage() *CCM {
 
 func (m *CCM) WithEnableNodeController() *CCM {
 	m.controllers = append(m.controllers, "cloud-node-controller")
+
+	return m
+}
+
+func (m *CCM) WithNetworking() *CCM {
+	m.networking = true
 
 	return m
 }

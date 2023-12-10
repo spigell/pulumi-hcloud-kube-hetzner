@@ -18,7 +18,6 @@ config:
         enabled: true
         loadbalancers-default-location: fsn1
         loadbalancers-enabled: true
-        networking: true
         # with helm v3 you can use the following:
         # version can be specified. Otherwise the default version will be used.
         # helm: 

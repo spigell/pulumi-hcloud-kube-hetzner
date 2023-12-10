@@ -81,11 +81,12 @@ func (w *Wireguard) Up(ctx *pulumi.Context, con *connection.Connection, deps []p
 	resources := make([]pulumi.Resource, 0)
 
 	deployed, err := remotefile.NewFile(ctx, fmt.Sprintf("wg-cluster-%s", w.ID), &remotefile.FileArgs{
-		Connection: con.RemoteFile(),
-		UseSudo:    pulumi.Bool(true),
-		Content:    pulumi.ToSecret(w.built.Render()).(pulumi.StringOutput),
-		Path:       pulumi.Sprintf("/etc/wireguard/%s.conf", Iface),
-		SftpPath:   pulumi.String(w.OS.SFTPServerPath()),
+		Connection:  con.RemoteFile(),
+		UseSudo:     pulumi.Bool(true),
+		Content:     pulumi.ToSecret(w.built.Render()).(pulumi.StringOutput),
+		Path:        pulumi.Sprintf("/etc/wireguard/%s.conf", Iface),
+		SftpPath:    pulumi.String(w.OS.SFTPServerPath()),
+		Permissions: pulumi.String("664"),
 	}, pulumi.RetainOnDelete(true), pulumi.DependsOn(deps))
 	if err != nil {
 		return nil, err

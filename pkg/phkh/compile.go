@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"slices"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
@@ -24,6 +25,7 @@ import (
 
 	externalip "github.com/glendc/go-external-ip"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	k3supgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
 )
 
 const (
@@ -50,15 +52,22 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 		// By default, use default taints for server node if they are not set and agents nodes exist.
 		if node.Role == variables.ServerRole &&
 			!node.K3s.DisableDefaultsTaints &&
-			len(node.K3s.K3S.NodeTaints) == 0 &&
+			len(node.K8S.NodeTaints) == 0 &&
 			len(config.Nodepools.Agents) > 0 {
-			node.K3s.K3S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
+			node.K8S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
+		}
+
+		if upgrader := config.K8S.Addons.K3SSystemUpgrader; upgrader != nil {
+			node.K8S.NodeLabels = append(
+				[]string{fmt.Sprintf("%s=%t", k3supgrader.ControlLabelKey, upgrader.Enabled)},
+				node.K8S.NodeLabels...,
+			)
 		}
 
 		nodeMap[node.ID] = &manager.Node{
 			ID:     node.Server.Hostname,
-			Taints: node.K3s.K3S.NodeTaints,
-			Labels: append(node.K3s.K3S.NodeLabels, k3s.NodeManagedLabel),
+			Taints: slices.Compact(node.K8S.NodeTaints),
+			Labels: slices.Compact(append(node.K8S.NodeLabels, k3s.NodeManagedLabel)),
 		}
 	}
 
@@ -136,16 +145,16 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 
 			for _, addon := range compiled.K8S.Addons() {
 				if addon.Enabled() {
-					//nolint: gocritic
 					switch name := addon.Name(); name {
 					case ccm.Name:
 						// Addon has support for k3s already.
 						// It was validated.
 						configureK3SNodeForHCCM(ctx, sys, addon.(*ccm.CCM), node)
+					case k3supgrader.Name:
+						configureK3SNodeForK3SUpgrader(ctx, addon.(*k3supgrader.Upgrader), node)
 					}
 				}
 			}
-
 		default:
 			return nil, errors.New("unknown kubernetes distribution")
 		}
@@ -248,6 +257,15 @@ func configureK3SNodeForHCCM(ctx *pulumi.Context, sys *system.System, addon *ccm
 	}
 }
 
+func configureK3SNodeForK3SUpgrader(ctx *pulumi.Context, addon *k3supgrader.Upgrader, node *config.Node) {
+	// If k3s-upgrade-controller version is set and k3s version is empty, set k3s version.
+	// If k3s version is not set, node managed by manual approach.
+	if addon.Version() != "" && node.K3s.Version == "" {
+		ctx.Log.Debug("k3s-upgrade-controller is enabled for the node with version, force setting k3s version for installer", nil)
+		node.K3s.Version = addon.Version()
+	}
+}
+
 func (c *Compiled) k8sCompile(ctx *pulumi.Context) error {
 	var distr distributions.Distribution
 
@@ -281,7 +299,8 @@ func configureHCCMForK3S(ctx *pulumi.Context, leader *system.System, addon addon
 	}
 
 	// Private network is validated already. It is present and enabled.
-	if c.Networking() {
+	if leader.CommunicationMethod() == variables.InternalCommunicationMethod {
+		c.WithNetworking()
 		c.WithLoadbalancerPrivateIPUsage()
 	}
 }

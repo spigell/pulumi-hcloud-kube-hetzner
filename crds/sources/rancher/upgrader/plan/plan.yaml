@@ -1,0 +1,496 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    objectset.rio.cattle.io/applied: H4sIAAAAAAAA/+xZW2/bNhT+KwOfNS+XJi0M7KHIBSvaBUHTZg9DHo7JY4U1RXKHR26MwP99oGTJTiJLbJoOK+BHkefy8TsXHYn3Ary+RgraWTGOD3jHaONjGM3ehJF2v833RSZm2ioxFidlYFd8xOBKkniKU201R91MFMiggEGM7wVY6xjiRoiPbvIFJQfkEWk3ksBsMFrW0aTItu67rxbp13w+2w4t++W9tur3Hlz9xi0UKMbCG7BhVPqcQOFaKEk9eJDRhlhmQhJWx/6kCwwMhRdjWxqTCQMTNL1k3EK4FWOBe3J6MHl1eHT8ev9w783e0cHh/mTv9WRPHsPkYP/o+NUE94+UjN4GwC8zETzK6DQnV3oxFl0nrM4QhSQw5o50fPq7ERU3bfAvDURCvSkJTONXZCJom5cGaLUU/XrCgDTHz3Zm3Vd7rtGoIMZTMAEzEaTzEfhFw54SmZjXWRh93wtQqoofmEvSlpFOnCmL1eaX4OwlcGRrFA/YHl0XkKNoeXm3euRF5S0waZuLZdZhQd6CtWjWuiftQoL2Cvpa+7pdeKR904pUVRXkLRZVxTiP9u3lu+vDq3bJk/NIrOvgNJF8uNrgHt+LmGcwMSjGTCU+xS2ks7IkQisXUX61H9nNkWoBUrENtHsT5wzWAVUE2na5eYhHoUHGs8LzQmk6XbWDLdA2zVd6H5wE8w1KOkSBs7mWVa13Ap86itXZtZUTSLxE0k71ONwgSOfWEZ4CFs5eIYc0mN6pKzQo2dEwgQWwvD27i/UTmvapGYvwNPYzXCTFPerAFudPhOdgSnzodVBniwAQwUIsl+1C3fmGNbKahQ9ty9zsBpsMPBdZA6QLWphp/xdoPnd0WiVlbOWu5O6S4fXmUPp08uAU7nLjp8kNT+iBcDhSQPmL8hR7c1GAVS9rFO38nFzRk0fS2anO/wT/EafDx65fbUlpV4cspYFuCcRU3yW5CigJ+f8E/zlJj3beV+7JyKsSTpdssqOftzZJ3uMiiejU7vSf5dM0zqdJ0Dc/lxKAVYbrWXFQugsYrb5ozpMBSmcZtEW6SCVP6bkOia+ABs8zj1MX40+aJi9TyfU3SlIFxk8e7Ct7hYG1BU7NxmSivivI3/7Kr9PiRRqcf36tDUUuftBqiW+ldKXl5PJiZ+KMNTCw4XQaYaQY/CGz3RrlFUpnVd+AsTH/pr5PnsN38wNiN23tpq3dtLWbtnbT1m7a2k1b3z9tzZMrqkrBf0pNqB7dCDzNNQYuO0gD780iGnvh97Ot//r0xctA4E8ENujmRibJd1T77BXUf/6SVAoMITXPCCEkJtCa0+HxrVr4IWOYAcbAf1S3U0n0RfH0rp1Y+dVtkmpsBHZUEb56LCdNq6zvShrilsvlzQMiQUr0jOqiufNaXW1tXms9TrD6Ai+6RHXdXlLF1eXy3wAAAP//1RWhI0AdAAA
+    objectset.rio.cattle.io/id: ""
+    objectset.rio.cattle.io/owner-gvk: apiextensions.k8s.io/v1, Kind=CustomResourceDefinition
+    objectset.rio.cattle.io/owner-name: plans.upgrade.cattle.io
+    objectset.rio.cattle.io/owner-namespace: ""
+  creationTimestamp: "2023-12-04T22:48:36Z"
+  generation: 1
+  labels:
+    objectset.rio.cattle.io/hash: e0cf2b43567130805231b07b0c6ab21564be15dc
+  name: plans.upgrade.cattle.io
+  resourceVersion: "10616"
+  uid: 9e926ea0-12a1-460b-8b26-eb6491b13326
+spec:
+  conversion:
+    strategy: None
+  group: upgrade.cattle.io
+  names:
+    categories:
+    - upgrade
+    kind: Plan
+    listKind: PlanList
+    plural: plans
+    singular: plan
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.upgrade.image
+      name: Image
+      type: string
+    - jsonPath: .spec.channel
+      name: Channel
+      type: string
+    - jsonPath: .spec.version
+      name: Version
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          spec:
+            properties:
+              channel:
+                nullable: true
+                type: string
+              concurrency:
+                type: integer
+              cordon:
+                type: boolean
+              drain:
+                nullable: true
+                properties:
+                  deleteEmptydirData:
+                    nullable: true
+                    type: boolean
+                  deleteLocalData:
+                    nullable: true
+                    type: boolean
+                  disableEviction:
+                    type: boolean
+                  force:
+                    type: boolean
+                  gracePeriod:
+                    nullable: true
+                    type: integer
+                  ignoreDaemonSets:
+                    nullable: true
+                    type: boolean
+                  podSelector:
+                    nullable: true
+                    properties:
+                      matchExpressions:
+                        items:
+                          properties:
+                            key:
+                              nullable: true
+                              type: string
+                            operator:
+                              nullable: true
+                              type: string
+                            values:
+                              items:
+                                nullable: true
+                                type: string
+                              nullable: true
+                              type: array
+                          type: object
+                        nullable: true
+                        type: array
+                      matchLabels:
+                        additionalProperties:
+                          nullable: true
+                          type: string
+                        nullable: true
+                        type: object
+                    type: object
+                  skipWaitForDeleteTimeout:
+                    type: integer
+                  timeout:
+                    nullable: true
+                    type: integer
+                type: object
+              nodeSelector:
+                nullable: true
+                properties:
+                  matchExpressions:
+                    items:
+                      properties:
+                        key:
+                          nullable: true
+                          type: string
+                        operator:
+                          nullable: true
+                          type: string
+                        values:
+                          items:
+                            nullable: true
+                            type: string
+                          nullable: true
+                          type: array
+                      type: object
+                    nullable: true
+                    type: array
+                  matchLabels:
+                    additionalProperties:
+                      nullable: true
+                      type: string
+                    nullable: true
+                    type: object
+                type: object
+              prepare:
+                nullable: true
+                properties:
+                  args:
+                    items:
+                      nullable: true
+                      type: string
+                    nullable: true
+                    type: array
+                  command:
+                    items:
+                      nullable: true
+                      type: string
+                    nullable: true
+                    type: array
+                  envFrom:
+                    items:
+                      properties:
+                        configMapRef:
+                          nullable: true
+                          properties:
+                            name:
+                              nullable: true
+                              type: string
+                            optional:
+                              nullable: true
+                              type: boolean
+                          type: object
+                        prefix:
+                          nullable: true
+                          type: string
+                        secretRef:
+                          nullable: true
+                          properties:
+                            name:
+                              nullable: true
+                              type: string
+                            optional:
+                              nullable: true
+                              type: boolean
+                          type: object
+                      type: object
+                    nullable: true
+                    type: array
+                  envs:
+                    items:
+                      properties:
+                        name:
+                          nullable: true
+                          type: string
+                        value:
+                          nullable: true
+                          type: string
+                        valueFrom:
+                          nullable: true
+                          properties:
+                            configMapKeyRef:
+                              nullable: true
+                              properties:
+                                key:
+                                  nullable: true
+                                  type: string
+                                name:
+                                  nullable: true
+                                  type: string
+                                optional:
+                                  nullable: true
+                                  type: boolean
+                              type: object
+                            fieldRef:
+                              nullable: true
+                              properties:
+                                apiVersion:
+                                  nullable: true
+                                  type: string
+                                fieldPath:
+                                  nullable: true
+                                  type: string
+                              type: object
+                            resourceFieldRef:
+                              nullable: true
+                              properties:
+                                containerName:
+                                  nullable: true
+                                  type: string
+                                divisor:
+                                  nullable: true
+                                  type: string
+                                resource:
+                                  nullable: true
+                                  type: string
+                              type: object
+                            secretKeyRef:
+                              nullable: true
+                              properties:
+                                key:
+                                  nullable: true
+                                  type: string
+                                name:
+                                  nullable: true
+                                  type: string
+                                optional:
+                                  nullable: true
+                                  type: boolean
+                              type: object
+                          type: object
+                      type: object
+                    nullable: true
+                    type: array
+                  image:
+                    nullable: true
+                    type: string
+                  volumes:
+                    items:
+                      properties:
+                        destination:
+                          nullable: true
+                          type: string
+                        name:
+                          nullable: true
+                          type: string
+                        source:
+                          nullable: true
+                          type: string
+                      type: object
+                    nullable: true
+                    type: array
+                type: object
+              secrets:
+                items:
+                  properties:
+                    name:
+                      nullable: true
+                      type: string
+                    path:
+                      nullable: true
+                      type: string
+                  type: object
+                nullable: true
+                type: array
+              serviceAccountName:
+                nullable: true
+                type: string
+              tolerations:
+                items:
+                  properties:
+                    effect:
+                      nullable: true
+                      type: string
+                    key:
+                      nullable: true
+                      type: string
+                    operator:
+                      nullable: true
+                      type: string
+                    tolerationSeconds:
+                      nullable: true
+                      type: integer
+                    value:
+                      nullable: true
+                      type: string
+                  type: object
+                nullable: true
+                type: array
+              upgrade:
+                nullable: true
+                properties:
+                  args:
+                    items:
+                      nullable: true
+                      type: string
+                    nullable: true
+                    type: array
+                  command:
+                    items:
+                      nullable: true
+                      type: string
+                    nullable: true
+                    type: array
+                  envFrom:
+                    items:
+                      properties:
+                        configMapRef:
+                          nullable: true
+                          properties:
+                            name:
+                              nullable: true
+                              type: string
+                            optional:
+                              nullable: true
+                              type: boolean
+                          type: object
+                        prefix:
+                          nullable: true
+                          type: string
+                        secretRef:
+                          nullable: true
+                          properties:
+                            name:
+                              nullable: true
+                              type: string
+                            optional:
+                              nullable: true
+                              type: boolean
+                          type: object
+                      type: object
+                    nullable: true
+                    type: array
+                  envs:
+                    items:
+                      properties:
+                        name:
+                          nullable: true
+                          type: string
+                        value:
+                          nullable: true
+                          type: string
+                        valueFrom:
+                          nullable: true
+                          properties:
+                            configMapKeyRef:
+                              nullable: true
+                              properties:
+                                key:
+                                  nullable: true
+                                  type: string
+                                name:
+                                  nullable: true
+                                  type: string
+                                optional:
+                                  nullable: true
+                                  type: boolean
+                              type: object
+                            fieldRef:
+                              nullable: true
+                              properties:
+                                apiVersion:
+                                  nullable: true
+                                  type: string
+                                fieldPath:
+                                  nullable: true
+                                  type: string
+                              type: object
+                            resourceFieldRef:
+                              nullable: true
+                              properties:
+                                containerName:
+                                  nullable: true
+                                  type: string
+                                divisor:
+                                  nullable: true
+                                  type: string
+                                resource:
+                                  nullable: true
+                                  type: string
+                              type: object
+                            secretKeyRef:
+                              nullable: true
+                              properties:
+                                key:
+                                  nullable: true
+                                  type: string
+                                name:
+                                  nullable: true
+                                  type: string
+                                optional:
+                                  nullable: true
+                                  type: boolean
+                              type: object
+                          type: object
+                      type: object
+                    nullable: true
+                    type: array
+                  image:
+                    nullable: true
+                    type: string
+                  volumes:
+                    items:
+                      properties:
+                        destination:
+                          nullable: true
+                          type: string
+                        name:
+                          nullable: true
+                          type: string
+                        source:
+                          nullable: true
+                          type: string
+                      type: object
+                    nullable: true
+                    type: array
+                type: object
+              version:
+                nullable: true
+                type: string
+            required:
+            - upgrade
+            type: object
+          status:
+            properties:
+              applying:
+                items:
+                  nullable: true
+                  type: string
+                nullable: true
+                type: array
+              conditions:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      nullable: true
+                      type: string
+                    lastUpdateTime:
+                      nullable: true
+                      type: string
+                    message:
+                      nullable: true
+                      type: string
+                    reason:
+                      nullable: true
+                      type: string
+                    status:
+                      nullable: true
+                      type: string
+                    type:
+                      nullable: true
+                      type: string
+                  type: object
+                nullable: true
+                type: array
+              latestHash:
+                nullable: true
+                type: string
+              latestVersion:
+                nullable: true
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    categories:
+    - upgrade
+    kind: Plan
+    listKind: PlanList
+    plural: plans
+    singular: plan
+  conditions:
+  - lastTransitionTime: "2023-12-04T22:48:36Z"
+    message: no conflicts found
+    reason: NoConflicts
+    status: "True"
+    type: NamesAccepted
+  - lastTransitionTime: "2023-12-04T22:48:36Z"
+    message: the initial names have been accepted
+    reason: InitialNamesAccepted
+    status: "True"
+    type: Established
+  storedVersions:
+  - v1

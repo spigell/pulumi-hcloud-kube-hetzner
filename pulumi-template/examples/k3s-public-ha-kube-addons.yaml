@@ -12,13 +12,19 @@ config:
       type: public
       firewall:
         hetzner-public:
+          # Deny all traffic to the public API endpoint
+          # But traffic from the my own ip will be allow tho :)
           allowed-ips: []
     addons:
+      k3s-upgrade-controller:
+        enabled: true
+        target-channel: v1.28
+        config-env:
+          - "SYSTEM_UPGRADE_CONTROLLER_THREADS=1"
       ccm:
         enabled: true
         loadbalancers-default-location: fsn1
         loadbalancers-enabled: false
-        networking: false
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: 01-agents
@@ -62,5 +68,3 @@ config:
               # Empty allowed-ips means that ssh is not allowed
               # It is synonym for allow: false
               allowed-ips: []
-      k3s:
-        version: v1.27.2+k3s1

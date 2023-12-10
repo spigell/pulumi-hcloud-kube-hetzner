@@ -20,11 +20,12 @@ func (k *K3S) configure(ctx *pulumi.Context, con *connection.Connection, config 
 	result := make([]pulumi.Resource, 0)
 
 	deployed, err := remotefile.NewFile(ctx, fmt.Sprintf("k3s-configure-%s", k.ID), &remotefile.FileArgs{
-		Connection: con.RemoteFile(),
-		UseSudo:    pulumi.Bool(true),
-		Path:       pulumi.String(cfgPath),
-		Content:    pulumi.ToSecret(config).(pulumi.StringOutput),
-		SftpPath:   pulumi.String(k.OS.SFTPServerPath()),
+		Connection:  con.RemoteFile(),
+		UseSudo:     pulumi.Bool(true),
+		Path:        pulumi.String(cfgPath),
+		Content:     pulumi.ToSecret(config).(pulumi.StringOutput),
+		SftpPath:    pulumi.String(k.OS.SFTPServerPath()),
+		Permissions: pulumi.String("664"),
 	}, pulumi.DependsOn(deps), pulumi.RetainOnDelete(true))
 	if err != nil {
 		return nil, err

@@ -11,6 +11,13 @@ type Config struct {
 	Addons          *addons.Addons
 }
 
+type NodeConfig struct {
+	// NodeTaints are used to taint the node with key=value:effect.
+	// By default, server node is tainted with a couple of taints if number of agents nodes more than 0.
+	NodeTaints []string `json:"node-taint" yaml:"node-taint,omitempty"`
+	NodeLabels []string `json:"node-label" yaml:"node-label,omitempty"`
+}
+
 type K8SEndpoint struct {
 	Type     string
 	Firewall *BasicFirewall

@@ -6,6 +6,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
+	k8sconfig "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 )
@@ -45,6 +46,7 @@ type Node struct {
 	Leader bool
 	Server *Server
 	K3s    *k3s.Config
+	K8S    *k8sconfig.NodeConfig
 	Role   string
 }
 
@@ -136,6 +138,10 @@ func initNodepools(ctx *pulumi.Context, pools []*Nodepool) []*Nodepool {
 		no = append(no, pool)
 		if pool.Config == nil {
 			no[i].Config = &Node{}
+		}
+
+		if pool.Config.K8S == nil {
+			no[i].Config.K8S = &k8sconfig.NodeConfig{}
 		}
 
 		if pool.Config.K3s == nil {

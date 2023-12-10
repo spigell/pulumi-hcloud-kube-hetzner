@@ -14,11 +14,14 @@ config:
       # public|internal|wireguard
       type: public
     addons:
+      k3s-upgrade-controller:
+        enabled: true
+        target-channel: v1.28
+        target-version: v1.28.4+k3s2
       ccm:
         enabled: true
         loadbalancers-default-location: fsn1
         loadbalancers-enabled: false
-        networking: true
   pulumi-hcloud-kube-hetzner:nodepools:
     agents:
       - id: 01-agents
@@ -45,8 +48,6 @@ config:
             allow-icmp: true
             ssh:
               allow: true
-      k3s:
-        version: v1.28.3+k3s2
     servers:
       k3s:
         config:

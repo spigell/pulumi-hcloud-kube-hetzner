@@ -20,18 +20,21 @@ const (
 	envConfigSource = "PULUMI_CONFIG_SOURCE"
 	envConfigPath   = "PULUMI_STACK_CONFIG"
 
-	exampleK3SPrivateNonHASimple  = "k3s-private-non-ha-simple"
-	exampleK3SWGNonHaFwRules      = "k3s-wireguard-non-ha-firewall-rules"
-	exampleK3SWGHANoTaints        = "k3s-wireguard-ha-no-taints"
-	exampleK3SPublicNonHADefaults = "k3s-public-non-ha-with-defaults"
-	exampleK3SPublicHAKubeAddons  = "k3s-public-ha-kube-addons"
+	exampleK3SPrivateNonHASimple   = "k3s-private-non-ha-simple"
+	exampleK3SWGNonHaFwRules       = "k3s-wireguard-non-ha-firewall-rules"
+	exampleK3SWGHANoTaints         = "k3s-wireguard-ha-no-taints"
+	exampleK3SPublicNonHADefaults  = "k3s-public-non-ha-with-defaults"
+	exampleK3SPublicHAKubeAddons   = "k3s-public-ha-kube-addons"
+	exampleK3SPrivateNonHAUpgrader = "k3s-private-non-ha-upgrader"
 
-	testWGConnectivity         = "wireguard-connectivity"
-	testKubeVersion            = "kube-version"
-	testSSHConnectivity        = "ssh-connectivity"
-	testKubeChangeEndpointType = "kube-change-endpoint-type"
-	testKubeHetznerCCM         = "kube-hetzner-ccm"
-	testNodeChangeLabelsTaints = "node-change-labels-taints"
+	testWGConnectivity                    = "wireguard-connectivity"
+	testKubeVersion                       = "kube-version"
+	testSSHConnectivity                   = "ssh-connectivity"
+	testKubeChangeEndpointType            = "kube-change-endpoint-type"
+	testKubeHetznerCCM                    = "kube-hetzner-ccm"
+	testNodeChangeLabelsTaints            = "node-change-labels-taints"
+	testKubeK3SUpgradeControllerPlan      = "kube-k3s-upgrade-controller-plan"
+	testKubeK3SUpgradeControllerConfigEnv = "kube-k3s-upgrade-controller-config-env"
 )
 
 // TestsByExampleName is a map of tests and their test cases.
@@ -39,8 +42,8 @@ const (
 var TestsByExampleName = map[string][]string{
 	exampleK3SPrivateNonHASimple: {
 		testSSHConnectivity,
-		testKubeVersion,
 		testKubeHetznerCCM,
+		testKubeK3SUpgradeControllerPlan,
 	},
 	exampleK3SWGNonHaFwRules: {
 		testSSHConnectivity,
@@ -52,6 +55,7 @@ var TestsByExampleName = map[string][]string{
 		testWGConnectivity,
 		testKubeVersion,
 		testNodeChangeLabelsTaints,
+		testKubeK3SUpgradeControllerPlan,
 	},
 	exampleK3SPublicNonHADefaults: {
 		testSSHConnectivity,
@@ -59,9 +63,13 @@ var TestsByExampleName = map[string][]string{
 	},
 	exampleK3SPublicHAKubeAddons: {
 		testSSHConnectivity,
-		testKubeVersion,
 		testKubeHetznerCCM,
 		testNodeChangeLabelsTaints,
+		testKubeK3SUpgradeControllerPlan,
+	},
+	exampleK3SPrivateNonHAUpgrader: {
+		testKubeK3SUpgradeControllerPlan,
+		testKubeK3SUpgradeControllerConfigEnv,
 	},
 }
 

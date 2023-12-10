@@ -6,18 +6,20 @@ import (
 	"slices"
 	"strings"
 
+	k3supgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 )
 
 var (
-	errNoLeader                                 = errors.New("there is no a leader. Please set it in config")
-	errAgentLeader                              = errors.New("agent can't be a leader")
-	errManyLeaders                              = errors.New("there is more than one leader")
-	errK8SUnknownType                           = fmt.Errorf("unknown k8s endpoint type. Valid types: %v", validConnectionTypes)
-	errInternalNetworkDisabled                  = errors.New("internal endpoint type requires hetzner network to be enabled")
-	errCCMNetworkingWithInternalNetworkDisabled = errors.New("hetzner CCM networking is required hetzner network to be enabled")
-	errCCMWGConflict                            = errors.New("hetzner CCM is not compatible with wireguard network yet")
-	errWGNetworkDisabled                        = errors.New("wireguard endpoint type requires wireguard to be enabled")
+	errNoLeader                      = errors.New("there is no a leader. Please set it in config")
+	errAgentLeader                   = errors.New("agent can't be a leader")
+	errManyLeaders                   = errors.New("there is more than one leader")
+	errK8SUnknownType                = fmt.Errorf("unknown k8s endpoint type. Valid types: %v", validConnectionTypes)
+	errInternalNetworkDisabled       = errors.New("internal endpoint type requires hetzner network to be enabled")
+	errCCMWGConflict                 = errors.New("hetzner CCM is not compatible with wireguard network yet")
+	errWGNetworkDisabled             = errors.New("wireguard endpoint type requires wireguard to be enabled")
+	errConflictBetweenUpgradeMethods = errors.New("node doesn't have `k3s-upgrade=false` label but k3s-upgrade-controller is enabled and version is set")
+	errVersionMustBeSetManually      = errors.New("k3s-upgrade-controller is disabled and version is not set. It must be set manually")
 
 	validConnectionTypes = []string{
 		variables.PublicCommunicationMethod.String(),
@@ -31,14 +33,18 @@ var (
 // If checking requires only one specific part of the configuration in Validate() method of that part.
 func (c *Config) Validate(nodes []*Node) error {
 	errs := make([]string, 0)
-	validators := make([]func() error, 0)
+	validators := make([]func([]*Node) error, 0)
 
 	if ccm := c.K8S.Addons.CCM; ccm != nil {
 		validators = append(validators, c.ValidateCCM)
 	}
 
+	if k3sUpgrader := c.K8S.Addons.K3SSystemUpgrader; k3sUpgrader != nil {
+		validators = append(validators, c.ValidateK3SUpgradeController)
+	}
+
 	for _, validator := range validators {
-		if err := validator(); err != nil {
+		if err := validator(nodes); err != nil {
 			errs = append(errs, err.Error())
 		}
 	}
@@ -83,13 +89,35 @@ func (c *Config) Validate(nodes []*Node) error {
 	return nil
 }
 
-func (c *Config) ValidateCCM() error {
+func (c *Config) ValidateCCM(_ []*Node) error {
 	if c.K8S.Addons.CCM.Enabled && c.Network.Wireguard.Enabled {
 		return errCCMWGConflict
 	}
-	if !c.Network.Hetzner.Enabled && c.K8S.Addons.CCM.Networking {
-		return errCCMNetworkingWithInternalNetworkDisabled
+
+	return nil
+}
+
+func (c *Config) ValidateK3SUpgradeController(merged []*Node) error {
+	for _, node := range merged {
+		disableLabelFound := findLabel(node, fmt.Sprintf("%s=false", k3supgrader.ControlLabelKey))
+		if c.K8S.Addons.K3SSystemUpgrader.Enabled && node.K3s.Version != "" && !disableLabelFound {
+			return errConflictBetweenUpgradeMethods
+		}
+
+		if !c.K8S.Addons.K3SSystemUpgrader.Enabled && node.K3s.Version == "" && disableLabelFound {
+			return errVersionMustBeSetManually
+		}
 	}
 
 	return nil
+}
+
+func findLabel(node *Node, target string) bool {
+	for _, label := range node.K8S.NodeLabels {
+		if label == target {
+			return true
+		}
+	}
+
+	return false
 }
