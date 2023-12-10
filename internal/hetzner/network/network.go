@@ -149,11 +149,11 @@ func (n *Network) PickSubnet(id string, from string) error {
 	return nil
 }
 
-func (n *Network) Up() (*Deployed, error) {
+func (n *Network) Up(opts []pulumi.ResourceOption) (*Deployed, error) {
 	net, err := hcloud.NewNetwork(n.ctx, fmt.Sprintf("%s-%s", n.ctx.Project(), n.ctx.Stack()), &hcloud.NetworkArgs{
 		IpRange: pulumi.String(n.Config.CIDR),
 		Name:    pulumi.String(fmt.Sprintf("%s-%s", n.ctx.Project(), n.ctx.Stack())),
-	})
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +169,7 @@ func (n *Network) Up() (*Deployed, error) {
 			Type:        pulumi.String("cloud"),
 			IpRange:     pulumi.String(subnet.CIDR),
 			NetworkZone: pulumi.String(n.Config.Zone),
-		}, pulumi.DeleteBeforeReplace(true))
+		}, append(opts, pulumi.DeleteBeforeReplace(true))...)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create subnet %s: %w", subnet.ID, err)
 		}

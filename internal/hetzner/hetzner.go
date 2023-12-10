@@ -21,6 +21,7 @@ var ErrFirewallDisabled = errors.New("firewall is disabled")
 
 type Hetzner struct {
 	ctx       *pulumi.Context
+	pulumiOpts []pulumi.ResourceOption
 	Servers   map[string]*config.Node
 	Firewalls map[string]*firewall.Config
 	Pools     map[string][]string
@@ -38,7 +39,7 @@ type Server struct {
 	Connection    *connection.Connection
 }
 
-func New(ctx *pulumi.Context, nodes []*config.Node) *Hetzner {
+func New(ctx *pulumi.Context, opts []pulumi.ResourceOption, nodes []*config.Node) *Hetzner {
 	servers := make(map[string]*config.Node)
 	firewalls := make(map[string]*firewall.Config)
 
@@ -80,6 +81,7 @@ func New(ctx *pulumi.Context, nodes []*config.Node) *Hetzner {
 
 	return &Hetzner{
 		ctx:       ctx,
+		pulumiOpts: opts,
 		Servers:   servers,
 		Firewalls: firewalls,
 		Pools:     make(map[string][]string),
@@ -181,7 +183,7 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 
 	var net *network.Deployed
 	if h.Network.Config.Enabled {
-		net, err = h.Network.Up()
+		net, err = h.Network.Up(h.pulumiOpts)
 		if err != nil {
 			return nil, fmt.Errorf("failed to configure the network: %w", err)
 		}
@@ -194,7 +196,7 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 		if name == variables.ServerRole || name == variables.AgentRole {
 			kind = "role"
 		}
-		firewall, err := firewall.New(fw).Up(h.ctx, fmt.Sprintf("%s-%s", kind, name))
+		firewall, err := firewall.New(fw).Up(h.ctx, h.pulumiOpts, fmt.Sprintf("%s-%s", kind, name))
 		if err != nil {
 			return nil, err
 		}
@@ -226,7 +228,7 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 		if err := s.Validate(); err != nil {
 			return nil, err
 		}
-		node, err := s.Up(h.ctx, id, net, pool)
+		node, err := s.Up(h.ctx, h.pulumiOpts, id, net, pool)
 		if err != nil {
 			return nil, err
 		}
@@ -254,7 +256,7 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 			switch {
 			// We can create and attach firewall to the node right now if it is dedicated.
 			case srv.Server.Firewall.Hetzner.Dedicated():
-				firewall, err := firewall.New(srv.Server.Firewall.Hetzner).Up(h.ctx, id)
+				firewall, err := firewall.New(srv.Server.Firewall.Hetzner).Up(h.ctx, h.pulumiOpts, id)
 				if err != nil {
 					return nil, fmt.Errorf("failed to create a dedicated firewall for node %s: %w", id, err)
 				}
@@ -290,7 +292,7 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 
 	// Create a global firewall to allow communication between all nodes
 	if len(interFw.Ids) != 0 {
-		if err := interFw.Up(h.ctx); err != nil {
+		if err := interFw.Up(h.ctx, h.pulumiOpts); err != nil {
 			return nil, fmt.Errorf("failed to create a interconnect firewall for nodes: %w", err)
 		}
 	}

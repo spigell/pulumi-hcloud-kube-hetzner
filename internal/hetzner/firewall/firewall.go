@@ -43,7 +43,7 @@ func New(config *Config) *Firewall {
 	}
 }
 
-func (f *Firewall) Up(ctx *pulumi.Context, name string) (*Firewall, error) {
+func (f *Firewall) Up(ctx *pulumi.Context, opts []pulumi.ResourceOption, name string) (*Firewall, error) {
 	// f.Config.rules = make([]*Rule, 0)
 	var rules hcloud.FirewallRuleArray
 
@@ -88,7 +88,7 @@ func (f *Firewall) Up(ctx *pulumi.Context, name string) (*Firewall, error) {
 	created, err := hcloud.NewFirewall(ctx, name, &hcloud.FirewallArgs{
 		Name:  pulumi.String(fmt.Sprintf("%s-%s-%s", ctx.Project(), ctx.Stack(), name)),
 		Rules: rules,
-	})
+	}, opts...)
 	if err != nil {
 		return nil, err
 	}

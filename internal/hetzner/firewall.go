@@ -25,9 +25,9 @@ func NewInterconnectFirewall() *InterconnectFirewall {
 	}
 }
 
-func (i *InterconnectFirewall) Up(ctx *pulumi.Context) error {
+func (i *InterconnectFirewall) Up(ctx *pulumi.Context, opts []pulumi.ResourceOption) error {
 	i.Config.AddRules(firewall.NewAllowAllRules().WithPulumiSourceIPs(i.Ips).Rules())
-	internalFW, err := firewall.New(i.Config).Up(ctx, "interconnect")
+	internalFW, err := firewall.New(i.Config).Up(ctx, opts, "interconnect")
 	if err != nil {
 		return err
 	}

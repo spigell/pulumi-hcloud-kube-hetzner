@@ -11,7 +11,7 @@ func (h *Hetzner) NewSSHKey(publicKey string) (*hcloud.SshKey, error) {
 	sshPublicKey, err := hcloud.NewSshKey(h.ctx, "ssh-key", &hcloud.SshKeyArgs{
 		Name:      pulumi.String(fmt.Sprintf("%s-%s", h.ctx.Project(), h.ctx.Stack())),
 		PublicKey: pulumi.String(publicKey),
-	})
+	}, h.pulumiOpts...)
 	if err != nil {
 		return nil, err
 	}

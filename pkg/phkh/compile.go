@@ -41,11 +41,11 @@ type Compiled struct {
 	K8S        *k8s.K8S
 }
 
-func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node) (*Compiled, error) {
+func preCompile(ctx *pulumi.Context, opts []pulumi.ResourceOption, config *config.Config, nodes []*config.Node) (*Compiled, error) {
 	if err := config.Validate(nodes); err != nil {
 		return nil, err
 	}
-	infra := hetzner.New(ctx, nodes).WithNetwork(config.Network.Hetzner).WithNodepools(config.Nodepools)
+	infra := hetzner.New(ctx, opts, nodes).WithNetwork(config.Network.Hetzner).WithNodepools(config.Nodepools)
 
 	nodeMap := make(map[string]*manager.Node)
 	for _, node := range nodes {
@@ -84,7 +84,7 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 
 // compile creates the plan of infrastructure and required steps.
 // This need to be refactored.
-func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Compiled, error) { // //lint: gocognit,gocyclo,
+func compile(ctx *pulumi.Context, opts []pulumi.ResourceOption, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Compiled, error) { // //lint: gocognit,gocyclo,
 	// Since token is part of k3s config the easiest method to pass the token to k3s module is via global value.
 	// However, we do not want to expose token to the user in DumpConfig().
 	config.Defaults.Global.K3s.K3S.Token = token
@@ -94,7 +94,7 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 		return nil, err
 	}
 
-	compiled, err := preCompile(ctx, config, nodes)
+	compiled, err := preCompile(ctx, opts, config, nodes)
 	if err != nil {
 		return nil, err
 	}

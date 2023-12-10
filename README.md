@@ -1,8 +1,9 @@
 ## Pulumi Hcloud Kube Hetzner
-This project is a golang library for creating Kubernetes clusters in Hetzner Cloud with Pulumi. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It is available only for go projects since there is no `component` for such things in pulumi.
+This project is a golang library for creating Kubernetes clusters in Hetzner Cloud with Pulumi. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It is available only for go projects now.
 
 ### Features
 - Ability to manage labels and taints!
+- Most of examples are tested via Github Actions and maintained.
 
 ## Getting Started
 ### Prerequisites
@@ -10,7 +11,7 @@ Please install following tools:
 - pulumi cli
 - go (version 1.21+)
 - GNU Make
-- packer (only for microos image creation. If you have existed image, you can skip this step)
+- packer (only for microos image creation. If you have existing image, you can skip this step)
 
 You need to have a Hetzner Cloud account. You can sign up for free [here](https://hetzner.com/cloud/).
 
@@ -74,13 +75,14 @@ $ make test-project
 - [x] Expose kubeconfig
 - [x] Add a external ip of the program to FW rules
 - [ ] Add more validation rules (size of the net, difference between servers flags)
-- [ ] Add dynamic version detection
+- [ ] Add auto upgrade management for microos
+- [x] Add dynamic version detection
 - [x] Add an ability to run cluster without leader tag with single master
 - [x] K3s token generation
 - [x] Add fw rules for the public network mode
 - [ ] Add the docker workbench
 - [x] Mark all sensitive values as secrets
-- [ ] Add basic k8s apps (VM, metrics-server, etc, hetzner MCC, upgrader, kured)
+- [ ] Add basic k8s apps (VM, hetzner MCC, upgrader, kured)
 
 ### Bugs
 - [x] Fix taints for master node
@@ -88,10 +90,10 @@ $ make test-project
 
 ### Non-high
 - [ ] Rewrite wireguard stage
+- [ ] Add autoscaling
 - [x] Add reasonable defaults for variables
 - [ ] Add arm64 support
 - [ ] Allow change config from code
-- [ ] Implement non-parallel provisioning (useful while upgrading in manual mode). All nodes waits for leader now.
 - [ ] Package stage: reboot if changes detected only
 - [x] Restart k3s if wireguard restarted (!)
 
@@ -101,7 +103,6 @@ $ make test-project
 - [x] Use pulumi cli instead of actions for up and preview. Collect logs.
 
 ## Tests
-- [ ] Add idempotent tests for all runs
 - [x] Add tests for wireguard run (check master connection)
-- [ ] Test with multiple servers
+- [x] Test with multiple servers
 - [x] Test with single node cluster (without leader tag)

@@ -116,7 +116,7 @@ func (s *Server) Validate() error {
 	return nil
 }
 
-func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool string) (*Deployed, error) {
+func (s *Server) Up(ctx *pulumi.Context, opts []pulumi.ResourceOption, id string, net *network.Deployed, pool string) (*Deployed, error) {
 	// Get image ID from user input
 	image := pulumi.String(s.Config.Image)
 
@@ -180,12 +180,14 @@ func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool 
 		args.Image = pulumi.String(rune(sn.Body.ID))
 	}
 
-	created, err := hcloud.NewServer(ctx, id, args,
-		pulumi.DependsOn(dependencies),
-		pulumi.IgnoreChanges([]string{
-			"userData",
-		}),
-	)
+
+	opts = append(opts, pulumi.DependsOn(dependencies))
+	opts = append(opts, pulumi.IgnoreChanges([]string{
+		"userData",
+		"image",
+	}))
+
+	created, err := hcloud.NewServer(ctx, id, args, opts...)
 	if err != nil {
 		return nil, err
 	}

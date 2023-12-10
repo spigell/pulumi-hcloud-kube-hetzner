@@ -25,3 +25,4 @@ Pulumi.*.yaml
 
 build/*
 test-project/*
+bin/

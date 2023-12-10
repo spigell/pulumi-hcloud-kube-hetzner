@@ -16,7 +16,7 @@ type PHKH struct {
 	state    *State
 }
 
-func New(ctx *pulumi.Context) (*PHKH, error) {
+func New(ctx *pulumi.Context, opts []pulumi.ResourceOption) (*PHKH, error) {
 	cfg := config.New(ctx).WithInited()
 	state, err := state(ctx)
 	if err != nil {
@@ -33,7 +33,7 @@ func New(ctx *pulumi.Context) (*PHKH, error) {
 		return nil, err
 	}
 
-	compiled, err := compile(ctx, token, cfg, keys)
+	compiled, err := compile(ctx, opts, token, cfg, keys)
 	if err != nil {
 		return nil, err
 	}
