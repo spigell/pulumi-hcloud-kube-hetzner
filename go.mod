@@ -13,7 +13,7 @@ require (
 	github.com/pulumi/pulumi-hcloud/sdk v1.16.2
 	github.com/pulumi/pulumi-kubernetes/sdk/v3 v3.30.2
 	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.5.5
-	github.com/pulumi/pulumi/sdk/v3 v3.96.1
+	github.com/pulumi/pulumi/sdk/v3 v3.97.0
 	github.com/sanity-io/litter v1.5.5
 	github.com/seancfoley/ipaddress-go v1.5.5
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99
