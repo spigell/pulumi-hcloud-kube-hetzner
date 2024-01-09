@@ -26,7 +26,7 @@ func (m *MicroOS) Packages(ctx *pulumi.Context, con *connection.Connection) erro
 		zypper = fmt.Sprintf("%s ; zypper install -y %s", zypper, strings.Join(m.RequiredPkgs, " "))
 	}
 
-	cmd := fmt.Sprintf(`sudo transactional-update -n run bash -c '%s'`, zypper)
+	cmd := fmt.Sprintf(`PATH=$PATH:/sbin sudo --preserve-env=PATH transactional-update -n run bash -c '%s'`, zypper)
 
 	// Add retry logic
 	withRetry := fmt.Sprintf(retry, cmd)
