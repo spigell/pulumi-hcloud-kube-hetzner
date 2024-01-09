@@ -10,15 +10,21 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 )
 
+const (
+	k3sPath = "/usr/local/bin/k3s"
+)
+
 var installCommand = fmt.Sprintf(strings.Join([]string{
 	// Check if initial install or upgrade.
-	"sudo mkdir -p %s && if [[ -e /usr/local/bin/k3s ]]; then restart=true; fi",
-	"curl -sfL https://get.k3s.io | sudo -E sh -x - 2>&1 >> /tmp/k3s-pulumi.log",
+	"sudo mkdir -p %s && if [[ -e %s ]]; then restart=true; fi",
+	"curl -sfL https://get.k3s.io | sudo -E sh -x - 2>&1 >> /tmp/k3s-install-pulumi.log",
 	"sudo systemctl daemon-reload",
+	// Fix selinux context
+	"sudo /sbin/restorecon -v %s",
 	// If the old binary is installed then restart after upgrade.
 	// Since the main installer will not restart it.
 	"if [[ $restart ]]; then sudo systemctl restart k3s*; fi",
-}, " && "), path.Dir(cfgPath))
+}, " && "), path.Dir(cfgPath), k3sPath, k3sPath)
 
 func (k *K3S) install(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.Resource) (pulumi.Resource, error) {
 	k3sExec := k.role

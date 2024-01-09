@@ -16,7 +16,7 @@ func (m *MicroOS) Reboot(ctx *pulumi.Context, con *connection.Connection) error 
 	rebooted, err := remote.NewCommand(ctx, fmt.Sprintf("reboot-%s", m.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		// Use very primitive way to reboot node.
-		Create:   pulumi.String("(sleep 1 && sudo shutdown -r now) &"),
+		Create:   pulumi.String("(sleep 1 && sudo /sbin/shutdown -r now) &"),
 		Triggers: utils.ExtractRemoteCommandResources(m.resources),
 	}, pulumi.DependsOn(m.resources),
 		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "2m"}),
