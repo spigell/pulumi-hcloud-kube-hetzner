@@ -20,8 +20,7 @@
                 "hcloud-kube-hetzner": "HcloudKubeHetzner"
             },
             "packageReferences": {
-                "Pulumi": "3.*",
-                "Pulumi.Kubernetes": "4.*"
+                "Pulumi": "3.*"
             }
         },
         "go": {
@@ -29,17 +28,17 @@
             "importBasePath": "github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/sdk/go/hcloud-kube-hetzner"
         },
         "nodejs": {
-            "dependencies": {
-                "@pulumi/kubernetes": "^4.0.0"
-            },
             "devDependencies": {
                 "typescript": "^3.7.0"
+            },
+            "dependenices": {
+                "@spigell/file": "*",
+                "@pulumi/command": "*"
             }
         },
         "python": {
             "requires": {
-                "pulumi": ">=3.0.0,<4.0.0",
-                "pulumi-kubernetes": ">=4.0.0,<5.0.0"
+                "pulumi": ">=3.0.0,<4.0.0"
             }
         }
     }

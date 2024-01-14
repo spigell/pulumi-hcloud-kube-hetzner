@@ -1,6 +1,7 @@
 package hetzner
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -14,18 +15,20 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
+	//	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
+
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
 var ErrFirewallDisabled = errors.New("firewall is disabled")
 
 type Hetzner struct {
-	ctx       *pulumi.Context
+	ctx        *pulumi.Context
 	pulumiOpts []pulumi.ResourceOption
-	Servers   map[string]*config.Node
-	Firewalls map[string]*firewall.Config
-	Pools     map[string][]string
-	Network   *network.Network
+	Servers    map[string]*config.Node
+	Firewalls  map[string]*firewall.Config
+	Pools      map[string][]string
+	Network    *network.Network
 }
 
 type Deployed struct {
@@ -80,11 +83,11 @@ func New(ctx *pulumi.Context, opts []pulumi.ResourceOption, nodes []*config.Node
 	}
 
 	return &Hetzner{
-		ctx:       ctx,
+		ctx:        ctx,
 		pulumiOpts: opts,
-		Servers:   servers,
-		Firewalls: firewalls,
-		Pools:     make(map[string][]string),
+		Servers:    servers,
+		Firewalls:  firewalls,
+		Pools:      make(map[string][]string),
 	}
 }
 
@@ -170,13 +173,14 @@ func (h *Hetzner) FirewallConfigByID(id, pool string) (*firewall.Config, error) 
 
 // Up creates hetzner cloud infrastructure.
 // It must be refactored.
-func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, error) { //nolint: gocognit
+func (h *Hetzner) Up(info *Deployed, keys *pulumi.StringOutput) (*Deployed, error) { //nolint: gocognit
 	nodes := make(map[string]*Server)
 	firewalls := make(map[string]*firewall.Firewall)
 	firewallsByNodeRole := make(map[string]pulumi.IntArray)
 	firewallsByNodepool := make(map[string]pulumi.IntArray)
 
-	key, err := h.NewSSHKey(keys.PublicKey)
+	key, err := h.NewSSHKey(keys)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ssh key: %w", err)
 	}
@@ -237,9 +241,14 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 			LocalPassword: node.Password,
 			InternalIP:    internalIP,
 			Connection: &connection.Connection{
-				IP:         node.Resource.Ipv4Address,
-				PrivateKey: keys.PrivateKey,
-				User:       srv.Server.UserName,
+				IP: node.Resource.Ipv4Address,
+				PrivateKey: keys.ApplyT(func(keys string) string {
+					var keypair *keypair.ECDSAKeyPair
+					_ = json.Unmarshal([]byte(keys), &keypair)
+
+					return keypair.PrivateKey
+				}).(pulumi.StringOutput),
+				User: srv.Server.UserName,
 			},
 		}
 

@@ -180,7 +180,6 @@ func (s *Server) Up(ctx *pulumi.Context, opts []pulumi.ResourceOption, id string
 		args.Image = pulumi.String(rune(sn.Body.ID))
 	}
 
-
 	opts = append(opts, pulumi.DependsOn(dependencies))
 	opts = append(opts, pulumi.IgnoreChanges([]string{
 		"userData",

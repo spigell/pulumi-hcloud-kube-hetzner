@@ -29,12 +29,12 @@ type SysProvisioned struct {
 	OS os.Provisioned
 }
 
-func New(ctx *pulumi.Context, id string, pair *keypair.ECDSAKeyPair) *System {
+func New(ctx *pulumi.Context, id string) *System {
 	return &System{
-		ID:      id,
-		ctx:     ctx,
-		KeyPair: pair,
-		info:    info.New(),
+		ID:  id,
+		ctx: ctx,
+		//		KeyPair: pair,
+		info: info.New(),
 	}
 }
 

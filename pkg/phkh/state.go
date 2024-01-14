@@ -1,8 +1,10 @@
 package phkh
 
 import (
+	"encoding/json"
 	"fmt"
 
+	"github.com/pulumi/pulumi-command/sdk/go/command/local"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
@@ -94,28 +96,23 @@ func (s *State) exportHetznerInfra(deployed *hetzner.Deployed) {
 	s.ctx.Export(HetznerServersKey, pulumi.ToSecret(export))
 }
 
-func (s *State) sshKeyPair() (*keypair.ECDSAKeyPair, error) {
-	decoded, err := s.Stack.GetOutputDetails(KeyPairKey)
+func (s *State) sshKeyPair() (*pulumi.StringOutput, error) {
+	created, err := keypair.NewECDSA()
 	if err != nil {
 		return nil, err
 	}
 
-	keys, ok := decoded.SecretValue.(map[string]interface{})
-	if !ok {
-		created, err := keypair.NewECDSA()
-		keys = make(map[string]interface{})
-		keys[publicKey] = created.PublicKey
-		keys[PrivateKey] = created.PrivateKey
-		if err != nil {
-			return nil, err
-		}
+	cmd, _ := json.MarshalIndent(created, "  ", "  ")
+
+	out, err := local.NewCommand(s.ctx, "store-generated-ssh-key", &local.CommandArgs{
+		Create: pulumi.Sprintf("echo '%s'", cmd),
+	}, pulumi.IgnoreChanges([]string{"create"}))
+
+	if err != nil {
+		return nil, err
 	}
 
-	return &keypair.ECDSAKeyPair{
-		// It can be only strings
-		PublicKey:  keys[publicKey].(string),
-		PrivateKey: keys[PrivateKey].(string),
-	}, nil
+	return &out.Stdout, nil
 }
 
 func (s *State) exportSSHKeyPair(keyPair *keypair.ECDSAKeyPair) {

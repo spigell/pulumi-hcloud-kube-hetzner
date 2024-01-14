@@ -12,11 +12,13 @@ SCHEMA_PATH     := ${WORKING_DIR}/schema.json
 
 GOPATH          := $(shell go env GOPATH)
 
-generate:: gen_go_sdk gen_dotnet_sdk gen_nodejs_sdk gen_python_sdk
+# generate:: gen_go_sdk gen_dotnet_sdk gen_nodejs_sdk gen_python_sdk
+generate:: gen_go_sdk gen_nodejs_sdk
 
-build:: build_provider build_dotnet_sdk build_nodejs_sdk build_python_sdk
+# build:: build_provider build_dotnet_sdk build_nodejs_sdk build_python_sdk
+build:: build_provider build_nodejs_sdk
 
-install:: install_provider install_dotnet_sdk install_nodejs_sdk
+install:: install_provider install_nodejs_sdk
 
 
 # Provider
@@ -60,10 +62,6 @@ install_dotnet_sdk:: build_dotnet_sdk
 gen_nodejs_sdk::
 	rm -rf sdk/nodejs
 	cd provider/cmd/${CODEGEN} && go run . nodejs ../../../sdk/nodejs ${SCHEMA_PATH}
-	# HACKHACK: work around https://github.com/pulumi/pulumi/issues/7979:
-	find sdk/nodejs -name "*.ts" -exec sed -i.bak \
-		's/pulumiKubernetes\.types\.input\.\([a-zA-Z0-9]*\)\.\([a-zA-Z0-9]*\)\.\([a-zA-Z]*\)Args/pulumiKubernetes.types.input.\1.\2.\3/g' \
-			'{}' \;
 
 build_nodejs_sdk:: VERSION := $(shell pulumictl get version --language javascript)
 build_nodejs_sdk:: gen_nodejs_sdk
@@ -71,14 +69,13 @@ build_nodejs_sdk:: gen_nodejs_sdk
 		yarn install && \
 		yarn run tsc --version && \
 		yarn run tsc && \
-		cp -R scripts/ bin && \
-		cp ../../README.md ../../LICENSE package.json yarn.lock ./bin/ && \
-		sed -i.bak -e "s/\$${VERSION}/$(VERSION)/g" ./bin/package.json && \
-		rm ./bin/package.json.bak
+		cp ../../../README.md . && \
+		sed -i -e "s/\$${VERSION}/$(VERSION)/g" package.json && \
+		sed -i -e "s/\@pulumi\/hcloud-kube-hetzner/\@spigell\/hcloud-kube-hetzner/g" package.json
 
 install_nodejs_sdk:: build_nodejs_sdk
 	yarn unlink ${PACK} || true
-	yarn link --cwd ${WORKING_DIR}/sdk/nodejs/bin
+	yarn link --cwd ${WORKING_DIR}/sdk/nodejs
 
 
 # Python SDK

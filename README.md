@@ -1,5 +1,5 @@
 ## Pulumi Hcloud Kube Hetzner
-This project is a golang library for creating Kubernetes clusters in Hetzner Cloud with Pulumi. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It is available only for go projects now.
+This is a pulumi component plugin for creating Kubernetes clusters in Hetzner Cloud with Pulumi. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It can be used as a golang library as well, tho :)
 
 ### Features
 - Ability to manage labels and taints!
@@ -54,7 +54,7 @@ Due the nature of non-statefull ip allocation for **internal** Hetzner network, 
 
 ## Development
 ```
-$ make test-project
+$ make dev-project
 ```
 
 

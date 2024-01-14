@@ -1,4 +1,0 @@
-name: ${PROJECT}
-
-runtime: go
-description: Optimized and Maintenance-free Kubernetes on Hetzner Cloud in one command! with Pulumi!

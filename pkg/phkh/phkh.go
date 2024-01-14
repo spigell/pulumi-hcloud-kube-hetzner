@@ -23,17 +23,12 @@ func New(ctx *pulumi.Context, opts []pulumi.ResourceOption) (*PHKH, error) {
 		return nil, err
 	}
 
-	keys, err := state.sshKeyPair()
-	if err != nil {
-		return nil, err
-	}
-
 	token, err := state.k3sToken()
 	if err != nil {
 		return nil, err
 	}
 
-	compiled, err := compile(ctx, opts, token, cfg, keys)
+	compiled, err := compile(ctx, opts, token, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -85,7 +80,7 @@ func (c *PHKH) Up() error {
 	}
 
 	c.state.exportHetznerInfra(cloud)
-	c.state.exportSSHKeyPair(keys)
+	//	c.state.exportSSHKeyPair(keys)
 	c.state.exportWGInfo(sys.Wireguard)
 
 	return nil

@@ -21,7 +21,6 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	externalip "github.com/glendc/go-external-ip"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -84,7 +83,7 @@ func preCompile(ctx *pulumi.Context, opts []pulumi.ResourceOption, config *confi
 
 // compile creates the plan of infrastructure and required steps.
 // This need to be refactored.
-func compile(ctx *pulumi.Context, opts []pulumi.ResourceOption, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Compiled, error) { // //lint: gocognit,gocyclo,
+func compile(ctx *pulumi.Context, opts []pulumi.ResourceOption, token string, config *config.Config) (*Compiled, error) { // //lint: gocognit,gocyclo,
 	// Since token is part of k3s config the easiest method to pass the token to k3s module is via global value.
 	// However, we do not want to expose token to the user in DumpConfig().
 	config.Defaults.Global.K3s.K3S.Token = token
@@ -111,7 +110,7 @@ func compile(ctx *pulumi.Context, opts []pulumi.ResourceOption, token string, co
 			return nil, err
 		}
 
-		sys := system.New(ctx, node.ID, keyPair).WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
+		sys := system.New(ctx, node.ID).WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
 		os := sys.MicroOS()
 
 		// Network type

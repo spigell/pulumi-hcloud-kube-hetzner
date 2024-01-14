@@ -1,11 +1,13 @@
 SHELL := bash
+TEMPLATE ?= go/library
 
 GH_EXAMPLE ?= k3s-private-non-ha-simple
 
+# Used in CI
 test-project: clean
 	@mkdir -p test-project
 	@cd test-project && \
-	pulumi new ../pulumi-template -g -n pkhk --yes && \
+	pulumi new ../pulumi-templates/$(TEMPLATE) -g -n pkhk --yes && \
 	go mod edit -replace=github.com/spigell/pulumi-hcloud-kube-hetzner=../
 	@go work use ./test-project
 	@echo "Now you can create stack for test project in test-project directory"
@@ -22,11 +24,27 @@ github-run:
 	watch gh run view $$(gh run list --workflow=main-test-examples.yaml -b $$(git rev-parse --abbrev-ref HEAD) -L 1 --json databaseId | jq .[0].databaseId -r) -v
 
 
-up-template-deps: test-project
+up-go-lib-template-versions: TEMPLATE = go/library
+up-go-lib-template-versions: clean test-project
+	cd test-project && go mod edit -dropreplace=github.com/spigell/pulumi-hcloud-kube-hetzner
 	cd test-project && go get -u && go get github.com/spigell/pulumi-hcloud-kube-hetzner@main && go mod tidy
-	cp ./test-project/go.mod ./pulumi-template/go.mod
-	sed -i "1s/.*/module \\\$${PROJECT}/" ./pulumi-template/go.mod
-	cp ./test-project/go.sum ./pulumi-template/go.sum
+	cp ./test-project/go.mod ./pulumi-templates/$(TEMPLATE)/go.mod
+	sed -i "1s/.*/module \\\$${PROJECT}/" ./pulumi-templates/$(TEMPLATE)/go.mod
+	cp ./test-project/go.sum ./pulumi-templates/$(TEMPLATE)/go.sum
+
+# This stage syncs templates with the GO library template
+sync-templates:
+	for a in go/component typescript; do \
+		cd pulumi-templates && \
+		cp -vr \
+			go/library/README.md \
+			go/library/pulumi.Makefile \
+			go/library/versions \
+			go/library/Makefile \
+			go/library/scripts \
+			./$${a}/ ; \
+		cd - ; \
+	done
 
 unit-tests:
 	set -o pipefail ; go test $$(go list ./... | grep -v integration | grep -v crds/generated) | grep -v 'no test files'
