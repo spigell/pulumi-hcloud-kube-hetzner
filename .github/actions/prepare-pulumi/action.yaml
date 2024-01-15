@@ -12,6 +12,7 @@ inputs:
     description: "disable go cache"
   template:
     required: false
+    type: string
     description: 'source of pulumi template'
     default: go/library
 
@@ -29,7 +30,7 @@ runs:
         go-version-file: go.mod
     - name: Build provider
       shell: bash
-      run: make provider
+      run: make install_provider
       working-directory: pulumi-component
       if: ${{ ! inputs.template == 'go/library' }}
     - name: Create a temporary Pulumi project

@@ -88,6 +88,7 @@ jobs:
         with:
           create-stack: false
           google-credentials: ${{ secrets.google-credentials }}
+          template: ${{ inputs.template }}
       - uses: actions/download-artifact@v3
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
@@ -117,6 +118,7 @@ jobs:
         with:
           create-stack: false
           google-credentials: ${{ secrets.google-credentials }}
+          template: ${{ inputs.template }}
       - uses: actions/download-artifact@v3
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
@@ -147,6 +149,7 @@ jobs:
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: test-project
+          template: ${{ inputs.template }}
       - name: Cancel previous run (if failed)
         run: pulumi cancel -s ${{ env.PULUMI_STACK }} -y
         working-directory: test-project
