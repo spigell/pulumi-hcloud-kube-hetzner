@@ -35,6 +35,7 @@ jobs:
   get-component-binary:
     name: Grab binary
     needs: init
+    runs-on: ubuntu-latest
     steps:
       - name: Download artifact
         id: download-artifact
