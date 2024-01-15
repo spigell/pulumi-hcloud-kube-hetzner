@@ -32,7 +32,7 @@ runs:
       shell: bash
       run: make install_provider
       working-directory: pulumi-component
-      if: ${{ ! inputs.template == 'go/library' }}
+      if: ${{ inputs.template != 'go/library' }}
     - name: Create a temporary Pulumi project
       run: make test-project
       env:
@@ -50,7 +50,7 @@ runs:
     - name: Create a stack
       shell: bash
       if: ${{ inputs.create-stack == 'true'}}
-      run: make ci-pulumi-prepare
+      run: make pulumi-ci-prepare
       env:
         PULUMI_STACK_INIT_FLAGS: --secrets-provider=gcpkms://projects/spigell-infra/locations/global/keyRings/spigell-infra-keyring/cryptoKeys/spigell-infra-phkh-pulumi-key
         PULUMI_BACKEND: gs://spigell-infra-phkh-pulumi-states
