@@ -11,7 +11,7 @@ inputs:
     required: false
     description: "disable go cache"
   template:
-    required: true
+    required: false
     description: 'source of pulumi template'
     default: go/library
 

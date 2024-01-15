@@ -15,8 +15,8 @@ on:
         required: true
         type: string
       template:
-        required: true
         type: string
+        default: go/library
     secrets:
       google-credentials:
         required: true

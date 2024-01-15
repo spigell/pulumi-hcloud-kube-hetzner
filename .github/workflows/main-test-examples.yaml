@@ -40,7 +40,7 @@ jobs:
     with:
       pulumi-stack: k3s-private-non-ha-simple-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-private-non-ha-simple.yaml
-      temlate: go/component
+      template: go/component
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
