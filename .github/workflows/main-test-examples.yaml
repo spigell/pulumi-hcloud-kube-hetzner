@@ -32,8 +32,20 @@ jobs:
     outputs:
       short-sha: ${{ steps.short-sha.outputs.sha }}
 
-  default:
+  get-component-binary:
+    name: Grab binary
     needs: init
+    steps:
+      - name: Download artifact
+        id: download-artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: all-build-component.yml
+
+  default:
+    needs:
+      - init
+      - get-component-binary
     name: The simple private cluster
     if: contains(fromJson('["all", "k3s-private-non-ha-simple"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml

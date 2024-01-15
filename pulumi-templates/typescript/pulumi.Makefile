@@ -16,7 +16,7 @@ ifneq (,$(filter $(MAKECMDGOALS),$(WITH_PULUMI_STACK_DEFINED)))
         endif
 endif
 
-ci-pulumi-prepare: pulumi-login pulumi-stack pulumi-config
+pulumi-ci-prepare: pulumi-login pulumi-create-stack pulumi-generate-config
 
 pulumi-login:
 	pulumi logout
@@ -25,12 +25,13 @@ pulumi-login:
 pulumi-select:
 	$(PULUMI) stack select $(PULUMI_STACK)
 
-pulumi-stack:
+pulumi-create-stack:
 	$(PULUMI) stack rm --yes --force -s $(PULUMI_STACK) || true
 	$(PULUMI) stack init $(PULUMI_STACK) $(PULUMI_STACK_INIT_FLAGS)
 
-pulumi-config: pulumi-stack
+pulumi-generate-config: pulumi-create-stack
 	cp $(PULUMI_CONFIG_SOURCE) ./Pulumi.$(PULUMI_STACK).yaml
+	cat $(PULUMI_CONFIG_SOURCE) >> ./Pulumi.$(PULUMI_STACK).yaml
 	sed -i "s/pulumi-hcloud-kube-hetzner/pkhk/g" ./Pulumi.$(PULUMI_STACK).yaml
 	@echo "Pulumi.$(PULUMI_STACK).yaml is generated"
 
