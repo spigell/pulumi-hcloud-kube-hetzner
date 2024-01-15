@@ -5,3 +5,8 @@ updates:
     target-branch: preview
     schedule:
       interval: daily
+  - package-ecosystem: gomod
+    directory: /pulumi-component
+    target-branch: preview
+    schedule:
+      interval: daily
