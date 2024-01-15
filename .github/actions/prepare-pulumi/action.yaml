@@ -28,6 +28,7 @@ runs:
         cache: false
         go-version-file: go.mod
     - name: Build provider
+      shell: bash
       run: make provider
       working-directory: pulumi-component
       if: ${{ ! inputs.template == 'go/library' }}
