@@ -1,5 +1,4 @@
-name: A component binary
-run-name: Build
+name: The component building
 
 on:
   push:
