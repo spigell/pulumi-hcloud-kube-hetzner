@@ -1,4 +1,4 @@
-name: Build a component binary
+name: A component binary
 run-name: Build
 
 on:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   unit-tests:
-    name: Run unit tests
+    name: Build provider binary
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
