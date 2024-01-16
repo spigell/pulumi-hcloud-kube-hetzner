@@ -36,7 +36,7 @@ type State struct {
 }
 
 func state(ctx *pulumi.Context) (*State, error) {
-	self, err := pulumi.NewStackReference(ctx, fmt.Sprintf("%s/%s/%s", "spigell", ctx.Project(), ctx.Stack()), nil)
+	self, err := pulumi.NewStackReference(ctx, fmt.Sprintf("%s/%s/%s", ctx.Organization(), ctx.Project(), ctx.Stack()), nil)
 	if err != nil {
 		return nil, err
 	}

@@ -4,7 +4,7 @@ TEMPLATE ?= go/library
 GH_EXAMPLE ?= k3s-private-non-ha-simple
 
 # Used in CI
-test-project: clean
+test-go-project: clean
 	@mkdir -p test-project
 	@cd test-project && \
 	pulumi new ../pulumi-templates/$(TEMPLATE) -g -n pkhk --yes && \

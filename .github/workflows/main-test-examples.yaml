@@ -32,23 +32,9 @@ jobs:
     outputs:
       short-sha: ${{ steps.short-sha.outputs.sha }}
 
-  wait-component-binary:
-    name: Wait for the pulumi component binary to be ready
-    needs: init
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for builds
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: ${{ github.ref }}
-          check-name: "Build and save component binary for sha ${{ github.sha }}"
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-
   default:
     needs:
       - init
-      - wait-component-binary
     name: The simple private cluster
     if: contains(fromJson('["all", "k3s-private-non-ha-simple"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml

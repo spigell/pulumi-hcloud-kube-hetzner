@@ -1,4 +1,4 @@
-module pulumi-hcloud-kube-hetzner-example-go
+module ${PROJECT}
 
 go 1.21.0
 
@@ -92,5 +92,3 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	lukechampine.com/frand v1.4.2 // indirect
 )
-
-replace github.com/spigell/pulumi-hcloud-kube-hetzner => ../../../
