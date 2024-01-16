@@ -33,7 +33,7 @@ jobs:
       short-sha: ${{ steps.short-sha.outputs.sha }}
 
   wait-component-binary:
-    name: Get the pulumi component binary
+    name: Wait for the pulumi component binary to be ready
     needs: init
     runs-on: ubuntu-latest
     steps:
