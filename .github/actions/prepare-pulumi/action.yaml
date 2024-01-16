@@ -33,7 +33,6 @@ runs:
       with:
         ref: ${{ github.ref }}
         check-name: "Build and save component binary for sha ${{ github.sha }}"
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
         wait-interval: 10
       if: ${{ inputs.template != 'go/library' }}
     - name: Download artifact
