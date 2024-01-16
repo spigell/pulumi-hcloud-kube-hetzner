@@ -2,6 +2,7 @@ package hetzner
 
 import (
 	"encoding/json"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"strconv"
@@ -242,11 +243,23 @@ func (h *Hetzner) Up(info *Deployed, keys *pulumi.StringOutput) (*Deployed, erro
 			InternalIP:    internalIP,
 			Connection: &connection.Connection{
 				IP: node.Resource.Ipv4Address,
-				PrivateKey: keys.ApplyT(func(keys string) string {
+				PrivateKey: keys.ApplyT(func(keys string) (string, error) {
 					var keypair *keypair.ECDSAKeyPair
-					_ = json.Unmarshal([]byte(keys), &keypair)
 
-					return keypair.PrivateKey
+					decoded, err := base64.StdEncoding.DecodeString(keys)
+
+					if err != nil {
+						return "", nil
+					}
+
+					err = json.Unmarshal([]byte(keys), &keypair)
+
+					err = json.Unmarshal([]byte(decoded), &keypair)
+					if err != nil {
+						return "", nil
+					}
+
+					return keypair.PrivateKey, nil
 				}).(pulumi.StringOutput),
 				User: srv.Server.UserName,
 			},

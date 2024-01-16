@@ -2,6 +2,7 @@ package phkh
 
 import (
 	"encoding/json"
+	"encoding/base64"
 	"fmt"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/local"
@@ -103,9 +104,10 @@ func (s *State) sshKeyPair() (*pulumi.StringOutput, error) {
 	}
 
 	cmd, _ := json.MarshalIndent(created, "  ", "  ")
+	encoded := base64.StdEncoding.EncodeToString([]byte(cmd))
 
 	out, err := local.NewCommand(s.ctx, "store-generated-ssh-key", &local.CommandArgs{
-		Create: pulumi.Sprintf("echo '%s'", cmd),
+		Create: pulumi.Sprintf("echo %s", encoded),
 	}, pulumi.IgnoreChanges([]string{"create"}))
 
 	if err != nil {
