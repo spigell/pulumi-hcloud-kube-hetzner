@@ -12,7 +12,6 @@ inputs:
     description: "disable go cache"
   template:
     required: false
-    type: string
     description: 'source of pulumi template'
     default: go/library
 
@@ -47,6 +46,8 @@ runs:
       run: mv -v pulumi-component-* /usr/local/bin/pulumi-resource-hcloud-kube-hetzner && chmod +x /usr/local/bin/pulumi-resource-hcloud-kube-hetzner
       shell: bash
       if: ${{ inputs.template != 'go/library' }}
+    - run: echo $PATH
+      shell: bash
     - name: Create a temporary Pulumi project
       run: make test-go-project
       env:
