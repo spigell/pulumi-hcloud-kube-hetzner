@@ -41,7 +41,7 @@ jobs:
         id: download-artifact
         uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: all-build-component.yml
+          workflow: all-build-component.yaml
           name: pulumi-provider-${{ needs.init.outputs.short-sha }}
 
   default:

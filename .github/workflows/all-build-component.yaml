@@ -1,4 +1,6 @@
 name: Build a component binary
+run-name: Build
+
 on:
   push:
 
@@ -24,7 +26,6 @@ jobs:
         shell: bash
         run: make build_provider
         working-directory: pulumi-component
-      - name: 
       - uses: actions/upload-artifact@v4
         with:
           name: pulumi-provider-${{ steps.short-sha.outputs.sha }}
