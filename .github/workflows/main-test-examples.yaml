@@ -41,7 +41,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.ref }}
-          running-workflow-name: The component building
+          check-name: "Build and save component binary for ${{ needs.init.outputs.short-sha }}"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
       - name: Download artifact
