@@ -28,11 +28,16 @@ runs:
       with:
         cache: false
         go-version-file: go.mod
-    - name: Build provider
-      shell: bash
-      run: make install_provider
-      working-directory: pulumi-component
+    - name: Download artifact
+      id: download-artifact
+      uses: dawidd6/action-download-artifact@v4
+      with:
+        workflow: all-build-component.yaml
+        workflow_conclusion: ""
       if: ${{ inputs.template != 'go/library' }}
+    - name: Add component to PATH directory
+      run: mv -v pulumi-component-* /usr/local/bin/pulumi-resource-hcloud-kube-hetzner
+      shell: bash
     - name: Create a temporary Pulumi project
       run: make test-project
       env:
