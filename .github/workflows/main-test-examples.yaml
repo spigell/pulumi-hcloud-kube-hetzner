@@ -32,7 +32,7 @@ jobs:
     outputs:
       short-sha: ${{ steps.short-sha.outputs.sha }}
 
-  get-component-binary:
+  wait-component-binary:
     name: Get the pulumi component binary
     needs: init
     runs-on: ubuntu-latest
@@ -44,18 +44,11 @@ jobs:
           check-name: "Build and save component binary for sha ${{ github.sha }}"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
-      - name: Download artifact
-        id: download-artifact
-        uses: dawidd6/action-download-artifact@v3
-        with:
-          workflow: all-build-component.yaml
-          workflow_conclusion: ""
-          name: pulumi-component-${{ needs.init.outputs.short-sha }}
 
   default:
     needs:
       - init
-      - get-component-binary
+      - wait-component-binary
     name: The simple private cluster
     if: contains(fromJson('["all", "k3s-private-non-ha-simple"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml

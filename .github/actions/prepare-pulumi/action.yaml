@@ -38,6 +38,7 @@ runs:
     - name: Add component to PATH directory
       run: mv -v pulumi-component-* /usr/local/bin/pulumi-resource-hcloud-kube-hetzner
       shell: bash
+      if: ${{ inputs.template != 'go/library' }}
     - name: Create a temporary Pulumi project
       run: make test-project
       env:
