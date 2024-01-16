@@ -30,7 +30,6 @@ pulumi-create-stack:
 	$(PULUMI) stack init $(PULUMI_STACK) $(PULUMI_STACK_INIT_FLAGS)
 
 pulumi-generate-config: pulumi-create-stack
-	cp $(PULUMI_CONFIG_SOURCE) ./Pulumi.$(PULUMI_STACK).yaml
 	cat $(PULUMI_CONFIG_SOURCE) >> ./Pulumi.$(PULUMI_STACK).yaml
 	sed -i "s/pulumi-hcloud-kube-hetzner/pkhk/g" ./Pulumi.$(PULUMI_STACK).yaml
 	@echo "Pulumi.$(PULUMI_STACK).yaml is generated"

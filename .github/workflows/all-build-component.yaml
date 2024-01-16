@@ -21,11 +21,11 @@ jobs:
       - name: Downloading dependencies 📦
         shell: bash
         run: go mod download
-      - name: Run tests
+      - name: Make provider
         shell: bash
         run: make build_provider
         working-directory: pulumi-component
       - uses: actions/upload-artifact@v4
         with:
-          name: pulumi-provider-${{ steps.short-sha.outputs.sha }}
+          name: pulumi-component-${{ steps.short-sha.outputs.sha }}
           path: pulumi-component/bin/pulumi-resource-hcloud-kube-hetzner

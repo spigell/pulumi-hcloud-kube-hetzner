@@ -33,7 +33,7 @@ jobs:
       short-sha: ${{ steps.short-sha.outputs.sha }}
 
   get-component-binary:
-    name: Grab binary
+    name: Get the pulumi component binary
     needs: init
     runs-on: ubuntu-latest
     steps:
@@ -41,7 +41,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.ref }}
-          running-workflow-name: 'The component building'
+          running-workflow-name: The component building
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
       - name: Download artifact
@@ -50,7 +50,7 @@ jobs:
         with:
           workflow: all-build-component.yaml
           workflow_conclusion: ""
-          name: pulumi-provider-${{ needs.init.outputs.short-sha }}
+          name: pulumi-component-${{ needs.init.outputs.short-sha }}
 
   default:
     needs:
