@@ -5,7 +5,7 @@ on:
 
 jobs:
   unit-tests:
-    name: "Build and save component binary for {{ steps.short-sha.outputs.sha }}"
+    name: "Build and save component binary for ${{ github.sha }}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
