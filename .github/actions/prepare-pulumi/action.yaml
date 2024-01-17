@@ -27,6 +27,7 @@ runs:
       with:
         cache: false
         go-version-file: go.mod
+      if: startsWith(inputs.template, 'go')
     - name: Wait for builds
       uses: lewagon/wait-on-check-action@v1.3.1
       with:
@@ -35,6 +36,10 @@ runs:
         repo-token: ${{ github.token }}
         wait-interval: 10
       if: ${{ inputs.template != 'go/library' }}
+    - name: Install pulumi cli
+      uses: pulumi/actions@v4
+      with:
+        pulumi-version: v3.99.0
     - name: Download artifact
       id: download-artifact
       uses: dawidd6/action-download-artifact@v3
@@ -42,8 +47,8 @@ runs:
         workflow: all-build-component.yaml
         workflow_conclusion: ""
       if: ${{ inputs.template != 'go/library' }}
-    - name: Add component to PATH directory
-      run: ls -alht && mv -v pulumi-component-* go/bin/pulumi-resource-hcloud-kube-hetzner && chmod +x go/bin/pulumi-resource-hcloud-kube-hetzner
+    - name: Add component to pulumi plugin directory
+      run: mv -v pulumi-component-* hcloud-kube-hetzner && pulumi plugin install resource hcloud-kube-hetzner 0.0.1 -f hcloud-kube-hetzner
       shell: bash
       if: ${{ inputs.template != 'go/library' }}
     - run: echo $PATH
@@ -59,10 +64,6 @@ runs:
       shell: bash
       run: go mod download
       working-directory: test-project
-    - name: Install pulumi cli
-      uses: pulumi/actions@v4
-      with:
-        pulumi-version: v3.99.0
     - name: Create a stack
       shell: bash
       if: ${{ inputs.create-stack == 'true'}}
