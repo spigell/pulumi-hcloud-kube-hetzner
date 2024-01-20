@@ -6,6 +6,8 @@ import (
 	"github.com/sanity-io/litter"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/k3stoken"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/sshkeypair"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
@@ -14,6 +16,7 @@ type PHKH struct {
 	config   *config.Config
 	compiled *Compiled
 	state    *State
+	ctx      *pulumi.Context
 }
 
 func New(ctx *pulumi.Context, opts []pulumi.ResourceOption) (*PHKH, error) {
@@ -23,12 +26,7 @@ func New(ctx *pulumi.Context, opts []pulumi.ResourceOption) (*PHKH, error) {
 		return nil, err
 	}
 
-	token, err := state.k3sToken()
-	if err != nil {
-		return nil, err
-	}
-
-	compiled, err := compile(ctx, opts, token, cfg)
+	compiled, err := compile(ctx, opts, cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -37,30 +35,26 @@ func New(ctx *pulumi.Context, opts []pulumi.ResourceOption) (*PHKH, error) {
 		config:   cfg,
 		compiled: compiled,
 		state:    state,
+		ctx:      ctx,
 	}, nil
 }
 
 func (c *PHKH) Up() error {
-	hetznerInfo, err := c.state.hetznerInfra()
+	keypair, err := sshkeypair.New(c.ctx)
 	if err != nil {
 		return err
 	}
 
-	keys, err := c.state.sshKeyPair()
+	token, err := k3stoken.New(c.ctx)
 	if err != nil {
 		return err
 	}
 
-	wgInfo, err := c.state.wgInfo()
+	cloud, err := c.compiled.Hetzner.Up(keypair)
 	if err != nil {
 		return err
 	}
-
-	cloud, err := c.compiled.Hetzner.Up(hetznerInfo, keys)
-	if err != nil {
-		return err
-	}
-	sys, err := c.compiled.SysCluster.Up(wgInfo, cloud)
+	sys, err := c.compiled.SysCluster.Up(token, cloud)
 	if err != nil {
 		return err
 	}
@@ -68,7 +62,7 @@ func (c *PHKH) Up() error {
 	switch distr := c.compiled.K8S.Distr(); distr {
 	case k3s.DistrName:
 		c.state.exportKubeconfig(sys.K3s.KubeconfigForExport)
-		c.state.exportK3SToken(sys.K3s.Token)
+		c.ctx.Export(k3sTokenKey, pulumi.String(sys.K3s.Token))
 		err = c.compiled.K8S.Up(sys.K3s.KubeconfigForUsage, sys.Resources)
 
 		if err != nil {
@@ -80,8 +74,7 @@ func (c *PHKH) Up() error {
 	}
 
 	c.state.exportHetznerInfra(cloud)
-	//	c.state.exportSSHKeyPair(keys)
-	c.state.exportWGInfo(sys.Wireguard)
+	c.ctx.Export(KeyPairKey, pulumi.ToSecret(keypair.PrivateKey()))
 
 	return nil
 }

@@ -21,13 +21,12 @@ const (
 	envConfigPath   = "PULUMI_STACK_CONFIG"
 
 	exampleK3SPrivateNonHASimple   = "k3s-private-non-ha-simple"
-	exampleK3SWGNonHaFwRules       = "k3s-wireguard-non-ha-firewall-rules"
-	exampleK3SWGHANoTaints         = "k3s-wireguard-ha-no-taints"
+	exampleK3SPrivateNonHaFwRules       = "k3s-private-non-ha-firewall-rules"
+	exampleK3SPrivateHANoTaints         = "k3s-private-ha-no-taints"
 	exampleK3SPublicNonHADefaults  = "k3s-public-non-ha-with-defaults"
 	exampleK3SPublicHAKubeAddons   = "k3s-public-ha-kube-addons"
 	exampleK3SPrivateNonHAUpgrader = "k3s-private-non-ha-upgrader"
 
-	testWGConnectivity                    = "wireguard-connectivity"
 	testKubeVersion                       = "kube-version"
 	testSSHConnectivity                   = "ssh-connectivity"
 	testKubeChangeEndpointType            = "kube-change-endpoint-type"
@@ -45,14 +44,12 @@ var TestsByExampleName = map[string][]string{
 		testKubeHetznerCCM,
 		testKubeK3SUpgradeControllerPlan,
 	},
-	exampleK3SWGNonHaFwRules: {
+	exampleK3SPrivateNonHaFwRules: {
 		testSSHConnectivity,
-		testWGConnectivity,
 		testKubeChangeEndpointType,
 	},
-	exampleK3SWGHANoTaints: {
+	exampleK3SPrivateHANoTaints: {
 		testSSHConnectivity,
-		testWGConnectivity,
 		testKubeVersion,
 		testNodeChangeLabelsTaints,
 		testKubeK3SUpgradeControllerPlan,

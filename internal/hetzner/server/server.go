@@ -193,6 +193,5 @@ func (s *Server) Up(ctx *pulumi.Context, opts []pulumi.ResourceOption, id string
 
 	return &Deployed{
 		Resource: created,
-		Password: s.Userdata.Chpasswd.Users[0].Password,
 	}, nil
 }

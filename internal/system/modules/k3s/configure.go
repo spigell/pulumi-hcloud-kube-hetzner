@@ -33,6 +33,7 @@ func (k *K3S) configure(ctx *pulumi.Context, con *connection.Connection, config 
 
 	result = append(result, deployed)
 
+        // UPD: This logic is not required right now since there is no wireguard layer.
 	// Flannel iface is based on kubewg0 iface directly (wg mode), so flannel.0 disapered after wg restart.
 	// We need to maintain k3s restart with wireguard network interface.
 	// K3S config based on WG config, but sometimes it is not enough to restart k3s service because config can be the same.

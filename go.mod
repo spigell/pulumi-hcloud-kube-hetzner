@@ -6,7 +6,6 @@ toolchain go1.21.1
 
 require (
 	dario.cat/mergo v1.0.0
-	github.com/BurntSushi/toml v1.3.2
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/glendc/go-external-ip v0.1.0
 	github.com/hetznercloud/hcloud-go/v2 v2.5.1
@@ -21,9 +20,7 @@ require (
 	github.com/spigell/pulumi-file/sdk v0.0.0-20231027223840-65de13d29cb4
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/crypto v0.17.0
-	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20230429144221-925a1e7659e6
 	gopkg.in/yaml.v3 v3.0.1
-	inet.af/netaddr v0.0.0-20230525184311-b8eac61e914a
 	k8s.io/api v0.29.0
 	k8s.io/apimachinery v0.29.0
 	k8s.io/client-go v0.29.0
@@ -51,8 +48,6 @@ require (
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
 	github.com/seancfoley/bintree v1.2.3 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
-	go4.org/intern v0.0.0-20230525184215-6c62f75575cb // indirect
-	go4.org/unsafe/assume-no-moving-gc v0.0.0-20230525183740-e7c30c78aeb2 // indirect
 	golang.org/x/oauth2 v0.14.0 // indirect
 	golang.org/x/time v0.4.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect

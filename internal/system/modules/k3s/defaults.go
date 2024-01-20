@@ -12,7 +12,7 @@ const (
 	defaultClusterCIDR = "10.141.0.0/16"
 )
 
-// This is very opinionated values and it is based on my expirience with k3s.
+// This is very opinionated values and it is based on my experience with k3s.
 var (
 	defaultKubeControllerManagerArgs = map[string]string{
 		// Increase time for a grace period for failed nodes.

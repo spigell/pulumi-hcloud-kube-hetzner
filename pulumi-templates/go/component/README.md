@@ -16,8 +16,3 @@ Includes:
 ```
 pulumi stack output --show-secrets   -j ssh:keypair | jq .PrivateKey -r
 ```
-
-### Get wg master key
-```
-pulumi stack output --show-secrets   wireguard:connection > ~/wg-dev.conf && wg-quick down ~/wg-dev.conf ; wg-quick up ~/wg-dev.conf
-```

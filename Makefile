@@ -25,7 +25,7 @@ github-run:
 
 
 up-go-lib-template-versions: TEMPLATE = go/library
-up-go-lib-template-versions: clean test-project
+up-go-lib-template-versions: clean test-go-project
 	cd test-project && go mod edit -dropreplace=github.com/spigell/pulumi-hcloud-kube-hetzner
 	cd test-project && go get -u && go get github.com/spigell/pulumi-hcloud-kube-hetzner@main && go mod tidy
 	cp ./test-project/go.mod ./pulumi-templates/$(TEMPLATE)/go.mod
@@ -42,6 +42,7 @@ sync-templates:
 			go/library/versions \
 			go/library/Makefile \
 			go/library/scripts \
+			go/library/image-builder \
 			./$${a}/ ; \
 		cd - ; \
 	done

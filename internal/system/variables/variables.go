@@ -10,10 +10,8 @@ const (
 	PrivateIface = "eth1"
 	WGIface      = "kubewg0"
 	// Name of modules.
-	K3s       = "k3s"
-	SSHD      = "sshd"
-	Wireguard = "wireguard"
-	// Communication methods.
+	K3s  = "k3s"
+	SSHD = "sshd"
 )
 
 type CommunicationMethod string
@@ -21,12 +19,10 @@ type CommunicationMethod string
 var (
 	PublicCommunicationMethod   CommunicationMethod = "public"
 	InternalCommunicationMethod CommunicationMethod = "internal"
-	WgCommunicationMethod       CommunicationMethod = Wireguard
 
 	Ifaces = map[CommunicationMethod]string{
 		PublicCommunicationMethod:   PublicIface,
 		InternalCommunicationMethod: PrivateIface,
-		WgCommunicationMethod:       WGIface,
 	}
 )
 
@@ -34,6 +30,8 @@ func (c CommunicationMethod) String() string {
 	return string(c)
 }
 
+// All communication methods are hetnzer based right now.
+// There was wireguard method before.
 func (c CommunicationMethod) HetznerBased() bool {
-	return c != WgCommunicationMethod
+	return true
 }

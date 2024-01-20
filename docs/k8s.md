@@ -6,17 +6,14 @@ config:
     kube-api-endpoint:
       type: internal
 ```
-The following values are supported: ['public', 'internal', 'wireguard'].
+The following values are supported: ['public', 'internal']
 
 For firewall rules, there is a note in #k8s-apiserver-access
 
-It is recommended to switch to `internal` or `wireguard` mode if you want to restrict access to the apiserver from the public network after the 1st deployment of the cluster. It will remove a rule for public access entierly and change the endpoint IP address in the kubeconfig output.
+It is recommended to switch to `internal` or mode if you want to restrict access to the apiserver from the public network after the 1st deployment of the cluster. It will remove a rule for public access entierly.
 For using kubeconfig with `internal` type you should have access to private network.
-For `wireguard` type you can use master connection for wireguard cluster to establish a secure tunnel.
 
-**Note**: The kubernetes pulumi provider uses the kubeconfig with **public** address of the cluster. Due the nature of how custom providers work in pulumi it is not an easy task to migrate existing resources (helm charts, manifests, etc) to another provider. So, the kube pulumi provider ignores change in endpoint type in kubeconfig right now.
-
-**Note**: kubeconfig output is not updated automatically. You should run `pulumi up` to get updated kubeconfig output.
+**Note**: The kubernetes pulumi provider uses the kubeconfig with **public** address of the cluster. Due the nature of how custom providers work in pulumi it is not an easy task to migrate existing resources (helm charts, manifests, etc) to another provider. Thus, the kube pulumi provider ignores change in endpoint type in kubeconfig right now.
 
 
 ### K8S APIServer external access
@@ -32,7 +29,7 @@ config:
           allowed-ips:
             - '102.0.0.0/8' # <--- Allow access to the k8s api from the this cidr!
 ```
-Internal networks and wireguard networks are considered as *secured*. So, no rules will be applied for them.
+Internal network networks are considered as *secured*. So, no rules will be applied for them.
 
 ## Node Management
 ### Node Labels and Taints and K3S

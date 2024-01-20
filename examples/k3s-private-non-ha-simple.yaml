@@ -6,9 +6,6 @@ config:
       enabled: true
       # It is highly recommended to set a cidr for the private network for at least /20
       cidr: 10.18.0.0/16
-    wireguard:
-      # wireguard layer is disabled.
-      enabled: false
   pulumi-hcloud-kube-hetzner:k8s:
     kube-api-endpoint:
       # public|internal|wireguard

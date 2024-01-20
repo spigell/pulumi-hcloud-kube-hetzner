@@ -5,8 +5,6 @@ config:
   pulumi-hcloud-kube-hetzner:network:
     hetzner:
       enabled: false
-    wireguard:
-      enabled: false
   pulumi-hcloud-kube-hetzner:k8s:
     kube-api-endpoint:
       type: public

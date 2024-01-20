@@ -18,7 +18,6 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 
@@ -83,10 +82,7 @@ func preCompile(ctx *pulumi.Context, opts []pulumi.ResourceOption, config *confi
 
 // compile creates the plan of infrastructure and required steps.
 // This need to be refactored.
-func compile(ctx *pulumi.Context, opts []pulumi.ResourceOption, token string, config *config.Config) (*Compiled, error) { // //lint: gocognit,gocyclo,
-	// Since token is part of k3s config the easiest method to pass the token to k3s module is via global value.
-	// However, we do not want to expose token to the user in DumpConfig().
-	config.Defaults.Global.K3s.K3S.Token = token
+func compile(ctx *pulumi.Context, opts []pulumi.ResourceOption, config *config.Config) (*Compiled, error) { // //lint: gocognit,gocyclo,
 
 	nodes, err := config.Nodes()
 	if err != nil {
@@ -115,21 +111,9 @@ func compile(ctx *pulumi.Context, opts []pulumi.ResourceOption, token string, co
 
 		// Network type
 		switch {
-		// WG over private network
-		case config.Network.Hetzner.Enabled && config.Network.Wireguard.Enabled:
-			sys.WithCommunicationMethod(variables.WgCommunicationMethod)
-			os.SetupWireguard(config.Network.Wireguard)
-			fwWithWGRUles(fw, config, os.Wireguard(), ip)
-			fwWithSSHRules(fw, node, ip)
 		// Plain private network
 		case config.Network.Hetzner.Enabled:
 			sys.WithCommunicationMethod(variables.InternalCommunicationMethod)
-			fwWithSSHRules(fw, node, ip)
-		// WG over public network
-		case config.Network.Wireguard.Enabled:
-			sys.WithCommunicationMethod(variables.WgCommunicationMethod)
-			os.SetupWireguard(config.Network.Wireguard)
-			fwWithWGRUles(fw, config, os.Wireguard(), ip)
 			fwWithSSHRules(fw, node, ip)
 		// By default use public network
 		default:
@@ -197,16 +181,6 @@ func fwConfig(ctx *pulumi.Context, compiled *Compiled, id string) (*firewall.Con
 	}
 
 	return fw, nil
-}
-
-func fwWithWGRUles(fw *firewall.Config, config *config.Config, wg *wireguard.Wireguard, ip net.IP) {
-	if allowedIPs := config.Network.Wireguard.Firewall.Hetzner.AllowedIps; len(allowedIPs) > 0 {
-		fw.AddRules(wg.HetznerRulesWithSources(allowedIPs))
-	}
-
-	if !config.Network.Wireguard.Firewall.Hetzner.DisallowOwnIP {
-		fw.AddRules(wg.HetznerRulesWithSources([]string{ip2Net(ip)}))
-	}
 }
 
 func fwWithSSHRules(fw *firewall.Config, node *config.Node, ip net.IP) {

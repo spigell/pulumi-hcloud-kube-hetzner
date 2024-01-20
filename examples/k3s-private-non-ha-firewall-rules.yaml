@@ -9,21 +9,6 @@ config:
       enabled: true
       # It is highly recommended to set a cidr for the private network for at least /20
       cidr: 192.168.16.0/20
-    wireguard:
-      enabled: true
-      firewall:
-        hetzner:
-          # Do not add own ip to rules as allowed for service.
-          # If set to true, then allowed-ips must include networks with your ip address.
-          # Otherwise, there will be error.
-          disallow-own-ip: false
-          # Allow establish tunnel only from the this cidr!
-          # Remember: it only affects external network. Nodes in the internal network can establish tunnels from any ip
-          # because THEY consider the private networks to be "secure".
-          # Remember: all traffic between nodes is allowed.
-          # Despite the fact that the endpoint is not allowed for your ip address, you can use the endpoint,
-          # because ip address is added to the firewall by default.
-          allowed-ips: []
   pulumi-hcloud-kube-hetzner:k8s:
     kube-api-endpoint:
       # By default, public endpoint type is used.
