@@ -2,23 +2,22 @@ package k3stoken
 
 import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 )
 
 type Token struct {
-	ctx     *pulumi.Context
 	storage *storage.Storage
 }
 
-func New(ctx *pulumi.Context) (*Token, error) {
+func New(ctx *program.Context) (*Token, error) {
 	token := utils.GenerateRandomString(48)
 
-	storage := storage.New("store-generated-k3s-token", token).WithOneShot()
+	storage := storage.New("store-generated-k3s-token", token).WithOneShot().WithPulumiOpts(ctx.Options())
 	storage.Store(ctx)
 
 	return &Token{
-		ctx:     ctx,
 		storage: storage,
 	}, nil
 }

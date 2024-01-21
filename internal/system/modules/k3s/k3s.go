@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/info"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
@@ -35,7 +36,6 @@ type Provisioned struct {
 }
 
 type Outputs struct {
-	Token               string
 	KubeconfigForExport pulumi.AnyOutput
 	KubeconfigForUsage  pulumi.AnyOutput
 }
@@ -101,7 +101,7 @@ func (k *K3S) Order() int {
 	return k.order
 }
 
-func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.Resource, payload []interface{}) (modules.Output, error) {
+func (k *K3S) Up(ctx *program.Context, con *connection.Connection, deps []pulumi.Resource, payload []interface{}) (modules.Output, error) {
 	if k.role == variables.ServerRole {
 		if k.Config.K3S.ClusterDNS == "" {
 			ip, err := chooseDNSIP(k.Config.K3S.ServiceCidr)
@@ -164,7 +164,6 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 	return &Provisioned{
 		resources: res,
 		Outputs: &Outputs{
-			Token:               k.Config.K3S.Token,
 			KubeconfigForUsage:  kubeconfig,
 			KubeconfigForExport: kubeconfig,
 		},

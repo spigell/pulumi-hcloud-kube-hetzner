@@ -13,6 +13,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 )
 
 const (
@@ -20,13 +21,13 @@ const (
 	name      = "hcloud-cloud-controller-manager"
 )
 
-func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *manager.ClusterManager) error {
-	token, err := m.discoverHcloudToken(ctx)
+func (m *CCM) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt *manager.ClusterManager) error {
+	token, err := m.discoverHcloudToken(ctx.Context())
 	if err != nil {
 		return fmt.Errorf("unable to discover hcloud token: %w", err)
 	}
 
-	secret, err := corev1.NewSecret(ctx, name, &corev1.SecretArgs{
+	secret, err := corev1.NewSecret(ctx.Context(), name, &corev1.SecretArgs{
 		Metadata: &metav1.ObjectMetaArgs{
 			// hcloud is hardcoded secretn name in ccm helm chart.
 			Name:      pulumi.String("hcloud"),
@@ -36,14 +37,14 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *manag
 			"token": pulumi.String(token),
 			// If networking is disabled it is doesn't used.
 			// But it will be created anyway.
-			"network": pulumi.Sprintf("%s-%s", ctx.Project(), ctx.Stack()),
+			"network": pulumi.Sprintf("%s-%s", ctx.Context().Project(), ctx.Context().Stack()),
 		},
-	}, pulumi.Provider(prov), pulumi.DependsOn(mgmt.Resources()))
+	}, append(ctx.Options(), pulumi.Provider(prov), pulumi.DependsOn(mgmt.Resources()))...)
 	if err != nil {
 		return fmt.Errorf("unable to create secret: %w", err)
 	}
 
-	_, err = helmv3.NewRelease(ctx, name, &helmv3.ReleaseArgs{
+	_, err = helmv3.NewRelease(ctx.Context(), name, &helmv3.ReleaseArgs{
 		Chart:     pulumi.String(name),
 		Namespace: pulumi.String(namespace),
 		Version:   pulumi.String(m.helm.Version),
@@ -74,11 +75,12 @@ func (m *CCM) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *manag
 				},
 			},
 		},
-	},
+	}, append(
+		ctx.Options(),
 		pulumi.Provider(prov),
 		pulumi.DeleteBeforeReplace(true),
 		pulumi.DependsOn([]pulumi.Resource{secret}),
-	)
+	)...)
 
 	if err != nil {
 		return fmt.Errorf("unable to create helm release: %w", err)

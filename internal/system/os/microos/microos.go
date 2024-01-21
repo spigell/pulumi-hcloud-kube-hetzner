@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
@@ -48,7 +49,7 @@ func (m *MicroOS) AddAdditionalRequiredPackages(packages []string) {
 	m.RequiredPkgs = append(m.RequiredPkgs, packages...)
 }
 
-func (m *MicroOS) Up(ctx *pulumi.Context, server *hetzner.Server, kubeDependecies map[string][]pulumi.Resource) (os.Provisioned, error) {
+func (m *MicroOS) Up(ctx *program.Context, server *hetzner.Server, kubeDependecies map[string][]pulumi.Resource) (os.Provisioned, error) {
 	if err := m.WaitForCloudInit(ctx, server.Connection); err != nil {
 		return nil, err
 	}

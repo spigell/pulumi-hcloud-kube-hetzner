@@ -3,14 +3,17 @@ package storage
 import (
 	"encoding/base64"
 	"encoding/json"
+
 	"github.com/pulumi/pulumi-command/sdk/go/command/local"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 )
 
 type Storage struct {
 	oneTime bool
 	opts    []pulumi.ResourceOption
 	output  *pulumi.StringOutput
+	secret bool
 
 	Name    string
 	Payload any
@@ -36,16 +39,18 @@ func (s *Storage) WithPulumiOpts(opts []pulumi.ResourceOption) *Storage {
 	return s
 }
 
-func (s *Storage) Store(ctx *pulumi.Context) error {
+func (s *Storage) Store(ctx *program.Context) error {
 	cmd, _ := json.MarshalIndent(s.Payload, "  ", "  ")
 	encoded := base64.StdEncoding.EncodeToString(cmd)
+
+	s.opts = append(s.opts, pulumi.AdditionalSecretOutputs([]string{"stdout"}))
 
 	if s.oneTime {
 		s.opts = append(s.opts, pulumi.IgnoreChanges([]string{"create"}))
 	}
 
-	out, err := local.NewCommand(ctx, s.Name, &local.CommandArgs{
-		Create: pulumi.Sprintf("echo %s", encoded),
+	out, err := local.NewCommand(ctx.Context(), s.Name, &local.CommandArgs{
+		Create: pulumi.ToSecret(pulumi.Sprintf("echo %s", encoded)).(pulumi.StringOutput),
 	}, s.opts...)
 
 	if err != nil {
@@ -68,5 +73,4 @@ func (s *Storage) Get() pulumi.StringOutput {
 		return string(decoded), nil
 
 	}).(pulumi.StringOutput)
-
 }

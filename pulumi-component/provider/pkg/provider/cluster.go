@@ -23,6 +23,10 @@ import (
 
 type Cluster struct {
 	pulumi.ResourceState
+
+	HetznerServers pulumi.MapArrayOutput `pulumi:"servers"`
+	Kubeconfig     pulumi.StringOutput   `pulumi:"kubeconfig"`
+	Privatekey     pulumi.StringOutput   `pulumi:"privatekey"`
 }
 
 func (c *Cluster) Type() string { 
@@ -32,7 +36,7 @@ func (c *Cluster) Type() string {
 type ClusterArgs struct {}
 
 func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
-	args *ClusterArgs, inputs provider.ConstructInputs, opts pulumi.ResourceOption) (*provider.ConstructResult, error) {
+	args *ClusterArgs, inputs provider.ConstructInputs, opts ...pulumi.ResourceOption) (*provider.ConstructResult, error) {
 
 	// Ensure we have the right token.
 	if et := c.Type(); typ != et {
@@ -45,23 +49,30 @@ func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
 	}
 
 	// Register our component resource.
-	if err := ctx.RegisterComponentResource(typ, name, c, opts); err != nil {
+	if err := ctx.RegisterComponentResource(typ, name, c, opts...); err != nil {
 		return nil, err
 	}
 
-	cluster, err := phkh.New(ctx, []pulumi.ResourceOption{pulumi.Parent(c)})
-		if err != nil {
-			return nil, err
-		}
+	opts = append(opts, pulumi.Parent(c))
 
-	if err := cluster.Up(); err != nil {
+	cluster, err := phkh.New(ctx, opts)
+	if err != nil {
 		return nil, err
 	}
 
-	ctx.Export("cluster", pulumi.String("cluster"))
+	deployed, err := cluster.Up()
+	if err != nil {
+		return nil, err
+	}
+
+	c.HetznerServers = pulumi.ToMapArray(deployed.Servers).ToMapArrayOutput()
+	c.Kubeconfig = deployed.Kubeconfig
+	c.Privatekey = deployed.PrivateKey
 
 	if err := ctx.RegisterResourceOutputs(c, pulumi.Map{
-		"cluster": pulumi.String("cluster"),
+		phkh.HetznerServersKey: c.HetznerServers,
+		phkh.KubeconfigKey: pulumi.ToSecret(c.Kubeconfig),
+		phkh.PrivateKeyKey: pulumi.ToSecret(c.Privatekey),
 	}); err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package hetzner
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -10,12 +9,11 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/server"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/sshkeypair"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
-
-	//	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
@@ -23,7 +21,7 @@ import (
 var ErrFirewallDisabled = errors.New("firewall is disabled")
 
 type Hetzner struct {
-	ctx        *pulumi.Context
+	ctx        *program.Context
 	pulumiOpts []pulumi.ResourceOption
 	Servers    map[string]*config.Node
 	Firewalls  map[string]*firewall.Config
@@ -36,13 +34,12 @@ type Deployed struct {
 }
 
 type Server struct {
-	ID            pulumi.IDOutput
-	LocalPassword pulumi.StringOutput
-	InternalIP    string
-	Connection    *connection.Connection
+	ID         pulumi.IDOutput
+	InternalIP string
+	Connection *connection.Connection
 }
 
-func New(ctx *pulumi.Context, opts []pulumi.ResourceOption, nodes []*config.Node) *Hetzner {
+func New(ctx *program.Context, nodes []*config.Node) *Hetzner {
 	servers := make(map[string]*config.Node)
 	firewalls := make(map[string]*firewall.Config)
 
@@ -83,11 +80,10 @@ func New(ctx *pulumi.Context, opts []pulumi.ResourceOption, nodes []*config.Node
 	}
 
 	return &Hetzner{
-		ctx:        ctx,
-		pulumiOpts: opts,
-		Servers:    servers,
-		Firewalls:  firewalls,
-		Pools:      make(map[string][]string),
+		ctx:       ctx,
+		Servers:   servers,
+		Firewalls: firewalls,
+		Pools:     make(map[string][]string),
 	}
 }
 
@@ -200,7 +196,7 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 		if name == variables.ServerRole || name == variables.AgentRole {
 			kind = "role"
 		}
-		firewall, err := firewall.New(fw).Up(h.ctx, h.pulumiOpts, fmt.Sprintf("%s-%s", kind, name))
+		firewall, err := firewall.New(fw).Up(h.ctx, fmt.Sprintf("%s-%s", kind, name))
 		if err != nil {
 			return nil, err
 		}
@@ -225,18 +221,12 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 		if err := s.Validate(); err != nil {
 			return nil, err
 		}
-		node, err := s.Up(h.ctx, h.pulumiOpts, id, net, pool)
+		node, err := s.Up(h.ctx, id, net, pool)
 		if err != nil {
 			return nil, err
 		}
 		nodes[id] = &Server{
-			ID: node.Resource.ID(),
-			LocalPassword: node.Resource.UserData.ApplyT(func(ud *string) string {
-				var userData *server.CloudConfig
-				_ = json.Unmarshal([]byte(*ud), userData)
-
-				return userData.Chpasswd.Users[0].Password
-			}).(pulumi.StringOutput),
+			ID:         node.Resource.ID(),
 			InternalIP: internalIP,
 			Connection: &connection.Connection{
 				IP:         node.Resource.Ipv4Address,
@@ -258,7 +248,7 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 			switch {
 			// We can create and attach firewall to the node right now if it is dedicated.
 			case srv.Server.Firewall.Hetzner.Dedicated():
-				firewall, err := firewall.New(srv.Server.Firewall.Hetzner).Up(h.ctx, h.pulumiOpts, id)
+				firewall, err := firewall.New(srv.Server.Firewall.Hetzner).Up(h.ctx, id)
 				if err != nil {
 					return nil, fmt.Errorf("failed to create a dedicated firewall for node %s: %w", id, err)
 				}

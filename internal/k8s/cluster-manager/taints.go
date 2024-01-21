@@ -25,13 +25,13 @@ var whitelistedTaints = []string{
 }
 
 func (m *ClusterManager) ManageTaints(node *Node) error {
-	existed, err := corev1.GetNode(m.ctx, node.ID, pulumi.ID(node.ID), nil, pulumi.Provider(m.provider))
+	existed, err := corev1.GetNode(m.ctx.Context(), node.ID, pulumi.ID(node.ID), nil, pulumi.Provider(m.provider))
 	if err != nil {
 		return err
 	}
 
 	// Create NodePatch
-	taints, err := corev1.NewNodePatch(m.ctx, fmt.Sprintf("taints-%s", node.ID), &corev1.NodePatchArgs{
+	taints, err := corev1.NewNodePatch(m.ctx.Context(), fmt.Sprintf("taints-%s", node.ID), &corev1.NodePatchArgs{
 		Metadata: &metav1.ObjectMetaPatchArgs{
 			Name: pulumi.String(node.ID),
 			Annotations: pulumi.StringMap{
@@ -75,7 +75,7 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 				},
 			).(corev1.TaintPatchArrayOutput),
 		},
-	}, pulumi.Provider(m.provider))
+	}, append(m.ctx.Options(), pulumi.Provider(m.provider))...)
 	if err != nil {
 		return err
 	}

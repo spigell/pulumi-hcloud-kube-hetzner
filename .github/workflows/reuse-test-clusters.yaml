@@ -35,7 +35,6 @@ jobs:
       PULUMI_CONFIG_SOURCE: ${{ inputs.pulumi-config-source }}
     steps:
       - uses: actions/checkout@v3
-      - run: whoami && env && echo $PATH && echo $HOME
       - uses: ./.github/actions/prepare-pulumi
         name: Prepare pulumi environment
         with:

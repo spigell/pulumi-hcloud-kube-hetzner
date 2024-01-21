@@ -21,8 +21,8 @@ const (
 	envConfigPath   = "PULUMI_STACK_CONFIG"
 
 	exampleK3SPrivateNonHASimple   = "k3s-private-non-ha-simple"
-	exampleK3SPrivateNonHaFwRules       = "k3s-private-non-ha-firewall-rules"
-	exampleK3SPrivateHANoTaints         = "k3s-private-ha-no-taints"
+	exampleK3SPrivateNonHaFwRules  = "k3s-private-non-ha-firewall-rules"
+	exampleK3SPrivateHANoTaints    = "k3s-private-ha-no-taints"
 	exampleK3SPublicNonHADefaults  = "k3s-public-non-ha-with-defaults"
 	exampleK3SPublicHAKubeAddons   = "k3s-public-ha-kube-addons"
 	exampleK3SPrivateNonHAUpgrader = "k3s-private-non-ha-upgrader"

@@ -8,10 +8,10 @@ import (
 )
 
 func (h *Hetzner) NewSSHKey(key pulumi.StringOutput) (*hcloud.SshKey, error) {
-	sshPublicKey, err := hcloud.NewSshKey(h.ctx, "ssh-key", &hcloud.SshKeyArgs{
-		Name:      pulumi.String(fmt.Sprintf("%s-%s", h.ctx.Project(), h.ctx.Stack())),
+	sshPublicKey, err := hcloud.NewSshKey(h.ctx.Context(), "ssh-key", &hcloud.SshKeyArgs{
+		Name:      pulumi.String(fmt.Sprintf("%s-%s", h.ctx.Context().Project(), h.ctx.Context().Stack())),
 		PublicKey: key,
-	}, h.pulumiOpts...)
+	}, h.ctx.Options()...)
 
 	if err != nil {
 		return nil, err

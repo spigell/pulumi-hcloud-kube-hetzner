@@ -7,11 +7,12 @@ import (
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	remotefile "github.com/spigell/pulumi-file/sdk/go/file/remote"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 )
 
-func (k *K3S) configure(ctx *pulumi.Context, con *connection.Connection, config pulumi.StringOutput, deps []pulumi.Resource) ([]pulumi.Resource, error) {
+func (k *K3S) configure(ctx *program.Context, con *connection.Connection, config pulumi.StringOutput, deps []pulumi.Resource) ([]pulumi.Resource, error) {
 	svcName := "k3s"
 	if k.role == variables.AgentRole {
 		svcName = "k3s-agent"
@@ -19,21 +20,21 @@ func (k *K3S) configure(ctx *pulumi.Context, con *connection.Connection, config 
 
 	result := make([]pulumi.Resource, 0)
 
-	deployed, err := remotefile.NewFile(ctx, fmt.Sprintf("k3s-configure-%s", k.ID), &remotefile.FileArgs{
+	deployed, err := remotefile.NewFile(ctx.Context(), fmt.Sprintf("configure-k3s-for-%s", k.ID), &remotefile.FileArgs{
 		Connection:  con.RemoteFile(),
 		UseSudo:     pulumi.Bool(true),
 		Path:        pulumi.String(cfgPath),
 		Content:     pulumi.ToSecret(config).(pulumi.StringOutput),
 		SftpPath:    pulumi.String(k.OS.SFTPServerPath()),
 		Permissions: pulumi.String("664"),
-	}, pulumi.DependsOn(deps), pulumi.RetainOnDelete(true))
+	}, append(ctx.Options(), pulumi.DependsOn(deps), pulumi.RetainOnDelete(true))...)
 	if err != nil {
 		return nil, err
 	}
 
 	result = append(result, deployed)
 
-        // UPD: This logic is not required right now since there is no wireguard layer.
+	// UPD: This logic is not required right now since there is no wireguard layer.
 	// Flannel iface is based on kubewg0 iface directly (wg mode), so flannel.0 disapered after wg restart.
 	// We need to maintain k3s restart with wireguard network interface.
 	// K3S config based on WG config, but sometimes it is not enough to restart k3s service because config can be the same.
@@ -73,14 +74,14 @@ func (k *K3S) configure(ctx *pulumi.Context, con *connection.Connection, config 
 		"echo 'systemctl status command returned' $? exit code",
 	}, " && "), svcName, svcName, svcName)
 
-	restared, err := remote.NewCommand(ctx, fmt.Sprintf("k3s-restart-%s", k.ID), &remote.CommandArgs{
+	restared, err := remote.NewCommand(ctx.Context(), fmt.Sprintf("restart-k3s-service-for-%s", k.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     restartCommand,
 		Triggers:   triggers,
-	}, pulumi.DependsOn(result),
+	}, append(ctx.Options(), pulumi.DependsOn(result),
 		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m"}),
 		pulumi.DeleteBeforeReplace(false),
-	)
+	)...)
 	if err != nil {
 		return nil, err
 	}

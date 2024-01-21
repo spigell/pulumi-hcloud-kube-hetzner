@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 
 	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes"
@@ -13,7 +14,7 @@ import (
 )
 
 type ClusterManager struct {
-	ctx      *pulumi.Context
+	ctx      *program.Context
 	provider *kubernetes.Provider
 
 	nodes     map[string]*Node
@@ -28,7 +29,7 @@ type Node struct {
 	Labels []string
 }
 
-func New(ctx *pulumi.Context, nodes map[string]*Node) *ClusterManager {
+func New(ctx *program.Context, nodes map[string]*Node) *ClusterManager {
 	return &ClusterManager{
 		ctx:       ctx,
 		nodes:     nodes,
@@ -52,7 +53,7 @@ func (m *ClusterManager) ManageNodes(provider *kubernetes.Provider) error {
 			return err
 		}
 
-		labels, err := corev1.NewNodePatch(m.ctx, fmt.Sprintf("labels-%s", node.ID), &corev1.NodePatchArgs{
+		labels, err := corev1.NewNodePatch(m.ctx.Context(), fmt.Sprintf("labels-%s", node.ID), &corev1.NodePatchArgs{
 			Metadata: &metav1.ObjectMetaPatchArgs{
 				Name: pulumi.String(node.ID),
 				Annotations: pulumi.StringMap{
@@ -60,7 +61,7 @@ func (m *ClusterManager) ManageNodes(provider *kubernetes.Provider) error {
 				},
 				Labels: utils.ToPulumiMap(node.Labels, "="),
 			},
-		}, pulumi.Provider(provider))
+		}, append(m.ctx.Options(), pulumi.Provider(provider))...)
 		if err != nil {
 			return err
 		}

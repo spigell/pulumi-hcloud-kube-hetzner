@@ -16,13 +16,15 @@ Please install following tools:
 You need to have a Hetzner Cloud account. You can sign up for free [here](https://hetzner.com/cloud/).
 
 ### Usage
-#### TL;DR
+#### TL;DR (Typescript)
 ```
 $ export HCLOUD_TOKEN=<your token>
-$ pulumi new -g https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/pulumi-template pulumi-hcloud-kube-hetzner
+$ make pulumi-hcloud-kube-hetzner
 $ cd pulumi-hcloud-kube-hetzner
+$ pulumi new -g https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/pulumi-template/typescript
 $ make microos
-$ make pulumi-config
+$ make pulumi-generate-config
+$ yarn install
 $ pulumi up -yf
 ```
 
@@ -50,7 +52,7 @@ If you find any panic (due accessing to a null value or like that), please creat
 ### Nodepools and Nodes
 Adding or Deleting nodepools/nodes are supported with several limitation.
 
-Due the nature of non-statefull ip allocation for **internal** Hetzner network, we must ensure to keep order of all nodepools and nodes. All nodes and nodepools are sorted alphabetical in `compilation` stage. Thus, changing order in configuration file does not affect on cluster. However, adding or deleting nodepools/nodes can change order. So, when planning new cluster, please consider naming convention for nodes and nodepools. For example, you can use digit prefix like `01-control-plane-nodepool`. For deleting node, it is recomended to add property `deleted: true` for nodepool and node instead of removing them from configuration file. Remember, this only affects internal network. Wireguard network and public Hetzner ips are statefull and do not depend on order.
+Due the nature of non-statefull ip allocation for **internal** Hetzner network, we must ensure to keep order of all nodepools and nodes. All nodes and nodepools are sorted alphabetical in `compilation` stage. Thus, changing order in configuration file does not affect on cluster. However, adding or deleting nodepools/nodes can change order. So, when planning new cluster, please consider naming convention for nodes and nodepools. For example, you can use digit prefix like `01-control-plane-nodepool`. For deleting node, it is recomended to add property `deleted: true` for nodepool and node instead of removing them from configuration file. Remember, this only affects internal network. Public Hetzner ips are statefull and do not depend on order.
 
 ## Development
 ```
@@ -86,16 +88,13 @@ $ make dev-project
 
 ### Bugs
 - [x] Fix taints for master node
-- [x] Use external ip for master wireguard connection always.
 
 ### Non-high
-- [ ] Rewrite wireguard stage
 - [ ] Add autoscaling
 - [x] Add reasonable defaults for variables
 - [ ] Add arm64 support
 - [ ] Allow change config from code
 - [ ] Package stage: reboot if changes detected only
-- [x] Restart k3s if wireguard restarted (!)
 
 ## CI
 - [x] Add linter run for every branch
@@ -103,6 +102,5 @@ $ make dev-project
 - [x] Use pulumi cli instead of actions for up and preview. Collect logs.
 
 ## Tests
-- [x] Add tests for wireguard run (check master connection)
 - [x] Test with multiple servers
 - [x] Test with single node cluster (without leader tag)

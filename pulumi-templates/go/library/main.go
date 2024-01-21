@@ -15,6 +15,11 @@ func main() {
 			return err
 		}
 
-		return cluster.Up()
+		// All values are exported inside of UP fuctions automatically
+		if _, err := cluster.Up(); err != nil {
+			return err
+		}
+
+		return nil
 	})
 }

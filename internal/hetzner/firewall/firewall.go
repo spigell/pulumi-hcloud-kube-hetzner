@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
 )
@@ -43,7 +44,7 @@ func New(config *Config) *Firewall {
 	}
 }
 
-func (f *Firewall) Up(ctx *pulumi.Context, opts []pulumi.ResourceOption, name string) (*Firewall, error) {
+func (f *Firewall) Up(ctx *program.Context, name string) (*Firewall, error) {
 	// f.Config.rules = make([]*Rule, 0)
 	var rules hcloud.FirewallRuleArray
 
@@ -85,10 +86,10 @@ func (f *Firewall) Up(ctx *pulumi.Context, opts []pulumi.ResourceOption, name st
 		rules = append(rules, r)
 	}
 
-	created, err := hcloud.NewFirewall(ctx, name, &hcloud.FirewallArgs{
-		Name:  pulumi.String(fmt.Sprintf("%s-%s-%s", ctx.Project(), ctx.Stack(), name)),
+	created, err := hcloud.NewFirewall(ctx.Context(), name, &hcloud.FirewallArgs{
+		Name:  pulumi.String(fmt.Sprintf("%s-%s-%s", ctx.Context().Project(), ctx.Context().Stack(), name)),
 		Rules: rules,
-	}, opts...)
+	}, ctx.Options()...)
 	if err != nil {
 		return nil, err
 	}
@@ -98,14 +99,14 @@ func (f *Firewall) Up(ctx *pulumi.Context, opts []pulumi.ResourceOption, name st
 	return f, nil
 }
 
-func (f *Firewall) Attach(ctx *pulumi.Context, name string, serverIDs pulumi.IntArray) (*hcloud.FirewallAttachment, error) {
-	created, err := hcloud.NewFirewallAttachment(ctx, name, &hcloud.FirewallAttachmentArgs{
+func (f *Firewall) Attach(ctx *program.Context, name string, serverIDs pulumi.IntArray) (*hcloud.FirewallAttachment, error) {
+	created, err := hcloud.NewFirewallAttachment(ctx.Context(), name, &hcloud.FirewallAttachmentArgs{
 		//nolint: gocritic // this is the only way to convert string to int
 		FirewallId: f.firewall.ID().ToStringOutput().ApplyT(func(id string) (int, error) {
 			return strconv.Atoi(id)
 		}).(pulumi.IntOutput),
 		ServerIds: serverIDs,
-	})
+	}, ctx.Options()...)
 	if err != nil {
 		return nil, err
 	}

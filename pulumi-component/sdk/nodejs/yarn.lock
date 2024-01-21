@@ -185,9 +185,9 @@
   integrity sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw==
 
 "@pulumi/pulumi@^3.42.0":
-  version "3.101.1"
-  resolved "https://registry.yarnpkg.com/@pulumi/pulumi/-/pulumi-3.101.1.tgz#5e9bad99faaeed636b89a0726a20c151fa53bd9d"
-  integrity sha512-Jfes7XCjFjB0kqetqP1nYEMog9ghtilPKiyl6KyS+hvSZ55X9Sffa3St545ZDC5GpHrevCT7KgHuScS40q3nKQ==
+  version "3.102.0"
+  resolved "https://registry.yarnpkg.com/@pulumi/pulumi/-/pulumi-3.102.0.tgz#9beb88f23aba8584d62e00a36a406af2b8437888"
+  integrity sha512-BWrIOqS9Vg4pYY6/pDzDwYM0o9cu1EY7ajcrjKWbPn/EcO0DIQKvItcNLl7QUprfHjpepsfLdyXKi0KlH0jj1g==
   dependencies:
     "@grpc/grpc-js" "1.9.6"
     "@logdna/tail-file" "^2.0.6"
@@ -227,16 +227,16 @@
   integrity sha512-40um9QqwHjRS92qnOaDpL7RmDK15NuZYo9HihiJRbYkMQZlWnuH8AdvbMy8/o6lgLmKbDUKa+OALCltHdbOTpQ==
 
 "@types/node@>=12.12.47", "@types/node@>=13.7.0":
-  version "20.11.4"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.4.tgz#c724a5d6723182af758b91b994209336f4439cb7"
-  integrity sha512-6I0fMH8Aoy2lOejL3s4LhyIYX34DPwY8bl5xlNjBvUEk8OHrcuzsFt+Ied4LvJihbtXPM+8zUqdydfIti86v9g==
+  version "20.11.5"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-20.11.5.tgz#be10c622ca7fcaa3cf226cf80166abc31389d86e"
+  integrity sha512-g557vgQjUUfN76MZAN/dt1z3dzcUsimuysco0KeluHgrPdJXkP/XdAURgyO2W9fZWHRtRBiVKzKn8vyOAwlG+w==
   dependencies:
     undici-types "~5.26.4"
 
-"@types/node@^14":
-  version "14.18.63"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-14.18.63.tgz#1788fa8da838dbb5f9ea994b834278205db6ca2b"
-  integrity sha512-fAtCfv4jJg+ExtXhvCkCqUKZ+4ok/JQk01qDKhL5BDDoS3AxKXhV5/MAVUZyQnSEd2GT92fkgZl0pz0Q0AzcIQ==
+"@types/node@^16":
+  version "16.18.73"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-16.18.73.tgz#cbbbff4c3e85020e042e65a2a836e1d1d5bfad06"
+  integrity sha512-GaTgwUNzESSlX9uhTX2RQcwj2KBf/Wda+52TTtuMpgzR2Rvw7NNypQ8BJdc5Wk6osxZHcUZAKip5PtqWsUl31Q==
 
 ansi-regex@^5.0.1:
   version "5.0.1"
@@ -1009,9 +1009,9 @@ pkg-dir@^7.0.0:
     find-up "^6.3.0"
 
 protobufjs@^7.2.4:
-  version "7.2.5"
-  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-7.2.5.tgz#45d5c57387a6d29a17aab6846dcc283f9b8e7f2d"
-  integrity sha512-gGXRSXvxQ7UiPgfw8gevrfRWcTlSbOFg+p/N+JVJEK5VhueL2miT6qTymqAmjr1Q5WbOCyJbyrk6JfWKwlFn6A==
+  version "7.2.6"
+  resolved "https://registry.yarnpkg.com/protobufjs/-/protobufjs-7.2.6.tgz#4a0ccd79eb292717aacf07530a07e0ed20278215"
+  integrity sha512-dgJaEDDL6x8ASUZ1YqWciTRrdOuYNzoOf27oHNfdyvKqHr5i0FV7FSLU+aIeFjyFgVxrpTOtQUi0BLLBymZaBw==
   dependencies:
     "@protobufjs/aspromise" "^1.1.2"
     "@protobufjs/base64" "^1.1.2"

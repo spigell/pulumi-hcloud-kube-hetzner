@@ -22,6 +22,18 @@ export class Cluster extends pulumi.ComponentResource {
         return obj['__pulumiType'] === Cluster.__pulumiType;
     }
 
+    /**
+     * The kubeconfig for the cluster.
+     */
+    public /*out*/ readonly kubeconfig!: pulumi.Output<string>;
+    /**
+     * The private key for nodes
+     */
+    public /*out*/ readonly privatekey!: pulumi.Output<string>;
+    /**
+     * The servers for the cluster.
+     */
+    public /*out*/ readonly servers!: pulumi.Output<{[key: string]: string}[]>;
 
     /**
      * Create a Cluster resource with the given unique name, arguments, and options.
@@ -34,9 +46,17 @@ export class Cluster extends pulumi.ComponentResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
+            resourceInputs["kubeconfig"] = undefined /*out*/;
+            resourceInputs["privatekey"] = undefined /*out*/;
+            resourceInputs["servers"] = undefined /*out*/;
         } else {
+            resourceInputs["kubeconfig"] = undefined /*out*/;
+            resourceInputs["privatekey"] = undefined /*out*/;
+            resourceInputs["servers"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
+        const secretOpts = { additionalSecretOutputs: ["kubeconfig", "privatekey"] };
+        opts = pulumi.mergeOptions(opts, secretOpts);
         super(Cluster.__pulumiType, name, resourceInputs, opts, true /*remote*/);
     }
 }

@@ -48,7 +48,10 @@ runs:
         workflow_conclusion: ""
       if: ${{ inputs.template != 'go/library' }}
     - name: Add component to pulumi plugin directory
-      run: mv -v pulumi-component-* hcloud-kube-hetzner && pulumi plugin install resource hcloud-kube-hetzner 0.0.1 -f hcloud-kube-hetzner
+      run: |
+        mv -v pulumi-component-* hcloud-kube-hetzner && \ 
+        chmod +x hcloud-kube-hetzner && \
+        pulumi plugin install resource hcloud-kube-hetzner 0.0.1 -f hcloud-kube-hetzner
       shell: bash
       if: ${{ inputs.template != 'go/library' }}
     - run: echo $PATH

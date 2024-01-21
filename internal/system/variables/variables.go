@@ -8,7 +8,6 @@ const (
 	// Name of interfaces.
 	PublicIface  = "eth0"
 	PrivateIface = "eth1"
-	WGIface      = "kubewg0"
 	// Name of modules.
 	K3s  = "k3s"
 	SSHD = "sshd"
