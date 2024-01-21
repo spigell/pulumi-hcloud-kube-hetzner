@@ -28,6 +28,11 @@ runs:
         cache: false
         go-version-file: go.mod
       if: startsWith(inputs.template, 'go')
+    - name: Setup Node LTS
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18
+      if: startsWith(inputs.template, 'typescript')
     - name: Wait for builds
       uses: lewagon/wait-on-check-action@v1.3.1
       with:
@@ -62,7 +67,13 @@ runs:
         TEMPLATE: ${{ inputs.template }}
       shell: bash
       if: startsWith(inputs.template, 'go')
-    - name: Downloading dependencies 📦
+    - name: Create a temporary Pulumi project
+      run: make test-ts-project
+      env:
+        TEMPLATE: ${{ inputs.template }}
+      shell: bash
+      if: startsWith(inputs.template, 'typescript')
+    - name: Downloading GO dependencies 📦
       if: ${{ ! inputs.disable-go-deps }} && startsWith(inputs.template, 'go')
       shell: bash
       run: go mod download
