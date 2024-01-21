@@ -11,9 +11,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-var (
-	pollingInterval = 2 * time.Second
-)
+var pollingInterval = 2 * time.Second
 
 func main() {
 	addr := os.Args[1]
@@ -24,17 +22,10 @@ func main() {
 		addr = fmt.Sprintf("%s:22", addr)
 	}
 
-
-//	privateKey, err := os.ReadFile(privateKeyPath)
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-
 	signer, err := ssh.ParsePrivateKey([]byte(privateKey))
 	if err != nil {
 		log.Fatal(err)
 	}
-
 
 	for {
 		time.Sleep(pollingInterval)
@@ -44,10 +35,9 @@ func main() {
 			Auth: []ssh.AuthMethod{
 				ssh.PublicKeys(signer),
 			},
-			HostKeyCallback: ssh.InsecureIgnoreHostKey(),
-			Timeout: 1 * time.Second,
+			HostKeyCallback: ssh.InsecureIgnoreHostKey(), //nolint: gosec
+			Timeout:         1 * time.Second,
 		})
-
 		if err != nil {
 			// SSH connection failed, indicating the server might still be rebooting
 			fmt.Printf("SSH connection failed: %s, waiting... \n", err.Error())
@@ -72,7 +62,6 @@ func main() {
 		if rebooted(output) {
 			fmt.Println("Server rebooted and accessible via SSH")
 			break
-
 		}
 
 		fmt.Println("Server is not yet rebooted, waiting...")
@@ -84,8 +73,7 @@ func rebooted(output []byte) bool {
 	// 84.03 153.29
 	// Let's just check if the first value is less than 180 (3 min)
 	sec := strings.Split(strings.Split(string(output), " ")[0], ".")[0]
-	i, err  := strconv.Atoi(sec)
-
+	i, err := strconv.Atoi(sec)
 	if err != nil {
 		log.Fatal(err)
 	}

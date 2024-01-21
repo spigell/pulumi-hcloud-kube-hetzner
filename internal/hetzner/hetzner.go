@@ -21,12 +21,11 @@ import (
 var ErrFirewallDisabled = errors.New("firewall is disabled")
 
 type Hetzner struct {
-	ctx        *program.Context
-	pulumiOpts []pulumi.ResourceOption
-	Servers    map[string]*config.Node
-	Firewalls  map[string]*firewall.Config
-	Pools      map[string][]string
-	Network    *network.Network
+	ctx       *program.Context
+	Servers   map[string]*config.Node
+	Firewalls map[string]*firewall.Config
+	Pools     map[string][]string
+	Network   *network.Network
 }
 
 type Deployed struct {
@@ -176,14 +175,13 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 	firewallsByNodepool := make(map[string]pulumi.IntArray)
 
 	key, err := h.NewSSHKey(keys.PublicKey())
-
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ssh key: %w", err)
 	}
 
 	var net *network.Deployed
 	if h.Network.Config.Enabled {
-		net, err = h.Network.Up(h.pulumiOpts)
+		net, err = h.Network.Up()
 		if err != nil {
 			return nil, fmt.Errorf("failed to configure the network: %w", err)
 		}
@@ -284,7 +282,7 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 
 	// Create a global firewall to allow communication between all nodes
 	if len(interFw.Ids) != 0 {
-		if err := interFw.Up(h.ctx, h.pulumiOpts); err != nil {
+		if err := interFw.Up(h.ctx); err != nil {
 			return nil, fmt.Errorf("failed to create a interconnect firewall for nodes: %w", err)
 		}
 	}

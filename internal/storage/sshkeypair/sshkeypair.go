@@ -31,7 +31,6 @@ func New(ctx *program.Context) (*KeyPair, error) {
 func (s *KeyPair) PublicKey() pulumi.StringOutput {
 	return s.storage.Get().ApplyT(func(value string) (string, error) {
 		pair, err := unmarshal(value)
-
 		if err != nil {
 			return "", err
 		}
@@ -43,7 +42,6 @@ func (s *KeyPair) PublicKey() pulumi.StringOutput {
 func (s *KeyPair) PrivateKey() pulumi.StringOutput {
 	return s.storage.Get().ApplyT(func(value string) (string, error) {
 		pair, err := unmarshal(value)
-
 		if err != nil {
 			return "", err
 		}

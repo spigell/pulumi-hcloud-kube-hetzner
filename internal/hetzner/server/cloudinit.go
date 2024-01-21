@@ -27,8 +27,6 @@ type CloudConfig struct {
 	// This is internal field for storing pulumi input
 	Inputs *CloudConfigPulumiInputs `yaml:"-"`
 }
-
-
 type CloudConfigWriteFile struct {
 	Content     string
 	Path        string

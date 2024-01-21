@@ -85,7 +85,6 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 // compile creates the plan of infrastructure and required steps.
 // This need to be refactored.
 func compile(ctx *program.Context, config *config.Config) (*Compiled, error) { // //lint: gocognit,gocyclo,
-
 	nodes, err := config.Nodes()
 	if err != nil {
 		return nil, err
@@ -148,7 +147,6 @@ func compile(ctx *program.Context, config *config.Config) (*Compiled, error) { /
 	}
 
 	// The first node is always leader
-	//nolint: gosec // G602
 	s[0].MarkAsLeader()
 
 	compiled.SysCluster = s

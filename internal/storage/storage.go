@@ -13,7 +13,6 @@ type Storage struct {
 	oneTime bool
 	opts    []pulumi.ResourceOption
 	output  *pulumi.StringOutput
-	secret bool
 
 	Name    string
 	Payload any
@@ -52,7 +51,6 @@ func (s *Storage) Store(ctx *program.Context) error {
 	out, err := local.NewCommand(ctx.Context(), s.Name, &local.CommandArgs{
 		Create: pulumi.ToSecret(pulumi.Sprintf("echo %s", encoded)).(pulumi.StringOutput),
 	}, s.opts...)
-
 	if err != nil {
 		return err
 	}
@@ -65,12 +63,10 @@ func (s *Storage) Store(ctx *program.Context) error {
 func (s *Storage) Get() pulumi.StringOutput {
 	return s.output.ApplyT(func(keys string) (string, error) {
 		decoded, err := base64.StdEncoding.DecodeString(keys)
-
 		if err != nil {
 			return "", nil
 		}
 
 		return string(decoded), nil
-
 	}).(pulumi.StringOutput)
 }

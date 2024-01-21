@@ -151,7 +151,7 @@ func (n *Network) PickSubnet(id string, from string) error {
 	return nil
 }
 
-func (n *Network) Up(opts []pulumi.ResourceOption) (*Deployed, error) {
+func (n *Network) Up() (*Deployed, error) {
 	net, err := hcloud.NewNetwork(n.ctx.Context(), fmt.Sprintf("%s-%s", n.ctx.Context().Project(), n.ctx.Context().Stack()), &hcloud.NetworkArgs{
 		IpRange: pulumi.String(n.Config.CIDR),
 		Name:    pulumi.String(fmt.Sprintf("%s-%s", n.ctx.Context().Project(), n.ctx.Context().Stack())),
