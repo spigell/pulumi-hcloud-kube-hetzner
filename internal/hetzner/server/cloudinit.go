@@ -26,7 +26,6 @@ type CloudConfig struct {
 	RunCMD     []string                `yaml:"runcmd,omitempty"`
 	// This is internal field for storing pulumi input
 	Inputs *CloudConfigPulumiInputs `yaml:"-"`
-//	SystemInfo *SystemInfo `yaml:"system_info"`
 }
 
 
