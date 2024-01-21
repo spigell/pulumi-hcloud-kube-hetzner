@@ -49,10 +49,12 @@ runs:
       if: ${{ inputs.template != 'go/library' }}
     - name: Add component to pulumi plugin directory
       run: |
-        mv -v pulumi-component-* hcloud-kube-hetzner && chmod +x hcloud-kube-hetzner && pulumi plugin install resource hcloud-kube-hetzner 0.0.1 -f hcloud-kube-hetzner
+        mv -v pulumi-component-* hcloud-kube-hetzner \
+        chmod +x hcloud-kube-hetzner \
+        pulumi plugin install resource hcloud-kube-hetzner 0.0.1 -f hcloud-kube-hetzner
       shell: bash
       if: ${{ inputs.template != 'go/library' }}
-    - run: echo $PATH
+    - run: stat /home/runner/.pulumi/plugins/resource-hcloud-kube-hetzner-v0.0.1/pulumi-resource-hcloud-kube-hetzner
       shell: bash
     - name: Create a temporary Pulumi project
       run: make test-go-project
