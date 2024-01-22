@@ -54,7 +54,7 @@ runs:
       if: ${{ inputs.template != 'go/library' }}
     - name: Add component to pulumi plugin directory
       run: |
-        mv -v pulumi-component-* hcloud-kube-hetzner && \
+        mv -v pulumi-component-*/pulumi-resource-hcloud-kube-hetzner hcloud-kube-hetzner && \
         chmod +x hcloud-kube-hetzner && \
         stat hcloud-kube-hetzner && \
         pulumi plugin install resource hcloud-kube-hetzner 0.0.1 -f hcloud-kube-hetzner

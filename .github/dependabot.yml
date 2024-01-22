@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: daily
   - package-ecosystem: gomod
-    directory: /pulumi-component
+    directory: /pulumi-component/provider
     target-branch: preview
     schedule:
       interval: daily

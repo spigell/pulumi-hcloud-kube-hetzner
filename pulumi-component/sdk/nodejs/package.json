@@ -1,6 +1,6 @@
 {
     "name": "@spigell/hcloud-kube-hetzner",
-    "version": "v0.0.1-alpha.1705853768+052f0160.dirty",
+    "version": "v0.0.1-alpha.1705855465+992173fb.dirty",
     "keywords": [
         "pulumi",
         "kubernetes",

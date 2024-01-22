@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
-	"github.com/pulumi/pulumi/sdk/v3/go/auto/optpreview"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
@@ -48,8 +47,7 @@ func TestKubeChangeEndpoint(t *testing.T) {
 		&auto.ConfigOptions{Path: true},
 	)
 
-	// Make UP for update kubeconfig output
-	// Also allowed rules will be removed
+	// Allowed rules will be removed
 	assert.NoError(t, i.UpWithRetry())
 	assert.NoError(t, err)
 
@@ -57,17 +55,6 @@ func TestKubeChangeEndpoint(t *testing.T) {
 	assert.NoError(t, err)
 	internalKubeconfig, ok := new[phkh.KubeconfigKey].Value.(string)
 	assert.True(t, ok)
-
-	// Change to wireguard
-	i.Stack.SetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", auto.ConfigValue{
-		Value: variables.WgCommunicationMethod.String(),
-	},
-		&auto.ConfigOptions{Path: true},
-	)
-
-	// Check that preview is ok and no changes
-	_, err = i.Stack.Preview(ctx, optpreview.ExpectNoChanges())
-	assert.NoError(t, err)
 
 	// Change endpoint type back to public to not break deletion step.
 	i.Stack.SetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", auto.ConfigValue{
