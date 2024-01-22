@@ -13,7 +13,7 @@ import (
 
 func (m *MicroOS) WaitForCloudInit(ctx *program.Context, con *connection.Connection) error {
 	// There is always error
-	cmd := "cloud-init status -l --wait 1>/dev/null || echo 'skip error since cloud-init status always returns error now. TO DO: see https://github.com/lima-vm/lima/issues/1496"
+	cmd := "cloud-init status -l --wait 1>/dev/null || echo 'skip error since cloud-init status always returns error now. TO DO: see https://github.com/lima-vm/lima/issues/1496'"
 
 	opts := []pulumi.ResourceOption{
 		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "5m", Update: "5m"}),
