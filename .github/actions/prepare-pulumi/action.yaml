@@ -60,8 +60,6 @@ runs:
         pulumi plugin install resource hcloud-kube-hetzner 0.0.1 -f hcloud-kube-hetzner
       shell: bash
       if: ${{ inputs.template != 'go/library' }}
-    - run: stat /home/runner/.pulumi/plugins/resource-hcloud-kube-hetzner-v0.0.1/pulumi-resource-hcloud-kube-hetzner
-      shell: bash
     - name: Create a temporary Pulumi project
       run: make test-go-project
       env:
