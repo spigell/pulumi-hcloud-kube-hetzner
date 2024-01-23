@@ -71,7 +71,6 @@ jobs:
   main-integration-tests:
     needs:
       - deploy
-      - reachability-tests
     name: Main Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
