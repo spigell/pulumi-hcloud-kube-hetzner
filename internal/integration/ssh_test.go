@@ -36,22 +36,20 @@ func TestSSHConnectivity(t *testing.T) {
 	privatekey, ok := out[phkh.PrivatekeyKey].(string)
 	assert.True(t, ok)
 
-	nodes, ok := out[phkh.HetznerServersKey].(map[string]interface{})
+	nodes, ok := out[phkh.HetznerServersKey].([]map[string]interface{})
 	assert.True(t, ok)
 
 	for _, node := range nodes {
-		n := node.(map[string]interface{})
-
-		ip, ok := n["ip"].(string)
+		ip, ok := node["ip"].(string)
 		assert.True(t, ok)
 		assert.NotEmpty(t, ip)
 
-		user, ok := n["user"].(string)
+		user, ok := node["user"].(string)
 		assert.True(t, ok)
 		assert.NotEmpty(t, user)
 
 		// Port is 22 by hardcoded now.
-		err := ssh.SimpleCheck(ip+":22", user, privatekey)
+		err = ssh.SimpleCheck(ip+":22", user, privatekey)
 		assert.NoError(t, err)
 	}
 }
