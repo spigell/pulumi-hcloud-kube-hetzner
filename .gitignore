@@ -18,5 +18,5 @@ build/*
 test-project/*
 bin/
 node_modules
-pulumi-component/schema.go
 yarn.lock
+pulumi-component/provider/cmd/pulumi-resource-hcloud-kube-hetzner/schema.go
