@@ -18,17 +18,17 @@ test-ts-project: clean
 	@mkdir -p test-project
 	@cd test-project && \
 	pulumi new ../pulumi-templates/typescript -g -n pkhk --yes && \
-	yarn link --cwd ../pulumi-component/sdk/nodejs && \
+	yarn link --cwd ../pulumi-component/sdk/nodejs/bin && \
 	sed -i '/\@spigell\/hcloud-kube-hetzner/d' package.json && \
 	yarn link "@spigell/hcloud-kube-hetzner" && \
 	yarn install
 	@echo "Now you can create stack for test project in test-project directory"
 	@echo 'Please use command `pulumi-config PULUMI_CONFIG_SOURCE=/path/to/file` to set config source for the stack'
-	@echo -e "If the list of files: \033[0;31m [main.go, go.mod, go.sum] \033[0m changed, please add the changes in pulumi-template directory"
+	@echo -e "If the list of files: \033[0;31m [index.ts, package.json] \033[0m changed, please add the changes in pulumi-template directory"
 	
 clean:
 	go work edit -dropuse ./test-project || true
-	yarn unlink --cwd pulumi-component/sdk/nodejs || true
+	yarn unlink --cwd pulumi-component/sdk/nodejs/bin || true
 	rm -rf test-project
 
 github-run:

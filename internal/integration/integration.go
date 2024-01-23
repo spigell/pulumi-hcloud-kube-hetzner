@@ -62,6 +62,7 @@ var TestsByExampleName = map[string][]string{
 	},
 	exampleK3SPublicHAKubeAddons: {
 		testSSHConnectivity,
+		testKubeVersion,
 		testKubeHetznerCCM,
 		testNodeChangeLabelsTaints,
 		testKubeK3SUpgradeControllerPlan,
@@ -99,15 +100,13 @@ func New(ctx context.Context) (*Integration, error) {
 
 func (i *Integration) Outputs() (map[string]interface{}, error) {
 	out, err := i.Stack.Outputs(i.ctx)
-
 	if err != nil {
 		return nil, err
 	}
 
 	m, ok := out[phkh.PhkhKey]
 	if !ok {
-		return nil, errors.New("output map is not found. Stack is not deployed")
-
+		return nil, errors.New("output map does not contain `phkh` key")
 	}
 
 	return m.Value.(map[string]interface{}), nil
@@ -116,7 +115,7 @@ func (i *Integration) Outputs() (map[string]interface{}, error) {
 func (i *Integration) Validate() error {
 	_, err := i.Outputs()
 	if err != nil {
-		return fmt.Errorf("failed to get stack outputs: %w", err)
+		return fmt.Errorf("failed to get phkh outputs: %w", err)
 	}
 	_, ok := TestsByExampleName[i.Example.Name]
 	if !ok {

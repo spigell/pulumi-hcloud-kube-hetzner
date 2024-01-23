@@ -68,38 +68,6 @@ jobs:
           name: pulumi-logs-${{ env.PULUMI_STACK }}
           path: "test-project/*.log"
 
-  reachability-tests:
-    needs: deploy
-    name: Reachability Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      PULUMI_STACK: ${{ inputs.pulumi-stack }}
-      PULUMI_CONFIG_SOURCE: ../../${{ inputs.pulumi-config-source }}
-      PULUMI_STACK_CONFIG: ../../test-project/Pulumi.${{ inputs.pulumi-stack }}.yaml
-    steps:
-      - uses: actions/checkout@v3
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        name: Install system dependencies
-        with:
-          packages: wireguard-tools
-      - uses: ./.github/actions/prepare-pulumi
-        name: Prepare pulumi environment
-        with:
-          create-stack: false
-          google-credentials: ${{ secrets.google-credentials }}
-          template: ${{ inputs.template }}
-      - uses: actions/download-artifact@v3
-        with:
-          name: pulumi-configuration-${{ env.PULUMI_STACK }}
-          path: test-project
-      - run: go test -timeout=25m -v -parallel=10 -tags=connectivity,linux
-        name: Run reachability tests
-        working-directory: internal/integration
-        env:
-          HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
-          GITHUB_TOKEN: ${{ secrets.github-token }}
-
   main-integration-tests:
     needs:
       - deploy
@@ -123,7 +91,7 @@ jobs:
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: test-project
-      - run: go test -v -timeout=25m -parallel=10 -tags=kubernetes
+      - run: go test -v -timeout=25m -parallel=10 -tags=kubernetes,connectivity
         name: Run main integration tests
         working-directory: internal/integration
         env:

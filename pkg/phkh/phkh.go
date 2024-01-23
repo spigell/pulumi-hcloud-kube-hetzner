@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	// Name of project
+	// Name of project.
 	PhkhKey = "phkh"
 	// PrivateKeyKey is the key used to export the private key.
 	PrivatekeyKey = "privatekey"
@@ -82,7 +82,7 @@ func (c *PHKH) Up() (*Cluster, error) {
 	}
 
 	outputs := pulumi.Map{
-		PrivatekeyKey: pulumi.ToSecret(keypair.PrivateKey()),
+		PrivatekeyKey:     pulumi.ToSecret(keypair.PrivateKey()),
 		HetznerServersKey: pulumi.ToMapArray(toExportedHetznerServers(cloud)),
 	}
 

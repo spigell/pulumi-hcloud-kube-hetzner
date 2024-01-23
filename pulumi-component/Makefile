@@ -1,7 +1,7 @@
 VERSION         := $(shell pulumictl get version)
 
 PACK            := hcloud-kube-hetzner
-PROJECT         := github.com/spigell/pulumi-${PACK}
+PROJECT         := github.com/spigell/pulumi-${PACK}/pulumi-component
 
 PROVIDER        := pulumi-resource-${PACK}
 CODEGEN         := pulumi-gen-${PACK}
@@ -69,13 +69,12 @@ build_nodejs_sdk:: gen_nodejs_sdk
 		yarn install && \
 		yarn run tsc --version && \
 		yarn run tsc && \
-		cp ../../../README.md . && \
-		sed -i -e "s/\$${VERSION}/$(VERSION)/g" package.json && \
-		sed -i -e "s/\@pulumi\/hcloud-kube-hetzner/\@spigell\/hcloud-kube-hetzner/g" package.json
+		cp ../../../README.md package.json yarn.lock ./bin/ && \
+		sed -i -e "s/\$${VERSION}/$(VERSION)/g" ./bin/package.json
 
 install_nodejs_sdk:: build_nodejs_sdk
 	yarn unlink ${PACK} || true
-	yarn link --cwd ${WORKING_DIR}/sdk/nodejs
+	yarn link --cwd ${WORKING_DIR}/sdk/nodejs/bin
 
 
 # Python SDK
