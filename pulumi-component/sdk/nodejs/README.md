@@ -1,5 +1,5 @@
 ## Pulumi Hcloud Kube Hetzner
-This is a pulumi component plugin for creating Kubernetes clusters in Hetzner Cloud with Pulumi. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It can be used as a golang library as well, tho :)
+This is a pulumi component plugin for creating Kubernetes clusters in Hetzner Cloud with Pulumi. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It can be used as a golang library/module as well, tho :)
 
 ### Features
 - Ability to manage labels and taints!
@@ -55,10 +55,23 @@ Adding or Deleting nodepools/nodes are supported with several limitation.
 Due the nature of non-statefull ip allocation for **internal** Hetzner network, we must ensure to keep order of all nodepools and nodes. All nodes and nodepools are sorted alphabetical in `compilation` stage. Thus, changing order in configuration file does not affect on cluster. However, adding or deleting nodepools/nodes can change order. So, when planning new cluster, please consider naming convention for nodes and nodepools. For example, you can use digit prefix like `01-control-plane-nodepool`. For deleting node, it is recomended to add property `deleted: true` for nodepool and node instead of removing them from configuration file. Remember, this only affects internal network. Public Hetzner ips are statefull and do not depend on order.
 
 ## Development
+### GO
 ```
-$ make dev-project
+$ make test-go-project [TEMPLATE=go/library|go/component]
+$ cd test-component
+$ make pulumi-generate-config [PULUMI_CONFIG_SOURCE=../examples/<EXAMPLE>.yaml]
 ```
 
+For component building:
+```
+$ cd ./pulumi-component
+$ make build && make install_provider # It generates all SDKs and build providers
+$ export PATH=$PATH:~/go/bin
+```
+
+That it. Now you can use all pulumi command like `up` or `pre` with own version of the project.
+
+After changes create a PR to the `preview` branch.
 
 # RoadMap
 ## Documentation

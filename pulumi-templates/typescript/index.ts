@@ -1,3 +1,3 @@
-import * as pkhk from "@spigell/hcloud-kube-hetzner"
+import * as hkh from "@spigell/hcloud-kube-hetzner"
 
-export const cluster = new pkhk.Cluster("my-cluster", {})
+export const phkh = new hkh.Cluster("my-cluster", {})

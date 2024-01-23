@@ -14,6 +14,13 @@ import (
 // Component for creating a Hetzner Cloud Kubernetes cluster.
 type Cluster struct {
 	pulumi.ResourceState
+
+	// The kubeconfig for the cluster.
+	Kubeconfig pulumi.StringOutput `pulumi:"kubeconfig"`
+	// The private key for nodes
+	Privatekey pulumi.StringOutput `pulumi:"privatekey"`
+	// The servers for the cluster.
+	Servers pulumi.StringMapArrayOutput `pulumi:"servers"`
 }
 
 // NewCluster registers a new resource with the given unique name, arguments, and options.
@@ -23,6 +30,11 @@ func NewCluster(ctx *pulumi.Context,
 		args = &ClusterArgs{}
 	}
 
+	secrets := pulumi.AdditionalSecretOutputs([]string{
+		"kubeconfig",
+		"privatekey",
+	})
+	opts = append(opts, secrets)
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource Cluster
 	err := ctx.RegisterRemoteComponentResource("hcloud-kube-hetzner:index:Cluster", name, args, &resource, opts...)
@@ -124,6 +136,21 @@ func (o ClusterOutput) ToClusterOutput() ClusterOutput {
 
 func (o ClusterOutput) ToClusterOutputWithContext(ctx context.Context) ClusterOutput {
 	return o
+}
+
+// The kubeconfig for the cluster.
+func (o ClusterOutput) Kubeconfig() pulumi.StringOutput {
+	return o.ApplyT(func(v *Cluster) pulumi.StringOutput { return v.Kubeconfig }).(pulumi.StringOutput)
+}
+
+// The private key for nodes
+func (o ClusterOutput) Privatekey() pulumi.StringOutput {
+	return o.ApplyT(func(v *Cluster) pulumi.StringOutput { return v.Privatekey }).(pulumi.StringOutput)
+}
+
+// The servers for the cluster.
+func (o ClusterOutput) Servers() pulumi.StringMapArrayOutput {
+	return o.ApplyT(func(v *Cluster) pulumi.StringMapArrayOutput { return v.Servers }).(pulumi.StringMapArrayOutput)
 }
 
 type ClusterArrayOutput struct{ *pulumi.OutputState }

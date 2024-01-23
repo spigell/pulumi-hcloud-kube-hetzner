@@ -55,6 +55,7 @@ jobs:
       pulumi-stack: k3s-wireguard-non-ha-firewall-rules-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-wireguard-non-ha-firewall-rules.yaml
       open-kubeapi-for-public-net: true
+      template: go/component
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -67,6 +68,7 @@ jobs:
     with:
       pulumi-stack: k3s-wireguard-ha-no-taint-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-wireguard-ha-no-taints.yaml
+      template: go/component
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -80,6 +82,7 @@ jobs:
       pulumi-stack: k3s-public-ha-kube-addons-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-public-ha-kube-addons.yaml
       open-kubeapi-for-public-net: true
+      template: typescript
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -92,6 +95,7 @@ jobs:
     with:
       pulumi-stack: k3s-public-non-ha-with-defaults-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-public-non-ha-with-defaults.yaml
+      template: typescript
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}

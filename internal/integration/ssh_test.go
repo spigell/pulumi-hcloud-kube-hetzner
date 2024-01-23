@@ -30,20 +30,16 @@ func TestSSHConnectivity(t *testing.T) {
 		t.Skip()
 	}
 
-	out, err := i.Stack.Outputs(ctx)
-
+	out, err := i.Outputs()
 	assert.NoError(t, err)
 
-	keyPair, ok := out[phkh.PrivateKeyKey]
+	privatekey, ok := out[phkh.PrivatekeyKey].(string)
 	assert.True(t, ok)
 
-	privatekey, ok := keyPair.Value.(map[string]interface{})[phkh.PrivateKeyKey].(string)
+	nodes, ok := out[phkh.HetznerServersKey].(map[string]interface{})
 	assert.True(t, ok)
 
-	nodes, ok := out[phkh.HetznerServersKey]
-	assert.True(t, ok)
-
-	for _, node := range nodes.Value.(map[string]interface{}) {
+	for _, node := range nodes {
 		n := node.(map[string]interface{})
 
 		ip, ok := n["ip"].(string)

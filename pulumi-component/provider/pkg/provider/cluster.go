@@ -72,7 +72,7 @@ func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
 	if err := ctx.RegisterResourceOutputs(c, pulumi.Map{
 		phkh.HetznerServersKey: c.HetznerServers,
 		phkh.KubeconfigKey: pulumi.ToSecret(c.Kubeconfig),
-		phkh.PrivateKeyKey: pulumi.ToSecret(c.Privatekey),
+		phkh.PrivatekeyKey: pulumi.ToSecret(c.Privatekey),
 	}); err != nil {
 		return nil, err
 	}

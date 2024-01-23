@@ -17,8 +17,10 @@ import (
 )
 
 const (
+	// Name of project
+	PhkhKey = "phkh"
 	// PrivateKeyKey is the key used to export the private key.
-	PrivateKeyKey = "privatekey"
+	PrivatekeyKey = "privatekey"
 	// KubeconfigKey is the key used to export the kubeconfig.
 	KubeconfigKey = "kubeconfig"
 	// HetznerServersKey is the key used to export the hetzner servers.
@@ -79,9 +81,14 @@ func (c *PHKH) Up() (*Cluster, error) {
 		return nil, err
 	}
 
+	outputs := pulumi.Map{
+		PrivatekeyKey: pulumi.ToSecret(keypair.PrivateKey()),
+		HetznerServersKey: pulumi.ToMapArray(toExportedHetznerServers(cloud)),
+	}
+
 	switch distr := c.compiled.K8S.Distr(); distr {
 	case k3s.DistrName:
-		c.ctx.Context().Export(KubeconfigKey, pulumi.ToSecret(toExportedKubeconfig(sys.K3s.KubeconfigForExport)))
+		outputs[KubeconfigKey] = pulumi.ToSecret(toExportedKubeconfig(sys.K3s.KubeconfigForExport))
 		err = c.compiled.K8S.Up(sys.K3s.KubeconfigForUsage, sys.Resources)
 
 		if err != nil {
@@ -92,8 +99,7 @@ func (c *PHKH) Up() (*Cluster, error) {
 		return nil, fmt.Errorf("unsupported kubernetes distribution: %s", distr)
 	}
 
-	c.ctx.Context().Export(HetznerServersKey, pulumi.ToMapArray(toExportedHetznerServers(cloud)))
-	c.ctx.Context().Export(PrivateKeyKey, pulumi.ToSecret(keypair.PrivateKey()))
+	c.ctx.Context().Export(PhkhKey, outputs)
 
 	return &Cluster{
 		Servers:    toExportedHetznerServers(cloud),

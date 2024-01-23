@@ -4,6 +4,7 @@ package integration
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/avast/retry-go"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
 )
 
 const (
@@ -95,19 +97,30 @@ func New(ctx context.Context) (*Integration, error) {
 	}, nil
 }
 
-func (i *Integration) Validate() error {
+func (i *Integration) Outputs() (map[string]interface{}, error) {
 	out, err := i.Stack.Outputs(i.ctx)
+
+	if err != nil {
+		return nil, err
+	}
+
+	m, ok := out[phkh.PhkhKey]
+	if !ok {
+		return nil, errors.New("output map is not found. Stack is not deployed")
+
+	}
+
+	return m.Value.(map[string]interface{}), nil
+}
+
+func (i *Integration) Validate() error {
+	_, err := i.Outputs()
 	if err != nil {
 		return fmt.Errorf("failed to get stack outputs: %w", err)
 	}
-
 	_, ok := TestsByExampleName[i.Example.Name]
 	if !ok {
 		return fmt.Errorf("no tests found for example %s", i.Example.Name)
-	}
-
-	if len(out) == 0 {
-		return fmt.Errorf("stack outputs are empty. Stack is not deployed")
 	}
 
 	if os.Getenv(envConfigPath) == "" {

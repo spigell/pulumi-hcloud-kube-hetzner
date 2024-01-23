@@ -30,10 +30,10 @@ func TestKubeChangeEndpoint(t *testing.T) {
 		t.Skip()
 	}
 
-	old, err := i.Stack.Outputs(ctx)
+	old, err := i.Outputs()
 	assert.NoError(t, err)
 
-	publicKubeconfig, ok := old[phkh.KubeconfigKey].Value.(string)
+	publicKubeconfig, ok := old[phkh.KubeconfigKey].(string)
 	assert.True(t, ok)
 
 	val, err := i.Stack.GetConfigWithOptions(ctx, "k8s.kube-api-endpoint.type", &auto.ConfigOptions{Path: true})
