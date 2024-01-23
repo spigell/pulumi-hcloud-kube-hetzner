@@ -9,7 +9,7 @@ jobs:
   unit-tests:
     name: "Release component binary"
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/pulumi-component'
+    if: github.ref == 'refs/heads/feature/pulumi-component'
     steps:
       - uses: actions/checkout@v3
       - name: Setup Go ✨
