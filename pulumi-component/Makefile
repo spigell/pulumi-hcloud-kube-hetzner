@@ -23,9 +23,11 @@ install:: install_provider install_nodejs_sdk
 
 # Provider
 
-build_provider::
-	rm -rf ${WORKING_DIR}/bin/${PROVIDER}
+generate_schema::
 	cd provider/cmd/${PROVIDER} && VERSION=${VERSION} SCHEMA=${SCHEMA_PATH} go generate main.go
+
+build_provider:: generate_schema
+	rm -rf ${WORKING_DIR}/bin/${PROVIDER}
 	cd provider/cmd/${PROVIDER} && go build -o ${WORKING_DIR}/bin/${PROVIDER} -ldflags "-X ${PROJECT}/${VERSION_PATH}=${VERSION}" .
 
 install_provider:: build_provider

@@ -445,6 +445,8 @@ github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0
 github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99/go.mod h1:+xvaSHPENo3jzTjmSVIhMsY5uzDsOF8cjF9fgADAfQY=
 github.com/spigell/pulumi-file/sdk v0.0.0-20231027223840-65de13d29cb4 h1:hd4rwZHxAjP9d1wUCoTmjuIY6I3/C4yTmHXCLZ/2W/s=
 github.com/spigell/pulumi-file/sdk v0.0.0-20231027223840-65de13d29cb4/go.mod h1:99H+Ww/riGFBML1Y26k+0F4ifVtR6VJGRTP8KMkUfX4=
+github.com/spigell/pulumi-file/sdk v0.0.0-20240124083824-da5e49302f10 h1:N5HJyqdZ+ZnN6+4P/dhCeMGfZ4Wf+j5Ddfj0ApeIBVw=
+github.com/spigell/pulumi-file/sdk v0.0.0-20240124083824-da5e49302f10/go.mod h1:99H+Ww/riGFBML1Y26k+0F4ifVtR6VJGRTP8KMkUfX4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/objx v0.5.0 h1:1zr/of2m5FGMsad5YfcqgdqdWrIhu+EBEJRhR1U7z/c=

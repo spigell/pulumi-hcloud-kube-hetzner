@@ -55,6 +55,9 @@ jobs:
           running-workflow-name: "Run tests and linter for all branches"
           repo-token: ${{ github.token }}
           wait-interval: 10
+      - name: Check if pro
+        run: make generate_schema
+        working-directory: pulumi-component
       - name: Release component binary
         uses: goreleaser/goreleaser-action@v4
         with:

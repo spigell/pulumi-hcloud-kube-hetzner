@@ -188,7 +188,7 @@ require (
 	github.com/spf13/viper v1.18.2 // indirect
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99 // indirect
 	github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99 // indirect
-	github.com/spigell/pulumi-file/sdk v0.0.0-20231027223840-65de13d29cb4 // indirect
+	github.com/spigell/pulumi-file/sdk v0.0.0-20240124083824-da5e49302f10 // indirect
 	github.com/stretchr/testify v1.8.4 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/texttheater/golang-levenshtein v1.0.1 // indirect
