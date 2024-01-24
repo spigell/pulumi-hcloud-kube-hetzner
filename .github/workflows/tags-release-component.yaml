@@ -9,7 +9,7 @@ jobs:
   unit-tests:
     name: "Release component binary"
     runs-on: ubuntu-latest
-#    if: github.ref == 'refs/heads/feature/pulumi-component'
+    if: github.event.base_ref == 'refs/heads/feature/pulumi-component'
     steps:
       - name: Dump GitHub context
         env:
@@ -44,14 +44,14 @@ jobs:
       - name: Wait for tests on main
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
-          ref: ${{ github.ref }}
+          ref: main
           running-workflow-name: "The cluster deployment for examples for long-living branches"
           repo-token: ${{ github.token }}
           wait-interval: 10
       - name: Wait unit for tests on main
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
-          ref: ${{ github.ref }}
+          ref: main
           running-workflow-name: "Run tests and linter for all branches"
           repo-token: ${{ github.token }}
           wait-interval: 10

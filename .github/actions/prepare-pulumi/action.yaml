@@ -37,7 +37,7 @@ runs:
       uses: lewagon/wait-on-check-action@v1.3.1
       with:
         ref: ${{ github.ref }}
-        check-name: "Build and save component binary for sha ${{ github.sha }}"
+        check-name: "Build and save component binary"
         repo-token: ${{ github.token }}
         wait-interval: 10
       if: ${{ inputs.template != 'go/library' }}
