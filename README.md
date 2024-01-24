@@ -20,10 +20,11 @@ You need to have a Hetzner Cloud account. You can sign up for free [here](https:
 #### TL;DR (Typescript)
 ```
 $ export HCLOUD_TOKEN=<your token>
-$ make pulumi-hcloud-kube-hetzner
+$ mkdir pulumi-hcloud-kube-hetzner
 $ cd pulumi-hcloud-kube-hetzner
-$ pulumi new -g https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/pulumi-template/typescript
+$ pulumi new -g https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/pulumi-templates/typescript
 $ make microos
+$ make pulumi-init-stack
 $ yarn install
 $ pulumi up -yf
 ```
