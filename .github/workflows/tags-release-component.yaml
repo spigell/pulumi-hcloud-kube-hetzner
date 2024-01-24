@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Install pulumictl
-        uses: jaxxstorm/action-install-gh-release@v1.5.0
+        uses: jaxxstorm/action-install-gh-release@v1.10.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repo: pulumi/pulumictl
