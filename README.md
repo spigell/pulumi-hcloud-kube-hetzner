@@ -12,7 +12,7 @@ Please install following tools:
 - go (version 1.21+)
 - GNU Make
 - packer (only for microos image creation. If you have existing image, you can skip this step)
-- wget
+- curl
 
 You need to have a Hetzner Cloud account. You can sign up for free [here](https://hetzner.com/cloud/).
 
