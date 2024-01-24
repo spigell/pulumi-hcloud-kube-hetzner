@@ -60,6 +60,8 @@ jobs:
         working-directory: pulumi-component
       - name: Release component binary
         uses: goreleaser/goreleaser-action@v4
+        permissions:
+          contents: write
         with:
           distribution: goreleaser
           version: latest
