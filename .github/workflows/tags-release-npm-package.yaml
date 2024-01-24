@@ -1,4 +1,4 @@
-name: The NPM package upload
+name: The NPM package uploading
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   sdk-nodejs-release:
-    name: "Release component binary"
+    name: "Release NodeJS SDK"
     runs-on: ubuntu-latest
     if: github.event.base_ref == 'refs/heads/feature/pulumi-component'
     steps:
