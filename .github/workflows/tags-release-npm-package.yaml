@@ -1,0 +1,33 @@
+name: The NPM package upload
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  sdk-nodejs-release:
+    name: "Release component binary"
+    runs-on: ubuntu-latest
+    if: github.event.base_ref == 'refs/heads/feature/pulumi-component'
+    steps:
+      - name: Wait for tests on main
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: main
+          running-workflow-name: "The cluster deployment for examples for long-living branches"
+          repo-token: ${{ github.token }}
+          wait-interval: 10
+      - name: Wait unit for tests on main
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: main
+          running-workflow-name: "Run tests and linter for all branches"
+          repo-token: ${{ github.token }}
+          wait-interval: 10
+      - name: Publish package to npm
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          package: pulumi-component/sdk/nodejs/bin
+          token: ${{ secrets.NPM_TOKEN }}
+          dry-run: true

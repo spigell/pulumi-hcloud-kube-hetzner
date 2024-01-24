@@ -9,7 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  unit-tests:
+  component-release:
     name: "Release component binary"
     runs-on: ubuntu-latest
     if: github.event.base_ref == 'refs/heads/feature/pulumi-component'
