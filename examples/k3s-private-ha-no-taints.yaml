@@ -1,4 +1,4 @@
-# This is a simple example of HA cluster with internal network and native wireguard cluster.
+# This is a simple example of HA cluster with internal network.
 # It has one main k3s server known as leader and 2 node without taints.
 # It also has an additional worker node.
 

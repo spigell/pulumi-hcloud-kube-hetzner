@@ -31,6 +31,11 @@ runs:
       with:
         node-version: 18
       if: startsWith(inputs.template, 'typescript')
+    - name: Generate nodejs sdk package
+      shell: bash
+      run: make build_nodejs_sdk
+      working-directory: pulumi-component
+      if: startsWith(inputs.template, 'typescript')
     - name: Wait for builds
       uses: lewagon/wait-on-check-action@v1.3.1
       with:

@@ -25,23 +25,23 @@ jobs:
         with:
           cache: false
           go-version-file: pulumi-component/provider/go.mod
-      - name: Wait for tests on main
+      - name: Wait for default cluster tests on main
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: main
-          running-workflow-name: "The cluster deployment for examples for long-living branches"
+          check-name: "The simple private cluster / Main Integration Tests"
           repo-token: ${{ github.token }}
           wait-interval: 10
           allowed-conclusions: success,skipped
-      - name: Wait unit for tests on main
+      - name: Wait unit test on main
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: main
-          running-workflow-name: "Run tests and linter for all branches"
+          check-name: "Run unit tests"
           repo-token: ${{ github.token }}
           wait-interval: 10
           allowed-conclusions: success,skipped
-      - name: Check if pro
+      - name: Generate schema for component
         run: make generate_schema
         working-directory: pulumi-component
       - name: Release component binary

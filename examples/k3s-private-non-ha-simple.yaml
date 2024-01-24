@@ -8,7 +8,7 @@ config:
       cidr: 10.18.0.0/16
   pulumi-hcloud-kube-hetzner:k8s:
     kube-api-endpoint:
-      # public|internal|wireguard
+      # public|internal
       type: public
     addons:
       k3s-upgrade-controller:

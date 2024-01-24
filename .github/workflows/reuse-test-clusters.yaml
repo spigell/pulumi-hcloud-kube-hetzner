@@ -45,7 +45,7 @@ jobs:
         if: inputs.open-kubeapi-for-public-net
         run: pulumi config set --path 'k8s.kube-api-endpoint.firewall.hetzner-public.allowed-ips[0]' 0.0.0.0/0
         working-directory: test-project
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: "test-project/Pulumi.${{ env.PULUMI_STACK }}.yaml"
@@ -63,7 +63,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.github-token }}
       - name: Gather logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pulumi-logs-${{ env.PULUMI_STACK }}
           path: "test-project/*.log"
