@@ -12,7 +12,6 @@ builds:
       - arm64
     goos:
       - darwin
-      - windows
       - linux
     ldflags:
       - -w -s -X github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/pkg/version.Version=${{.Tag}}
