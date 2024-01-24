@@ -25,6 +25,9 @@ jobs:
           running-workflow-name: "Run tests and linter for all branches"
           repo-token: ${{ github.token }}
           wait-interval: 10
+      - name: Generate nodejs sdk package
+        run: make build_nodejs_sdk
+        working-directory: pulumi-component
       - name: Publish package to npm
         uses: JS-DevTools/npm-publish@v3
         with:
