@@ -61,6 +61,5 @@ jobs:
           distribution: goreleaser
           version: latest
           args: release --rm-dist
-          workdir: pulumi-component/provider
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
