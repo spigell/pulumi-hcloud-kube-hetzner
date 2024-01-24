@@ -60,7 +60,7 @@ jobs:
         with:
           distribution: goreleaser
           version: latest
-          args: release --rm-dist -ldflags "-X github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/pkg/version.Version=${{github.ref_name}}"
+          args: release --rm-dist -ldflags
           workdir: pulumi-component/provider
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
