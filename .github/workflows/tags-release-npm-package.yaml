@@ -30,10 +30,10 @@ jobs:
           repo-token: ${{ github.token }}
           wait-interval: 10
           allowed-conclusions: success,skipped
-      - name: Wait unit for tests on main
+      - name: Wait unit tests for on main
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
-          ref: ${{ github.event.base_ref }}
+          ref: main
           check-name: "Run unit tests"
           repo-token: ${{ github.token }}
           wait-interval: 10
