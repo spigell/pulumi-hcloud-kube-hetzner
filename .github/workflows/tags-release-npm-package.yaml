@@ -26,7 +26,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: main
-          running-workflow-name: "The cluster deployment for examples for long-living branches"
+          check-name: "The simple private cluster / Main Integration Tests"
           repo-token: ${{ github.token }}
           wait-interval: 10
           allowed-conclusions: success,skipped
@@ -34,7 +34,7 @@ jobs:
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: ${{ github.event.base_ref }}
-          running-workflow-name: "Run tests and linter for all branches"
+          check-name: "Run unit tests"
           repo-token: ${{ github.token }}
           wait-interval: 10
           allowed-conclusions: success,skipped
@@ -46,4 +46,4 @@ jobs:
         with:
           package: pulumi-component/sdk/nodejs/bin
           token: ${{ secrets.NPM_TOKEN }}
-          dry-run: true
+          dry-run: false
