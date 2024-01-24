@@ -15,7 +15,7 @@ builds:
       - windows
       - linux
     ldflags:
-      - -X github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/pkg/version.Version=${{.Tag}}
+      - -w -s -X github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/pkg/version.Version=${{.Tag}}
     main: ./cmd/pulumi-resource-hcloud-kube-hetzner/
 changelog:
   skip: true
