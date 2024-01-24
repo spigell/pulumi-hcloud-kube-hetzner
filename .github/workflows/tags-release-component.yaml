@@ -32,6 +32,7 @@ jobs:
           running-workflow-name: "The cluster deployment for examples for long-living branches"
           repo-token: ${{ github.token }}
           wait-interval: 10
+          allowed-conclusions: success,skipped
       - name: Wait unit for tests on main
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
@@ -39,6 +40,7 @@ jobs:
           running-workflow-name: "Run tests and linter for all branches"
           repo-token: ${{ github.token }}
           wait-interval: 10
+          allowed-conclusions: success,skipped
       - name: Check if pro
         run: make generate_schema
         working-directory: pulumi-component

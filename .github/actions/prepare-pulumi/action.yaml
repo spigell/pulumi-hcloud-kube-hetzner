@@ -7,9 +7,6 @@ inputs:
   create-stack:
     required: true
     description: "create stack or not"
-  disable-go-deps:
-    required: false
-    description: "disable go cache"
   template:
     required: false
     description: 'source of pulumi template'
@@ -27,7 +24,8 @@ runs:
       with:
         cache: false
         go-version-file: go.mod
-      if: startsWith(inputs.template, 'go')
+      # Go is required now
+      # if: startsWith(inputs.template, 'go')
     - name: Setup Node LTS
       uses: actions/setup-node@v3
       with:
@@ -73,7 +71,7 @@ runs:
       shell: bash
       if: startsWith(inputs.template, 'typescript')
     - name: Downloading GO dependencies 📦
-      if: ${{ ! inputs.disable-go-deps }} && startsWith(inputs.template, 'go')
+      if: startsWith(inputs.template, 'go')
       shell: bash
       run: go mod download
       working-directory: test-project

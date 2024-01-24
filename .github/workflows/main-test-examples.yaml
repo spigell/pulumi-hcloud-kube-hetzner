@@ -53,7 +53,7 @@ jobs:
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-wireguard-non-ha-firewall-rules-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-wireguard-non-ha-firewall-rules.yaml
+      pulumi-config-source: examples/k3s-private-non-ha-firewall-rules.yaml
       open-kubeapi-for-public-net: true
       template: go/component
     secrets:
@@ -67,7 +67,7 @@ jobs:
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-wireguard-ha-no-taint-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-wireguard-ha-no-taints.yaml
+      pulumi-config-source: examples/k3s-private-ha-no-taints.yaml
       template: go/component
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
