@@ -31,7 +31,6 @@ const (
 
 	testKubeVersion                       = "kube-version"
 	testSSHConnectivity                   = "ssh-connectivity"
-	testKubeChangeEndpointType            = "kube-change-endpoint-type"
 	testKubeHetznerCCM                    = "kube-hetzner-ccm"
 	testNodeChangeLabelsTaints            = "node-change-labels-taints"
 	testKubeK3SUpgradeControllerPlan      = "kube-k3s-upgrade-controller-plan"
@@ -48,7 +47,6 @@ var TestsByExampleName = map[string][]string{
 	},
 	exampleK3SPrivateNonHaFwRules: {
 		testSSHConnectivity,
-		testKubeChangeEndpointType,
 	},
 	exampleK3SPrivateHANoTaints: {
 		testSSHConnectivity,

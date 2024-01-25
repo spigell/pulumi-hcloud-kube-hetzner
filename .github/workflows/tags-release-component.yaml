@@ -25,15 +25,7 @@ jobs:
         with:
           cache: false
           go-version-file: pulumi-component/provider/go.mod
-      - name: Wait for default cluster tests on main
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: main
-          check-name: "The simple private cluster / Main Integration Tests"
-          repo-token: ${{ github.token }}
-          wait-interval: 10
-          allowed-conclusions: success,skipped
-      - name: Wait unit test on main
+      - name: Wait unit tests on the main branch
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: main

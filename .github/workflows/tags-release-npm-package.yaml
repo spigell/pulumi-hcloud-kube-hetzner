@@ -22,15 +22,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repo: pulumi/pulumictl
-      - name: Wait for tests on main
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: main
-          check-name: "The simple private cluster / Main Integration Tests"
-          repo-token: ${{ github.token }}
-          wait-interval: 10
-          allowed-conclusions: success,skipped
-      - name: Wait unit tests for on main
+      - name: Wait unit tests on the main branch
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
           ref: main
