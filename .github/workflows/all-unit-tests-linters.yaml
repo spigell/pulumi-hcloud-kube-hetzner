@@ -1,6 +1,8 @@
 name: Run tests and linter for all branches
 on:
   push:
+    tags-ignore:
+      - '**'
 
 jobs:
   unit-tests:

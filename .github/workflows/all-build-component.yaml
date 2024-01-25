@@ -2,6 +2,8 @@ name: The component building
 
 on:
   push:
+    tags-ignore:
+      - '**'
 
 jobs:
   unit-tests:

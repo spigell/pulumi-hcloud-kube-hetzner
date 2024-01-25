@@ -53,7 +53,7 @@ runs:
       uses: dawidd6/action-download-artifact@v3
       with:
         workflow: all-build-component.yaml
-        workflow_conclusion: ""
+        workflow_conclusion: success
       if: ${{ inputs.template != 'go/library' }}
     - name: Add component to pulumi plugin directory
       run: |
