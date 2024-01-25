@@ -15,13 +15,12 @@ import (
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions"
 	distrK3S "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	externalip "github.com/glendc/go-external-ip"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -29,19 +28,20 @@ import (
 )
 
 const (
+	// defaultKube is the default kubernetes distribution.
 	defaultKube = distrK3S.DistrName
 	// This is the only supported kubernetes distribution right now.
 	kube = defaultKube
 )
 
-// Cluster is a collection of Hetzner, System and k8s clusters.
+// Compiled is a collection of Hetzner, System and k8s clusters.
 type Compiled struct {
 	SysCluster system.Cluster
 	Hetzner    *hetzner.Hetzner
 	K8S        *k8s.K8S
 }
 
-func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node) (*Compiled, error) {
+func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Node) (*Compiled, error) {
 	if err := config.Validate(nodes); err != nil {
 		return nil, err
 	}
@@ -84,11 +84,7 @@ func preCompile(ctx *pulumi.Context, config *config.Config, nodes []*config.Node
 
 // compile creates the plan of infrastructure and required steps.
 // This need to be refactored.
-func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *keypair.ECDSAKeyPair) (*Compiled, error) { // //lint: gocognit,gocyclo,
-	// Since token is part of k3s config the easiest method to pass the token to k3s module is via global value.
-	// However, we do not want to expose token to the user in DumpConfig().
-	config.Defaults.Global.K3s.K3S.Token = token
-
+func compile(ctx *program.Context, config *config.Config) (*Compiled, error) { // //lint: gocognit,gocyclo,
 	nodes, err := config.Nodes()
 	if err != nil {
 		return nil, err
@@ -106,31 +102,19 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 
 	s := make(system.Cluster, 0)
 	for _, node := range nodes {
-		fw, err := fwConfig(ctx, compiled, node.ID)
+		fw, err := fwConfig(ctx.Context(), compiled, node.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		sys := system.New(ctx, node.ID, keyPair).WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
+		sys := system.New(ctx, node.ID).WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
 		os := sys.MicroOS()
 
 		// Network type
 		switch {
-		// WG over private network
-		case config.Network.Hetzner.Enabled && config.Network.Wireguard.Enabled:
-			sys.WithCommunicationMethod(variables.WgCommunicationMethod)
-			os.SetupWireguard(config.Network.Wireguard)
-			fwWithWGRUles(fw, config, os.Wireguard(), ip)
-			fwWithSSHRules(fw, node, ip)
 		// Plain private network
 		case config.Network.Hetzner.Enabled:
 			sys.WithCommunicationMethod(variables.InternalCommunicationMethod)
-			fwWithSSHRules(fw, node, ip)
-		// WG over public network
-		case config.Network.Wireguard.Enabled:
-			sys.WithCommunicationMethod(variables.WgCommunicationMethod)
-			os.SetupWireguard(config.Network.Wireguard)
-			fwWithWGRUles(fw, config, os.Wireguard(), ip)
 			fwWithSSHRules(fw, node, ip)
 		// By default use public network
 		default:
@@ -149,9 +133,9 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 					case ccm.Name:
 						// Addon has support for k3s already.
 						// It was validated.
-						configureK3SNodeForHCCM(ctx, sys, addon.(*ccm.CCM), node)
+						configureK3SNodeForHCCM(ctx.Context(), sys, addon.(*ccm.CCM), node)
 					case k3supgrader.Name:
-						configureK3SNodeForK3SUpgrader(ctx, addon.(*k3supgrader.Upgrader), node)
+						configureK3SNodeForK3SUpgrader(ctx.Context(), addon.(*k3supgrader.Upgrader), node)
 					}
 				}
 			}
@@ -163,7 +147,6 @@ func compile(ctx *pulumi.Context, token string, config *config.Config, keyPair *
 	}
 
 	// The first node is always leader
-	//nolint: gosec // G602
 	s[0].MarkAsLeader()
 
 	compiled.SysCluster = s
@@ -200,16 +183,6 @@ func fwConfig(ctx *pulumi.Context, compiled *Compiled, id string) (*firewall.Con
 	return fw, nil
 }
 
-func fwWithWGRUles(fw *firewall.Config, config *config.Config, wg *wireguard.Wireguard, ip net.IP) {
-	if allowedIPs := config.Network.Wireguard.Firewall.Hetzner.AllowedIps; len(allowedIPs) > 0 {
-		fw.AddRules(wg.HetznerRulesWithSources(allowedIPs))
-	}
-
-	if !config.Network.Wireguard.Firewall.Hetzner.DisallowOwnIP {
-		fw.AddRules(wg.HetznerRulesWithSources([]string{ip2Net(ip)}))
-	}
-}
-
 func fwWithSSHRules(fw *firewall.Config, node *config.Node, ip net.IP) {
 	// Add firewall rules for SSH access from my IP
 	if !node.Server.Firewall.Hetzner.SSH.DisallowOwnIP {
@@ -230,7 +203,7 @@ func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.
 	}
 }
 
-func configureOSForK3S(os os.OperationSystem, node *config.Node) {
+func configureOSForK3S(os os.OperatingSystem, node *config.Node) {
 	os.AddK3SModule(node.Role, node.K3s)
 	os.SetupSSHD(&sshd.Config{
 		// TODO: make it discoverable from k3s module
@@ -266,7 +239,7 @@ func configureK3SNodeForK3SUpgrader(ctx *pulumi.Context, addon *k3supgrader.Upgr
 	}
 }
 
-func (c *Compiled) k8sCompile(ctx *pulumi.Context) error {
+func (c *Compiled) k8sCompile(ctx *program.Context) error {
 	var distr distributions.Distribution
 
 	//nolint: gocritic
@@ -281,7 +254,7 @@ func (c *Compiled) k8sCompile(ctx *pulumi.Context) error {
 			//nolint: gocritic
 			switch name := addon.Name(); name {
 			case ccm.Name:
-				configureHCCMForK3S(ctx, c.SysCluster.Leader(), addon.(*ccm.CCM))
+				configureHCCMForK3S(ctx.Context(), c.SysCluster.Leader(), addon.(*ccm.CCM))
 			}
 		}
 	}

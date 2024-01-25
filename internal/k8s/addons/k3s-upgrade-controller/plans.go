@@ -9,6 +9,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	upgradev1 "github.com/spigell/pulumi-hcloud-kube-hetzner/crds/generated/rancher/upgrade/v1"
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 )
 
 const (
@@ -29,7 +30,7 @@ var planEnabledNodeSelector = upgradev1.PlanSpecNodeSelectorMatchExpressionsArra
 	},
 }
 
-func (u *Upgrader) DeployPlans(ctx *pulumi.Context, ns *corev1.Namespace, prov *kubernetes.Provider, deps pulumi.ResourceArrayOutput, nodes map[string]*manager.Node) error {
+func (u *Upgrader) DeployPlans(ctx *program.Context, ns *corev1.Namespace, prov *kubernetes.Provider, deps pulumi.ResourceArrayOutput, nodes map[string]*manager.Node) error {
 	plans := map[string]*upgradev1.PlanSpecArgs{
 		ControlPlanNodesPlanName: {
 			Concurrency:        pulumi.Int(1),
@@ -72,13 +73,17 @@ func (u *Upgrader) DeployPlans(ctx *pulumi.Context, ns *corev1.Namespace, prov *
 
 	for name, spec := range plans {
 		spec = u.specifyVersionAndChannel(spec)
-		if _, err := upgradev1.NewPlan(ctx, name, &upgradev1.PlanArgs{
+		if _, err := upgradev1.NewPlan(ctx.Context(), name, &upgradev1.PlanArgs{
 			Metadata: &metav1.ObjectMetaArgs{
 				Name:      pulumi.String(name),
 				Namespace: ns.Metadata.Name(),
 			},
 			Spec: spec,
-		}, pulumi.Provider(prov), pulumi.DependsOnInputs(deps)); err != nil {
+		}, append(
+			ctx.Options(),
+			pulumi.Provider(prov),
+			pulumi.DependsOnInputs(deps),
+		)...); err != nil {
 			return err
 		}
 	}

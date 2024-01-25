@@ -1,0 +1,31 @@
+name: The component building
+
+on:
+  push:
+
+jobs:
+  unit-tests:
+    name: "Build and save component binary"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Go ✨
+        uses: actions/setup-go@v4
+        with:
+          cache: false
+          go-version-file: go.mod
+      - uses: benjlevesque/short-sha@v2.2
+        id: short-sha
+        with:
+          length: 6
+      - name: Downloading dependencies 📦
+        shell: bash
+        run: go mod download
+      - name: Make provider
+        shell: bash
+        run: make build_provider
+        working-directory: pulumi-component
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pulumi-component-${{ steps.short-sha.outputs.sha }}
+          path: pulumi-component/bin/pulumi-resource-hcloud-kube-hetzner

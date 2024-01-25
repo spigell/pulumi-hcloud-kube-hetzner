@@ -3,13 +3,13 @@ package network
 import (
 	"testing"
 
-	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/seancfoley/ipaddress-go/ipaddr"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/stretchr/testify/require"
 )
 
 func TestPrefixAllocator(t *testing.T) {
-	var ctx *pulumi.Context
+	var ctx *program.Context
 	net := New(ctx, &Config{
 		CIDR: "192.168.0.0/20",
 	})

@@ -31,10 +31,10 @@ func TestK3SUpgradeControllerPlan(t *testing.T) {
 		t.Skip()
 	}
 
-	out, err := i.Stack.Outputs(ctx)
+	out, err := i.Outputs()
 	assert.NoError(t, err)
 
-	kubeconfig, ok := out[phkh.KubeconfigKey].Value.(string)
+	kubeconfig, ok := out[phkh.KubeconfigKey].(string)
 	require.True(t, ok)
 
 	k8s, err := k8s.New(ctx, kubeconfig)
@@ -94,10 +94,10 @@ func TestK3SUpgradeControllerConfigEnv(t *testing.T) {
 		t.Skip()
 	}
 
-	out, err := i.Stack.Outputs(ctx)
+	out, err := i.Outputs()
 	require.NoError(t, err)
 
-	kubeconfig, ok := out[phkh.KubeconfigKey].Value.(string)
+	kubeconfig, ok := out[phkh.KubeconfigKey].(string)
 	require.True(t, ok)
 
 	k8s, err := k8s.New(ctx, kubeconfig)

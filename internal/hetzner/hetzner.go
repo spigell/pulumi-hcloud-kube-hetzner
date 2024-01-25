@@ -9,10 +9,11 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/server"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/sshkeypair"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/keypair"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
@@ -20,7 +21,7 @@ import (
 var ErrFirewallDisabled = errors.New("firewall is disabled")
 
 type Hetzner struct {
-	ctx       *pulumi.Context
+	ctx       *program.Context
 	Servers   map[string]*config.Node
 	Firewalls map[string]*firewall.Config
 	Pools     map[string][]string
@@ -32,13 +33,12 @@ type Deployed struct {
 }
 
 type Server struct {
-	ID            pulumi.IDOutput
-	LocalPassword string
-	InternalIP    string
-	Connection    *connection.Connection
+	ID         pulumi.IDOutput
+	InternalIP string
+	Connection *connection.Connection
 }
 
-func New(ctx *pulumi.Context, nodes []*config.Node) *Hetzner {
+func New(ctx *program.Context, nodes []*config.Node) *Hetzner {
 	servers := make(map[string]*config.Node)
 	firewalls := make(map[string]*firewall.Config)
 
@@ -168,13 +168,13 @@ func (h *Hetzner) FirewallConfigByID(id, pool string) (*firewall.Config, error) 
 
 // Up creates hetzner cloud infrastructure.
 // It must be refactored.
-func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, error) { //nolint: gocognit
+func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: gocognit
 	nodes := make(map[string]*Server)
 	firewalls := make(map[string]*firewall.Firewall)
 	firewallsByNodeRole := make(map[string]pulumi.IntArray)
 	firewallsByNodepool := make(map[string]pulumi.IntArray)
 
-	key, err := h.NewSSHKey(keys.PublicKey)
+	key, err := h.NewSSHKey(keys.PublicKey())
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ssh key: %w", err)
 	}
@@ -206,13 +206,6 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 	for _, id := range utils.SortedMapKeys(h.Servers) {
 		srv := h.Servers[id]
 
-		// if the passwd is given by user, use the password from the config.
-		// Check if we have a password in the state as well since we may have empty state.
-		// Generate a new password if we do not have it in creating stage.
-		if srv.Server.UserPasswd == "" && info.Servers[id] != nil {
-			srv.Server.UserPasswd = info.Servers[id].LocalPassword
-		}
-
 		internalIP, pool := "", h.FindInPools(id)
 		if h.Network.Config.Enabled {
 			internalIP, err = net.Subnets[pool].GetFree()
@@ -231,12 +224,11 @@ func (h *Hetzner) Up(info *Deployed, keys *keypair.ECDSAKeyPair) (*Deployed, err
 			return nil, err
 		}
 		nodes[id] = &Server{
-			ID:            node.Resource.ID(),
-			LocalPassword: node.Password,
-			InternalIP:    internalIP,
+			ID:         node.Resource.ID(),
+			InternalIP: internalIP,
 			Connection: &connection.Connection{
 				IP:         node.Resource.Ipv4Address,
-				PrivateKey: keys.PrivateKey,
+				PrivateKey: keys.PrivateKey(),
 				User:       srv.Server.UserName,
 			},
 		}

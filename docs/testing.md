@@ -9,8 +9,6 @@ Since I am a person from operation world, I prefer integration tests over unit t
 
 The package [integration](../internal/integration) exists to keep all required test suites and scenarios. Some tests requires additional utilites and must be run in linux OS.
 
-- wireguard_test: `wg-quick` cli and passwordless sudo (or run it under root);
-
 #### Examples
 There are examples in [examples](../pulumi-template/examples) directory. Most of them used in GithubActions and tested for almost every commit to `main` branch.
 

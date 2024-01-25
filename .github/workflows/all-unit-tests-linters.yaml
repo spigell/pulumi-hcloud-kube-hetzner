@@ -8,7 +8,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: benjlevesque/short-sha@v2.2
       - name: Setup Go ✨
         uses: actions/setup-go@v4
         with:
@@ -26,7 +25,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: benjlevesque/short-sha@v2.2
       - name: Setup Go ✨
         uses: actions/setup-go@v4
         with:
@@ -40,4 +38,4 @@ jobs:
         with:
           skip-pkg-cache: true
           args: --timeout=10m
-          version: v1.54
+          version: v1.55.2

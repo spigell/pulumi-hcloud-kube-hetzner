@@ -10,6 +10,10 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	cloudConfigHeader = "#cloud-config\n"
+)
+
 var ErrMarshalYaml = errors.New("yaml marshal error")
 
 type CloudConfig struct {
@@ -23,7 +27,6 @@ type CloudConfig struct {
 	// This is internal field for storing pulumi input
 	Inputs *CloudConfigPulumiInputs `yaml:"-"`
 }
-
 type CloudConfigWriteFile struct {
 	Content     string
 	Path        string
@@ -58,7 +61,6 @@ type CloudConfigGrowPartConfig struct {
 // render returns rendered cloud-config
 // error will be catched by Pulumi if yaml marshal failed.
 func (c *CloudConfig) render() pulumi.StringOutput {
-	r := "#cloud-config\n"
 	return pulumi.All(c.Inputs.Key).ApplyT(func(args []interface{}) (string, error) {
 		key := args[0].(string)
 		c.Users[0].SSHAuthorizedKeys = []string{
@@ -70,7 +72,7 @@ func (c *CloudConfig) render() pulumi.StringOutput {
 			return "", fmt.Errorf("%w: %w", ErrMarshalYaml, err)
 		}
 
-		return r + string(cfg), nil
+		return cloudConfigHeader + string(cfg), nil
 	}).(pulumi.StringOutput)
 }
 

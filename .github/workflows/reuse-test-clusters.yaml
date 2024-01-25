@@ -14,6 +14,9 @@ on:
       pulumi-config-source:
         required: true
         type: string
+      template:
+        type: string
+        default: go/library
     secrets:
       google-credentials:
         required: true
@@ -37,11 +40,12 @@ jobs:
         with:
           create-stack: true
           google-credentials: ${{ secrets.google-credentials }}
+          template: ${{ inputs.template }}
       - name: Set open kubernetes api in public network
         if: inputs.open-kubeapi-for-public-net
         run: pulumi config set --path 'k8s.kube-api-endpoint.firewall.hetzner-public.allowed-ips[0]' 0.0.0.0/0
         working-directory: test-project
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: "test-project/Pulumi.${{ env.PULUMI_STACK }}.yaml"
@@ -59,52 +63,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.github-token }}
       - name: Gather logs
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pulumi-logs-${{ env.PULUMI_STACK }}
           path: "test-project/*.log"
 
-  reachability-tests:
-    needs: deploy
-    name: Reachability Tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      PULUMI_STACK: ${{ inputs.pulumi-stack }}
-      PULUMI_CONFIG_SOURCE: ../../pulumi-template/${{ inputs.pulumi-config-source }}
-      PULUMI_STACK_CONFIG: ../../test-project/Pulumi.${{ inputs.pulumi-stack }}.yaml
-    steps:
-      - uses: actions/checkout@v3
-      - uses: awalsh128/cache-apt-pkgs-action@latest
-        name: Install system dependencies
-        with:
-          packages: wireguard-tools
-      - uses: ./.github/actions/prepare-pulumi
-        name: Prepare pulumi environment
-        with:
-          create-stack: false
-          google-credentials: ${{ secrets.google-credentials }}
-      - uses: actions/download-artifact@v3
-        with:
-          name: pulumi-configuration-${{ env.PULUMI_STACK }}
-          path: test-project
-      - run: go test -timeout=25m -v -parallel=10 -tags=connectivity,linux
-        name: Run reachability tests
-        working-directory: internal/integration
-        env:
-          HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
-          GITHUB_TOKEN: ${{ secrets.github-token }}
-
   main-integration-tests:
     needs:
       - deploy
-      - reachability-tests
     name: Main Integration Tests
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
-      PULUMI_CONFIG_SOURCE: ../../pulumi-template/${{ inputs.pulumi-config-source }}
+      PULUMI_CONFIG_SOURCE: ../../${{ inputs.pulumi-config-source }}
       PULUMI_STACK_CONFIG: ../../test-project/Pulumi.${{ inputs.pulumi-stack }}.yaml
     steps:
       - uses: actions/checkout@v3
@@ -113,11 +85,12 @@ jobs:
         with:
           create-stack: false
           google-credentials: ${{ secrets.google-credentials }}
-      - uses: actions/download-artifact@v3
+          template: ${{ inputs.template }}
+      - uses: actions/download-artifact@v4
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: test-project
-      - run: go test -v -timeout=25m -parallel=10 -tags=kubernetes
+      - run: go test -v -timeout=25m -parallel=10 -tags=kubernetes,connectivity
         name: Run main integration tests
         working-directory: internal/integration
         env:
@@ -139,7 +112,8 @@ jobs:
         with:
           create-stack: false
           google-credentials: ${{ secrets.google-credentials }}
-      - uses: actions/download-artifact@v3
+          template: ${{ inputs.template }}
+      - uses: actions/download-artifact@v4
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: test-project

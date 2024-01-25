@@ -1,8 +1,9 @@
 ## Pulumi Hcloud Kube Hetzner
-This project is a golang library for creating Kubernetes clusters in Hetzner Cloud with Pulumi. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It is available only for go projects since there is no `component` for such things in pulumi.
+This is a pulumi component plugin for creating Kubernetes clusters in Hetzner Cloud with Pulumi. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It can be used as a golang library/module as well, tho :)
 
 ### Features
 - Ability to manage labels and taints!
+- Most of examples are tested via Github Actions and maintained.
 
 ## Getting Started
 ### Prerequisites
@@ -10,18 +11,21 @@ Please install following tools:
 - pulumi cli
 - go (version 1.21+)
 - GNU Make
-- packer (only for microos image creation. If you have existed image, you can skip this step)
+- packer (only for microos image creation. If you have existing image, you can skip this step)
+- curl
 
 You need to have a Hetzner Cloud account. You can sign up for free [here](https://hetzner.com/cloud/).
 
 ### Usage
-#### TL;DR
+#### TL;DR (Typescript)
 ```
 $ export HCLOUD_TOKEN=<your token>
-$ pulumi new -g https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/pulumi-template pulumi-hcloud-kube-hetzner
+$ mkdir pulumi-hcloud-kube-hetzner
 $ cd pulumi-hcloud-kube-hetzner
+$ pulumi new -g https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/pulumi-templates/typescript
 $ make microos
-$ make pulumi-config
+$ make pulumi-init-stack
+$ yarn install
 $ pulumi up -yf
 ```
 
@@ -49,13 +53,26 @@ If you find any panic (due accessing to a null value or like that), please creat
 ### Nodepools and Nodes
 Adding or Deleting nodepools/nodes are supported with several limitation.
 
-Due the nature of non-statefull ip allocation for **internal** Hetzner network, we must ensure to keep order of all nodepools and nodes. All nodes and nodepools are sorted alphabetical in `compilation` stage. Thus, changing order in configuration file does not affect on cluster. However, adding or deleting nodepools/nodes can change order. So, when planning new cluster, please consider naming convention for nodes and nodepools. For example, you can use digit prefix like `01-control-plane-nodepool`. For deleting node, it is recomended to add property `deleted: true` for nodepool and node instead of removing them from configuration file. Remember, this only affects internal network. Wireguard network and public Hetzner ips are statefull and do not depend on order.
+Due the nature of non-statefull ip allocation for **internal** Hetzner network, we must ensure to keep order of all nodepools and nodes. All nodes and nodepools are sorted alphabetical in `compilation` stage. Thus, changing order in configuration file does not affect on cluster. However, adding or deleting nodepools/nodes can change order. So, when planning new cluster, please consider naming convention for nodes and nodepools. For example, you can use digit prefix like `01-control-plane-nodepool`. For deleting node, it is recomended to add property `deleted: true` for nodepool and node instead of removing them from configuration file. Remember, this only affects internal network. Public Hetzner ips are statefull and do not depend on order.
 
 ## Development
+### GO
 ```
-$ make test-project
+$ make test-go-project [TEMPLATE=go/library|go/component]
+$ cd test-component
+$ make pulumi-generate-config [PULUMI_CONFIG_SOURCE=../examples/<EXAMPLE>.yaml]
 ```
 
+For component building:
+```
+$ cd ./pulumi-component
+$ make build && make install_provider # It generates all SDKs and build providers
+$ export PATH=$PATH:~/go/bin
+```
+
+That it. Now you can use all pulumi command like `up` or `pre` with own version of the project.
+
+After changes create a PR to the `preview` branch.
 
 # RoadMap
 ## Documentation
@@ -74,26 +91,24 @@ $ make test-project
 - [x] Expose kubeconfig
 - [x] Add a external ip of the program to FW rules
 - [ ] Add more validation rules (size of the net, difference between servers flags)
-- [ ] Add dynamic version detection
+- [ ] Add auto upgrade management for microos
+- [x] Add dynamic version detection
 - [x] Add an ability to run cluster without leader tag with single master
 - [x] K3s token generation
 - [x] Add fw rules for the public network mode
 - [ ] Add the docker workbench
 - [x] Mark all sensitive values as secrets
-- [ ] Add basic k8s apps (VM, metrics-server, etc, hetzner MCC, upgrader, kured)
+- [ ] Add basic k8s apps (VM, hetzner MCC, upgrader, kured)
 
 ### Bugs
 - [x] Fix taints for master node
-- [x] Use external ip for master wireguard connection always.
 
 ### Non-high
-- [ ] Rewrite wireguard stage
+- [ ] Add autoscaling
 - [x] Add reasonable defaults for variables
 - [ ] Add arm64 support
 - [ ] Allow change config from code
-- [ ] Implement non-parallel provisioning (useful while upgrading in manual mode). All nodes waits for leader now.
 - [ ] Package stage: reboot if changes detected only
-- [x] Restart k3s if wireguard restarted (!)
 
 ## CI
 - [x] Add linter run for every branch
@@ -101,7 +116,5 @@ $ make test-project
 - [x] Use pulumi cli instead of actions for up and preview. Collect logs.
 
 ## Tests
-- [ ] Add idempotent tests for all runs
-- [x] Add tests for wireguard run (check master connection)
-- [ ] Test with multiple servers
+- [x] Test with multiple servers
 - [x] Test with single node cluster (without leader tag)

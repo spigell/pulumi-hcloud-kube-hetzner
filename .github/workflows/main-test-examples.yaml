@@ -11,8 +11,8 @@ on:
         type: choice
         options:
           - k3s-private-non-ha-simple
-          - k3s-wireguard-non-ha-firewall-rules
-          - k3s-wireguard-ha-no-taints
+          - k3s-private-non-ha-firewall-rules
+          - k3s-private-ha-no-taints
           - k3s-public-non-ha-with-defaults
           - k3s-public-ha-kube-addons
           - k3s-private-non-ha-upgrader
@@ -33,13 +33,15 @@ jobs:
       short-sha: ${{ steps.short-sha.outputs.sha }}
 
   default:
-    needs: init
+    needs:
+      - init
     name: The simple private cluster
     if: contains(fromJson('["all", "k3s-private-non-ha-simple"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-private-non-ha-simple-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-private-non-ha-simple.yaml
+      template: go/component
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -47,12 +49,13 @@ jobs:
   with-rich-firewall-rules:
     needs: init
     name: The cluster with rich firewalls rules
-    if: contains(fromJson('["all", "k3s-wireguard-non-ha-firewall-rules"]'), inputs.example) || github.ref == 'refs/heads/main'
+    if: contains(fromJson('["all", "k3s-private-non-ha-firewall-rules"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
-      pulumi-stack: k3s-wireguard-non-ha-firewall-rules-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-wireguard-non-ha-firewall-rules.yaml
+      pulumi-stack: k3s-private-non-ha-firewall-rules-${{ needs.init.outputs.short-sha }}
+      pulumi-config-source: examples/k3s-private-non-ha-firewall-rules.yaml
       open-kubeapi-for-public-net: true
+      template: go/component
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -60,11 +63,12 @@ jobs:
   ha-server-with-workload:
     needs: init
     name: The HA cluster with workload servers
-    if: contains(fromJson('["all", "k3s-wireguard-ha-no-taints"]'), inputs.example) || github.ref == 'refs/heads/main'
+    if: contains(fromJson('["all", "k3s-private-ha-no-taints"]'), inputs.example) || github.ref == 'refs/heads/main'
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
-      pulumi-stack: k3s-wireguard-ha-no-taint-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-wireguard-ha-no-taints.yaml
+      pulumi-stack: k3s-private-ha-no-taint-${{ needs.init.outputs.short-sha }}
+      pulumi-config-source: examples/k3s-private-ha-no-taints.yaml
+      template: go/component
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -78,6 +82,7 @@ jobs:
       pulumi-stack: k3s-public-ha-kube-addons-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-public-ha-kube-addons.yaml
       open-kubeapi-for-public-net: true
+      template: typescript
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -90,6 +95,7 @@ jobs:
     with:
       pulumi-stack: k3s-public-non-ha-with-defaults-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-public-non-ha-with-defaults.yaml
+      template: typescript
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}

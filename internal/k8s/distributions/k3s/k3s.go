@@ -3,8 +3,8 @@ package k3s
 import (
 	"fmt"
 
-	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 )
 
 const (
@@ -12,12 +12,12 @@ const (
 )
 
 type K3S struct {
-	ctx *pulumi.Context
+	ctx *program.Context
 
 	addons []addons.Addon
 }
 
-func New(ctx *pulumi.Context) *K3S {
+func New(ctx *program.Context) *K3S {
 	return &K3S{
 		ctx: ctx,
 	}

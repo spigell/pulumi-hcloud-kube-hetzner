@@ -1,0 +1,25 @@
+{
+    "name": "@spigell/hcloud-kube-hetzner",
+    "version": "${VERSION}",
+    "keywords": [
+        "pulumi",
+        "kubernetes",
+        "kind/component",
+        "category/infrastructure"
+    ],
+    "scripts": {
+        "build": "tsc"
+    },
+    "dependencies": {
+        "@pulumi/pulumi": "^3.0.0"
+    },
+    "devDependencies": {
+        "@types/node": "^16",
+        "typescript": "^3.7.0"
+    },
+    "pulumi": {
+        "resource": true,
+        "name": "hcloud-kube-hetzner",
+        "server": "github://api.github.com/spigell/pulumi-hcloud-kube-hetzner"
+    }
+}

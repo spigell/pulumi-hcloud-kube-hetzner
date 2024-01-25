@@ -4,6 +4,7 @@ package integration
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -12,6 +13,7 @@ import (
 
 	"github.com/avast/retry-go"
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
 )
 
 const (
@@ -21,13 +23,12 @@ const (
 	envConfigPath   = "PULUMI_STACK_CONFIG"
 
 	exampleK3SPrivateNonHASimple   = "k3s-private-non-ha-simple"
-	exampleK3SWGNonHaFwRules       = "k3s-wireguard-non-ha-firewall-rules"
-	exampleK3SWGHANoTaints         = "k3s-wireguard-ha-no-taints"
+	exampleK3SPrivateNonHaFwRules  = "k3s-private-non-ha-firewall-rules"
+	exampleK3SPrivateHANoTaints    = "k3s-private-ha-no-taints"
 	exampleK3SPublicNonHADefaults  = "k3s-public-non-ha-with-defaults"
 	exampleK3SPublicHAKubeAddons   = "k3s-public-ha-kube-addons"
 	exampleK3SPrivateNonHAUpgrader = "k3s-private-non-ha-upgrader"
 
-	testWGConnectivity                    = "wireguard-connectivity"
 	testKubeVersion                       = "kube-version"
 	testSSHConnectivity                   = "ssh-connectivity"
 	testKubeChangeEndpointType            = "kube-change-endpoint-type"
@@ -45,14 +46,12 @@ var TestsByExampleName = map[string][]string{
 		testKubeHetznerCCM,
 		testKubeK3SUpgradeControllerPlan,
 	},
-	exampleK3SWGNonHaFwRules: {
+	exampleK3SPrivateNonHaFwRules: {
 		testSSHConnectivity,
-		testWGConnectivity,
 		testKubeChangeEndpointType,
 	},
-	exampleK3SWGHANoTaints: {
+	exampleK3SPrivateHANoTaints: {
 		testSSHConnectivity,
-		testWGConnectivity,
 		testKubeVersion,
 		testNodeChangeLabelsTaints,
 		testKubeK3SUpgradeControllerPlan,
@@ -63,6 +62,7 @@ var TestsByExampleName = map[string][]string{
 	},
 	exampleK3SPublicHAKubeAddons: {
 		testSSHConnectivity,
+		testKubeVersion,
 		testKubeHetznerCCM,
 		testNodeChangeLabelsTaints,
 		testKubeK3SUpgradeControllerPlan,
@@ -98,19 +98,28 @@ func New(ctx context.Context) (*Integration, error) {
 	}, nil
 }
 
-func (i *Integration) Validate() error {
+func (i *Integration) Outputs() (map[string]interface{}, error) {
 	out, err := i.Stack.Outputs(i.ctx)
 	if err != nil {
-		return fmt.Errorf("failed to get stack outputs: %w", err)
+		return nil, err
 	}
 
+	m, ok := out[phkh.PhkhKey]
+	if !ok {
+		return nil, errors.New("output map does not contain `phkh` key")
+	}
+
+	return m.Value.(map[string]interface{}), nil
+}
+
+func (i *Integration) Validate() error {
+	_, err := i.Outputs()
+	if err != nil {
+		return fmt.Errorf("failed to get phkh outputs: %w", err)
+	}
 	_, ok := TestsByExampleName[i.Example.Name]
 	if !ok {
 		return fmt.Errorf("no tests found for example %s", i.Example.Name)
-	}
-
-	if len(out) == 0 {
-		return fmt.Errorf("stack outputs are empty. Stack is not deployed")
 	}
 
 	if os.Getenv(envConfigPath) == "" {

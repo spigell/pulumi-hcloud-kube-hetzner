@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/info"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os/microos"
@@ -14,27 +15,27 @@ import (
 )
 
 type System struct {
-	ctx  *pulumi.Context
+	ctx  *program.Context
 	info *info.Info
-	// hidden storage for keeping dependencies between modules in k8s stage.
+	// kubeDependecies hidden storage for keeping dependencies between modules in k8s stage.
 	// For instance, wait leader to be ready before joining nodes.
 	kubeDependecies map[string][]pulumi.Resource
 
 	ID      string
 	KeyPair *keypair.ECDSAKeyPair
-	OS      os.OperationSystem
+	OS      os.OperatingSystem
 }
 
 type SysProvisioned struct {
 	OS os.Provisioned
 }
 
-func New(ctx *pulumi.Context, id string, pair *keypair.ECDSAKeyPair) *System {
+func New(ctx *program.Context, id string) *System {
 	return &System{
-		ID:      id,
-		ctx:     ctx,
-		KeyPair: pair,
-		info:    info.New(),
+		ID:  id,
+		ctx: ctx,
+		//		KeyPair: pair,
+		info: info.New(),
 	}
 }
 
@@ -44,7 +45,7 @@ func (s *System) MicroOS() *microos.MicroOS {
 	return os
 }
 
-func (s *System) WithOS(os os.OperationSystem) *System {
+func (s *System) WithOS(os os.OperatingSystem) *System {
 	s.OS = os
 
 	return s

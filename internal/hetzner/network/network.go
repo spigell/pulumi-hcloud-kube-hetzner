@@ -5,9 +5,11 @@ import (
 	"strconv"
 	"strings"
 
+	hcloudapi "github.com/hetznercloud/hcloud-go/v2/hcloud"
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/seancfoley/ipaddress-go/ipaddr"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 )
 
 const (
@@ -22,7 +24,7 @@ const (
 )
 
 type Network struct {
-	ctx              *pulumi.Context
+	ctx              *program.Context
 	allocatedSubnets []*allocatedSubnet
 	takenSubnets     []*TakenSubnet
 	allocator        ipaddr.PrefixBlockAllocator[*ipaddr.IPAddress]
@@ -61,7 +63,7 @@ type Subnet struct {
 	Resource  *hcloud.NetworkSubnet
 }
 
-func New(ctx *pulumi.Context, cfg *Config) *Network {
+func New(ctx *program.Context, cfg *Config) *Network {
 	if cfg.CIDR == "" {
 		cfg.CIDR = defaultNetCIDR
 	}
@@ -150,10 +152,10 @@ func (n *Network) PickSubnet(id string, from string) error {
 }
 
 func (n *Network) Up() (*Deployed, error) {
-	net, err := hcloud.NewNetwork(n.ctx, fmt.Sprintf("%s-%s", n.ctx.Project(), n.ctx.Stack()), &hcloud.NetworkArgs{
+	net, err := hcloud.NewNetwork(n.ctx.Context(), fmt.Sprintf("%s-%s", n.ctx.Context().Project(), n.ctx.Context().Stack()), &hcloud.NetworkArgs{
 		IpRange: pulumi.String(n.Config.CIDR),
-		Name:    pulumi.String(fmt.Sprintf("%s-%s", n.ctx.Project(), n.ctx.Stack())),
-	})
+		Name:    pulumi.String(fmt.Sprintf("%s-%s", n.ctx.Context().Project(), n.ctx.Context().Stack())),
+	}, n.ctx.Options()...)
 	if err != nil {
 		return nil, err
 	}
@@ -164,12 +166,12 @@ func (n *Network) Up() (*Deployed, error) {
 
 	subnets := make(map[string]*Subnet)
 	for _, subnet := range n.takenSubnets {
-		s, err := hcloud.NewNetworkSubnet(n.ctx, subnet.ID, &hcloud.NetworkSubnetArgs{
+		s, err := hcloud.NewNetworkSubnet(n.ctx.Context(), subnet.ID, &hcloud.NetworkSubnetArgs{
 			NetworkId:   converted,
-			Type:        pulumi.String("cloud"),
+			Type:        pulumi.String(hcloudapi.NetworkSubnetTypeCloud),
 			IpRange:     pulumi.String(subnet.CIDR),
 			NetworkZone: pulumi.String(n.Config.Zone),
-		}, pulumi.DeleteBeforeReplace(true))
+		}, append(n.ctx.Options(), pulumi.DeleteBeforeReplace(true))...)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create subnet %s: %w", subnet.ID, err)
 		}

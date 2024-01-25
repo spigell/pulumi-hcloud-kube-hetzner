@@ -10,6 +10,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/variables"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
@@ -51,7 +52,6 @@ type Server struct {
 
 type Deployed struct {
 	Resource *hcloud.Server
-	Password string
 }
 
 func New(srv *config.Server, key *hcloud.SshKey) *Server {
@@ -116,13 +116,13 @@ func (s *Server) Validate() error {
 	return nil
 }
 
-func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool string) (*Deployed, error) {
+func (s *Server) Up(ctx *program.Context, id string, net *network.Deployed, pool string) (*Deployed, error) {
 	// Get image ID from user input
 	image := pulumi.String(s.Config.Image)
 
 	// If image is not provided from user, get latest microos snapshot.
 	if s.Config.Image == "" {
-		got, err := hcloud.GetImage(ctx, &hcloud.GetImageArgs{
+		got, err := hcloud.GetImage(ctx.Context(), &hcloud.GetImageArgs{
 			WithSelector: pulumi.StringRef(selector),
 			MostRecent:   pulumi.BoolRef(true),
 		})
@@ -180,18 +180,20 @@ func (s *Server) Up(ctx *pulumi.Context, id string, net *network.Deployed, pool 
 		args.Image = pulumi.String(rune(sn.Body.ID))
 	}
 
-	created, err := hcloud.NewServer(ctx, id, args,
-		pulumi.DependsOn(dependencies),
-		pulumi.IgnoreChanges([]string{
-			"userData",
-		}),
-	)
+	var opts []pulumi.ResourceOption
+	opts = append(opts, pulumi.DependsOn(dependencies))
+	opts = append(opts, pulumi.IgnoreChanges([]string{
+		"userData",
+		"image",
+	}))
+	opts = append(opts, ctx.Options()...)
+
+	created, err := hcloud.NewServer(ctx.Context(), id, args, opts...)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Deployed{
 		Resource: created,
-		Password: s.Userdata.Chpasswd.Users[0].Password,
 	}, nil
 }

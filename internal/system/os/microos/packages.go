@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 
 	"github.com/pulumi/pulumi-command/sdk/go/command/remote"
@@ -20,7 +21,7 @@ var retry = strings.Join([]string{
 	"done",
 }, " ; ")
 
-func (m *MicroOS) Packages(ctx *pulumi.Context, con *connection.Connection) error {
+func (m *MicroOS) Packages(ctx *program.Context, con *connection.Connection) error {
 	zypper := "zypper up -y"
 	if len(m.RequiredPkgs) > 0 {
 		zypper = fmt.Sprintf("%s ; zypper install -y %s", zypper, strings.Join(m.RequiredPkgs, " "))
@@ -31,13 +32,13 @@ func (m *MicroOS) Packages(ctx *pulumi.Context, con *connection.Connection) erro
 	// Add retry logic
 	withRetry := fmt.Sprintf(retry, cmd)
 
-	installed, err := remote.NewCommand(ctx, fmt.Sprintf("packages-%s", m.ID), &remote.CommandArgs{
+	installed, err := remote.NewCommand(ctx.Context(), fmt.Sprintf("packages-%s", m.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.String(withRetry),
-	},
+	}, append(ctx.Options(),
 		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m", Update: "10m"}),
 		pulumi.DependsOn(m.resources),
-	)
+	)...)
 	if err != nil {
 		return err
 	}

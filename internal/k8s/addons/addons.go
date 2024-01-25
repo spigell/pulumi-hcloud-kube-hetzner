@@ -5,6 +5,7 @@ import (
 	k3supgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config/helm"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 
 	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -18,7 +19,7 @@ type Addons struct {
 type Addon interface {
 	Name() string
 	Enabled() bool
-	Manage(*pulumi.Context, *kubernetes.Provider, *manager.ClusterManager) error
+	Manage(*program.Context, *kubernetes.Provider, *manager.ClusterManager) error
 	Supported(string) bool
 	Helm() *helm.Config
 	SetHelm(*helm.Config)

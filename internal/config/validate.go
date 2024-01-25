@@ -16,14 +16,11 @@ var (
 	errManyLeaders                   = errors.New("there is more than one leader")
 	errK8SUnknownType                = fmt.Errorf("unknown k8s endpoint type. Valid types: %v", validConnectionTypes)
 	errInternalNetworkDisabled       = errors.New("internal endpoint type requires hetzner network to be enabled")
-	errCCMWGConflict                 = errors.New("hetzner CCM is not compatible with wireguard network yet")
-	errWGNetworkDisabled             = errors.New("wireguard endpoint type requires wireguard to be enabled")
 	errConflictBetweenUpgradeMethods = errors.New("node doesn't have `k3s-upgrade=false` label but k3s-upgrade-controller is enabled and version is set")
 	errVersionMustBeSetManually      = errors.New("k3s-upgrade-controller is disabled and version is not set. It must be set manually")
 
 	validConnectionTypes = []string{
 		variables.PublicCommunicationMethod.String(),
-		variables.WgCommunicationMethod.String(),
 		variables.InternalCommunicationMethod.String(),
 	}
 )
@@ -60,10 +57,6 @@ func (c *Config) Validate(nodes []*Node) error {
 		if c.K8S.KubeAPIEndpoint.Type == variables.InternalCommunicationMethod.String() && !c.Network.Hetzner.Enabled {
 			return errInternalNetworkDisabled
 		}
-
-		if c.K8S.KubeAPIEndpoint.Type == variables.WgCommunicationMethod.String() && !c.Network.Wireguard.Enabled {
-			return errWGNetworkDisabled
-		}
 	}
 	for _, node := range nodes {
 		if node.Leader {
@@ -90,10 +83,6 @@ func (c *Config) Validate(nodes []*Node) error {
 }
 
 func (c *Config) ValidateCCM(_ []*Node) error {
-	if c.K8S.Addons.CCM.Enabled && c.Network.Wireguard.Enabled {
-		return errCCMWGConflict
-	}
-
 	return nil
 }
 

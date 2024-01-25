@@ -8,10 +8,11 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 )
 
 type K8S struct {
-	ctx    *pulumi.Context
+	ctx    *program.Context
 	distr  string
 	addons []addons.Addon
 
@@ -19,7 +20,7 @@ type K8S struct {
 	runner *Runner
 }
 
-func New(ctx *pulumi.Context, adds *addons.Addons, nodes map[string]*manager.Node) *K8S {
+func New(ctx *program.Context, adds *addons.Addons, nodes map[string]*manager.Node) *K8S {
 	mgmt := manager.New(ctx, nodes)
 	addons := addons.New(adds)
 
