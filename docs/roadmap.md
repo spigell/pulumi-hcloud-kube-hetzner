@@ -37,6 +37,7 @@
 - [ ] Package stage: reboot if changes detected only
 
 ## CI
+- [ ] Find a way to hide output of the pulumi command plugin for several stages
 - [x] Add linter run for every branch
 - [x] Add go test run for every branch
 - [x] Use pulumi cli instead of actions for up and preview. Collect logs.

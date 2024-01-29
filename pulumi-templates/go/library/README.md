@@ -1,6 +1,13 @@
 ## Pulumi Hcloud Kube Hetzner
 
 ## Usage
+### Prerequisites
+Please install following tools:
+- Pulumi CLI and required runtime for your language
+- GNU Make
+- packer (only for microos image creation. If you have existing image, you can skip this step)
+- curl
+
 It is recomended to export env variable `HCLOUD_TOKEN` since it is required for large amount of commands
 However, you can provide it every time when you requested it
 
@@ -15,12 +22,16 @@ $ pulumi up -yf
 
 ### More detailed
 #### 1. Get your token
-You can get your token [here](https://console.hetzner.cloud/projects)
+You need to have a Hetzner Cloud account. You can sign up for free [here](https://hetzner.com/cloud/).
+
+You can get your token on the project security page. Please see [here] (https://docs.hetzner.com/cloud/api/getting-started/generating-api-token/)
 
 #### 2. Create microos image
 ```
 make microos
 ```
+It will create microos snapshot with name `microos-amd64-<timestamp>`. It uses packer and hcloud plugin for it.
+
 *Note*: right now only x86 architecture is supported. If you need arm64, please create an issue.
 
 #### 3. Create pulumi stack and generate configuration for it
