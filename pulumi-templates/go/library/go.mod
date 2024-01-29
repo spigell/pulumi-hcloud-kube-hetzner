@@ -3,14 +3,13 @@ module ${PROJECT}
 go 1.21.1
 
 require (
-	github.com/pulumi/pulumi/sdk/v3 v3.102.0
-	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.0-20240109162308-5276faa368e2
+	github.com/pulumi/pulumi/sdk/v3 v3.103.1
+	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.2
 	golang.org/x/crypto v0.18.0
 )
 
 require (
 	dario.cat/mergo v1.0.0 // indirect
-	github.com/BurntSushi/toml v1.3.2 // indirect
 	github.com/Microsoft/go-winio v0.6.1 // indirect
 	github.com/ProtonMail/go-crypto v1.0.0 // indirect
 	github.com/aead/chacha20 v0.0.0-20180709150244-8b13a72661da // indirect
@@ -66,7 +65,7 @@ require (
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.6 // indirect
-	github.com/leodido/go-urn v1.2.4 // indirect
+	github.com/leodido/go-urn v1.3.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
@@ -99,7 +98,7 @@ require (
 	github.com/pulumi/pulumi-hcloud/sdk v1.17.0 // indirect
 	github.com/pulumi/pulumi-kubernetes/sdk/v3 v3.30.2 // indirect
 	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.7.1 // indirect
-	github.com/rivo/uniseg v0.4.4 // indirect
+	github.com/rivo/uniseg v0.4.6 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
@@ -118,7 +117,7 @@ require (
 	github.com/spf13/viper v1.18.2 // indirect
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99 // indirect
 	github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99 // indirect
-	github.com/spigell/pulumi-file/sdk v0.0.0-20231027223840-65de13d29cb4 // indirect
+	github.com/spigell/pulumi-file/sdk v0.0.0-20240124083824-da5e49302f10 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
 	github.com/texttheater/golang-levenshtein v1.0.1 // indirect
 	github.com/tweekmonster/luser v0.0.0-20161003172636-3fa38070dbd7 // indirect
@@ -127,12 +126,10 @@ require (
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/ugorji/go/codec v1.2.12 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
-	github.com/zclconf/go-cty v1.14.1 // indirect
+	github.com/zclconf/go-cty v1.14.2 // indirect
 	go.uber.org/atomic v1.11.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.26.0 // indirect
-	go4.org/intern v0.0.0-20230525184215-6c62f75575cb // indirect
-	go4.org/unsafe/assume-no-moving-gc v0.0.0-20231121144256-b99613f794b6 // indirect
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a // indirect
 	golang.org/x/mod v0.14.0 // indirect
@@ -144,10 +141,9 @@ require (
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.17.0 // indirect
-	golang.zx2c4.com/wireguard/wgctrl v0.0.0-20230429144221-925a1e7659e6 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240116215550-a9fa1716bcac // indirect
-	google.golang.org/grpc v1.60.1 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240125205218-1f4bbc51befe // indirect
+	google.golang.org/grpc v1.61.0 // indirect
 	google.golang.org/protobuf v1.32.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
@@ -155,7 +151,6 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	inet.af/netaddr v0.0.0-20230525184311-b8eac61e914a // indirect
 	k8s.io/apimachinery v0.29.1 // indirect
 	k8s.io/client-go v0.29.1 // indirect
 	k8s.io/klog/v2 v2.120.1 // indirect
