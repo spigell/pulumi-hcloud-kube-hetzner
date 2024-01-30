@@ -50,8 +50,8 @@ github.com/chenzhuoyu/iasm v0.9.1/go.mod h1:Xjy2NpN3h7aUqeqM+woSuuvxmIe6+DDsiNLI
 github.com/cloudflare/circl v1.3.3/go.mod h1:5XYMA4rFBvNIrhs50XuiBJ15vF2pZn4nnUKZrLbUZFA=
 github.com/cloudflare/circl v1.3.7 h1:qlCDlTPz2n9fu58M0Nh1J/JzcFpfgkFHHX3O35r5vcU=
 github.com/cloudflare/circl v1.3.7/go.mod h1:sRTcRWXGLrKw6yIGJ+l7amYJFfAXbZG0kBSc8r4zxgA=
-github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81 h1:q2hJAaP1k2wIvVRd/hEHD7lacgqrCPS+k8g1MndzfWY=
-github.com/containerd/console v1.0.4-0.20230313162750-1ae8d489ac81/go.mod h1:YynlIjWYF8myEu6sdkwKIvGQq+cOckRm6So2avqoYAk=
+github.com/containerd/console v1.0.4-0.20230706203907-8f6c4e4faef5 h1:Ig+OPkE3XQrrl+SKsOqAjlkrBN/zrr+Qpw7rCuDjRCE=
+github.com/containerd/console v1.0.4-0.20230706203907-8f6c4e4faef5/go.mod h1:YynlIjWYF8myEu6sdkwKIvGQq+cOckRm6So2avqoYAk=
 github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/cyphar/filepath-securejoin v0.2.4 h1:Ugdm7cg7i6ZK6x3xDF1oEu1nfkyfH53EtKeQYTC3kyg=
 github.com/cyphar/filepath-securejoin v0.2.4/go.mod h1:aPGpWjXOXUn2NCNjFvBE6aRxGGx79pTxQpKOJNYHHl4=
@@ -308,8 +308,8 @@ github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0
 github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99/go.mod h1:+xvaSHPENo3jzTjmSVIhMsY5uzDsOF8cjF9fgADAfQY=
 github.com/spigell/pulumi-file/sdk v0.0.0-20240124083824-da5e49302f10 h1:N5HJyqdZ+ZnN6+4P/dhCeMGfZ4Wf+j5Ddfj0ApeIBVw=
 github.com/spigell/pulumi-file/sdk v0.0.0-20240124083824-da5e49302f10/go.mod h1:99H+Ww/riGFBML1Y26k+0F4ifVtR6VJGRTP8KMkUfX4=
-github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.2 h1:h+i8EZSHB93MbmbXa0nUZzz6oh8hZuWya6v6ayzlmNQ=
-github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.2/go.mod h1:R/04F4i/IZtmkpRnF3izrQJx+WSqisbXsW0cslwaIWQ=
+github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.2 h1:YbBfkLQKYvL36kjaLi4DMKAiCXefMqm8zMKmBcCmc/4=
+github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.2/go.mod h1:ErFyjIjlu+87tO3wOowz18nZxVZZ8Mdmej9slHBIkhI=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/objx v0.4.0/go.mod h1:YvHI0jy2hoMjB+UWwv71VJQ9isScKT/TqJzVSSt89Yw=
 github.com/stretchr/objx v0.5.0 h1:1zr/of2m5FGMsad5YfcqgdqdWrIhu+EBEJRhR1U7z/c=
