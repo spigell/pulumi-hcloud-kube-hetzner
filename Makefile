@@ -1,5 +1,6 @@
 SHELL := bash
 TEMPLATE ?= go/library
+TAG ?= $(shell git describe --tags --abbrev=0)
 
 GH_EXAMPLE ?= k3s-private-non-ha-simple
 
@@ -36,11 +37,20 @@ github-run:
 	sleep 10
 	watch gh run view $$(gh run list --workflow=main-test-examples.yaml -b $$(git rev-parse --abbrev-ref HEAD) -L 1 --json databaseId | jq .[0].databaseId -r) -v
 
+up-template-versions:: up-go-lib-template-versions up-go-component-template-versions clean
 
 up-go-lib-template-versions: TEMPLATE = go/library
 up-go-lib-template-versions: clean test-go-project
 	cd test-project && go mod edit -dropreplace=github.com/spigell/pulumi-hcloud-kube-hetzner
-	cd test-project && go get -u && go get github.com/spigell/pulumi-hcloud-kube-hetzner@main && go mod tidy
+	cd test-project && go get -u && go get github.com/spigell/pulumi-hcloud-kube-hetzner@$(TAG) && go mod tidy
+	cp ./test-project/go.mod ./pulumi-templates/$(TEMPLATE)/go.mod
+	sed -i "1s/.*/module \\\$${PROJECT}/" ./pulumi-templates/$(TEMPLATE)/go.mod
+	cp ./test-project/go.sum ./pulumi-templates/$(TEMPLATE)/go.sum
+
+up-go-component-template-versions: TEMPLATE = go/component
+up-go-component-template-versions: clean test-go-project
+	cd test-project && go mod edit -dropreplace=github.com/spigell/pulumi-hcloud-kube-hetzner
+	cd test-project && go get -u && go get github.com/spigell/pulumi-hcloud-kube-hetzner@$(TAG) && go mod tidy
 	cp ./test-project/go.mod ./pulumi-templates/$(TEMPLATE)/go.mod
 	sed -i "1s/.*/module \\\$${PROJECT}/" ./pulumi-templates/$(TEMPLATE)/go.mod
 	cp ./test-project/go.sum ./pulumi-templates/$(TEMPLATE)/go.sum
