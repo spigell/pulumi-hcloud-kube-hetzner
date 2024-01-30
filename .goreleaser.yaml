@@ -2,6 +2,7 @@ archives:
   - id: archive
     name_template: '{{ .Binary }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}'
   - id: reboot-checker
+    format: binary
     name_template: '{{ .Binary }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}'
 builds:
   - binary: pulumi-resource-hcloud-kube-hetzner

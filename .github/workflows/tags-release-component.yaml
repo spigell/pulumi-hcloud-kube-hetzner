@@ -10,9 +10,9 @@ permissions:
 
 jobs:
   component-release:
-    name: "Release component binary"
+    name: "Release binaries"
     runs-on: ubuntu-latest
-    if: github.event.base_ref == 'refs/heads/main'
+    if: github.event.base_ref == 'refs/heads/refactor/prebuilt-reboot-checker'
     steps:
       - uses: actions/checkout@v3
       - name: Install pulumictl
@@ -36,7 +36,7 @@ jobs:
       - name: Generate schema for component
         run: make generate_schema
         working-directory: pulumi-component
-      - name: Release component binary
+      - name: Release required binaries
         uses: goreleaser/goreleaser-action@v4
         with:
           distribution: goreleaser
