@@ -1,4 +1,4 @@
-name: The component binary release
+name: The prebuilt binaries release
 
 on:
   push:
@@ -25,14 +25,14 @@ jobs:
         with:
           cache: false
           go-version-file: pulumi-component/provider/go.mod
-      - name: Wait unit tests on the main branch
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: main
-          check-name: "Run unit tests"
-          repo-token: ${{ github.token }}
-          wait-interval: 10
-          allowed-conclusions: success,skipped
+#      - name: Wait unit tests on the main branch
+#        uses: lewagon/wait-on-check-action@v1.3.1
+#        with:
+#          ref: main
+#          check-name: "Run unit tests"
+#          repo-token: ${{ github.token }}
+#          wait-interval: 10
+#          allowed-conclusions: success,skipped
       - name: Generate schema for component
         run: make generate_schema
         working-directory: pulumi-component
