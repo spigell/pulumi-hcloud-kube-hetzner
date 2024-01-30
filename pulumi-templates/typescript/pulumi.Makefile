@@ -37,14 +37,14 @@ pulumi-generate-config: pulumi-create-stack
 
 pulumi-init-stack: export PROJECT_NAME := $(shell grep name Pulumi.yaml | head -1 | cut -f 2 -d ':' | tr -d ' ')
 pulumi-init-stack: pulumi-create-stack
-	curl -s https://raw.githubusercontent.com/spigell/pulumi-hcloud-kube-hetzner/feature/pulumi-component/examples/${PULUMI_EXAMPLE_NAME}.yaml >> Pulumi.$(PULUMI_STACK).yaml
+	curl -s https://raw.githubusercontent.com/spigell/pulumi-hcloud-kube-hetzner/main/examples/${PULUMI_EXAMPLE_NAME}.yaml >> Pulumi.$(PULUMI_STACK).yaml
 	sed -i "s/pulumi-hcloud-kube-hetzner/$(PROJECT_NAME)/g" ./Pulumi.$(PULUMI_STACK).yaml
 	@echo "Stack config generated from $(PULUMI_EXAMPLE_NAME) example"
 
 pulumi-ssh-check:
-	$(PULUMI) stack output --show-secrets -j 'privatekey' | jq . -r > $(PULUMI_SSH_KEY_FILE)
+	$(PULUMI) stack output --show-secrets -j phkh | jq '.privatekey' -r > $(PULUMI_SSH_KEY_FILE)
 	chmod 600 $(PULUMI_SSH_KEY_FILE)
-	@JSON=$$(pulumi stack output --show-secrets -j 'servers') && \
+	@JSON=$$(pulumi stack output --show-secrets -j phkh | jq '.servers') && \
 	for i in `echo $${JSON} | jq -r 'keys[]'`; do \
 		ssh -i $(PULUMI_SSH_KEY_FILE) -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
 		-l `echo $${JSON} | jq -r --arg k $$i '.[$$k] | .user'` \
@@ -53,9 +53,9 @@ pulumi-ssh-check:
 	done
 
 pulumi-ssh-to-node:
-	$(PULUMI) stack output --show-secrets -j 'privatekey' | jq . -r > $(PULUMI_SSH_KEY_FILE)
+	$(PULUMI) stack output --show-secrets -j phkh | jq '.privatekey' -r > $(PULUMI_SSH_KEY_FILE)
 	chmod 600 $(PULUMI_SSH_KEY_FILE)
-	JSON=$$(pulumi stack output --show-secrets -j 'servers' | jq '.[] | select(.name == "$(TARGET)")') && \
+	JSON=$$(pulumi stack output --show-secrets -j phkh | jq '.servers' | jq '.[] | select(.name == "$(TARGET)")') && \
 	ssh -i $(PULUMI_SSH_KEY_FILE) -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
 		-l `echo $${JSON} | jq -r .user` \
 		`echo $${JSON} | jq -r .ip`
