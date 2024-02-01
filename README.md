@@ -27,6 +27,8 @@ $ pulumi new -g https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/
 $ make microos
 $ make pulumi-init-stack
 $ yarn install
+$ go mod init test # go is required now. Will be removed in next release.
+$ go mod tidy # go is required now. Will be removed in next release.
 $ pulumi up -yf
 ```
 

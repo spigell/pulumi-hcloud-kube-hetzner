@@ -17,6 +17,8 @@ $ export HCLOUD_TOKEN=<your token>
 $ make microos
 $ make pulumi-init-stack
 $ yarn install (if typescript is the runtime)
+$ go mod init test # go is required now. Will be removed in next release.
+$ go mod tidy # go is required now. Will be removed in next release.
 $ pulumi up -yf
 ```
 
