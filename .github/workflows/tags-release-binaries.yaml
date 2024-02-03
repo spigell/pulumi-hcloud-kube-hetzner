@@ -1,4 +1,4 @@
-name: The component binary release
+name: The prebuilt binaries release
 
 on:
   push:
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   component-release:
-    name: "Release component binary"
+    name: "Release binaries"
     runs-on: ubuntu-latest
     if: github.event.base_ref == 'refs/heads/main'
     steps:
@@ -36,7 +36,7 @@ jobs:
       - name: Generate schema for component
         run: make generate_schema
         working-directory: pulumi-component
-      - name: Release component binary
+      - name: Release required binaries
         uses: goreleaser/goreleaser-action@v4
         with:
           distribution: goreleaser
