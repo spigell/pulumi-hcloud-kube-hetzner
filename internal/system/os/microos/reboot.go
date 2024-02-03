@@ -2,6 +2,7 @@ package microos
 
 import (
 	"fmt"
+	"runtime"
 	"strings"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
@@ -28,9 +29,22 @@ func (m *MicroOS) Reboot(ctx *program.Context, con *connection.Connection) error
 
 	m.resources = append(m.resources, rebooted)
 
+	rebootCheckerDir := "tmp/reboot-checker"
 	waitCommand := pulumi.Sprintf(strings.Join([]string{
-		"go run ./scripts/ssh-uptime-checker/main.go %s %s",
-	}, " && "), con.RemoteCommand().Host, con.User)
+		"mkdir -p %s",
+		"curl -L -v -o %s/reboot-checker https://github.com/spigell/pulumi-hcloud-kube-hetzner/releases/download/v0.0.3/reboot-checker-v0.0.3-%s-%s",
+		"chmod +x %s/reboot-checker",
+		"%s/reboot-checker %s %s",
+	}, " && "),
+		rebootCheckerDir,
+		rebootCheckerDir,
+		runtime.GOOS,
+		runtime.GOARCH,
+		rebootCheckerDir,
+		rebootCheckerDir,
+		con.RemoteCommand().Host,
+		con.User,
+	)
 
 	waited, err := local.NewCommand(ctx.Context(), fmt.Sprintf("local-wait-for-%s", m.ID), &local.CommandArgs{
 		Create: waitCommand,
