@@ -10,7 +10,7 @@ archives:
       - reboot-checker
 builds:
   - binary: pulumi-resource-hcloud-kube-hetzner
-    id: pulumi-component 
+    id: pulumi-component
     dir: pulumi-component/provider
     env:
       - CGO_ENABLED=0

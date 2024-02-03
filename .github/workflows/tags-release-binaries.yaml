@@ -12,7 +12,7 @@ jobs:
   component-release:
     name: "Release binaries"
     runs-on: ubuntu-latest
-    if: github.event.base_ref == 'refs/heads/refactor/prebuilt-reboot-checker'
+    if: github.event.base_ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v3
       - name: Install pulumictl
@@ -25,14 +25,14 @@ jobs:
         with:
           cache: false
           go-version-file: pulumi-component/provider/go.mod
-#      - name: Wait unit tests on the main branch
-#        uses: lewagon/wait-on-check-action@v1.3.1
-#        with:
-#          ref: main
-#          check-name: "Run unit tests"
-#          repo-token: ${{ github.token }}
-#          wait-interval: 10
-#          allowed-conclusions: success,skipped
+      - name: Wait unit tests on the main branch
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          ref: main
+          check-name: "Run unit tests"
+          repo-token: ${{ github.token }}
+          wait-interval: 10
+          allowed-conclusions: success,skipped
       - name: Generate schema for component
         run: make generate_schema
         working-directory: pulumi-component
