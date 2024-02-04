@@ -22,14 +22,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repo: pulumi/pulumictl
-      - name: Wait unit tests on the main branch
-        uses: lewagon/wait-on-check-action@v1.3.1
-        with:
-          ref: main
-          check-name: "Run unit tests"
-          repo-token: ${{ github.token }}
-          wait-interval: 10
-          allowed-conclusions: success,skipped
       - name: Generate nodejs sdk package
         run: make build_nodejs_sdk
         working-directory: pulumi-component
