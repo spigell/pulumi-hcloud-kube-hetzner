@@ -93,17 +93,17 @@ func (h *Hetzner) WithNetwork(cfg *network.Config) *Hetzner {
 
 func (h *Hetzner) WithNodepools(pools *config.Nodepools) *Hetzner {
 	for _, pool := range pools.Agents {
-		h.configureNodepoolNetwork(pool)
+		h.configureNodepoolNetwork(pool, network.FromStart)
 	}
 
 	for _, pool := range pools.Servers {
-		h.configureNodepoolNetwork(pool)
+		h.configureNodepoolNetwork(pool, network.FromEnd)
 	}
 
 	return h
 }
 
-func (h *Hetzner) configureNodepoolNetwork(pool *config.Nodepool) {
+func (h *Hetzner) configureNodepoolNetwork(pool *config.Nodepool, from string) {
 	if pool.Nodes[0].Server.Firewall.Hetzner.DedicatedPool() {
 		h.Firewalls[pool.ID] = pool.Config.Server.Firewall.Hetzner
 	}
@@ -113,7 +113,7 @@ func (h *Hetzner) configureNodepoolNetwork(pool *config.Nodepool) {
 	}
 
 	if h.Network.Config.Enabled {
-		h.Network.PickSubnet(pool.ID, network.FromStart)
+		h.Network.PickSubnet(pool.ID, from)
 	}
 }
 

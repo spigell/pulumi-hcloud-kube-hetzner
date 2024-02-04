@@ -13,9 +13,6 @@ import (
 )
 
 const (
-	// 24 bit network
-	// In the future, we can add an ability to change subnet size.
-	subnetSize = 24
 	FromEnd    = "end"
 	FromStart  = "start"
 
@@ -27,15 +24,15 @@ type Network struct {
 	ctx              *program.Context
 	allocatedSubnets []*allocatedSubnet
 	takenSubnets     []*TakenSubnet
-	allocator        ipaddr.PrefixBlockAllocator[*ipaddr.IPAddress]
 
 	Config *Config
 }
 
 type allocatedSubnet struct {
-	free      bool
 	allocator ipaddr.PrefixBlockAllocator[*ipaddr.IPAddress]
-	cidr      string
+
+	Free      bool
+	Cidr      string
 }
 
 type TakenSubnet struct {
@@ -72,43 +69,14 @@ func New(ctx *program.Context, cfg *Config) *Network {
 		cfg.Zone = defaultZone
 	}
 
-	var allocator ipaddr.PrefixBlockAllocator[*ipaddr.IPAddress]
-
-	allocator.SetReserved(2) // 2 reserved per block for network and broadcast
-	allocator.AddAvailable(
-		[]*ipaddr.IPAddress{
-			ipaddr.NewIPAddressString(cfg.CIDR).GetAddress(),
-		}...,
-	)
-
-	allocatedSubnets := make([]*allocatedSubnet, 0)
-
-	// 256 /24 network in /16 network
-	// I think it will be enough for us
-	for i := 0; i < 256; i++ {
-		allocated := allocator.AllocateBitLen(32 - subnetSize)
-		// Allocator is clever.
-		// If no more space in /16 network, stop
-		if allocated == nil {
-			break
-		}
-		var subnetAllocator ipaddr.PrefixBlockAllocator[*ipaddr.IPAddress]
-		subnetAllocator.AddAvailable(
-			[]*ipaddr.IPAddress{
-				ipaddr.NewIPAddressString(allocated.String()).GetAddress(),
-			}...,
-		)
-
-		allocatedSubnets = append(allocatedSubnets, &allocatedSubnet{
-			free:      true,
-			cidr:      allocated.String(),
-			allocator: subnetAllocator,
-		})
+	subnets, err := loadNetworkStateFile(ctx.Context().Stack())
+	if err != nil {
+		subnets = ipam(cfg.CIDR)
 	}
 
+
 	return &Network{
-		allocator:        allocator,
-		allocatedSubnets: allocatedSubnets,
+		allocatedSubnets: subnets,
 		ctx:              ctx,
 		Config:           cfg,
 	}
@@ -123,18 +91,18 @@ func (n *Network) PickSubnet(id string, from string) error {
 		for i := 1; i < 254; i++ {
 			l := len(n.allocatedSubnets) - i
 			subnet := n.allocatedSubnets[l]
-			if subnet.free {
+			if subnet.Free {
 				taken = subnet
-				n.allocatedSubnets[l].free = false
+				n.allocatedSubnets[l].Free = false
 				break
 			}
 		}
 	case FromStart:
 		// Take first subnet
 		for i, subnet := range n.allocatedSubnets {
-			if subnet.free {
+			if subnet.Free {
 				taken = subnet
-				n.allocatedSubnets[i].free = false
+				n.allocatedSubnets[i].Free = false
 				break
 			}
 		}
@@ -145,7 +113,7 @@ func (n *Network) PickSubnet(id string, from string) error {
 	n.takenSubnets = append(n.takenSubnets, &TakenSubnet{
 		ID:        id,
 		allocator: taken.allocator,
-		CIDR:      taken.cidr,
+		CIDR:      taken.Cidr,
 	})
 
 	return nil
