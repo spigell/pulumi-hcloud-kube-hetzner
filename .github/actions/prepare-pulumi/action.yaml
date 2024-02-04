@@ -24,7 +24,6 @@ runs:
       with:
         cache: false
         go-version-file: go.mod
-      if: startsWith(inputs.template, 'go')
     - name: Setup Node LTS
       uses: actions/setup-node@v3
       with:
