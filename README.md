@@ -1,5 +1,5 @@
 ## Pulumi Hcloud Kube Hetzner
-This is a [Pulumi component](https://www.pulumi.com/docs/concepts/resources/components) for creating Kubernetes clusters in Hetzner Cloud. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It can be used as a golang library/module as well, tho :)
+This is a [Pulumi component](https://www.pulumi.com/docs/concepts/resources/components) (only GO and Typescript/JS are supported now) for creating Kubernetes clusters in Hetzner Cloud. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It can be used as a golang library/module as well, tho :)
 
 *Note: This project is in active development, and not everything is completed. However, it DOES work and is usable right now. I definitely appreciate feedback and will help with any issues*
 
