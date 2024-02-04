@@ -68,7 +68,7 @@ jobs:
     with:
       pulumi-stack: k3s-private-ha-no-taint-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-private-ha-no-taints.yaml
-      template: go/component
+      template: typescript
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}

@@ -64,7 +64,7 @@ sync-templates:
 			go/library/pulumi.Makefile \
 			go/library/versions \
 			go/library/Makefile \
-			go/library/scripts \
+			go/library/.gitignore \
 			go/library/image-builder \
 			./$${a}/ ; \
 		cd - ; \

@@ -2,6 +2,8 @@ package microos
 
 import (
 	"fmt"
+	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
@@ -28,12 +30,28 @@ func (m *MicroOS) Reboot(ctx *program.Context, con *connection.Connection) error
 
 	m.resources = append(m.resources, rebooted)
 
+	rebootCheckerDir := "tmp/reboot-checker"
+	rebootCheckerBinaryPath := filepath.Join(rebootCheckerDir, fmt.Sprintf("reboot-checker-for-%s", m.ID))
+
 	waitCommand := pulumi.Sprintf(strings.Join([]string{
-		"go run ./scripts/ssh-uptime-checker/main.go %s %s",
-	}, " && "), con.RemoteCommand().Host, con.User)
+		"mkdir -p %s",
+		"curl -L -v -o %s https://github.com/spigell/pulumi-hcloud-kube-hetzner/releases/download/v0.0.3/reboot-checker-v0.0.3-%s-%s",
+		"chmod +x %s",
+		"%s %s %s",
+	}, " && "),
+		rebootCheckerDir,
+		rebootCheckerBinaryPath,
+		runtime.GOOS,
+		runtime.GOARCH,
+		rebootCheckerBinaryPath,
+		rebootCheckerBinaryPath,
+		con.RemoteCommand().Host,
+		con.User,
+	)
 
 	waited, err := local.NewCommand(ctx.Context(), fmt.Sprintf("local-wait-for-%s", m.ID), &local.CommandArgs{
 		Create: waitCommand,
+		Update: pulumi.String("echo 'checker already used before. Skipping...'"),
 		Environment: pulumi.StringMap{
 			"CHECKER_SSH_PRIVATE_KEY": pulumi.ToSecret(con.PrivateKey).(pulumi.StringOutput),
 		},
