@@ -51,6 +51,7 @@ func (m *MicroOS) Reboot(ctx *program.Context, con *connection.Connection) error
 
 	waited, err := local.NewCommand(ctx.Context(), fmt.Sprintf("local-wait-for-%s", m.ID), &local.CommandArgs{
 		Create: waitCommand,
+		Update: pulumi.String("echo 'checker already used before. Skipping...'"),
 		Environment: pulumi.StringMap{
 			"CHECKER_SSH_PRIVATE_KEY": pulumi.ToSecret(con.PrivateKey).(pulumi.StringOutput),
 		},
