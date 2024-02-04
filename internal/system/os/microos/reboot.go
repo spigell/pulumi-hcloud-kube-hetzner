@@ -2,6 +2,7 @@ package microos
 
 import (
 	"fmt"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -30,18 +31,20 @@ func (m *MicroOS) Reboot(ctx *program.Context, con *connection.Connection) error
 	m.resources = append(m.resources, rebooted)
 
 	rebootCheckerDir := "tmp/reboot-checker"
+	rebootCheckerBinaryPath := filepath.Join(rebootCheckerDir, fmt.Sprintf("reboot-checker-for-%s", m.ID))
+
 	waitCommand := pulumi.Sprintf(strings.Join([]string{
 		"mkdir -p %s",
-		"curl -L -v -o %s/reboot-checker https://github.com/spigell/pulumi-hcloud-kube-hetzner/releases/download/v0.0.3/reboot-checker-v0.0.3-%s-%s",
-		"chmod +x %s/reboot-checker",
-		"%s/reboot-checker %s %s",
+		"curl -L -v -o %s https://github.com/spigell/pulumi-hcloud-kube-hetzner/releases/download/v0.0.3/reboot-checker-v0.0.3-%s-%s",
+		"chmod +x %s",
+		"%s %s %s",
 	}, " && "),
 		rebootCheckerDir,
-		rebootCheckerDir,
+		rebootCheckerBinaryPath,
 		runtime.GOOS,
 		runtime.GOARCH,
-		rebootCheckerDir,
-		rebootCheckerDir,
+		rebootCheckerBinaryPath,
+		rebootCheckerBinaryPath,
 		con.RemoteCommand().Host,
 		con.User,
 	)
