@@ -14,12 +14,19 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event.base_ref == 'refs/heads/fix/component-release'
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@master
+      - uses: jlumbroso/free-disk-space@main
         with:
-          root-reserve-mb: 512
-          swap-size-mb: 1024
-          remove-dotnet: 'true'
+          # this might remove tools that are actually needed,
+          # if set to "true" but frees about 6 GB
+          tool-cache: false
+          # all of these default to true, but feel free to set to
+          # "false" if necessary for your workflow
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: false
+          docker-images: false
+          swap-storage: false
       - uses: actions/checkout@v3
       - name: Install pulumictl
         uses: jaxxstorm/action-install-gh-release@v1.10.0
