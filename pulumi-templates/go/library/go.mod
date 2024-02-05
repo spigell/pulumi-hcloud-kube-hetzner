@@ -4,7 +4,7 @@ go 1.21.1
 
 require (
 	github.com/pulumi/pulumi/sdk/v3 v3.104.2
-	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.4
+	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.7
 )
 
 require (
