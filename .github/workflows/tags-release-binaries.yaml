@@ -12,8 +12,14 @@ jobs:
   component-release:
     name: "Release binaries"
     runs-on: ubuntu-latest
-    if: github.event.base_ref == 'refs/heads/main'
+    if: github.event.base_ref == 'refs/heads/fix/component-release'
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@master
+        with:
+          root-reserve-mb: 512
+          swap-size-mb: 1024
+          remove-dotnet: 'true'
       - uses: actions/checkout@v3
       - name: Install pulumictl
         uses: jaxxstorm/action-install-gh-release@v1.10.0
