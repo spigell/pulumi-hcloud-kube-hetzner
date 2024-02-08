@@ -123,7 +123,6 @@ func (k *K3S) Up(ctx *program.Context, con *connection.Connection, deps []pulumi
 	}
 	res = append(res, install)
 
-	// payload[1] is internal IP
 	var config pulumi.StringOutput
 	switch k.Sys.CommunicationMethod() {
 	case variables.PublicCommunicationMethod:
@@ -137,9 +136,10 @@ func (k *K3S) Up(ctx *program.Context, con *connection.Connection, deps []pulumi
 
 	// payload[0] is internal IP
 	case variables.InternalCommunicationMethod:
-		config, _ = pulumi.All(k.leaderIP, con.IP, k.token).ApplyT(
+		internalIP := payload[0].(pulumi.StringOutput)
+		config, _ = pulumi.All(k.leaderIP, con.IP, k.token, internalIP).ApplyT(
 			func(args []interface{}) (string, error) {
-				rendered, err := k.CompleteConfig(args[2].(string), payload[0].(string), args[0].(string), args[1].(string)).render()
+				rendered, err := k.CompleteConfig(args[2].(string), args[3].(string), args[0].(string), args[1].(string)).render()
 
 				return string(rendered), err
 			},

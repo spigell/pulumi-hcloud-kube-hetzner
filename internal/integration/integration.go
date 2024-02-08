@@ -31,6 +31,7 @@ const (
 
 	testKubeVersion                       = "kube-version"
 	testSSHConnectivity                   = "ssh-connectivity"
+	testHetznerNodeManagement             = "hetzner-node-management"
 	testKubeHetznerCCM                    = "kube-hetzner-ccm"
 	testNodeChangeLabelsTaints            = "node-change-labels-taints"
 	testKubeK3SUpgradeControllerPlan      = "kube-k3s-upgrade-controller-plan"
@@ -44,6 +45,7 @@ var TestsByExampleName = map[string][]string{
 		testSSHConnectivity,
 		testKubeHetznerCCM,
 		testKubeK3SUpgradeControllerPlan,
+		testHetznerNodeManagement,
 	},
 	exampleK3SPrivateNonHaFwRules: {
 		testSSHConnectivity,
@@ -64,6 +66,7 @@ var TestsByExampleName = map[string][]string{
 		testKubeHetznerCCM,
 		testNodeChangeLabelsTaints,
 		testKubeK3SUpgradeControllerPlan,
+		testHetznerNodeManagement,
 	},
 	exampleK3SPrivateNonHAUpgrader: {
 		testKubeK3SUpgradeControllerPlan,

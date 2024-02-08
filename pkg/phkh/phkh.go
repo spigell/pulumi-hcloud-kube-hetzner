@@ -1,6 +1,7 @@
 package phkh
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/sanity-io/litter"
@@ -46,7 +47,14 @@ type Cluster struct {
 func New(ctx *pulumi.Context, opts []pulumi.ResourceOption) (*PHKH, error) {
 	cfg := config.New(ctx).WithInited()
 
-	context := program.NewContext(ctx, opts...)
+	state, err := program.LoadStateFile(ctx)
+	if err != nil {
+		if !errors.Is(err, program.ErrNoStateFile) {
+			return nil, err
+		}
+	}
+
+	context := program.NewContext(ctx, state, opts...)
 
 	compiled, err := compile(context, cfg)
 	if err != nil {
@@ -119,6 +127,7 @@ func toExportedHetznerServers(deployed *hetzner.Deployed) []map[string]interface
 	for k, v := range deployed.Servers {
 		m := make(map[string]interface{})
 		m["ip"] = v.Connection.IP
+		m["internal-ip"] = v.InternalIP
 		m["user"] = v.Connection.User
 		m["name"] = k
 

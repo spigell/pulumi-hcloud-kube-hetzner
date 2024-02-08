@@ -3,43 +3,27 @@ package network
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	hcloudapi "github.com/hetznercloud/hcloud-go/v2/hcloud"
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"github.com/seancfoley/ipaddress-go/ipaddr"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network/ipam"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 )
 
 const (
-	FromEnd    = "end"
-	FromStart  = "start"
+	FromEnd   = "end"
+	FromStart = "start"
 
 	defaultZone    = "eu-central"
 	defaultNetCIDR = "10.20.0.0/16"
 )
 
 type Network struct {
-	ctx              *program.Context
-	allocatedSubnets []*allocatedSubnet
-	takenSubnets     []*TakenSubnet
+	ctx  *program.Context
+	ipam *ipam.IPAM
 
 	Config *Config
-}
-
-type allocatedSubnet struct {
-	allocator ipaddr.PrefixBlockAllocator[*ipaddr.IPAddress]
-
-	Free      bool
-	Cidr      string
-}
-
-type TakenSubnet struct {
-	allocator ipaddr.PrefixBlockAllocator[*ipaddr.IPAddress]
-
-	ID   string
-	CIDR string
 }
 
 type Config struct {
@@ -54,10 +38,7 @@ type Deployed struct {
 }
 
 type Subnet struct {
-	CIDR      string
-	IPs       map[string]string
-	allocator ipaddr.PrefixBlockAllocator[*ipaddr.IPAddress]
-	Resource  *hcloud.NetworkSubnet
+	Resource *hcloud.NetworkSubnet
 }
 
 func New(ctx *program.Context, cfg *Config) *Network {
@@ -69,52 +50,50 @@ func New(ctx *program.Context, cfg *Config) *Network {
 		cfg.Zone = defaultZone
 	}
 
-	subnets, err := loadNetworkStateFile(ctx.Context().Stack())
-	if err != nil {
-		subnets = ipam(cfg.CIDR)
-	}
-
-
 	return &Network{
-		allocatedSubnets: subnets,
-		ctx:              ctx,
-		Config:           cfg,
+		ipam:   ipam.FreshIPAM(cfg.CIDR),
+		ctx:    ctx,
+		Config: cfg,
 	}
 }
 
+func (n *Network) WithIPAM(ipam *ipam.IPAM) *Network {
+	n.ipam = ipam
+	return n
+}
+
 func (n *Network) PickSubnet(id string, from string) error {
-	var taken *allocatedSubnet
+	for _, subnet := range n.ipam.Subnets {
+		if subnet.ID == id {
+			return nil
+		}
+	}
 
 	switch from {
 	case FromEnd:
 		// Take last subnet
 		for i := 1; i < 254; i++ {
-			l := len(n.allocatedSubnets) - i
-			subnet := n.allocatedSubnets[l]
-			if subnet.Free {
-				taken = subnet
-				n.allocatedSubnets[l].Free = false
+			l := len(n.ipam.Subnets) - i
+			subnet := n.ipam.Subnets[l]
+			if !subnet.Used {
+				n.ipam.Subnets[l].Used = true
+				n.ipam.Subnets[l].ID = id
 				break
 			}
 		}
 	case FromStart:
 		// Take first subnet
-		for i, subnet := range n.allocatedSubnets {
-			if subnet.Free {
-				taken = subnet
-				n.allocatedSubnets[i].Free = false
+		for i, subnet := range n.ipam.Subnets {
+			if !subnet.Used {
+				n.ipam.Subnets[i].Used = true
+				n.ipam.Subnets[i].ID = id
+				// Add blocklist for 0 and 1 ip
 				break
 			}
 		}
 	default:
 		return fmt.Errorf("unknown from: %s", from)
 	}
-
-	n.takenSubnets = append(n.takenSubnets, &TakenSubnet{
-		ID:        id,
-		allocator: taken.allocator,
-		CIDR:      taken.Cidr,
-	})
 
 	return nil
 }
@@ -133,27 +112,22 @@ func (n *Network) Up() (*Deployed, error) {
 	}).(pulumi.IntOutput)
 
 	subnets := make(map[string]*Subnet)
-	for _, subnet := range n.takenSubnets {
-		s, err := hcloud.NewNetworkSubnet(n.ctx.Context(), subnet.ID, &hcloud.NetworkSubnetArgs{
-			NetworkId:   converted,
-			Type:        pulumi.String(hcloudapi.NetworkSubnetTypeCloud),
-			IpRange:     pulumi.String(subnet.CIDR),
-			NetworkZone: pulumi.String(n.Config.Zone),
-		}, append(n.ctx.Options(), pulumi.DeleteBeforeReplace(true))...)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create subnet %s: %w", subnet.ID, err)
+	for _, subnet := range n.ipam.Subnets {
+		if subnet.Used {
+			s, err := hcloud.NewNetworkSubnet(n.ctx.Context(), subnet.ID, &hcloud.NetworkSubnetArgs{
+				NetworkId:   converted,
+				Type:        pulumi.String(hcloudapi.NetworkSubnetTypeCloud),
+				IpRange:     pulumi.String(subnet.CIDR),
+				NetworkZone: pulumi.String(n.Config.Zone),
+			}, append(n.ctx.Options(), pulumi.DeleteBeforeReplace(true))...)
+			if err != nil {
+				return nil, fmt.Errorf("failed to create subnet %s: %w", subnet.ID, err)
+			}
+			// Rule: id of pool is id of the needed subnet
+			subnets[subnet.ID] = &Subnet{
+				Resource: s,
+			}
 		}
-		// Rule: id of pool is id of the needed subnet
-		subnets[subnet.ID] = &Subnet{
-			CIDR:      subnet.CIDR,
-			allocator: subnet.allocator,
-			IPs:       make(map[string]string),
-			Resource:  s,
-		}
-		// Allocate .0 in subnet. It is not needed.
-		_, _ = subnets[subnet.ID].GetFree()
-		// Allocate .1 in subnet. It is reserved for router.
-		_, _ = subnets[subnet.ID].GetFree()
 	}
 
 	return &Deployed{
@@ -162,11 +136,10 @@ func (n *Network) Up() (*Deployed, error) {
 	}, nil
 }
 
-func (s *Subnet) GetFree() (string, error) {
-	ip := s.allocator.AllocateSize(1)
-	if ip == nil {
-		return "", fmt.Errorf("allocator says: no more free IPs in subnet %s", s.CIDR)
-	}
+func (n *Network) GetFree(subnetID string) (string, error) {
+	return n.ipam.GetFree(subnetID)
+}
 
-	return strings.Split(ip.String(), "/")[0], nil
+func (n *Network) IPAM() *ipam.IPAM {
+	return n.ipam
 }

@@ -83,9 +83,7 @@ func (m *MicroOS) Up(ctx *program.Context, server *hetzner.Server, kubeDependeci
 
 		switch k {
 		case variables.K3s:
-			if server.InternalIP != "" {
-				k3sPayload = append(k3sPayload, server.InternalIP)
-			}
+			k3sPayload = append(k3sPayload, server.InternalIP)
 
 			// All nodes must wait for leader to be ready.
 			deps = append(deps, kubeDependecies["leader"]...)

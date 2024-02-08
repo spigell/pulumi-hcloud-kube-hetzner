@@ -9,6 +9,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network/ipam"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
@@ -45,7 +46,17 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 	if err := config.Validate(nodes); err != nil {
 		return nil, err
 	}
-	infra := hetzner.New(ctx, nodes).WithNetwork(config.Network.Hetzner).WithNodepools(config.Nodepools)
+	infra := hetzner.New(ctx, nodes).WithNetwork(config.Network.Hetzner)
+
+	if config.Network.Hetzner.Enabled {
+		ipamdata := ctx.State().IPAM
+		if ipamdata != nil {
+			ctx.Context().Log.Debug("using existing IPAM", nil)
+			infra.Network = infra.Network.WithIPAM(ipam.Load(ipamdata))
+		}
+	}
+
+	infra = infra.WithNodepools(config.Nodepools)
 
 	nodeMap := make(map[string]*manager.Node)
 	for _, node := range nodes {

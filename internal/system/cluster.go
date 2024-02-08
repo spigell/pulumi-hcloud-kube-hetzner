@@ -28,7 +28,7 @@ func (c *Cluster) Up(token *k3stoken.Token, deps *hetzner.Deployed) (*Deployed, 
 	kubeDependencies := make(map[string][]pulumi.Resource)
 
 	leaderIPS := map[string]pulumi.StringOutput{
-		variables.InternalCommunicationMethod.String(): pulumi.String(deps.Servers[c.Leader().ID].InternalIP).ToStringOutput(),
+		variables.InternalCommunicationMethod.String(): deps.Servers[c.Leader().ID].InternalIP,
 		variables.PublicCommunicationMethod.String():   deps.Servers[c.Leader().ID].Connection.IP,
 	}
 

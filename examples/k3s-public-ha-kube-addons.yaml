@@ -36,6 +36,11 @@ config:
         - id: k3s-hel-agent01
           server:
             location: hel1
+      - id: 02-agents
+        nodes:
+        - id: k3s-fsn-agent02
+          server:
+            location: fsn1
     servers:
       - id: 01-control-plane-nodes
         config:
