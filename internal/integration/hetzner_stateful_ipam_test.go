@@ -5,6 +5,7 @@ package integration
 
 import (
 	"context"
+	"fmt"
 	"slices"
 	"testing"
 
@@ -92,6 +93,11 @@ func checkIPS(t *testing.T, new, old []interface{}) {
 			ip2, ok := node.(map[string]interface{})["internal-ip"].(string)
 			assert.True(t, ok)
 			assert.NotEmpty(t, ip)
+
+			fmt.Printf("new node:%s", name2)
+			fmt.Printf("old node:%s", name)
+			fmt.Printf("new ip:%s", ip2)
+			fmt.Printf("old ip:%s", ip)
 
 			if name == name2 {
 				assert.Equal(t, ip, ip2)
