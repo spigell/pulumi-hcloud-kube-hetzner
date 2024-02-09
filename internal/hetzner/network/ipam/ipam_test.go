@@ -7,7 +7,6 @@ import (
 )
 
 func TestAddrAllocator(t *testing.T) {
-
 	ipam := FreshIPAM("192.168.0.0/24")
 	subnetID := "main"
 	ipam.Subnets[0].ID = subnetID

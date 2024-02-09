@@ -38,7 +38,6 @@ func LoadStateFile(ctx *pulumi.Context) (*State, error) {
 	var state *State
 	path := fmt.Sprintf("%s-%s.yaml", stateFilePrefix, ctx.Stack())
 	file, err := os.ReadFile(path)
-
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return &State{}, ErrNoStateFile

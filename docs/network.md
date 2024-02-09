@@ -12,7 +12,7 @@ You should recreate the cluster instead.
 
 
 ## SSH access
-The program creates a keypair for ssh access to the servers. The private key is stored in the pulumi state and can be retrieved by `pulumi stack output --show-secrets -j ssh:keypair` command. The reason for this is that many people use weak and unsupported keys and the program can not move further. 
+The program creates a keypair for ssh access to the servers. The private key is stored in the pulumi state and can be retrieved by `pulumi stack output --show-secrets -j phkh | jq .privatekey` command. The reason for this is that many people use weak and unsupported keys and the program can not move further. 
 In the future, there will be a possibility to add your own public key.
 
 ## Firewall

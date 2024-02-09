@@ -19,7 +19,7 @@ type IPAM struct {
 	Subnets     []*allocatedSubnet
 }
 
-type IPAMData struct {
+type Data struct {
 	InternalIPS pulumi.ArrayMap `yaml:"-"`
 	Subnets     []*allocatedSubnet
 }
@@ -33,14 +33,14 @@ type allocatedSubnet struct {
 	TakenIPS []string `yaml:"taken-ips,omitempty"`
 }
 
-// Load loads an IPAM from a given IPAMData
-func Load(data *IPAMData) *IPAM {
+// Load loads an IPAM from a given IPAMData.
+func Load(data *Data) *IPAM {
 	return &IPAM{
 		Subnets: withAllocators(data.Subnets),
 	}
 }
 
-// FreshIPAM creates a new IPAM with a given CIDR
+// FreshIPAM creates a new IPAM with a given CIDR.
 func FreshIPAM(cidr string) *IPAM {
 	var allocator ipaddr.PrefixBlockAllocator[*ipaddr.IPAddress]
 
@@ -108,8 +108,8 @@ func (i *IPAM) GetFree(subnetID string) (string, error) {
 	return ip, err
 }
 
-func (i *IPAM) ToData() *IPAMData {
-	return &IPAMData{
+func (i *IPAM) ToData() *Data {
+	return &Data{
 		InternalIPS: i.internalIPS,
 		Subnets:     i.Subnets,
 	}
@@ -121,7 +121,7 @@ func (i *IPAM) WithInternalIPS(ips pulumi.ArrayMap) *IPAM {
 	return i
 }
 
-// withAllocators is a helper function to create a list of allocatedSubnet with the correct allocator
+// withAllocators is a helper function to create a list of allocatedSubnet with the correct allocator.
 func withAllocators(subnets []*allocatedSubnet) []*allocatedSubnet {
 	allocatedSubnets := make([]*allocatedSubnet, 0)
 	for _, subnet := range subnets {
