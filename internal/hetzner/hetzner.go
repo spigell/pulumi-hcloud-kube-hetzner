@@ -209,7 +209,7 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 		srv := h.Servers[id]
 		serverDeps := make([]pulumi.Resource, 0)
 
-		internalIP, pool := "", h.FindInPools(id)
+		internalIP, pool, netID := "", h.FindInPools(id), pulumi.Int(0).ToIntOutput()
 		if h.Network.Config.Enabled {
 			internalIP, err = h.Network.GetFree(pool)
 			if err != nil {
@@ -217,13 +217,14 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 			}
 			// Rule: id of pool is id of the needed subnet
 			serverDeps = append(serverDeps, net.Subnets[pool].Resource)
+			netID = net.ID
 		}
 
 		s := server.New(srv.Server, key)
 		if err := s.Validate(); err != nil {
 			return nil, err
 		}
-		node, err := s.Up(h.ctx, id, internalIP, net.ID, serverDeps)
+		node, err := s.Up(h.ctx, id, internalIP, netID, serverDeps)
 		if err != nil {
 			return nil, err
 		}
