@@ -123,14 +123,3 @@ jobs:
         env:
           HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
           GITHUB_TOKEN: ${{ secrets.github-token }}
-      - name: Cleanup
-        uses: pulumi/actions@v4
-        with:
-          command: destroy
-          stack-name: ${{ env.PULUMI_STACK }}
-          remove: true
-          cloud-url: gs://spigell-infra-phkh-pulumi-states
-          work-dir: test-project
-        env:
-          HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
-          GITHUB_TOKEN: ${{ secrets.github-token }}
