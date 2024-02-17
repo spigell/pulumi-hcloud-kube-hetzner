@@ -68,5 +68,5 @@ config:
     servers:
       k3s:
         config:
-          disable:
-            - traefik
+          # In HA mode+CCM, network-policy must be disable
+          disable-network-policy: true
