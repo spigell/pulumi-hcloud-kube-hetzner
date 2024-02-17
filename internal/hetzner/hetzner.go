@@ -229,7 +229,10 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 			return nil, err
 		}
 
-		realInternalIP := node.Resource.Networks.Index(pulumi.Int(0)).Ip().Elem()
+		realInternalIP := pulumi.String("none").ToStringOutput()
+		if h.Network.Config.Enabled {
+			realInternalIP = node.Resource.Networks.Index(pulumi.Int(0)).Ip().Elem()
+		}
 
 		if internalIPS[pool] == nil {
 			internalIPS[pool] = make(pulumi.Array, 0)
