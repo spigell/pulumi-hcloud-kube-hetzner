@@ -51,6 +51,7 @@ var TestsByExampleName = map[string][]string{
 	},
 	exampleK3SPrivateNonHaFwRules: {
 		testSSHConnectivity,
+		testKubeCheckTaintsManager,
 	},
 	exampleK3SPrivateHANoTaints: {
 		testSSHConnectivity,
