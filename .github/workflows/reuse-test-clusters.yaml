@@ -66,7 +66,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: pulumi-logs-${{ env.PULUMI_STACK }}
-          path: "test-project/*.log"
+          path: test-project/*.log
+      - name: Gather artifacts from pulumi
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phkh-artifacts-${{ env.PULUMI_STACK }}
+          path: test-project/phkh*
 
   main-integration-tests:
     needs:
@@ -89,6 +95,10 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
+          path: test-project
+      - uses: actions/download-artifact@v4
+        with:
+          name: phkh-artifacts-${{ env.PULUMI_STACK }}
           path: test-project
       - run: go test -v -timeout=25m -parallel=10 -tags=kubernetes,connectivity
         name: Run main integration tests

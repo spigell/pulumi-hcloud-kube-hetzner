@@ -34,7 +34,7 @@ type Deployed struct {
 
 type Server struct {
 	ID         pulumi.IDOutput
-	InternalIP string
+	InternalIP pulumi.StringOutput
 	Connection *connection.Connection
 }
 
@@ -93,17 +93,17 @@ func (h *Hetzner) WithNetwork(cfg *network.Config) *Hetzner {
 
 func (h *Hetzner) WithNodepools(pools *config.Nodepools) *Hetzner {
 	for _, pool := range pools.Agents {
-		h.configureNodepoolNetwork(pool)
+		h.configureNodepoolNetwork(pool, network.FromStart)
 	}
 
 	for _, pool := range pools.Servers {
-		h.configureNodepoolNetwork(pool)
+		h.configureNodepoolNetwork(pool, network.FromEnd)
 	}
 
 	return h
 }
 
-func (h *Hetzner) configureNodepoolNetwork(pool *config.Nodepool) {
+func (h *Hetzner) configureNodepoolNetwork(pool *config.Nodepool, from string) {
 	if pool.Nodes[0].Server.Firewall.Hetzner.DedicatedPool() {
 		h.Firewalls[pool.ID] = pool.Config.Server.Firewall.Hetzner
 	}
@@ -113,7 +113,7 @@ func (h *Hetzner) configureNodepoolNetwork(pool *config.Nodepool) {
 	}
 
 	if h.Network.Config.Enabled {
-		h.Network.PickSubnet(pool.ID, network.FromStart)
+		h.Network.PickSubnet(pool.ID, from)
 	}
 }
 
@@ -173,6 +173,8 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 	firewalls := make(map[string]*firewall.Firewall)
 	firewallsByNodeRole := make(map[string]pulumi.IntArray)
 	firewallsByNodepool := make(map[string]pulumi.IntArray)
+	serverResources := make([]pulumi.Resource, 0)
+	internalIPS := pulumi.ArrayMap{}
 
 	key, err := h.NewSSHKey(keys.PublicKey())
 	if err != nil {
@@ -205,33 +207,51 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 
 	for _, id := range utils.SortedMapKeys(h.Servers) {
 		srv := h.Servers[id]
+		serverDeps := make([]pulumi.Resource, 0)
 
-		internalIP, pool := "", h.FindInPools(id)
+		internalIP, pool, netID := "", h.FindInPools(id), pulumi.Int(0).ToIntOutput()
 		if h.Network.Config.Enabled {
-			internalIP, err = net.Subnets[pool].GetFree()
+			internalIP, err = h.Network.GetFree(pool)
 			if err != nil {
 				return nil, fmt.Errorf("failed to get free ip for node %s: %w", id, err)
 			}
-			net.Subnets[pool].IPs[id] = internalIP
+			// Rule: id of pool is id of the needed subnet
+			serverDeps = append(serverDeps, net.Subnets[pool].Resource)
+			netID = net.ID
 		}
 
 		s := server.New(srv.Server, key)
 		if err := s.Validate(); err != nil {
 			return nil, err
 		}
-		node, err := s.Up(h.ctx, id, net, pool)
+		node, err := s.Up(h.ctx, id, internalIP, netID, serverDeps)
 		if err != nil {
 			return nil, err
 		}
+
+		realInternalIP := pulumi.String("none").ToStringOutput()
+		if h.Network.Config.Enabled {
+			realInternalIP = node.Resource.Networks.Index(pulumi.Int(0)).Ip().Elem()
+		}
+
+		if internalIPS[pool] == nil {
+			internalIPS[pool] = make(pulumi.Array, 0)
+		}
+
+		m := internalIPS[pool].(pulumi.Array)
+		internalIPS[pool] = append(m, realInternalIP)
+
 		nodes[id] = &Server{
 			ID:         node.Resource.ID(),
-			InternalIP: internalIP,
+			InternalIP: realInternalIP,
 			Connection: &connection.Connection{
 				IP:         node.Resource.Ipv4Address,
 				PrivateKey: keys.PrivateKey(),
 				User:       srv.Server.UserName,
 			},
 		}
+
+		serverResources = append(serverResources, node.Resource)
 
 		//nolint: gocritic,revive,stylecheck // this is the only way to convert string to int
 		nodeId := node.Resource.ID().ToStringOutput().ApplyT(func(id string) (int, error) {
@@ -285,6 +305,11 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 		if err := interFw.Up(h.ctx); err != nil {
 			return nil, fmt.Errorf("failed to create a interconnect firewall for nodes: %w", err)
 		}
+	}
+
+	h.ctx.State().IPAM = h.Network.IPAM().WithInternalIPS(internalIPS).ToData()
+	if err := h.ctx.DumpStateToFile(serverResources); err != nil {
+		return nil, fmt.Errorf("failed to dump cloud state to file: %w", err)
 	}
 
 	return &Deployed{

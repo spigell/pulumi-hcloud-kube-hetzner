@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
@@ -116,7 +115,7 @@ func (s *Server) Validate() error {
 	return nil
 }
 
-func (s *Server) Up(ctx *program.Context, id string, net *network.Deployed, pool string) (*Deployed, error) {
+func (s *Server) Up(ctx *program.Context, id string, internalIP string, netID pulumi.IntInput, deps []pulumi.Resource) (*Deployed, error) {
 	// Get image ID from user input
 	image := pulumi.String(s.Config.Image)
 
@@ -149,21 +148,16 @@ func (s *Server) Up(ctx *program.Context, id string, net *network.Deployed, pool
 		},
 	}
 
-	dependencies := make([]pulumi.Resource, 0)
-	if net != nil {
+	if internalIP != "" {
 		s.Userdata.WriteFiles = append(s.Userdata.WriteFiles, RenameInterfaceScript())
 		s.Userdata.RunCMD = append(s.Userdata.RunCMD, RenameInterfaceScript().Path)
 
-		subnet := net.Subnets[pool]
-
 		args.Networks = &hcloud.ServerNetworkTypeArray{
 			hcloud.ServerNetworkTypeArgs{
-				NetworkId: net.ID,
-				Ip:        pulumi.String(subnet.IPs[id]),
+				NetworkId: netID,
+				Ip:        pulumi.String(internalIP),
 			},
 		}
-		// Rule: id of pool is id of the needed subnet
-		dependencies = append(dependencies, net.Subnets[pool].Resource)
 	}
 
 	args.UserData = pulumi.ToSecret(s.Userdata.render()).(pulumi.StringOutput)
@@ -181,10 +175,11 @@ func (s *Server) Up(ctx *program.Context, id string, net *network.Deployed, pool
 	}
 
 	var opts []pulumi.ResourceOption
-	opts = append(opts, pulumi.DependsOn(dependencies))
+	opts = append(opts, pulumi.DependsOn(deps))
 	opts = append(opts, pulumi.IgnoreChanges([]string{
 		"userData",
 		"image",
+		"networks[0].ip",
 	}))
 	opts = append(opts, ctx.Options()...)
 

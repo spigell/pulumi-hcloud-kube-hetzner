@@ -25,6 +25,8 @@ var whitelistedTaints = []string{
 }
 
 func (m *ClusterManager) ManageTaints(node *Node) error {
+	// TO DO: This gives an error for non existing nodes.
+	// https://github.com/pulumi/pulumi-kubernetes/issues/2743
 	existed, err := corev1.GetNode(m.ctx.Context(), node.ID, pulumi.ID(node.ID), nil, pulumi.Provider(m.provider))
 	if err != nil {
 		return err

@@ -18,7 +18,7 @@ func TestKubeVersion(t *testing.T) {
 	name := testKubeVersion
 	t.Parallel()
 
-	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
+	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline())
 	defer cancel()
 
 	i, _ := New(ctx)

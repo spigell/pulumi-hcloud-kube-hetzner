@@ -23,12 +23,13 @@ func TestLabelsTaintsChange(t *testing.T) {
 
 	desiredTaint := "example.io/important-node=true:NoSchedule"
 
-	t.Parallel()
+	// t.Parallel()
 
-	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
+	ctx, cancel := context.WithDeadline(context.Background(), withPulumiDeadline)
 	defer cancel()
 
-	i, _ := New(ctx)
+	i, err := New(ctx)
+	require.NoError(t, err)
 
 	if !slices.Contains(TestsByExampleName[i.Example.Name], testNodeChangeLabelsTaints) {
 		t.Skip()

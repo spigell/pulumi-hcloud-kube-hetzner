@@ -22,7 +22,7 @@ func TestK3SUpgradeControllerPlan(t *testing.T) {
 
 	t.Parallel()
 
-	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
+	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline())
 	defer cancel()
 
 	i, _ := New(ctx)
@@ -85,7 +85,7 @@ func TestK3SUpgradeControllerPlan(t *testing.T) {
 func TestK3SUpgradeControllerConfigEnv(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
+	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline())
 	defer cancel()
 
 	i, _ := New(ctx)

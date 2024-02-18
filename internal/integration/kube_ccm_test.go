@@ -17,7 +17,7 @@ import (
 func TestKubeHcloudCCM(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
+	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline())
 	defer cancel()
 
 	i, _ := New(ctx)

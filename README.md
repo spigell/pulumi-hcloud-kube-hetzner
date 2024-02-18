@@ -5,6 +5,7 @@ This is a [Pulumi component](https://www.pulumi.com/docs/concepts/resources/comp
 
 ### Features
 - Ability to manage labels and taints!
+- Adding and removing nodepools/nodes without changing internal IP addresses is possible.
 - Most of examples are tested via Github Actions and maintained.
 
 ## Getting Started
@@ -29,10 +30,6 @@ $ make pulumi-init-stack
 $ yarn install
 $ pulumi up -yf
 ```
-
-## Supported scenarios
-All valid conbinations between defauls{agents/servers}/nodepools.config/nodes are considered to be supported, but some changes require cluster recreation (cluster recreation means `pulumi destroy` and `pulumi up`).
-If you find any panic (due accessing to a null value or like that), please create an issue!
 
 ## Development
 ### GO

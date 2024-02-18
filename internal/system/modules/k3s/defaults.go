@@ -56,6 +56,10 @@ var (
 
 func (k *K3sConfig) WithServerDefaults() *K3sConfig {
 	k.WriteKubeconfigMode = "0644"
+	// Disable it for now. It is not needed for small clusters.
+	// It doesn't work with CCM + HA
+	// TO DO: fix it
+	k.DisableNetworkPolicy = true
 	k.TLSSanSecurity = true
 
 	if k.ClusterCidr == "" {
