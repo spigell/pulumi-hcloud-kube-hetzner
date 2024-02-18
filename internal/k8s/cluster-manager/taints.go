@@ -5,23 +5,25 @@ import (
 	"slices"
 	"sort"
 	"strings"
+	"time"
 
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+
+	// cloudproviderapi "k8s.io/cloud-provider/api".
+	corev1api "k8s.io/api/core/v1"
 )
 
 // whitelistedTaints is a list of taints that should not be treated as user-defined.
 var whitelistedTaints = []string{
-	// This taint is used by cloud controllers
-	"node.cloudprovider.kubernetes.io/uninitialized",
 	// Next taints are used by kubernetes itself and can be added by controllers
-	"node.kubernetes.io/unreachable",
-	"node.kubernetes.io/network-unavailable",
-	"node.kubernetes.io/disk-pressure",
-	"node.kubernetes.io/memory-pressure",
-	"node.kubernetes.io/pid-pressure",
-	"node.kubernetes.io/not-ready",
+	corev1api.TaintNodeUnreachable,
+	corev1api.TaintNodeNetworkUnavailable,
+	corev1api.TaintNodeDiskPressure,
+	corev1api.TaintNodeMemoryPressure,
+	corev1api.TaintNodePIDPressure,
+	corev1api.TaintNodeNotReady,
 }
 
 func (m *ClusterManager) ManageTaints(node *Node) error {
@@ -46,9 +48,21 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 					current := args[0].([]corev1.Taint)
 					additional := args[1].([]string)
 
+					// K3S tries to take ownership of the node taints.
+					// K3S does it after the node is created, so we need to wait for it.
+					// We need to wait for the node to be initialized, wait little more and then apply our taints with pulumi Manager.
+					// Very naive way to do it, but it should work for now.
+					for _, i := range []int64{30, 20, 5, 4, 3, 2, 1} {
+						m.ctx.Context().Log.Debug(fmt.Sprintf("taints: sleep for %d...", i), nil)
+						time.Sleep(time.Duration(i) * time.Second)
+					}
+
 					keys := make([]string, 0)
 
-					merged := append(toPatchTaintsFromTaintSlice(removeMartianTaints(current)), toPatchTaintsFromStringSlice(additional)...)
+					merged := append(
+						toPatchTaintsFromTaintSlice(removeMartianTaints(current)),
+						toPatchTaintsFromStringSlice(additional)...,
+					)
 
 					for _, t := range merged {
 						keys = append(keys, *t.Key)

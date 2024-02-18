@@ -50,13 +50,13 @@ jobs:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: "test-project/Pulumi.${{ env.PULUMI_STACK }}.yaml"
       - name: Preview
-        run: pulumi preview -s ${{ env.PULUMI_STACK }} -v=9 --color=always --logtostderr 2> preview.log
+        run: pulumi preview -d -s ${{ env.PULUMI_STACK }} -v=9 --color=always --logtostderr 2> preview.log
         working-directory: test-project
         env:
           HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
           GITHUB_TOKEN: ${{ secrets.github-token }}
       - name: Up
-        run: pulumi up -yf -s ${{ env.PULUMI_STACK }} -v=9 --color=always --logtostderr 2> up.log
+        run: pulumi up -d -yf -s ${{ env.PULUMI_STACK }} -v=9 --color=always --logtostderr 2> up.log
         working-directory: test-project
         env:
           HCLOUD_TOKEN: ${{ secrets.hcloud-token }}

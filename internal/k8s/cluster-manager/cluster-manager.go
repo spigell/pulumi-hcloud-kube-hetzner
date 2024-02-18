@@ -74,7 +74,6 @@ func (m *ClusterManager) ManageNodes(provider *kubernetes.Provider) error {
 
 func ComputeTolerationsFromNodes(nodes map[string]*Node) []map[string]interface{} {
 	tolerations := make([]map[string]interface{}, 0)
-	fmt.Println("tol ", nodes)
 	for _, node := range nodes {
 		for _, taint := range node.Taints {
 			keyValue, effect := strings.Split(taint, ":")[0], strings.Split(taint, ":")[1]
@@ -90,7 +89,6 @@ func ComputeTolerationsFromNodes(nodes map[string]*Node) []map[string]interface{
 				"value":  pulumi.String(value),
 				"effect": pulumi.String(effect),
 			})
-			fmt.Println("tol ", tolerations)
 		}
 	}
 

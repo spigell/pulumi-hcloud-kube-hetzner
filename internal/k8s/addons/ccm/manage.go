@@ -39,7 +39,8 @@ func (m *CCM) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt *mana
 			// But it will be created anyway.
 			"network": pulumi.Sprintf("%s-%s", ctx.Context().Project(), ctx.Context().Stack()),
 		},
-	}, append(ctx.Options(), pulumi.Provider(prov), pulumi.DependsOn(mgmt.Resources()))...)
+		//	}, append(ctx.Options(), pulumi.Provider(prov), pulumi.DependsOn(mgmt.Resources()))...)
+	}, append(ctx.Options(), pulumi.Provider(prov))...)
 	if err != nil {
 		return fmt.Errorf("unable to create secret: %w", err)
 	}
