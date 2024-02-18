@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	stateFilePrefix = "state"
+	stateFilePrefix = "phkh.state"
 )
 
 // ErrNoStateFile is returned when the state file is not found.
