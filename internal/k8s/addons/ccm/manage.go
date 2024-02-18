@@ -21,7 +21,7 @@ const (
 	name      = "hcloud-cloud-controller-manager"
 )
 
-func (m *CCM) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt *manager.ClusterManager) error {
+func (m *CCM) Manage(ctx *program.Context, prov *kubernetes.Provider, _ *manager.ClusterManager) error {
 	token, err := m.discoverHcloudToken(ctx.Context())
 	if err != nil {
 		return fmt.Errorf("unable to discover hcloud token: %w", err)
