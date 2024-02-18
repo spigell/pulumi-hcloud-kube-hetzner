@@ -94,12 +94,8 @@ func checkIPS(t *testing.T, new, old []interface{}) {
 			assert.True(t, ok)
 			assert.NotEmpty(t, ip)
 
-			fmt.Printf("new node:%s", name2)
-			fmt.Printf("old node:%s", name)
-			fmt.Printf("new ip:%s", ip2)
-			fmt.Printf("old ip:%s", ip)
-
 			if name == name2 {
+				fmt.Printf("[%s] Names are equals! new ip:%s, old ip:%s\n", name, ip, ip2)
 				assert.Equal(t, ip, ip2)
 			}
 		}
