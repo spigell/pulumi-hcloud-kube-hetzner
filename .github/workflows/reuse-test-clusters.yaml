@@ -96,6 +96,10 @@ jobs:
         with:
           name: pulumi-configuration-${{ env.PULUMI_STACK }}
           path: test-project
+      - uses: actions/download-artifact@v4
+        with:
+          name: phkh-artifacts-${{ env.PULUMI_STACK }}
+          path: test-project
       - run: go test -v -timeout=25m -parallel=10 -tags=kubernetes,connectivity
         name: Run main integration tests
         working-directory: internal/integration
