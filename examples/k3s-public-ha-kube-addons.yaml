@@ -65,8 +65,3 @@ config:
               # Empty allowed-ips means that ssh is not allowed
               # It is synonym for allow: false
               allowed-ips: []
-    servers:
-      k3s:
-        config:
-          # In HA mode+CCM, network-policy must be disable
-          disable-network-policy: true
