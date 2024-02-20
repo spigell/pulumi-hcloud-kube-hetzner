@@ -34,6 +34,7 @@ const (
 	testHetznerNodeManagement             = "hetzner-node-management"
 	testKubeHetznerCCM                    = "kube-hetzner-ccm"
 	testNodeChangeLabelsTaints            = "node-change-labels-taints"
+	testKubeCheckTaintsManager            = "kube-node-check-taints-manager"
 	testKubeK3SUpgradeControllerPlan      = "kube-k3s-upgrade-controller-plan"
 	testKubeK3SUpgradeControllerConfigEnv = "kube-k3s-upgrade-controller-config-env"
 )
@@ -46,9 +47,11 @@ var TestsByExampleName = map[string][]string{
 		testKubeHetznerCCM,
 		testKubeK3SUpgradeControllerPlan,
 		testHetznerNodeManagement,
+		testKubeCheckTaintsManager,
 	},
 	exampleK3SPrivateNonHaFwRules: {
 		testSSHConnectivity,
+		testKubeCheckTaintsManager,
 	},
 	exampleK3SPrivateHANoTaints: {
 		testSSHConnectivity,
