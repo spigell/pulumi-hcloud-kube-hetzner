@@ -12,14 +12,14 @@ require (
 	github.com/pulumi/pulumi-hcloud/sdk v1.17.0
 	github.com/pulumi/pulumi-kubernetes/sdk/v3 v3.30.2
 	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.7.1
-	github.com/pulumi/pulumi/sdk/v3 v3.103.1
+	github.com/pulumi/pulumi/sdk/v3 v3.112.0
 	github.com/sanity-io/litter v1.5.5
 	github.com/seancfoley/ipaddress-go v1.5.5
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99
 	github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99
 	github.com/spigell/pulumi-file/sdk v0.0.0-20240124083824-da5e49302f10
 	github.com/stretchr/testify v1.8.4
-	golang.org/x/crypto v0.18.0
+	golang.org/x/crypto v0.21.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.29.0
 	k8s.io/apimachinery v0.29.0
@@ -165,15 +165,15 @@ require (
 	golang.org/x/arch v0.6.0 // indirect
 	golang.org/x/exp v0.0.0-20231110203233-9a3e6036ecaa
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
-	golang.org/x/term v0.16.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 	golang.org/x/tools v0.15.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231106174013-bbf56f31fb17 // indirect
 	google.golang.org/grpc v1.59.0 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
