@@ -99,16 +99,16 @@ func (k *K3S) WithToken(token pulumi.StringOutput) *K3S {
 }
 
 func (k *K3S) WithK8SAuditLog(log *audit.AuditLog) *K3S {
-	k.auditPolicyEnabled = *log.Enabled
+	k.auditPolicyEnabled = log.Enabled()
 
 	if k.auditPolicyEnabled {
 		k.auditPolicyContent = log.PolicyContent()
 		k.Config.K3S.KubeAPIServerArgs = append(k.Config.K3S.KubeAPIServerArgs,
 			fmt.Sprintf("audit-policy-file=%s", auditPolicyFIle),
 			fmt.Sprintf("audit-log-path=%s/audit.log", logDir),
-			fmt.Sprintf("audit-log-maxage=%d", log.AuditLogMaxAge),
-			fmt.Sprintf("audit-log-maxbackup=%d", log.AuditLogMaxBackup),
-			fmt.Sprintf("audit-log-maxsize=%d", log.AuditLogMaxSize),
+			fmt.Sprintf("audit-log-maxage=%d", log.AuditLogMaxAge()),
+			fmt.Sprintf("audit-log-maxbackup=%d", log.AuditLogMaxBackup()),
+			fmt.Sprintf("audit-log-maxsize=%d", log.AuditLogMaxSize()),
 		)
 	}
 

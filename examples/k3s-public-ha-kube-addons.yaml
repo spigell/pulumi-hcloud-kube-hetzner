@@ -9,7 +9,7 @@ config:
     audit-log:
       enabled: true
       # Use default policy file
-      # policy-file: /path/to/file
+      # policy-file-path: /path/to/file
       audit-log-maxage: 30
       audit-log-maxbackup: 10
       audit-log-maxsize: 100

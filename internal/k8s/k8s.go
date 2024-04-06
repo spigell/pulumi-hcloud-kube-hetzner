@@ -27,7 +27,7 @@ func New(ctx *program.Context, config *config.Config, nodes map[string]*manager.
 	mgmt := manager.New(ctx, nodes)
 	addons := addons.New(config.Addons)
 
-	auditLog := config.AuditLog.WithDefaults()
+	auditLog := audit.NewAuditLog(config.AuditLog)
 
 	return &K8S{
 		ctx:      ctx,

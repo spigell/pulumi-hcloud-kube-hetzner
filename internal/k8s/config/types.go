@@ -8,8 +8,8 @@ import (
 )
 
 type Config struct {
-	KubeAPIEndpoint *K8SEndpoint    `json:"kube-api-endpoint" yaml:"kube-api-endpoint"`
-	AuditLog        *audit.AuditLog `json:"audit-log" yaml:"audit-log"`
+	KubeAPIEndpoint *K8SEndpoint          `json:"kube-api-endpoint" yaml:"kube-api-endpoint"`
+	AuditLog        *audit.AuditLogConfig `json:"audit-log" yaml:"audit-log"`
 	Addons          *addons.Addons
 }
 
@@ -60,7 +60,7 @@ func (k *Config) WithInited() *Config {
 	}
 
 	if k.AuditLog == nil {
-		k.AuditLog = &audit.AuditLog{}
+		k.AuditLog = &audit.AuditLogConfig{}
 	}
 
 	return k
