@@ -3,11 +3,13 @@ package config
 import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/audit"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 )
 
 type Config struct {
-	KubeAPIEndpoint *K8SEndpoint `json:"kube-api-endpoint" yaml:"kube-api-endpoint"`
+	KubeAPIEndpoint *K8SEndpoint    `json:"kube-api-endpoint" yaml:"kube-api-endpoint"`
+	AuditLog        *audit.AuditLog `json:"audit-log" yaml:"audit-log"`
 	Addons          *addons.Addons
 }
 
@@ -55,6 +57,10 @@ func (k *Config) WithInited() *Config {
 
 	if k.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps == nil {
 		k.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps = firewall.ICMPRule.SourceIps
+	}
+
+	if k.AuditLog == nil {
+		k.AuditLog = &audit.AuditLog{}
 	}
 
 	return k

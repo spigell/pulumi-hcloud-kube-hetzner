@@ -66,6 +66,23 @@ func (k *K3S) configure(ctx *program.Context, con *connection.Connection, config
 		triggers = append(triggers, t)
 	}
 
+	if k.auditPolicyEnabled {
+		policied, err := remotefile.NewFile(ctx.Context(), fmt.Sprintf("audit-policy-for-%s", k.ID), &remotefile.FileArgs{
+			Connection:  con.RemoteFile(),
+			UseSudo:     pulumi.Bool(true),
+			Path:        pulumi.String(auditPolicyFIle),
+			Content:     pulumi.String(*k.auditPolicyContent),
+			SftpPath:    pulumi.String(k.OS.SFTPServerPath()),
+			Permissions: pulumi.String("700"),
+		}, append(ctx.Options(), pulumi.DependsOn(result), pulumi.RetainOnDelete(true))...)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, policied)
+		triggers = append(triggers, policied.Content, policied.Md5sum)
+	}
+
 	// Restart k3s service.
 	restartCommand := pulumi.Sprintf(strings.Join([]string{
 		"sudo systemctl disable --now %s",

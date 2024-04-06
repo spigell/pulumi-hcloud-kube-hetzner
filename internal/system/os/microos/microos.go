@@ -4,6 +4,7 @@ import (
 	"sort"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/audit"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
@@ -119,9 +120,13 @@ func (m *MicroOS) SetupSSHD(config *sshd.Config) {
 	m.modules[variables.SSHD] = module
 }
 
-func (m *MicroOS) AddK3SModule(role string, config *k3s.Config) {
+func (m *MicroOS) AddK3SModule(role string, config *k3s.Config, auditLog *audit.AuditLog) {
 	m.AddAdditionalRequiredPackages(k3s.GetRequiredPkgs(Name))
 	module := k3s.New(m.ID, role, &MicroOS{}, config)
+
+	if role == variables.ServerRole {
+		module = module.WithK8SAuditLog(auditLog)
+	}
 
 	module.SetOrder(SystemServices)
 	m.modules[variables.K3s] = module

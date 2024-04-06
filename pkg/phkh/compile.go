@@ -13,6 +13,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
+	audit "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/audit"
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions"
 	distrK3S "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
@@ -82,7 +83,7 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 		}
 	}
 
-	kubeCluster := k8s.New(ctx, config.K8S.Addons, nodeMap)
+	kubeCluster := k8s.New(ctx, config.K8S, nodeMap)
 	if err := kubeCluster.Validate(); err != nil {
 		return nil, fmt.Errorf("failed to validate k8s cluster: %w", err)
 	}
@@ -136,7 +137,7 @@ func compile(ctx *program.Context, config *config.Config) (*Compiled, error) { /
 		switch kube {
 		case defaultKube:
 			configureFwForK3s(fw, config, node, ip)
-			configureOSForK3S(os, node)
+			configureOSForK3S(os, node, compiled.K8S.AuditLog())
 
 			for _, addon := range compiled.K8S.Addons() {
 				if addon.Enabled() {
@@ -214,8 +215,8 @@ func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.
 	}
 }
 
-func configureOSForK3S(os os.OperatingSystem, node *config.Node) {
-	os.AddK3SModule(node.Role, node.K3s)
+func configureOSForK3S(os os.OperatingSystem, node *config.Node, auditLog *audit.AuditLog) {
+	os.AddK3SModule(node.Role, node.K3s, auditLog)
 	os.SetupSSHD(&sshd.Config{
 		// TODO: make it discoverable from k3s module
 		AcceptEnv: "INSTALL_K3S_*",

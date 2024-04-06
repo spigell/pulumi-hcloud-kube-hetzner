@@ -6,7 +6,9 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
+	audit "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/audit"
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 )
@@ -16,19 +18,23 @@ type K8S struct {
 	distr  string
 	addons []addons.Addon
 
-	mgmt   *manager.ClusterManager
-	runner *Runner
+	mgmt     *manager.ClusterManager
+	runner   *Runner
+	auditLog *audit.AuditLog
 }
 
-func New(ctx *program.Context, adds *addons.Addons, nodes map[string]*manager.Node) *K8S {
+func New(ctx *program.Context, config *config.Config, nodes map[string]*manager.Node) *K8S {
 	mgmt := manager.New(ctx, nodes)
-	addons := addons.New(adds)
+	addons := addons.New(config.Addons)
+
+	auditLog := config.AuditLog.WithDefaults()
 
 	return &K8S{
-		ctx:    ctx,
-		addons: addons,
-		mgmt:   mgmt,
-		runner: NewRunner(ctx, addons).WithClusterManager(mgmt),
+		ctx:      ctx,
+		addons:   addons,
+		mgmt:     mgmt,
+		runner:   NewRunner(ctx, addons).WithClusterManager(mgmt),
+		auditLog: auditLog,
 	}
 }
 
@@ -68,6 +74,10 @@ func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
 	}
 
 	return k.runner.Run(prov)
+}
+
+func (k *K8S) AuditLog() *audit.AuditLog {
+	return k.auditLog
 }
 
 func (k *K8S) addon(name string) addons.Addon {

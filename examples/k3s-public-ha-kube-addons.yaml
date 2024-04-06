@@ -6,6 +6,13 @@ config:
     hetzner:
       enabled: false
   pulumi-hcloud-kube-hetzner:k8s:
+    audit-log:
+      enabled: true
+      # Use default policy file
+      # policy-file: /path/to/file
+      audit-log-maxage: 30
+      audit-log-maxbackup: 10
+      audit-log-maxsize: 100
     kube-api-endpoint:
       type: public
       firewall:
