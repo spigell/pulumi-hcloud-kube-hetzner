@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/audit"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/info"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
@@ -15,13 +16,17 @@ import (
 const (
 	// ManagedLabel is a label for node Label. Used for internal purposes.
 	NodeManagedLabel = "phkh.io/managed=true"
+	logDir           = "/var/lib/rancher/k3s/server/logs"
+	auditPolicyFIle  = "/var/lib/audit.yaml"
 )
 
 type K3S struct {
-	order    int
-	role     string
-	leaderIP pulumi.StringOutput
-	token    pulumi.StringOutput
+	order              int
+	role               string
+	leaderIP           pulumi.StringOutput
+	token              pulumi.StringOutput
+	auditPolicyEnabled bool
+	auditPolicyContent *string
 
 	ID  string
 	OS  info.OSInfo
@@ -89,6 +94,23 @@ func (k *K3S) WithLeaderIP(ip pulumi.StringOutput) *K3S {
 
 func (k *K3S) WithToken(token pulumi.StringOutput) *K3S {
 	k.token = token
+
+	return k
+}
+
+func (k *K3S) WithK8SAuditLog(log *audit.AuditLog) *K3S {
+	k.auditPolicyEnabled = log.Enabled()
+
+	if k.auditPolicyEnabled {
+		k.auditPolicyContent = log.PolicyContent()
+		k.Config.K3S.KubeAPIServerArgs = append(k.Config.K3S.KubeAPIServerArgs,
+			fmt.Sprintf("audit-policy-file=%s", auditPolicyFIle),
+			fmt.Sprintf("audit-log-path=%s/audit.log", logDir),
+			fmt.Sprintf("audit-log-maxage=%d", log.AuditLogMaxAge()),
+			fmt.Sprintf("audit-log-maxbackup=%d", log.AuditLogMaxBackup()),
+			fmt.Sprintf("audit-log-maxsize=%d", log.AuditLogMaxSize()),
+		)
+	}
 
 	return k
 }
