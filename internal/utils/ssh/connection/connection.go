@@ -8,7 +8,7 @@ import (
 
 type Connection struct {
 	IP         pulumi.StringOutput
-	PrivateKey string
+	PrivateKey pulumi.StringOutput
 	User       string
 }
 
@@ -16,7 +16,7 @@ func (c *Connection) RemoteCommand() *remote.ConnectionArgs {
 	return &remote.ConnectionArgs{
 		Host:           c.IP,
 		User:           pulumi.String(c.User),
-		PrivateKey:     pulumi.String(c.PrivateKey),
+		PrivateKey:     c.PrivateKey,
 		DialErrorLimit: pulumi.Int(20),
 	}
 }
@@ -25,6 +25,6 @@ func (c *Connection) RemoteFile() *remotefile.ConnectionArgs {
 	return &remotefile.ConnectionArgs{
 		Host:       c.IP,
 		User:       pulumi.String(c.User),
-		PrivateKey: pulumi.String(c.PrivateKey),
+		PrivateKey: c.PrivateKey,
 	}
 }

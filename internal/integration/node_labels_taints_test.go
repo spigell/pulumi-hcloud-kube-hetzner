@@ -23,21 +23,22 @@ func TestLabelsTaintsChange(t *testing.T) {
 
 	desiredTaint := "example.io/important-node=true:NoSchedule"
 
-	t.Parallel()
+	// t.Parallel()
 
-	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
+	ctx, cancel := context.WithDeadline(context.Background(), withPulumiDeadline)
 	defer cancel()
 
-	i, _ := New(ctx)
+	i, err := New(ctx)
+	require.NoError(t, err)
 
 	if !slices.Contains(TestsByExampleName[i.Example.Name], testNodeChangeLabelsTaints) {
 		t.Skip()
 	}
 
-	out, err := i.Stack.Outputs(ctx)
+	out, err := i.Outputs()
 	assert.NoError(t, err)
 
-	kubeconfig, ok := out[phkh.KubeconfigKey].Value.(string)
+	kubeconfig, ok := out[phkh.KubeconfigKey].(string)
 	require.True(t, ok)
 
 	k8s, err := k8s.New(ctx, kubeconfig)

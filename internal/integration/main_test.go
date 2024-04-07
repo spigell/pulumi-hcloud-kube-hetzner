@@ -8,14 +8,13 @@ import (
 	"time"
 )
 
-var (
-	// This is a default deadline for tests.
-	//nolint: unused
-	defaultDeadline = time.Now().Add(5 * time.Minute)
+// This deadline is used for tests with pulumi command (only with locking, tho).
+var withPulumiDeadline = time.Now().Add(20 * time.Minute)
 
-	// This deadline is used for tests with pulumi command (only with locking, tho).
-	withPulumiDeadline = time.Now().Add(20 * time.Minute)
-)
+func defaultDeadline() time.Time { //nolint: unused
+	// This is a default deadline for tests.
+	return time.Now().Add(5 * time.Minute)
+}
 
 func TestMain(m *testing.M) {
 	ctx, cancel := context.WithDeadline(context.Background(), withPulumiDeadline)

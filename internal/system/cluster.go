@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/k3stoken"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -15,14 +15,11 @@ import (
 type Cluster []*System
 
 type Deployed struct {
-	Wireguard *WgCluster
 	K3s       *k3s.Outputs
 	Resources []pulumi.Resource
 }
 
-func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deployed) (*Deployed, error) {
-	provisionedWGPeers := c.NewWgCluster(wgInfo, deps.Servers)
-
+func (c *Cluster) Up(token *k3stoken.Token, deps *hetzner.Deployed) (*Deployed, error) {
 	// We must wait for all nodes to be ready before we can use kube api.
 	// resources is used to keep for all k3s modules Resources().
 	// It is enough for waiting.
@@ -31,12 +28,8 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 	kubeDependencies := make(map[string][]pulumi.Resource)
 
 	leaderIPS := map[string]pulumi.StringOutput{
-		variables.InternalCommunicationMethod.String(): pulumi.String(deps.Servers[c.Leader().ID].InternalIP).ToStringOutput(),
+		variables.InternalCommunicationMethod.String(): deps.Servers[c.Leader().ID].InternalIP,
 		variables.PublicCommunicationMethod.String():   deps.Servers[c.Leader().ID].Connection.IP,
-	}
-
-	if c.Leader().OS.Wireguard() != nil {
-		leaderIPS[variables.WgCommunicationMethod.String()] = pulumi.String(c.Leader().OS.Wireguard().Self.PrivateAddr).ToStringOutput()
 	}
 
 	var k3sOutputs *k3s.Outputs
@@ -51,7 +44,7 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 			if k == variables.K3s {
 				v.OS.Modules()[k] = module.(*k3s.K3S).WithSysInfo(v.info).WithLeaderIP(
 					leaderIPS[v.info.CommunicationMethod().String()],
-				)
+				).WithToken(token.Value())
 			}
 		}
 
@@ -61,9 +54,6 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 		}
 
 		for k, module := range s.OS.Modules() {
-			if k == variables.Wireguard {
-				provisionedWGPeers.Peers[v.ID] = module.Value().(pulumi.AnyOutput)
-			}
 			if k == variables.K3s {
 				// Cluster is sorted by seniority.
 				// So, workers and non-leader nodes will wait for leader to be ready.
@@ -83,7 +73,6 @@ func (c *Cluster) Up(wgInfo map[string]*wireguard.WgConfig, deps *hetzner.Deploy
 	}
 
 	return &Deployed{
-		Wireguard: provisionedWGPeers,
 		K3s:       k3sOutputs,
 		Resources: resources,
 	}, nil

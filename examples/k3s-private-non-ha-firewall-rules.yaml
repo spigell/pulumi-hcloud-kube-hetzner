@@ -1,0 +1,105 @@
+# This example shows how to use the firewall configuration.
+# There are a lot of overrides for the server's firewall configuration.
+# It shows howt to limit access to basic service as well.
+# It is used for testing.
+
+config:
+  pulumi-hcloud-kube-hetzner:network:
+    hetzner:
+      enabled: true
+      # It is highly recommended to set a cidr for the private network for at least /20
+      cidr: 192.168.16.0/20
+  pulumi-hcloud-kube-hetzner:k8s:
+    kube-api-endpoint:
+      # By default, public endpoint type is used.
+      type: public
+      firewall:
+        # This only works for the public endpoint.
+        hetzner-public:
+          # Allow access to the k8s api from the this cidr!
+          # Applied only if firewall enabled and kube-api-endpoint.type == public
+          allowed-ips: []
+  pulumi-hcloud-kube-hetzner:nodepools:
+    agents:
+      - id: 01-small-nodes
+        config:
+          server:
+            firewall:
+              hetzner:
+                # You should explicitly enable firewall for every layer of the configuration.
+                enabled: true
+                # Do not allow ping only this server node explicitly.
+                allow-icmp: false
+                additional-rules: 
+                  - description: custom rule
+                    port: "100"
+                    protocol: tcp
+                    source-ips:
+                      - 0.0.0.0/0
+        nodes:
+          - id: k3s-agent01
+      - id: 02-small-nodes
+        nodes:
+          - id: k3s-agent02
+    servers:
+      - id: control-plane
+        nodes:
+        - id: k3s-server01
+          server:
+            firewall:
+              hetzner:
+                # You should explicitly enable firewall for every layer of the configuration.
+                enabled: true
+                # Do not allow ping only this server node explicitly.
+                allow-icmp: false
+                ssh:
+                  # You should explicitly enable ssh for every layer of the configuration.
+                  # If you need it of course
+                  allow: true
+                  # Despite the fact that the ssh is not allowed for your ip address, you can use the ssh service,
+                  # because it is added to the firewall by default.
+                  allowed-ips:
+                    - '127.0.0.1/32'
+                    - '100.0.0.0/24'
+            location: fsn1
+  pulumi-hcloud-kube-hetzner:defaults:
+    agents:
+      server:
+        firewall:
+          hetzner:
+            # You should explicitly enable firewall for every layer of the configuration.
+            enabled: true
+            # You should explicitly enable ping for every layer of the configuration.
+            allow-icmp: true
+            ssh:
+              # You should explicitly enable ssh for every layer of the configuration.
+              # If you need it, of course
+              allow: true
+              # Do not add my ip to rules as allowed for ssh.
+              # This is not needed since allowed-ips includes all addresses.
+              disallow-own-ip: true
+              allowed-ips:
+                - '0.0.0.0/0'
+            # Append (!) to additional rules this rule for agent nodes only.
+            additional-rules:
+              - description: custom rule 2
+                port: "10000"
+                protocol: tcp
+                source-ips:
+                  - 0.0.0.0/0
+    global:
+      server:
+        firewall:
+          hetzner:
+            enabled: true
+            allow-icmp: true
+            ssh:
+              # SSH is not allowed globally, but can be enabled for specific nodes/nodepools and role (server/agent)
+              allow: false
+            additional-rules:
+              - description: custom rule 1
+                port: "51825"
+                protocol: udp
+                source-ips:
+                  - 102.0.0.0/8
+                  - ::/0

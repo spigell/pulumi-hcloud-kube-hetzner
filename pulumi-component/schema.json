@@ -1,0 +1,86 @@
+{
+    "name": "hcloud-kube-hetzner",
+    "displayName": "Hetzner Cloud Kubernetes",
+    "keywords": [
+        "pulumi",
+        "kubernetes",
+        "kind/component",
+        "category/infrastructure"
+    ],
+    "pluginDownloadURL": "github://api.github.com/spigell/pulumi-hcloud-kube-hetzner",
+    "publisher": "spigell",
+    "resources": {
+        "hcloud-kube-hetzner:index:Cluster": {
+            "description": "Component for creating a Hetzner Cloud Kubernetes cluster.",
+            "isComponent": true,
+            "inputProperties": {},
+            "properties": {
+                "kubeconfig": {
+                    "description": "The kubeconfig for the cluster.",
+                    "type": "string",
+                    "secret": true
+                },
+                "privatekey": {
+                    "description": "The private key for nodes",
+                    "type": "string",
+                    "secret": true
+                },
+                "servers": {
+                    "description": "The servers for the cluster.",
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "ip": {
+                                "description": "The ip of the server.",
+                                "type": "string"
+                            },
+                            "user": {
+                                "description": "The user of the server.",
+                                "type": "string"
+                            },
+                            "name": {
+                                "description": "The name of the server.",
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "required": [
+                "kubeconfig",
+                "privatekey",
+                "servers"
+            ]
+        }
+    },
+    "language": {
+        "csharp": {
+            "namespaces": {
+                "hcloud-kube-hetzner": "HcloudKubeHetzner"
+            },
+            "packageReferences": {
+                "Pulumi": "3.*"
+            }
+        },
+        "go": {
+            "generateResourceContainerTypes": true,
+            "importBasePath": "github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/sdk/go/hcloud-kube-hetzner"
+        },
+        "nodejs": {
+            "packageName": "@spigell/hcloud-kube-hetzner",
+            "devDependencies": {
+                "typescript": "^4.3.5",
+                "@types/node": "^20.0.0"
+            },
+            "dependencies": {
+                "@pulumi/pulumi": "^3.0.0"
+            }
+        },
+        "python": {
+            "requires": {
+                "pulumi": ">=3.0.0,<4.0.0"
+            }
+        }
+    }
+}

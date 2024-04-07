@@ -8,7 +8,6 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	k8sconfig "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 )
 
 type WithID interface {
@@ -33,8 +32,7 @@ type Nodepool struct {
 }
 
 type Network struct {
-	Hetzner   *network.Config
-	Wireguard *wireguard.Config
+	Hetzner *network.Config
 }
 
 func (n *Nodepool) GetID() string {
@@ -102,24 +100,6 @@ func (n *Network) WithInited() *Network {
 		n.Hetzner = &network.Config{
 			Enabled: false,
 		}
-	}
-
-	if n.Wireguard == nil {
-		n.Wireguard = &wireguard.Config{
-			Enabled: false,
-		}
-	}
-
-	if n.Wireguard.Firewall == nil {
-		n.Wireguard.Firewall = &wireguard.Firewall{}
-	}
-
-	if n.Wireguard.Firewall.Hetzner == nil {
-		n.Wireguard.Firewall.Hetzner = &wireguard.HetznerFirewall{}
-	}
-
-	if n.Wireguard.Firewall.Hetzner.AllowedIps == nil {
-		n.Wireguard.Firewall.Hetzner.AllowedIps = wireguard.FWAllowedIps
 	}
 
 	return n

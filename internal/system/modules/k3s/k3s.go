@@ -5,9 +5,10 @@ import (
 	"net"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/audit"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/info"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 )
@@ -15,12 +16,17 @@ import (
 const (
 	// ManagedLabel is a label for node Label. Used for internal purposes.
 	NodeManagedLabel = "phkh.io/managed=true"
+	logDir           = "/var/lib/rancher/k3s/server/logs"
+	auditPolicyFIle  = "/var/lib/audit.yaml"
 )
 
 type K3S struct {
-	order    int
-	role     string
-	leaderIP pulumi.StringOutput
+	order              int
+	role               string
+	leaderIP           pulumi.StringOutput
+	token              pulumi.StringOutput
+	auditPolicyEnabled bool
+	auditPolicyContent *string
 
 	ID  string
 	OS  info.OSInfo
@@ -35,7 +41,6 @@ type Provisioned struct {
 }
 
 type Outputs struct {
-	Token               string
 	KubeconfigForExport pulumi.AnyOutput
 	KubeconfigForUsage  pulumi.AnyOutput
 }
@@ -87,6 +92,29 @@ func (k *K3S) WithLeaderIP(ip pulumi.StringOutput) *K3S {
 	return k
 }
 
+func (k *K3S) WithToken(token pulumi.StringOutput) *K3S {
+	k.token = token
+
+	return k
+}
+
+func (k *K3S) WithK8SAuditLog(log *audit.AuditLog) *K3S {
+	k.auditPolicyEnabled = log.Enabled()
+
+	if k.auditPolicyEnabled {
+		k.auditPolicyContent = log.PolicyContent()
+		k.Config.K3S.KubeAPIServerArgs = append(k.Config.K3S.KubeAPIServerArgs,
+			fmt.Sprintf("audit-policy-file=%s", auditPolicyFIle),
+			fmt.Sprintf("audit-log-path=%s/audit.log", logDir),
+			fmt.Sprintf("audit-log-maxage=%d", log.AuditLogMaxAge()),
+			fmt.Sprintf("audit-log-maxbackup=%d", log.AuditLogMaxBackup()),
+			fmt.Sprintf("audit-log-maxsize=%d", log.AuditLogMaxSize()),
+		)
+	}
+
+	return k
+}
+
 func (k *K3S) SetOrder(order int) {
 	k.order = order
 }
@@ -95,7 +123,7 @@ func (k *K3S) Order() int {
 	return k.order
 }
 
-func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.Resource, payload []interface{}) (modules.Output, error) {
+func (k *K3S) Up(ctx *program.Context, con *connection.Connection, deps []pulumi.Resource, payload []interface{}) (modules.Output, error) {
 	if k.role == variables.ServerRole {
 		if k.Config.K3S.ClusterDNS == "" {
 			ip, err := chooseDNSIP(k.Config.K3S.ServiceCidr)
@@ -117,24 +145,12 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 	}
 	res = append(res, install)
 
-	// payload[0] is wireguard config
-	// payload[1] is internal IP
 	var config pulumi.StringOutput
 	switch k.Sys.CommunicationMethod() {
-	case variables.WgCommunicationMethod:
-		config, _ = pulumi.All(payload[0].(pulumi.AnyOutput), k.leaderIP, con.IP).ApplyT(
-			func(args []interface{}) (string, error) {
-				wg := args[0].(*wireguard.WgConfig)
-
-				rendered, err := k.CompleteConfig(wg.Interface.Address, args[1].(string), args[2].(string)).render()
-
-				return string(rendered), err
-			},
-		).(pulumi.StringOutput)
 	case variables.PublicCommunicationMethod:
-		config, _ = pulumi.All(k.leaderIP, con.IP).ApplyT(
+		config, _ = pulumi.All(k.leaderIP, con.IP, k.token).ApplyT(
 			func(args []interface{}) (string, error) {
-				rendered, err := k.CompleteConfig(args[1].(string), args[0].(string), args[1].(string)).render()
+				rendered, err := k.CompleteConfig(args[2].(string), args[1].(string), args[0].(string), args[1].(string)).render()
 
 				return string(rendered), err
 			},
@@ -142,9 +158,10 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 
 	// payload[0] is internal IP
 	case variables.InternalCommunicationMethod:
-		config, _ = pulumi.All(k.leaderIP, con.IP).ApplyT(
+		internalIP := payload[0].(pulumi.StringOutput)
+		config, _ = pulumi.All(k.leaderIP, con.IP, k.token, internalIP).ApplyT(
 			func(args []interface{}) (string, error) {
-				rendered, err := k.CompleteConfig(payload[0].(string), args[0].(string), args[1].(string)).render()
+				rendered, err := k.CompleteConfig(args[2].(string), args[3].(string), args[0].(string), args[1].(string)).render()
 
 				return string(rendered), err
 			},
@@ -169,7 +186,6 @@ func (k *K3S) Up(ctx *pulumi.Context, con *connection.Connection, deps []pulumi.
 	return &Provisioned{
 		resources: res,
 		Outputs: &Outputs{
-			Token:               k.Config.K3S.Token,
 			KubeconfigForUsage:  kubeconfig,
 			KubeconfigForExport: kubeconfig,
 		},
@@ -185,7 +201,8 @@ func (p *Provisioned) Resources() []pulumi.Resource {
 }
 
 // CompleteConfig completes k3s config with pulumi.Outputs values.
-func (k *K3S) CompleteConfig(ip, leaderIP, externalIP string) *CompletedConfig {
+func (k *K3S) CompleteConfig(token, ip, leaderIP, externalIP string) *CompletedConfig {
+	k.Config.K3S.Token = token
 	k.Config.K3S.FlannelIface = k.Sys.CommunicationIface()
 	k.Config.K3S.NodeIP = ip
 	k.Config.K3S.ExternalNodeIP = externalIP

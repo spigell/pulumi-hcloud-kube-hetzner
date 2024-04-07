@@ -4,10 +4,11 @@ import (
 	"sort"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/audit"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/wireguard"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 
@@ -49,7 +50,7 @@ func (m *MicroOS) AddAdditionalRequiredPackages(packages []string) {
 	m.RequiredPkgs = append(m.RequiredPkgs, packages...)
 }
 
-func (m *MicroOS) Up(ctx *pulumi.Context, server *hetzner.Server, kubeDependecies map[string][]pulumi.Resource) (os.Provisioned, error) {
+func (m *MicroOS) Up(ctx *program.Context, server *hetzner.Server, kubeDependecies map[string][]pulumi.Resource) (os.Provisioned, error) {
 	if err := m.WaitForCloudInit(ctx, server.Connection); err != nil {
 		return nil, err
 	}
@@ -83,9 +84,7 @@ func (m *MicroOS) Up(ctx *pulumi.Context, server *hetzner.Server, kubeDependecie
 
 		switch k {
 		case variables.K3s:
-			if server.InternalIP != "" {
-				k3sPayload = append(k3sPayload, server.InternalIP)
-			}
+			k3sPayload = append(k3sPayload, server.InternalIP)
 
 			// All nodes must wait for leader to be ready.
 			deps = append(deps, kubeDependecies["leader"]...)
@@ -101,13 +100,6 @@ func (m *MicroOS) Up(ctx *pulumi.Context, server *hetzner.Server, kubeDependecie
 			return nil, err
 		}
 
-		// module Wireguard must run before K3S.
-		// See SetOrder()
-		if k == variables.Wireguard {
-			k3sPayload = append(k3sPayload, o.Value())
-			kubeDependecies[m.ID] = append(kubeDependecies[m.ID], o.Resources()...)
-		}
-
 		m.resources = o.Resources()
 		outputs[k] = o
 	}
@@ -121,14 +113,6 @@ func (m *MicroOS) SFTPServerPath() string {
 	return SFTPServerPath
 }
 
-func (m *MicroOS) SetupWireguard(config *wireguard.Config) {
-	m.AddAdditionalRequiredPackages(wireguard.GetRequiredPkgs(Name))
-
-	module := wireguard.New(m.ID, &MicroOS{}, config)
-	module.SetOrder(AfterReboot)
-	m.modules[variables.Wireguard] = module
-}
-
 func (m *MicroOS) SetupSSHD(config *sshd.Config) {
 	module := sshd.New(m.ID, &MicroOS{}, config)
 
@@ -136,20 +120,16 @@ func (m *MicroOS) SetupSSHD(config *sshd.Config) {
 	m.modules[variables.SSHD] = module
 }
 
-func (m *MicroOS) AddK3SModule(role string, config *k3s.Config) {
+func (m *MicroOS) AddK3SModule(role string, config *k3s.Config, auditLog *audit.AuditLog) {
 	m.AddAdditionalRequiredPackages(k3s.GetRequiredPkgs(Name))
 	module := k3s.New(m.ID, role, &MicroOS{}, config)
 
-	module.SetOrder(SystemServices)
-	m.modules[variables.K3s] = module
-}
-
-func (m *MicroOS) Wireguard() *wireguard.Wireguard {
-	if m.modules[variables.Wireguard] == nil {
-		return nil
+	if role == variables.ServerRole {
+		module = module.WithK8SAuditLog(auditLog)
 	}
 
-	return m.modules[variables.Wireguard].(*wireguard.Wireguard)
+	module.SetOrder(SystemServices)
+	m.modules[variables.K3s] = module
 }
 
 func (m *MicroOS) Modules() map[string]modules.Module {

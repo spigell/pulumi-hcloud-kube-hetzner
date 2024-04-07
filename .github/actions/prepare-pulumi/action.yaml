@@ -7,9 +7,11 @@ inputs:
   create-stack:
     required: true
     description: "create stack or not"
-  disable-go-deps:
+  template:
     required: false
-    description: "disable go cache"
+    description: 'source of pulumi template'
+    default: go/library
+
 runs:
   using: "composite"
   steps:
@@ -22,25 +24,68 @@ runs:
       with:
         cache: false
         go-version-file: go.mod
-    - name: Create a temporary Pulumi project
-      run: make test-project
+    - name: Setup Node LTS
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
+      if: startsWith(inputs.template, 'typescript')
+    - name: Generate nodejs sdk package
       shell: bash
-    - name: Downloading dependencies 📦
-      if: ${{ ! inputs.disable-go-deps }}
-      shell: bash
-      run: go mod download
-      working-directory: test-project
+      run: make build_nodejs_sdk
+      working-directory: pulumi-component
+      if: startsWith(inputs.template, 'typescript')
+    - name: Wait for builds
+      uses: lewagon/wait-on-check-action@v1.3.1
+      with:
+        ref: ${{ github.ref }}
+        check-name: "Build and save component binary"
+        repo-token: ${{ github.token }}
+        wait-interval: 10
+      if: ${{ inputs.template != 'go/library' }}
     - name: Install pulumi cli
       uses: pulumi/actions@v4
       with:
-        pulumi-version: v3.95.0
+        pulumi-version: v3.112.0
+    - name: Download artifact
+      id: download-artifact
+      uses: dawidd6/action-download-artifact@v3
+      with:
+        workflow: all-build-component.yaml
+        workflow_conclusion: success
+      if: ${{ inputs.template != 'go/library' }}
+    - name: Add component to pulumi plugin directory
+      run: |
+        mv -v pulumi-component-*/pulumi-resource-hcloud-kube-hetzner hcloud-kube-hetzner && \
+        chmod +x hcloud-kube-hetzner && \
+        stat hcloud-kube-hetzner && \
+        pulumi plugin install resource hcloud-kube-hetzner 0.0.1 -f hcloud-kube-hetzner
+      shell: bash
+      if: ${{ inputs.template != 'go/library' }}
+    - name: Create a temporary Pulumi project
+      run: make test-go-project
+      env:
+        TEMPLATE: ${{ inputs.template }}
+      shell: bash
+      if: startsWith(inputs.template, 'go')
+    - name: Create a temporary Pulumi project
+      run: make test-ts-project
+      env:
+        TEMPLATE: ${{ inputs.template }}
+      shell: bash
+      if: startsWith(inputs.template, 'typescript')
+    - name: Downloading GO dependencies 📦
+      if: startsWith(inputs.template, 'go')
+      shell: bash
+      run: go mod download
+      working-directory: test-project
     - name: Create a stack
       shell: bash
       if: ${{ inputs.create-stack == 'true'}}
-      run: make ci-pulumi-prepare
+      run: make pulumi-ci-prepare
       env:
         PULUMI_STACK_INIT_FLAGS: --secrets-provider=gcpkms://projects/spigell-infra/locations/global/keyRings/spigell-infra-keyring/cryptoKeys/spigell-infra-phkh-pulumi-key
         PULUMI_BACKEND: gs://spigell-infra-phkh-pulumi-states
+        PULUMI_CONFIG_SOURCE: ../${{ env.PULUMI_CONFIG_SOURCE }}
       working-directory: test-project
     - name: Login to Pulumi
       shell: bash

@@ -9,7 +9,7 @@ import (
 )
 
 func (k *K8S) Provider(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) (*kubernetes.Provider, error) {
-	return kubernetes.NewProvider(k.ctx, "main", &kubernetes.ProviderArgs{
+	return kubernetes.NewProvider(k.ctx.Context(), "main", &kubernetes.ProviderArgs{
 		Kubeconfig: kubeconfig.ApplyT(func(s interface{}) string {
 			kubeconfig := s.(*api.Config)
 
@@ -17,9 +17,11 @@ func (k *K8S) Provider(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) (*ku
 
 			return string(k)
 		}).(pulumi.StringOutput),
-	},
+	}, append(
+		k.ctx.Options(),
+		pulumi.AdditionalSecretOutputs([]string{"stdout"}),
 		pulumi.DependsOn(deps),
 		// Ignore kubeconfig changes because it leads to recreation of all k8s resources.
 		pulumi.IgnoreChanges([]string{"kubeconfig"}),
-	)
+	)...)
 }

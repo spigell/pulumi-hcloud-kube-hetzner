@@ -12,7 +12,7 @@ const (
 	defaultClusterCIDR = "10.141.0.0/16"
 )
 
-// This is very opinionated values and it is based on my expirience with k3s.
+// This is very opinionated values and it is based on my experience with k3s.
 var (
 	defaultKubeControllerManagerArgs = map[string]string{
 		// Increase time for a grace period for failed nodes.
@@ -56,6 +56,10 @@ var (
 
 func (k *K3sConfig) WithServerDefaults() *K3sConfig {
 	k.WriteKubeconfigMode = "0644"
+	// Disable it for now. It is not needed for small clusters.
+	// It doesn't work with CCM + HA
+	// TO DO: fix it
+	k.DisableNetworkPolicy = true
 	k.TLSSanSecurity = true
 
 	if k.ClusterCidr == "" {

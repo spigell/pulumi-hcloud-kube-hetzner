@@ -1,0 +1,33 @@
+name: The NPM package uploading
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  sdk-nodejs-release:
+    name: "Release NodeJS SDK"
+    runs-on: ubuntu-latest
+    if: github.event.base_ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Go ✨
+        uses: actions/setup-go@v4
+        with:
+          cache: false
+          go-version-file: pulumi-component/provider/go.mod
+      - name: Install pulumictl
+        uses: jaxxstorm/action-install-gh-release@v1.10.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          repo: pulumi/pulumictl
+      - name: Generate nodejs sdk package
+        run: make build_nodejs_sdk
+        working-directory: pulumi-component
+      - name: Publish package to npm
+        uses: JS-DevTools/npm-publish@v3
+        with:
+          package: pulumi-component/sdk/nodejs/bin
+          token: ${{ secrets.NPM_TOKEN }}
+          dry-run: false

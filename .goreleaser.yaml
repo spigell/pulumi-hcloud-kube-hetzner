@@ -1,0 +1,44 @@
+archives:
+  - id: pulumi-archive
+    name_template: '{{ .Binary }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}'
+    builds:
+      - pulumi-component
+  - id: binary
+    format: binary
+    name_template: '{{ .Binary }}-{{ .Tag }}-{{ .Os }}-{{ .Arch }}'
+    builds:
+      - reboot-checker
+builds:
+  - binary: pulumi-resource-hcloud-kube-hetzner
+    id: pulumi-component
+    dir: pulumi-component/provider
+    env:
+      - CGO_ENABLED=0
+      - GO111MODULE=on
+    goarch:
+      - amd64
+      - arm64
+    goos:
+      - darwin
+      - linux
+    ldflags:
+      - -w -s -X github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/pkg/version.Version={{.Tag}}
+    main: ./cmd/pulumi-resource-hcloud-kube-hetzner/
+  - binary: reboot-checker
+    id: reboot-checker
+    env:
+      - CGO_ENABLED=0
+      - GO111MODULE=on
+    goarch:
+      - amd64
+      - arm64
+    goos:
+      - darwin
+      - linux
+    main: ./cmd/reboot-checker
+changelog:
+  skip: true
+release:
+  disable: false
+snapshot:
+  name_template: '{{ .Tag }}-SNAPSHOT'

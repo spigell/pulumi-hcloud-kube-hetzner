@@ -19,7 +19,7 @@ type PulumiConfig struct {
 }
 
 func TestExampleWithUnknownFields(t *testing.T) {
-	exampleDir := "pulumi-template/examples"
+	exampleDir := "examples"
 
 	var decoded *PulumiConfig
 

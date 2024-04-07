@@ -10,6 +10,7 @@ import (
 	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/yaml"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 )
 
@@ -19,23 +20,23 @@ const (
 	Namespace = "system-upgrade"
 )
 
-func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *manager.ClusterManager) error {
+func (u *Upgrader) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt *manager.ClusterManager) error {
 	if u.helm.ValuesFiles != nil {
 		return fmt.Errorf("values-files is not supported for %s", u.Name())
 	}
 
 	// Create ns
-	ns, err := corev1.NewNamespace(ctx, Namespace, &corev1.NamespaceArgs{
+	ns, err := corev1.NewNamespace(ctx.Context(), Namespace, &corev1.NamespaceArgs{
 		Metadata: &metav1.ObjectMetaArgs{
 			Name: pulumi.String(Namespace),
 		},
-	}, pulumi.Provider(prov))
+	}, append(ctx.Options(), pulumi.Provider(prov))...)
 	if err != nil {
 		return fmt.Errorf("unable to create namespace: %w", err)
 	}
 
 	// Use Chart in sake of Transformations.
-	deployed, err := helmv3.NewChart(ctx, Name, helmv3.ChartArgs{
+	deployed, err := helmv3.NewChart(ctx.Context(), Name, helmv3.ChartArgs{
 		Chart:     pulumi.String(helmChart),
 		Namespace: ns.Metadata.Name().Elem(),
 		Version:   pulumi.String(u.helm.Version),
@@ -47,7 +48,7 @@ func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *
 			"configEnv":   utils.ToPulumiMap(u.configEnv, "="),
 		},
 		Transformations: []yaml.Transformation{
-			func(state map[string]interface{}, opts ...pulumi.ResourceOption) {
+			func(state map[string]interface{}, _ ...pulumi.ResourceOption) {
 				if state["kind"] == "Deployment" {
 					spec := state["spec"].(map[string]interface{})
 					podSpec := spec["template"].(map[string]interface{})["spec"].(map[string]interface{})
@@ -74,9 +75,10 @@ func (u *Upgrader) Manage(ctx *pulumi.Context, prov *kubernetes.Provider, mgmt *
 			},
 		},
 	},
-		pulumi.Provider(prov),
-		pulumi.DeleteBeforeReplace(true),
-	)
+		append(ctx.Options(),
+			pulumi.Provider(prov),
+			pulumi.DeleteBeforeReplace(true),
+		)...)
 	if err != nil {
 		return fmt.Errorf("unable to create helm release: %w", err)
 	}

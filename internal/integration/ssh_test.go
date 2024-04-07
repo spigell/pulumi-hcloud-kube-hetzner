@@ -21,7 +21,7 @@ const ()
 func TestSSHConnectivity(t *testing.T) {
 	t.Parallel()
 
-	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline)
+	ctx, cancel := context.WithDeadline(context.Background(), defaultDeadline())
 	defer cancel()
 
 	i, _ := New(ctx)
@@ -30,32 +30,26 @@ func TestSSHConnectivity(t *testing.T) {
 		t.Skip()
 	}
 
-	out, err := i.Stack.Outputs(ctx)
-
+	out, err := i.Outputs()
 	assert.NoError(t, err)
 
-	keyPair, ok := out[phkh.KeyPairKey]
+	privatekey, ok := out[phkh.PrivatekeyKey].(string)
 	assert.True(t, ok)
 
-	privatekey, ok := keyPair.Value.(map[string]interface{})[phkh.PrivateKey].(string)
-	assert.True(t, ok)
+	nodes, ok := out[phkh.HetznerServersKey].([]interface{})
+	assert.True(t, ok, "expected []interface{} got %T", out[phkh.HetznerServersKey])
 
-	nodes, ok := out[phkh.HetznerServersKey]
-	assert.True(t, ok)
-
-	for _, node := range nodes.Value.(map[string]interface{}) {
-		n := node.(map[string]interface{})
-
-		ip, ok := n["ip"].(string)
+	for _, node := range nodes {
+		ip, ok := node.(map[string]interface{})["ip"].(string)
 		assert.True(t, ok)
 		assert.NotEmpty(t, ip)
 
-		user, ok := n["user"].(string)
+		user, ok := node.(map[string]interface{})["user"].(string)
 		assert.True(t, ok)
 		assert.NotEmpty(t, user)
 
 		// Port is 22 by hardcoded now.
-		err := ssh.SimpleCheck(ip+":22", user, privatekey)
+		err = ssh.SimpleCheck(ip+":22", user, privatekey)
 		assert.NoError(t, err)
 	}
 }
