@@ -44,6 +44,12 @@ config:
   pulumi-hcloud-kube-hetzner:defaults:
     global:
       server:
+        # Override the default user name for the servers. Default value is rancher.
+        user-name: my-user-name
+        # Set the password for user. It must be encrypted!
+        user-password: my-user-password
+        additional-ssh-keys:
+          - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBwNcI4Bvvru89Gy0jixZdoaHJEaZsF7tvUnmcxn+IVM spigell@dragonfish.mos.lazynetwork.tech'
         firewall:
           hetzner:
             enabled: true
