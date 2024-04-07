@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -67,7 +66,7 @@ func emitSDK(language, outdir, schemaPath string) error {
 }
 
 func readSchema(schemaPath string) (*schema.Package, error) {
-	schemaBytes, err := ioutil.ReadFile(schemaPath)
+	schemaBytes, err := os.ReadFile(schemaPath)
 	if err != nil {
 		return nil, errors.Wrap(err, "reading schema")
 	}
@@ -86,10 +85,10 @@ func readSchema(schemaPath string) (*schema.Package, error) {
 
 func emitFile(rootDir, filename string, contents []byte) error {
 	outPath := filepath.Join(rootDir, filename)
-	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(outPath), 0o755); err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(outPath, contents, 0600); err != nil {
+	if err := os.WriteFile(outPath, contents, 0o600); err != nil {
 		return err
 	}
 	return nil

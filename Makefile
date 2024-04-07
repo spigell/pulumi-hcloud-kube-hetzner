@@ -71,5 +71,5 @@ sync-templates:
 	done
 
 unit-tests:
-	cd pulumi-component && make generate
+	cd pulumi-component && make generate_schema
 	set -o pipefail ; go test $$(go list ./... | grep -v integration | grep -v crds/generated) | grep -v 'no test files'

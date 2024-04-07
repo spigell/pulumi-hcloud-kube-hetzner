@@ -48,7 +48,7 @@ func (u *Upgrader) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt 
 			"configEnv":   utils.ToPulumiMap(u.configEnv, "="),
 		},
 		Transformations: []yaml.Transformation{
-			func(state map[string]interface{}, opts ...pulumi.ResourceOption) {
+			func(state map[string]interface{}, _ ...pulumi.ResourceOption) {
 				if state["kind"] == "Deployment" {
 					spec := state["spec"].(map[string]interface{})
 					podSpec := spec["template"].(map[string]interface{})["spec"].(map[string]interface{})
