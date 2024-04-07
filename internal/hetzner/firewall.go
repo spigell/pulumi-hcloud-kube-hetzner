@@ -9,13 +9,13 @@ import (
 type InterconnectFirewall struct {
 	Config *firewall.Config
 	Ips    pulumi.StringArray
-	Ids    pulumi.IntArray
+	IDs    pulumi.IntArray
 }
 
 func NewInterconnectFirewall() *InterconnectFirewall {
 	return &InterconnectFirewall{
 		Ips: make(pulumi.StringArray, 0),
-		Ids: make(pulumi.IntArray, 0),
+		IDs: make(pulumi.IntArray, 0),
 		Config: &firewall.Config{
 			Enabled: true,
 			SSH: &firewall.SSH{
@@ -33,7 +33,7 @@ func (i *InterconnectFirewall) Up(ctx *program.Context) error {
 		return err
 	}
 
-	_, err = internalFW.Attach(ctx, "interconnect", i.Ids)
+	_, err = internalFW.Attach(ctx, "interconnect", i.IDs)
 	if err != nil {
 		return err
 	}

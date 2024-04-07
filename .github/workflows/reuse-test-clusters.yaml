@@ -56,7 +56,7 @@ jobs:
           HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
           GITHUB_TOKEN: ${{ secrets.github-token }}
       - name: Up
-        run: pulumi up -yf -s ${{ env.PULUMI_STACK }} -v=9 --color=always --logtostderr 2> up.log
+        run: pulumi up --suppress-progress -yf -s ${{ env.PULUMI_STACK }} -v=9 --color=always --logtostderr 2> up.log
         working-directory: test-project
         env:
           HCLOUD_TOKEN: ${{ secrets.hcloud-token }}

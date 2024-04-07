@@ -1,11 +1,11 @@
 VERSION         := $(shell pulumictl get version)
 
 PACK            := hcloud-kube-hetzner
-PROJECT         := github.com/spigell/pulumi-${PACK}/pulumi-component
+PROJECT         := github.com/spigell/pulumi-${PACK}
 
 PROVIDER        := pulumi-resource-${PACK}
 CODEGEN         := pulumi-gen-${PACK}
-VERSION_PATH    := pkg/version.Version
+VERSION_PATH    := pulumi-component/provider/pkg/version.Version
 
 WORKING_DIR     := $(shell pwd)
 SCHEMA_PATH     := ${WORKING_DIR}/schema.json

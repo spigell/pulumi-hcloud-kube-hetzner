@@ -15,15 +15,15 @@ type Cluster struct {
 	Privatekey     pulumi.StringOutput   `pulumi:"privatekey"`
 }
 
-func (c *Cluster) Type() string { 
-	return ComponentName 
+func (c *Cluster) Type() string {
+	return ComponentName
 }
 
-type ClusterArgs struct {}
+type ClusterArgs struct{}
 
 func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
-	args *ClusterArgs, inputs provider.ConstructInputs, opts ...pulumi.ResourceOption) (*provider.ConstructResult, error) {
-
+	args *ClusterArgs, inputs provider.ConstructInputs, opts ...pulumi.ResourceOption,
+) (*provider.ConstructResult, error) {
 	// Ensure we have the right token.
 	if et := c.Type(); typ != et {
 		return nil, errors.Errorf("unknown resource type %s; expected %s", typ, et)
@@ -57,8 +57,8 @@ func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
 
 	if err := ctx.RegisterResourceOutputs(c, pulumi.Map{
 		phkh.HetznerServersKey: c.HetznerServers,
-		phkh.KubeconfigKey: c.Kubeconfig,
-		phkh.PrivatekeyKey: c.Privatekey,
+		phkh.KubeconfigKey:     c.Kubeconfig,
+		phkh.PrivatekeyKey:     c.Privatekey,
 	}); err != nil {
 		return nil, err
 	}

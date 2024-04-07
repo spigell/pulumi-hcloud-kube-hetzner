@@ -3,8 +3,8 @@
 package main
 
 import (
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/pkg/provider"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/pkg/version"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/provider/pkg/provider"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/provider/pkg/version"
 )
 
 func main() {
