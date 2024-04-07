@@ -216,7 +216,7 @@ type BoolTransformer struct{}
 // A Transformer for mergo to avoid overwriting false values from node level.
 func (b BoolTransformer) Transformer(typ reflect.Type) func(dst, src reflect.Value) error {
 	if typ == reflect.TypeOf(bool(true)) {
-		return func(dst, src reflect.Value) error {
+		return func(_, _ reflect.Value) error {
 			// Do not overwrite false from node level!
 			return nil
 		}

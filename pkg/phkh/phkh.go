@@ -98,7 +98,6 @@ func (c *PHKH) Up() (*Cluster, error) {
 	case k3s.DistrName:
 		outputs[KubeconfigKey] = pulumi.ToSecret(toExportedKubeconfig(sys.K3s.KubeconfigForExport))
 		err = c.compiled.K8S.Up(sys.K3s.KubeconfigForUsage, sys.Resources)
-
 		if err != nil {
 			return nil, err
 		}

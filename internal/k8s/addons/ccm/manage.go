@@ -81,7 +81,6 @@ func (m *CCM) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt *mana
 		pulumi.DeleteBeforeReplace(true),
 		pulumi.DependsOn([]pulumi.Resource{secret}),
 	)...)
-
 	if err != nil {
 		return fmt.Errorf("unable to create helm release: %w", err)
 	}
