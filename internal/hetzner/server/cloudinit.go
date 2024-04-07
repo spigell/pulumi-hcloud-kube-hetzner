@@ -63,9 +63,7 @@ type CloudConfigGrowPartConfig struct {
 func (c *CloudConfig) render() pulumi.StringOutput {
 	return pulumi.All(c.Inputs.Key).ApplyT(func(args []interface{}) (string, error) {
 		key := args[0].(string)
-		c.Users[0].SSHAuthorizedKeys = []string{
-			key,
-		}
+		c.Users[0].SSHAuthorizedKeys = append(c.Users[0].SSHAuthorizedKeys, key)
 
 		cfg, err := yaml.Marshal(&c)
 		if err != nil {

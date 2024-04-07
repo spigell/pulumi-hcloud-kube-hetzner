@@ -53,13 +53,14 @@ func (n *Node) GetID() string {
 }
 
 type Server struct {
-	ServerType string `json:"server-type" yaml:"server-type"`
-	Hostname   string
-	Firewall   *Firewall
-	Location   string
-	UserName   string
-	UserPasswd string
-	Image      string
+	ServerType        string `json:"server-type" yaml:"server-type"`
+	Hostname          string
+	Firewall          *Firewall
+	Location          string
+	AdditionalSSHKeys []string `json:"additional-ssh-keys" yaml:"additional-ssh-keys"`
+	UserName          string   `json:"user-name" yaml:"user-name"`
+	UserPasswd        string   `json:"user-password" yaml:"user-password"`
+	Image             string
 }
 
 type Firewall struct {

@@ -74,8 +74,9 @@ func New(srv *config.Server, key *hcloud.SshKey) *Server {
 		},
 		Users: []*CloudConfigUserCloudConfig{
 			{
-				Name: srv.UserName,
-				Sudo: sudo,
+				Name:              srv.UserName,
+				Sudo:              sudo,
+				SSHAuthorizedKeys: srv.AdditionalSSHKeys,
 			},
 		},
 		Chpasswd: &CloudConfigChpasswd{
