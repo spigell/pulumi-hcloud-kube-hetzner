@@ -22,8 +22,8 @@ func (c *Cluster) Type() string {
 type ClusterArgs struct{}
 
 func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
-	args *ClusterArgs, inputs provider.ConstructInputs, opts ...pulumi.ResourceOption) (*provider.ConstructResult, error) {
-
+	args *ClusterArgs, inputs provider.ConstructInputs, opts ...pulumi.ResourceOption,
+) (*provider.ConstructResult, error) {
 	// Ensure we have the right token.
 	if et := c.Type(); typ != et {
 		return nil, errors.Errorf("unknown resource type %s; expected %s", typ, et)

@@ -22,6 +22,7 @@ func Serve(version string, schema []byte) {
 // Construct is the RPC call that initiates the creation of a new component resource. It
 // creates, registers, and returns the resulting object.
 func Construct(ctx *pulumi.Context, typ, name string, inputs pp.ConstructInputs,
-	opts pulumi.ResourceOption) (*pp.ConstructResult, error) {
+	opts pulumi.ResourceOption,
+) (*pp.ConstructResult, error) {
 	return construct(ctx, &Cluster{}, typ, name, &ClusterArgs{}, inputs, opts)
 }
