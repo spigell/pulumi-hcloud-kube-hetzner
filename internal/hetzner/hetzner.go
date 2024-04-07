@@ -261,7 +261,7 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 		if srv.Server.Firewall.Hetzner.Enabled {
 			// All nodes with enabled FW must be added to the interconnect firewall
 			interFw.Ips = append(interFw.Ips, pulumi.Sprintf("%s/32", node.Resource.Ipv4Address))
-			interFw.Ids = append(interFw.Ids, nodeId)
+			interFw.IDs = append(interFw.IDs, nodeId)
 
 			switch {
 			// We can create and attach firewall to the node right now if it is dedicated.
@@ -301,7 +301,7 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 	}
 
 	// Create a global firewall to allow communication between all nodes
-	if len(interFw.Ids) != 0 {
+	if len(interFw.IDs) != 0 {
 		if err := interFw.Up(h.ctx); err != nil {
 			return nil, fmt.Errorf("failed to create a interconnect firewall for nodes: %w", err)
 		}

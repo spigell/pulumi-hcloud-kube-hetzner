@@ -10,9 +10,9 @@ import (
 type Cluster struct {
 	pulumi.ResourceState
 
-//	HetznerServers pulumi.MapArrayOutput `pulumi:"servers"`
-//	Kubeconfig     pulumi.StringOutput   `pulumi:"kubeconfig"`
-//	Privatekey     pulumi.StringOutput   `pulumi:"privatekey"`
+	HetznerServers pulumi.MapArrayOutput `pulumi:"servers"`
+	Kubeconfig     pulumi.StringOutput   `pulumi:"kubeconfig"`
+	Privatekey     pulumi.StringOutput   `pulumi:"privatekey"`
 }
 
 func (c *Cluster) Type() string {
@@ -46,19 +46,19 @@ func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
 		return nil, err
 	}
 
-	_, err = cluster.Up()
+	deployed, err := cluster.Up()
 	if err != nil {
 		return nil, err
 	}
 
-	//c.HetznerServers = pulumi.ToMapArray(deployed.Servers).ToMapArrayOutput()
-	//c.Kubeconfig = deployed.Kubeconfig
-	//c.Privatekey = deployed.PrivateKey
+	c.HetznerServers = pulumi.ToMapArray(deployed.Servers).ToMapArrayOutput()
+	c.Kubeconfig = deployed.Kubeconfig
+	c.Privatekey = deployed.PrivateKey
 
 	if err := ctx.RegisterResourceOutputs(c, pulumi.Map{
-	//	phkh.HetznerServersKey: c.HetznerServers,
-	//	phkh.KubeconfigKey:     c.Kubeconfig,
-	//	phkh.PrivatekeyKey:     c.Privatekey,
+		phkh.HetznerServersKey: c.HetznerServers,
+		phkh.KubeconfigKey:     c.Kubeconfig,
+		phkh.PrivatekeyKey:     c.Privatekey,
 	}); err != nil {
 		return nil, err
 	}
