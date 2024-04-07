@@ -12,7 +12,7 @@ jobs:
   component-release:
     name: "Release binaries"
     runs-on: ubuntu-latest
-    if: github.event.base_ref == 'refs/heads/main'
+    if: github.event.base_ref == 'refs/heads/feature/goreleaer-changelog' 
     steps:
       - uses: jlumbroso/free-disk-space@main
         with:
