@@ -37,7 +37,6 @@ jobs:
         uses: actions/setup-go@v4
         with:
           cache: false
-          go-version-file: pulumi-component/provider/go.mod
       - name: Generate schema for component
         run: make generate_schema
         working-directory: pulumi-component

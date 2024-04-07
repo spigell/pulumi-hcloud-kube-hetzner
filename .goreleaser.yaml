@@ -37,7 +37,7 @@ builds:
       - linux
     main: ./cmd/reboot-checker
 changelog:
-  skip: true
+  use: github-native
 release:
   disable: false
 snapshot:
