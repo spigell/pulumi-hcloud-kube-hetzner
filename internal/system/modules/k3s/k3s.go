@@ -46,7 +46,7 @@ type Outputs struct {
 }
 
 var packages = map[string][]string{
-	"microos": {"k3s-selinux", "jq"},
+	"microos": {"k3s-selinux"},
 }
 
 func GetRequiredPkgs(os string) []string {
