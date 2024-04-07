@@ -37,6 +37,10 @@ jobs:
       - name: Downloading dependencies 📦
         shell: bash
         run: go mod download
+      - name: Generate schema
+        shell: bash
+        run: make generate_schema
+        working-directory: pulumi-component
       - uses: golangci/golangci-lint-action@v3
         name: Run the linter
         with:
