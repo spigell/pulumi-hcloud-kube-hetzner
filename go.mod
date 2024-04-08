@@ -19,7 +19,7 @@ require (
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99
 	github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99
 	github.com/spigell/pulumi-file/sdk v0.0.0-20240124083824-da5e49302f10
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.22.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.29.3
