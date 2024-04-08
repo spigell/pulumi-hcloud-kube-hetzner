@@ -16,7 +16,6 @@ jobs:
         uses: actions/setup-go@v4
         with:
           cache: false
-          go-version-file: pulumi-component/provider/go.mod
       - name: Install pulumictl
         uses: jaxxstorm/action-install-gh-release@v1.10.0
         with:
