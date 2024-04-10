@@ -28,7 +28,7 @@ on:
 jobs:
   deploy:
     name: Deploy Cluster
-    runs-on: runs-on,runner=2cpu-linux-x64,run-id=${{ github.run_id }}
+    runs-on: runs-on,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
     timeout-minutes: 30
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
