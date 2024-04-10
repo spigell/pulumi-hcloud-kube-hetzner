@@ -9,7 +9,7 @@ require (
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/glendc/go-external-ip v0.1.0
 	github.com/hetznercloud/hcloud-go/v2 v2.6.0
-	github.com/pulumi/pulumi-hcloud/sdk v1.17.0
+	github.com/pulumi/pulumi-hcloud/sdk v1.18.1
 	github.com/pulumi/pulumi-kubernetes/sdk/v3 v3.30.2
 	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.7.1
 	github.com/pulumi/pulumi/pkg/v3 v3.112.0
