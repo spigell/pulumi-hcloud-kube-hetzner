@@ -13,11 +13,6 @@ jobs:
     runs-on: runs-on,family=c7i,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Go ✨
-        uses: actions/setup-go@v4
-        with:
-          cache: false
-          go-version-file: go.mod
       - uses: runs-on/cache@v4
         with:
           path: |
@@ -26,6 +21,11 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+      - name: Setup Go ✨
+        uses: actions/setup-go@v4
+        with:
+          cache: false
+          go-version-file: go.mod
       - uses: benjlevesque/short-sha@v2.2
         id: short-sha
         with:
