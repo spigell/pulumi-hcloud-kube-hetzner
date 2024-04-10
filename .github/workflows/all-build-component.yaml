@@ -18,6 +18,14 @@ jobs:
         with:
           cache: false
           go-version-file: go.mod
+      - uses: runs-on/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
       - uses: benjlevesque/short-sha@v2.2
         id: short-sha
         with:
