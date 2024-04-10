@@ -120,6 +120,16 @@ func (m *MicroOS) SetupSSHD(config *sshd.Config) {
 	m.modules[variables.SSHD] = module
 }
 
+func (m *MicroOS) SetupUpdate(config *updates.Config) {
+	module := transUpdate.New(m.ID, &MicroOS{}, &Config{
+		Schedule: config.Schedule,
+		RebootMethod: config.Method,
+	})
+
+	module.SetOrder(AfterNetwork)
+	m.modules[variables.SSHD] = module
+}
+
 func (m *MicroOS) AddK3SModule(role string, config *k3s.Config, auditLog *audit.AuditLog) {
 	m.AddAdditionalRequiredPackages(k3s.GetRequiredPkgs(Name))
 	module := k3s.New(m.ID, role, &MicroOS{}, config)

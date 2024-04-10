@@ -121,6 +121,7 @@ func compile(ctx *program.Context, config *config.Config) (*Compiled, error) { /
 
 		sys := system.New(ctx, node.ID).WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
 		os := sys.MicroOS()
+		os = os.SetupPeriodicalUpdates(node.OS.Update)
 
 		// Network type
 		switch {
@@ -133,6 +134,16 @@ func compile(ctx *program.Context, config *config.Config) (*Compiled, error) { /
 			sys.WithCommunicationMethod(variables.PublicCommunicationMethod)
 			fwWithSSHRules(fw, node, ip)
 		}
+
+//              Implement it first!
+//		if config.K8S.Addons.Kured.Enabled {
+//			err := os.PeriodicalUpdates().ConfigureForKured()
+//			if err != nil {
+//				ctx.Context().Log.Warn(fmt.Sprintf(
+//					"failed to configure updates service for kured. err: %w", err,
+//				nil))
+//			}
+//		}
 
 		switch kube {
 		case defaultKube:
@@ -216,11 +227,11 @@ func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.
 }
 
 func configureOSForK3S(os os.OperatingSystem, node *config.Node, auditLog *audit.AuditLog) {
-	os.AddK3SModule(node.Role, node.K3s, auditLog)
 	os.SetupSSHD(&sshd.Config{
 		// TODO: make it discoverable from k3s module
 		AcceptEnv: "INSTALL_K3S_*",
 	})
+	os.AddK3SModule(node.Role, node.K3s, auditLog)
 }
 
 func configureK3SNodeForHCCM(ctx *pulumi.Context, sys *system.System, addon *ccm.CCM, node *config.Node) {

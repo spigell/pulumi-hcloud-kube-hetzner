@@ -50,6 +50,9 @@ config:
         user-password: my-user-password
         additional-ssh-keys:
           - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBwNcI4Bvvru89Gy0jixZdoaHJEaZsF7tvUnmcxn+IVM spigell@dragonfish.mos.lazynetwork.tech'
+        os:
+          updates:
+            schedule: daily
         firewall:
           hetzner:
             enabled: true
