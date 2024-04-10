@@ -1,6 +1,0 @@
-runners:
-  cheap:
-    cpu: 1
-    family: ["t3a"]
-    image: ubuntu22-full-x64
-    ssh: false
