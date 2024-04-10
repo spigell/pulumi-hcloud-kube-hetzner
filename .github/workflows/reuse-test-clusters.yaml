@@ -109,8 +109,10 @@ jobs:
 
   cleanup:
     name: Cleanup
-#    needs:
-#      - main-integration-tests
+    needs:
+     - deploy
+    # needs:
+    #  - main-integration-tests
     runs-on: ubuntu-latest
     if: always()
     env:
