@@ -74,46 +74,44 @@ jobs:
           name: phkh-artifacts-${{ env.PULUMI_STACK }}
           path: test-project/phkh*
 
-  # main-integration-tests:
-  #   needs:
-  #     - deploy
-  #   name: Main Integration Tests
-  #   runs-on: ubuntu-latest
-  #   timeout-minutes: 30
-  #   env:
-  #     PULUMI_STACK: ${{ inputs.pulumi-stack }}
-  #     PULUMI_CONFIG_SOURCE: ../../${{ inputs.pulumi-config-source }}
-  #     PULUMI_STACK_CONFIG: ../../test-project/Pulumi.${{ inputs.pulumi-stack }}.yaml
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #     - uses: ./.github/actions/prepare-pulumi
-  #       name: Prepare pulumi environment
-  #       with:
-  #         create-stack: false
-  #         google-credentials: ${{ secrets.google-credentials }}
-  #         template: ${{ inputs.template }}
-  #     - uses: actions/download-artifact@v4
-  #       with:
-  #         name: pulumi-configuration-${{ env.PULUMI_STACK }}
-  #         path: test-project
-  #     - uses: actions/download-artifact@v4
-  #       with:
-  #         name: phkh-artifacts-${{ env.PULUMI_STACK }}
-  #         path: test-project
-  #     - run: go test -v -timeout=25m -parallel=10 -tags=kubernetes,connectivity
-  #       name: Run main integration tests
-  #       working-directory: internal/integration
-  #       env:
-  #         HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
-  #         GITHUB_TOKEN: ${{ secrets.github-token }}
+  main-integration-tests:
+    needs:
+      - deploy
+    name: Main Integration Tests
+    runs-on: runs-on,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
+    timeout-minutes: 30
+    env:
+      PULUMI_STACK: ${{ inputs.pulumi-stack }}
+      PULUMI_CONFIG_SOURCE: ../../${{ inputs.pulumi-config-source }}
+      PULUMI_STACK_CONFIG: ../../test-project/Pulumi.${{ inputs.pulumi-stack }}.yaml
+    steps:
+      - uses: actions/checkout@v3
+      - uses: ./.github/actions/prepare-pulumi
+        name: Prepare pulumi environment
+        with:
+          create-stack: false
+          google-credentials: ${{ secrets.google-credentials }}
+          template: ${{ inputs.template }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: pulumi-configuration-${{ env.PULUMI_STACK }}
+          path: test-project
+      - uses: actions/download-artifact@v4
+        with:
+          name: phkh-artifacts-${{ env.PULUMI_STACK }}
+          path: test-project
+      - run: go test -v -timeout=25m -parallel=10 -tags=kubernetes,connectivity
+        name: Run main integration tests
+        working-directory: internal/integration
+        env:
+          HCLOUD_TOKEN: ${{ secrets.hcloud-token }}
+          GITHUB_TOKEN: ${{ secrets.github-token }}
 
   cleanup:
     name: Cleanup
     needs:
-     - deploy
-    # needs:
-    #  - main-integration-tests
-    runs-on: ubuntu-latest
+      - main-integration-tests
+    runs-on: runs-on,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
     if: always()
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
