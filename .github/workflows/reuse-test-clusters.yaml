@@ -28,7 +28,7 @@ on:
 jobs:
   deploy:
     name: Deploy Cluster
-    runs-on: runs-on,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
+    runs-on: runs-on,family=c7i,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
     timeout-minutes: 30
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
@@ -78,7 +78,7 @@ jobs:
     needs:
       - deploy
     name: Main Integration Tests
-    runs-on: runs-on,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
+    runs-on: runs-on,family=c7i,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
     timeout-minutes: 30
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
@@ -111,7 +111,7 @@ jobs:
     name: Cleanup
     needs:
       - main-integration-tests
-    runs-on: runs-on,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
+    runs-on: runs-on,family=c7i,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
     if: always()
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
