@@ -10,7 +10,7 @@ on:
 jobs:
   unit-tests:
     name: "Build and save component binary"
-    runs-on: runs-on,family=t3a,cpu=2,ram=2,run-id=${{ github.run_id }}
+    runs-on: runs-on,runner=1cpu-linux-x64,run-id=${{ github.run_id }}
     steps:
       - uses: actions/checkout@v3
       - uses: runs-on/cache@v4
@@ -35,7 +35,7 @@ jobs:
         run: go mod download
       - name: Make provider
         shell: bash
-        run: make -j 4 build_provider
+        run: make build_provider
         working-directory: pulumi-component
       - uses: actions/upload-artifact@v4
         with:
