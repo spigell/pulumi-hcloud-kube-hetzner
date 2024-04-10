@@ -111,7 +111,7 @@ jobs:
     name: Cleanup
     needs:
       - main-integration-tests
-    runs-on: runs-on,runner=1cpu-linux-x64,run-id=${{ github.run_id }}
+    runs-on: runs-on,runner=2cpu-linux-x64,run-id=${{ github.run_id }}
     if: always()
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
