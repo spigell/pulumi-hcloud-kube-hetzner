@@ -45,7 +45,7 @@ type Cluster struct {
 // New creates a new project instance.
 // It parses the config and compiles the project.
 func New(ctx *pulumi.Context, opts []pulumi.ResourceOption) (*PHKH, error) {
-	ctx.Log.Info("Greeting! Creating new PHKH project", nil)
+	ctx.Log.Info("Greeting! Creating new PHKH project!", nil)
 
 	cfg := config.New(ctx).WithInited()
 

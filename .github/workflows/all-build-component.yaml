@@ -10,7 +10,7 @@ on:
 jobs:
   unit-tests:
     name: "Build and save component binary"
-    runs-on: runs-on,family=c7i,runner=4cpu-linux-x64,run-id=${{ github.run_id }}
+    runs-on: runs-on,family=c7i,runner=1cpu-linux-x64,run-id=${{ github.run_id }}
     steps:
       - uses: actions/checkout@v3
       - uses: runs-on/cache@v4
