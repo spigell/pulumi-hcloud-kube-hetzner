@@ -35,7 +35,7 @@ jobs:
         run: go mod download
       - name: Make provider
         shell: bash
-        run: make build_provider
+        run: make -j 4 build_provider
         working-directory: pulumi-component
       - uses: actions/upload-artifact@v4
         with:
