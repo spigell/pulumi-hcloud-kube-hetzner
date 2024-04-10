@@ -10,7 +10,7 @@ on:
 jobs:
   unit-tests:
     name: "Build and save component binary"
-    runs-on: ubuntu-latest
+    runs-on: runs-on,runner=2cpu-linux-x64,run-id=${{ github.run_id }}
     steps:
       - uses: actions/checkout@v3
       - name: Setup Go ✨
