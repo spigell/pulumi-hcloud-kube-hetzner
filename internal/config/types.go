@@ -15,14 +15,14 @@ type WithID interface {
 }
 
 type Defaults struct {
-	Global  *Node
-	Servers *Node
-	Agents  *Node
+	Global  *Node `doc:""`
+	Servers *Node `doc:""`
+	Agents  *Node `doc:""`
 }
 
 type Nodepools struct {
-	Servers []*Nodepool
-	Agents  []*Nodepool
+	Servers []*Nodepool `doc:""`
+	Agents  []*Nodepool `doc:""`
 }
 
 type Nodepool struct {
@@ -32,7 +32,7 @@ type Nodepool struct {
 }
 
 type Network struct {
-	Hetzner *network.Config
+	Hetzner *network.Config `doc:""`
 }
 
 func (n *Nodepool) GetID() string {
@@ -53,6 +53,7 @@ func (n *Node) GetID() string {
 }
 
 type Server struct {
+	// ServerType
 	ServerType        string `json:"server-type" yaml:"server-type"`
 	Hostname          string
 	Firewall          *Firewall

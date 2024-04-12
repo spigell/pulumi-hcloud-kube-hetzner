@@ -23,7 +23,7 @@ type Config struct {
 	ctx *pulumi.Context
 
 	Nodepools *Nodepools
-	Defaults  *Defaults
+	Defaults  *Defaults `doc:""`
 	Network   *Network
 	K8S       *k8sconfig.Config
 }
