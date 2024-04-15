@@ -113,7 +113,7 @@ func (m *MicroOS) SFTPServerPath() string {
 	return SFTPServerPath
 }
 
-func (m *MicroOS) SetupSSHD(config *sshd.Config) {
+func (m *MicroOS) SetupSSHD(config *sshd.Params) {
 	module := sshd.New(m.ID, &MicroOS{}, config)
 
 	module.SetOrder(AfterNetwork)

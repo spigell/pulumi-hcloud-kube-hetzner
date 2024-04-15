@@ -18,7 +18,7 @@ func NewInterconnectFirewall() *InterconnectFirewall {
 		IDs: make(pulumi.IntArray, 0),
 		Config: &firewall.Config{
 			Enabled: true,
-			SSH: &firewall.SSH{
+			SSH: &firewall.SSHConfig{
 				Allow: false,
 			},
 			AllowICMP: false,

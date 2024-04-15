@@ -44,8 +44,8 @@ var (
 )
 
 type Server struct {
-	Config   *config.Server
-	Userdata *CloudConfig
+	Config   *config.ServerConfig
+	Userdata *CloudInit
 	KeyName  pulumi.StringOutput
 }
 
@@ -53,7 +53,7 @@ type Deployed struct {
 	Resource *hcloud.Server
 }
 
-func New(srv *config.Server, key *hcloud.SshKey) *Server {
+func New(srv *config.ServerConfig, key *hcloud.SshKey) *Server {
 	if srv.ServerType == "" {
 		srv.ServerType = defaultServerType
 	}
@@ -65,23 +65,23 @@ func New(srv *config.Server, key *hcloud.SshKey) *Server {
 		srv.UserName = defaultUserName
 	}
 
-	userdata := &CloudConfig{
+	userdata := &CloudInit{
 		Hostname: srv.Hostname,
-		GrowPart: &CloudConfigGrowPartConfig{
+		GrowPart: &CloudInitGrowPart{
 			Devices: []string{
 				"/var",
 			},
 		},
-		Users: []*CloudConfigUserCloudConfig{
+		Users: []*CloudInitUserCloud{
 			{
 				Name:              srv.UserName,
 				Sudo:              sudo,
 				SSHAuthorizedKeys: srv.AdditionalSSHKeys,
 			},
 		},
-		Chpasswd: &CloudConfigChpasswd{
+		Chpasswd: &CloudInitChpasswd{
 			Expire: false,
-			Users: []*CloudConfigChpasswdUser{
+			Users: []*CloudInitChpasswdUser{
 				{
 					Name:     srv.UserName,
 					Password: srv.UserPasswd,
@@ -101,7 +101,7 @@ func New(srv *config.Server, key *hcloud.SshKey) *Server {
 		userdata.Chpasswd.Users[0].Type = "text"
 	}
 
-	userdata.Inputs = &CloudConfigPulumiInputs{
+	userdata.Inputs = &CloudInitPulumiInputs{
 		Key: &key.PublicKey,
 	}
 

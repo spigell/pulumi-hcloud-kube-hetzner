@@ -7,19 +7,19 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 )
 
-type Config struct {
+type Params struct {
 	AcceptEnv              string
 	PasswordAuthentication bool
 	AllowTcpForwarding     bool //nolint:revive,stylecheck // For align with sshd naming
 }
 
-func (c *Config) String() string {
+func (p *Params) String() string {
 	params := make(map[string]string)
-	params["PasswordAuthentication"] = boolToString(c.PasswordAuthentication)
-	params["AllowTcpForwarding"] = boolToString(c.AllowTcpForwarding)
+	params["PasswordAuthentication"] = boolToString(p.PasswordAuthentication)
+	params["AllowTcpForwarding"] = boolToString(p.AllowTcpForwarding)
 
-	if c.AcceptEnv != "" {
-		params["AcceptEnv"] = c.AcceptEnv
+	if p.AcceptEnv != "" {
+		params["AcceptEnv"] = p.AcceptEnv
 	}
 
 	b := new(bytes.Buffer)

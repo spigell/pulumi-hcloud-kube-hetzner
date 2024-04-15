@@ -7,21 +7,21 @@ import (
 type Config struct {
 	dedicated     bool
 	dedicatedPool bool
-	rules         []*Rule
+	rules         []*RuleConfig
 
 	Enabled         bool
 	AllowICMP       bool `json:"allow-icmp" yaml:"allow-icmp"`
-	SSH             *SSH
-	AdditionalRules []*Rule `json:"additional-rules" yaml:"additional-rules"`
+	SSH             *SSHConfig
+	AdditionalRules []*RuleConfig `json:"additional-rules" yaml:"additional-rules"`
 }
 
-type SSH struct {
+type SSHConfig struct {
 	Allow         bool
 	DisallowOwnIP bool     `json:"disallow-own-ip" yaml:"disallow-own-ip"`
 	AllowedIps    []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
-type Rule struct {
+type RuleConfig struct {
 	pulumiSourceIps pulumi.StringArray
 
 	Protocol    string
@@ -47,6 +47,6 @@ func (c *Config) DedicatedPool() bool {
 	return c.dedicatedPool
 }
 
-func (c *Config) AddRules(rules []*Rule) {
+func (c *Config) AddRules(rules []*RuleConfig) {
 	c.rules = append(c.rules, rules...)
 }

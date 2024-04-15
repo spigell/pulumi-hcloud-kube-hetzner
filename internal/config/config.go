@@ -8,7 +8,7 @@ import (
 	"dario.cat/mergo"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
-	k8sconfig "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/k8sconfig"
 )
 
 const (
@@ -22,17 +22,17 @@ const (
 type Config struct {
 	ctx *pulumi.Context
 
-	Nodepools *Nodepools
-	Defaults  *Defaults `doc:""`
-	Network   *Network
+	Nodepools *NodepoolsConfig
+	Defaults  *DefaultConfig
+	Network   *NetworkConfig
 	K8S       *k8sconfig.Config
 }
 
 // New returns the parsed configuration for the cluster as is without any modifications.
 func New(ctx *pulumi.Context) *Config {
-	var defaults *Defaults
-	var nodepools *Nodepools
-	var network *Network
+	var defaults *DefaultConfig
+	var nodepools *NodepoolsConfig
+	var network *NetworkConfig
 	var k8s *k8sconfig.Config
 	c := config.New(ctx, "")
 
@@ -78,8 +78,8 @@ func (c *Config) WithInited() *Config {
 // Nodes returns the nodes for the cluster.
 // They are merged with the defaults and nodepool config values.
 // They are sorted by majority as well.
-func (c *Config) Nodes() ([]*Node, error) {
-	nodes := make([]*Node, 0)
+func (c *Config) Nodes() ([]*NodeConfig, error) {
+	nodes := make([]*NodeConfig, 0)
 
 	for agentpoolIdx, agentpool := range c.Nodepools.Agents {
 		if hetznerFirewallConfigured(agentpool.Config.Server) {
@@ -115,7 +115,7 @@ func (c *Config) Nodes() ([]*Node, error) {
 	return sortByMajority(nodes), nil
 }
 
-func (no *Nodepools) SpecifyLeader() {
+func (no *NodepoolsConfig) SpecifyLeader() {
 	if len(no.Servers) == 1 && len(no.Servers[0].Nodes) == 1 {
 		no.Servers[0].Nodes[0].Leader = true
 	}
@@ -123,12 +123,12 @@ func (no *Nodepools) SpecifyLeader() {
 
 // sortByMajority sorts nodes by majority.
 // The first if leader, then other servers, then workers.
-func sortByMajority(n []*Node) []*Node {
-	nodes := make([]*Node, 0)
+func sortByMajority(n []*NodeConfig) []*NodeConfig {
+	nodes := make([]*NodeConfig, 0)
 
 	for _, node := range n {
 		if node.Leader {
-			nodes = append([]*Node{node}, nodes...)
+			nodes = append([]*NodeConfig{node}, nodes...)
 			continue
 		}
 		if node.Role == ServerRole {
@@ -170,13 +170,13 @@ func sortByID[W WithID](unsorted []W) []W {
 	return sorted
 }
 
-func merge(node Node, nodepool *Node, defaults Defaults) (Node, error) {
+func merge(node NodeConfig, nodepool *NodeConfig, defaults DefaultConfig) (NodeConfig, error) {
 	global := defaults.Global
 	agents := defaults.Agents
 	servers := defaults.Servers
 
 	if nodepool == nil {
-		nodepool = &Node{}
+		nodepool = &NodeConfig{}
 	}
 
 	switch role := node.Role; role {
@@ -204,13 +204,15 @@ func merge(node Node, nodepool *Node, defaults Defaults) (Node, error) {
 	return node, nil
 }
 
-func hetznerFirewallConfigured(server *Server) bool {
+func hetznerFirewallConfigured(server *ServerConfig) bool {
 	if server != nil && server.Firewall != nil && server.Firewall.Hetzner != nil {
 		return true
 	}
 	return false
 }
 
+// BoolTransformer is simple struct for mergo.
+// ParameterDoc: none.
 type BoolTransformer struct{}
 
 // A Transformer for mergo to avoid overwriting false values from node level.

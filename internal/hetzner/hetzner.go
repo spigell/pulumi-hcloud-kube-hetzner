@@ -22,7 +22,7 @@ var ErrFirewallDisabled = errors.New("firewall is disabled")
 
 type Hetzner struct {
 	ctx       *program.Context
-	Servers   map[string]*config.Node
+	Servers   map[string]*config.NodeConfig
 	Firewalls map[string]*firewall.Config
 	Pools     map[string][]string
 	Network   *network.Network
@@ -38,18 +38,18 @@ type Server struct {
 	Connection *connection.Connection
 }
 
-func New(ctx *program.Context, nodes []*config.Node) *Hetzner {
-	servers := make(map[string]*config.Node)
+func New(ctx *program.Context, nodes []*config.NodeConfig) *Hetzner {
+	servers := make(map[string]*config.NodeConfig)
 	firewalls := make(map[string]*firewall.Config)
 
 	for _, node := range nodes {
 		servers[node.ID] = node
 		if node.Server == nil {
-			node.Server = &config.Server{}
+			node.Server = &config.ServerConfig{}
 		}
 
 		if node.Server.Firewall == nil {
-			node.Server.Firewall = &config.Firewall{}
+			node.Server.Firewall = &config.FirewallConfig{}
 		}
 
 		if node.Server.Firewall.Hetzner == nil {
@@ -59,11 +59,11 @@ func New(ctx *program.Context, nodes []*config.Node) *Hetzner {
 		}
 
 		if node.Server.Firewall.Hetzner.AdditionalRules == nil {
-			node.Server.Firewall.Hetzner.AdditionalRules = make([]*firewall.Rule, 0)
+			node.Server.Firewall.Hetzner.AdditionalRules = make([]*firewall.RuleConfig, 0)
 		}
 
 		if node.Server.Firewall.Hetzner.SSH == nil {
-			node.Server.Firewall.Hetzner.SSH = &firewall.SSH{
+			node.Server.Firewall.Hetzner.SSH = &firewall.SSHConfig{
 				Allow: false,
 			}
 		}
@@ -86,12 +86,12 @@ func New(ctx *program.Context, nodes []*config.Node) *Hetzner {
 	}
 }
 
-func (h *Hetzner) WithNetwork(cfg *network.Config) *Hetzner {
-	h.Network = network.New(h.ctx, cfg)
+func (h *Hetzner) WithNetwork(params *network.Params) *Hetzner {
+	h.Network = network.New(h.ctx, params)
 	return h
 }
 
-func (h *Hetzner) WithNodepools(pools *config.Nodepools) *Hetzner {
+func (h *Hetzner) WithNodepools(pools *config.NodepoolsConfig) *Hetzner {
 	for _, pool := range pools.Agents {
 		h.configureNodepoolNetwork(pool, network.FromStart)
 	}
@@ -103,7 +103,7 @@ func (h *Hetzner) WithNodepools(pools *config.Nodepools) *Hetzner {
 	return h
 }
 
-func (h *Hetzner) configureNodepoolNetwork(pool *config.Nodepool, from string) {
+func (h *Hetzner) configureNodepoolNetwork(pool *config.NodepoolConfig, from string) {
 	if pool.Nodes[0].Server.Firewall.Hetzner.DedicatedPool() {
 		h.Firewalls[pool.ID] = pool.Config.Server.Firewall.Hetzner
 	}

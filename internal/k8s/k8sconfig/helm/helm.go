@@ -13,7 +13,7 @@ const (
 )
 
 type Config struct {
-	ValuesFiles pulumi.AssetOrArchiveArray `json:"-"`
+	valuesFiles pulumi.AssetOrArchiveArray `json:"-"`
 
 	ValuesFilePath []string `json:"values-files" yaml:"values-files"`
 	Version        string
@@ -45,4 +45,12 @@ func parseDefaultVersionsFile() (map[string]interface{}, error) {
 	}
 
 	return m, nil
+}
+
+func (c *Config) ValuesFiles() pulumi.AssetOrArchiveArray {
+	return c.valuesFiles
+}
+
+func (c *Config) SetValuesFiles(assets pulumi.AssetOrArchiveArray) {
+	c.valuesFiles = assets
 }

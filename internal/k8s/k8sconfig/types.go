@@ -1,4 +1,4 @@
-package config
+package k8sconfig
 
 import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
@@ -8,9 +8,9 @@ import (
 )
 
 type Config struct {
-	KubeAPIEndpoint *K8SEndpoint          `json:"kube-api-endpoint" yaml:"kube-api-endpoint"`
+	KubeAPIEndpoint *K8SEndpointConfig    `json:"kube-api-endpoint" yaml:"kube-api-endpoint"`
 	AuditLog        *audit.AuditLogConfig `json:"audit-log" yaml:"audit-log"`
-	Addons          *addons.Addons
+	Addons          *addons.Config
 }
 
 type NodeConfig struct {
@@ -20,27 +20,27 @@ type NodeConfig struct {
 	NodeLabels []string `json:"node-label" yaml:"node-label,omitempty"`
 }
 
-type K8SEndpoint struct {
+type K8SEndpointConfig struct {
 	Type     string
-	Firewall *BasicFirewall
+	Firewall *BasicFirewallConfig
 }
 
-type BasicFirewall struct {
-	HetznerPublic *HetnzerBasicFirewall `json:"hetzner-public" yaml:"hetzner-public"`
+type BasicFirewallConfig struct {
+	HetznerPublic *HetnzerBasicFirewallConfig `json:"hetzner-public" yaml:"hetzner-public"`
 }
 
-type HetnzerBasicFirewall struct {
+type HetnzerBasicFirewallConfig struct {
 	DisallowOwnIP bool     `json:"disallow-own-ip" yaml:"disallow-own-ip"`
 	AllowedIps    []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
 func (k *Config) WithInited() *Config {
 	if k.Addons == nil {
-		k.Addons = &addons.Addons{}
+		k.Addons = &addons.Config{}
 	}
 
 	if k.KubeAPIEndpoint == nil {
-		k.KubeAPIEndpoint = &K8SEndpoint{}
+		k.KubeAPIEndpoint = &K8SEndpointConfig{}
 	}
 
 	if k.KubeAPIEndpoint.Type == "" {
@@ -48,11 +48,11 @@ func (k *Config) WithInited() *Config {
 	}
 
 	if k.KubeAPIEndpoint.Firewall == nil {
-		k.KubeAPIEndpoint.Firewall = &BasicFirewall{}
+		k.KubeAPIEndpoint.Firewall = &BasicFirewallConfig{}
 	}
 
 	if k.KubeAPIEndpoint.Firewall.HetznerPublic == nil {
-		k.KubeAPIEndpoint.Firewall.HetznerPublic = &HetnzerBasicFirewall{}
+		k.KubeAPIEndpoint.Firewall.HetznerPublic = &HetnzerBasicFirewallConfig{}
 	}
 
 	if k.KubeAPIEndpoint.Firewall.HetznerPublic.AllowedIps == nil {

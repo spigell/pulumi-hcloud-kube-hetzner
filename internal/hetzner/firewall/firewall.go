@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	ICMPRule = &Rule{
+	ICMPRule = &RuleConfig{
 		Protocol:    "icmp",
 		Description: "Allow ICMP",
 		Port:        "",
@@ -20,7 +20,7 @@ var (
 			"::/0",
 		},
 	}
-	SSHRule = &Rule{
+	SSHRule = &RuleConfig{
 		Protocol:    "tcp",
 		Description: "Allow SSH",
 		Port:        "22",

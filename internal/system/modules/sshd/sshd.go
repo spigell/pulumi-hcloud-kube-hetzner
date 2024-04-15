@@ -17,14 +17,14 @@ type SSHD struct {
 	ID    string
 	OS    info.OSInfo
 
-	Config *Config
+	Config *Params
 }
 
 type Provisioned struct {
 	resources []pulumi.Resource
 }
 
-func New(id string, os info.OSInfo, config *Config) *SSHD {
+func New(id string, os info.OSInfo, config *Params) *SSHD {
 	return &SSHD{
 		ID:     id,
 		OS:     os,

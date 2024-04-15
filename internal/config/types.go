@@ -6,7 +6,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
-	k8sconfig "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/k8sconfig"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 )
 
@@ -14,75 +14,96 @@ type WithID interface {
 	GetID() string
 }
 
-type Defaults struct {
-	Global  *Node `doc:""`
-	Servers *Node `doc:""`
-	Agents  *Node `doc:""`
+type DefaultConfig struct {
+	Global  *NodeConfig
+	Servers *NodeConfig
+	Agents  *NodeConfig
 }
 
-type Nodepools struct {
-	Servers []*Nodepool `doc:""`
-	Agents  []*Nodepool `doc:""`
+type NodepoolsConfig struct {
+	Servers []*NodepoolConfig
+	Agents  []*NodepoolConfig
 }
 
-type Nodepool struct {
+type NodepoolConfig struct {
 	ID     string
-	Config *Node
-	Nodes  []*Node
+	Config *NodeConfig
+	Nodes  []*NodeConfig
 }
 
-type Network struct {
-	Hetzner *network.Config `doc:""`
+type NetworkConfig struct {
+	Hetzner *network.Params
 }
 
-func (n *Nodepool) GetID() string {
+func (n *NodepoolConfig) GetID() string {
 	return n.ID
 }
 
-type Node struct {
+type NodeConfig struct {
 	ID     string
 	Leader bool
-	Server *Server
+	Server *ServerConfig
 	K3s    *k3s.Config
 	K8S    *k8sconfig.NodeConfig
 	Role   string
 }
 
-func (n *Node) GetID() string {
+func (n *NodeConfig) GetID() string {
 	return n.ID
 }
 
-type Server struct {
-	// ServerType
-	ServerType        string `json:"server-type" yaml:"server-type"`
-	Hostname          string
-	Firewall          *Firewall
-	Location          string
+type ServerConfig struct {
+	// ServerType specifies the type of server to be provisioned (e.g., "cx11", "cx21").
+	// Default is cx21.
+	ServerType string `json:"server-type" yaml:"server-type"`
+
+	// Hostname is the desired hostname to assign to the server.
+	// Default is 'phkh-<name-of-stack>-<id-of-node>'.
+	Hostname string
+
+	// Firewall points to an optional configuration for a firewall to be associated with the server.
+	Firewall *FirewallConfig
+
+	// Location specifies the physical location or data center where the server will be hosted (e.g., "fsn1").
+	// Default is hel1.
+	Location string
+
+	// AdditionalSSHKeys contains a list of additional public SSH keys to install in the server's user account.
+	// Default is [].
 	AdditionalSSHKeys []string `json:"additional-ssh-keys" yaml:"additional-ssh-keys"`
-	UserName          string   `json:"user-name" yaml:"user-name"`
-	UserPasswd        string   `json:"user-password" yaml:"user-password"`
-	Image             string
+
+	// UserName is the primary user account name that will be created on the server.
+	// Default is rancher.
+	UserName string `json:"user-name" yaml:"user-name"`
+
+	// UserPasswd is the password for the primary user account on the server.
+	// Default is not configured.
+	UserPasswd string `json:"user-password" yaml:"user-password"`
+
+	// Image specifies the operating system image to use for the server (e.g., "ubuntu-20.04" or id of private image).
+	// Default is autodiscovered.
+	Image string
 }
 
-type Firewall struct {
+type FirewallConfig struct {
 	Hetzner *firewall.Config
 }
 
-func (d *Defaults) WithInited() *Defaults {
+func (d *DefaultConfig) WithInited() *DefaultConfig {
 	if d == nil {
-		d = &Defaults{}
+		d = &DefaultConfig{}
 	}
 
 	if d.Global == nil {
-		d.Global = &Node{}
+		d.Global = &NodeConfig{}
 	}
 
 	if d.Agents == nil {
-		d.Agents = &Node{}
+		d.Agents = &NodeConfig{}
 	}
 
 	if d.Servers == nil {
-		d.Servers = &Node{}
+		d.Servers = &NodeConfig{}
 	}
 
 	if d.Global.K3s == nil {
@@ -96,9 +117,9 @@ func (d *Defaults) WithInited() *Defaults {
 	return d
 }
 
-func (n *Network) WithInited() *Network {
+func (n *NetworkConfig) WithInited() *NetworkConfig {
 	if n.Hetzner == nil {
-		n.Hetzner = &network.Config{
+		n.Hetzner = &network.Params{
 			Enabled: false,
 		}
 	}
@@ -106,20 +127,20 @@ func (n *Network) WithInited() *Network {
 	return n
 }
 
-func (no *Nodepools) WithInited(ctx *pulumi.Context) *Nodepools {
+func (no *NodepoolsConfig) WithInited(ctx *pulumi.Context) *NodepoolsConfig {
 	no.Agents = initNodepools(ctx, no.Agents)
 	no.Servers = initNodepools(ctx, no.Servers)
 
 	return no
 }
 
-func initNodepools(ctx *pulumi.Context, pools []*Nodepool) []*Nodepool {
-	no := make([]*Nodepool, 0)
+func initNodepools(ctx *pulumi.Context, pools []*NodepoolConfig) []*NodepoolConfig {
+	no := make([]*NodepoolConfig, 0)
 
 	for i, pool := range pools {
 		no = append(no, pool)
 		if pool.Config == nil {
-			no[i].Config = &Node{}
+			no[i].Config = &NodeConfig{}
 		}
 
 		if pool.Config.K8S == nil {
@@ -135,12 +156,12 @@ func initNodepools(ctx *pulumi.Context, pools []*Nodepool) []*Nodepool {
 		}
 
 		if pool.Config.Server == nil {
-			no[i].Config.Server = &Server{}
+			no[i].Config.Server = &ServerConfig{}
 		}
 
 		for j, node := range pool.Nodes {
 			if node.Server == nil {
-				no[i].Nodes[j].Server = &Server{}
+				no[i].Nodes[j].Server = &ServerConfig{}
 			}
 
 			if node.Server.Hostname == "" {

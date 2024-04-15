@@ -13,7 +13,7 @@ import (
 
 type OperatingSystem interface {
 	Up(*program.Context, *hetzner.Server, map[string][]pulumi.Resource) (Provisioned, error)
-	SetupSSHD(*sshd.Config)
+	SetupSSHD(*sshd.Params)
 	AddK3SModule(string, *k3s.Config, *audit.AuditLog)
 
 	AddAdditionalRequiredPackages([]string)
