@@ -4,9 +4,7 @@
 As such, this document may be updated frequently and without prior notice as system configurations or source code are updated.
 Users are advised to refer to the latest version of this document for the most accurate and up-to-date information.*
 **Do not edit manually!**
-
-
-
+---
 ## config.Config
 
 | Field | Type | Description | Default |
@@ -54,7 +52,7 @@ Users are advised to refer to the latest version of this document for the most a
 | server | [config.*ServerConfig](#configserverconfig) | Server is configuration of hetzner server.  | {} |
 | k3s | [*k3s.Config](#k3sconfig) | K3S is configuration of k3s cluster.  | {} |
 | k8s | [*k8sconfig.NodeConfig](#k8sconfignodeconfig) | K8S is common configuration for nodes.  | {} |
-| role | string |  | "" |
+| role | string | Role specifes role of server (server or agent). Do not set manually.   | computed |
 
 ## config.ServerConfig
 
@@ -144,7 +142,7 @@ Users are advised to refer to the latest version of this document for the most a
 | policy-file-path | string | PolicyFilePath is the path to the local file that defines the audit policy configuration.  | "" |
 | audit-log-maxage | int | AuditLogMaxAge defines the maximum number of days to retain old audit log files.   | 10 |
 | audit-log-maxbackup | int | AuditLogMaxBackup specifies the maximum number of audit log files to retain.   | 30 |
-| audit-log-maxsize | int | AuditLogMaxSize specifies the maximum size in megabytes of the audit log file before it gets rotated.   | 100m |
+| audit-log-maxsize | int | AuditLogMaxSize specifies the maximum size in megabytes of the audit log file before it gets rotated.   | 100 |
 
 ## helm.Config
 
