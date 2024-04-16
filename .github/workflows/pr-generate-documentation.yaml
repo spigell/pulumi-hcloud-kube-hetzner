@@ -25,10 +25,8 @@ jobs:
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add docs/parameters.md
-        git commit -m "[auto] update docs"
-        [[ git diff --quiet ]] && echo "No changes" || echo "changes_exist=true" >> $GITHUB_ENV
+        git commit -m "[auto] update docs" || echo 'No changes'
     - name: Push changes
-      if: env.changes_exist == 'true'
       uses: ad-m/github-push-action@master
       with:
         branch: ${{ github.head_ref }}
