@@ -16,6 +16,7 @@ const (
 As such, this document may be updated frequently and without prior notice as system configurations or source code are updated.
 Users are advised to refer to the latest version of this document for the most accurate and up-to-date information.*
 **Do not edit manually!**
+---
 `
 )
 
@@ -35,5 +36,5 @@ func main() {
 		`, err.Error())
 	}
 
-	fmt.Println(strings.ReplaceAll(header, "    ", "") + "\n\n\n" + parameters)
+	fmt.Println(strings.ReplaceAll(header, "    ", "") + parameters)
 }

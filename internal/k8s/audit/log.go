@@ -24,7 +24,7 @@ type AuditLogConfig struct { //nolint: revive
 	AuditLogMaxBackup int `json:"audit-log-maxbackup" yaml:"audit-log-maxbackup"`
 
 	// AuditLogMaxSize specifies the maximum size in megabytes of the audit log file before it gets rotated.
-	// Default is 100m.
+	// Default is 100.
 	AuditLogMaxSize int `json:"audit-log-maxsize" yaml:"audit-log-maxsize"`
 }
 
