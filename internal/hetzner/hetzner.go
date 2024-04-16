@@ -86,8 +86,8 @@ func New(ctx *program.Context, nodes []*config.NodeConfig) *Hetzner {
 	}
 }
 
-func (h *Hetzner) WithNetwork(params *network.Config) *Hetzner {
-	h.Network = network.New(h.ctx, params)
+func (h *Hetzner) WithNetwork(config *network.Config) *Hetzner {
+	h.Network = network.New(h.ctx, config)
 	return h
 }
 
