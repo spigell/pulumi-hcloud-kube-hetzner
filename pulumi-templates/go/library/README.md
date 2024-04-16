@@ -9,7 +9,7 @@ Please install following tools:
 - curl
 
 It is recomended to export env variable `HCLOUD_TOKEN` since it is required for large amount of commands
-However, you can provide it every time when you requested it
+However, you can provide it every time when you requested it.
 
 ### TL;DR
 ```
@@ -45,7 +45,7 @@ yarn instal
 **That's it! Now you can use pulumi commands like `up` or `preview`.**
 
 ### Outputs
-The program sends outputs via map called `phkh`. The one can get outputs using command `pulumi stack output --show-secrets -j pkhk`.
+The program sends outputs via map called `phkh`. The one can get outputs using command `pulumi stack output --show-secrets -j phkh`.
 
 The YAML state file will be created as well. It is used by the program for internal purposes. If you use some VCS, like git, you should store this file along with your configuration.
 
@@ -58,7 +58,11 @@ If you find any panic (due accessing to a null value or like that), please creat
 ### Useful commands and snippets
 #### Get ssh private key
 ```
-pulumi stack output --show-secrets -j pkhk | jq .privatekey -r
+pulumi stack output --show-secrets -j phkh | jq .privatekey -r
+```
+#### Get kubeconfig
+```
+pulumi stack output --show-secrets -j phkh | jq .kubeconfig -r
 ```
 #### Check ssh connectivity to nodes from local machine
 ```

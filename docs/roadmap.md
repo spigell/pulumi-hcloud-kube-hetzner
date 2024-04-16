@@ -1,9 +1,9 @@
 # RoadMap
 ## Documentation
-- [ ] Add the doc generation from structs
-- [ ] Describe network modes
+- [x] Add the doc generation from structs
+- [x] Describe network modes
+- [x] Spelling
 - [ ] Describe project layout
-- [ ] Spelling
 - [ ] Add roadmap for autoscaling
 - [ ] Add readme for SDK
 
