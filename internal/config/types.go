@@ -67,7 +67,7 @@ type NodeConfig struct {
 	// K3S is configuration of k3s cluster.
 	K3s *k3s.Config
 	// K8S is common configuration for nodes.
-	K8S  *k8sconfig.NodeConfig
+	K8S *k8sconfig.NodeConfig
 	// Role specifes role of server (server or agent). Do not set manually.
 	// Default is computed.
 	Role string
