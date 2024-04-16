@@ -15,23 +15,35 @@ type Config struct {
 
 type NodeConfig struct {
 	// NodeTaints are used to taint the node with key=value:effect.
-	// By default, server node is tainted with a couple of taints if number of agents nodes more than 0.
+	// Default is server node is tainted with a couple of taints if number of agents nodes more than 0.
+	// But only if disable-default-taints set to false (default)
 	NodeTaints []string `json:"node-taint" yaml:"node-taint,omitempty"`
+	// NodeLabels are used to lable the node with key=value.
 	NodeLabels []string `json:"node-label" yaml:"node-label,omitempty"`
 }
 
 type K8SEndpointConfig struct {
-	Type     string
+	// Type of k8s endpoint: public or private.
+	// Default is public.
+	Type string
+	// Firewall defines configuration for the firewall attached to api access.
+	// This is used only for public type since private network considered to be secure.
 	Firewall *BasicFirewallConfig
 }
 
 type BasicFirewallConfig struct {
+	// HetznerPublic is used to describe firewall attached to public k8s api endpoint.
 	HetznerPublic *HetnzerBasicFirewallConfig `json:"hetzner-public" yaml:"hetzner-public"`
 }
 
 type HetnzerBasicFirewallConfig struct {
-	DisallowOwnIP bool     `json:"disallow-own-ip" yaml:"disallow-own-ip"`
-	AllowedIps    []string `json:"allowed-ips" yaml:"allowed-ips"`
+	// DisallowOwnIP is a security setting that, when enabled, prevents access to the server from deployer own public IP address.
+	DisallowOwnIP bool `json:"disallow-own-ip" yaml:"disallow-own-ip"`
+
+	// AllowedIps specifies a list of IP addresses that are permitted to access the k8s api endpoint.
+	// Only traffic from these IPs will be allowed if this list is configured.
+	// Default is 0.0.0.0/0 (all ipv4 addresses).
+	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
 }
 
 func (k *Config) WithInited() *Config {

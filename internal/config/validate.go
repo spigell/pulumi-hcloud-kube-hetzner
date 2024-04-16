@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	k3supgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3supgrader"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 )
 

@@ -15,8 +15,12 @@ const (
 type Config struct {
 	valuesFiles pulumi.AssetOrArchiveArray `json:"-"`
 
+	// ValuesFilePaths is a list of path/to/file to values files.
+	// See https://www.pulumi.com/registry/packages/kubernetes/api-docs/helm/v3/release/#valueyamlfiles_nodejs for details.
 	ValuesFilePath []string `json:"values-files" yaml:"values-files"`
-	Version        string
+	// Version is version of helm chart.
+	// Default is taken from default-helm-versions.yaml in template's versions directory.
+	Version string
 }
 
 func GetDefaultVersion(addon string) (string, error) {

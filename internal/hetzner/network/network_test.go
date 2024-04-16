@@ -9,7 +9,7 @@ import (
 
 func TestPrefixAllocator(t *testing.T) {
 	var ctx *program.Context
-	net := New(ctx, &Params{
+	net := New(ctx, &Config{
 		CIDR: "192.168.0.0/20",
 	})
 

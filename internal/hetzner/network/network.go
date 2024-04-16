@@ -19,19 +19,24 @@ const (
 	defaultNetCIDR = "10.20.0.0/16"
 )
 
-// Params can be used to configure hetzner network with given CIDR and zone.
-type Params struct {
-	// CIDR of private network. Default is 10.20.0.0/16
-	CIDR    string
+// Config can be used to configure hetzner network with given CIDR and zone.
+type Config struct {
+	// CIDR of private network.
+	// Default is 10.20.0.0/16
+	CIDR string
+	// Enabled of not.
+	// Default is false.
 	Enabled bool
-	Zone    string
+	// Network zone.
+	// Default is eu-central.
+	Zone string
 }
 
 type Network struct {
 	ctx  *program.Context
 	ipam *ipam.IPAM
 
-	Config *Params
+	Config *Config
 }
 
 type Deployed struct {
@@ -43,7 +48,7 @@ type Subnet struct {
 	Resource *hcloud.NetworkSubnet
 }
 
-func New(ctx *program.Context, cfg *Params) *Network {
+func New(ctx *program.Context, cfg *Config) *Network {
 	if cfg.CIDR == "" {
 		cfg.CIDR = defaultNetCIDR
 	}

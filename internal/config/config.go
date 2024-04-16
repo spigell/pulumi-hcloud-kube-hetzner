@@ -22,10 +22,23 @@ const (
 type Config struct {
 	ctx *pulumi.Context
 
+	// Nodepools is a map with agents and servers defined.
+	// Required for at least one server node.
+	// Default is not specified.
 	Nodepools *NodepoolsConfig
-	Defaults  *DefaultConfig
-	Network   *NetworkConfig
-	K8S       *k8sconfig.Config
+	// Defaults is a map with default settings for agents and servers.
+	// Global values for all nodes can be set here as well.
+	// Can be empty, but required.
+	// Default is not specified.
+	Defaults *DefaultConfig
+	// Network defines network configuration for cluster.
+	// Can be empty, but required.
+	// Default is not specified.
+	Network *NetworkConfig
+	// K8S defines a distribution-agnostic cluster configuration.
+	// Can be empty, but required.
+	// Default is not specified.
+	K8S *k8sconfig.Config
 }
 
 // New returns the parsed configuration for the cluster as is without any modifications.

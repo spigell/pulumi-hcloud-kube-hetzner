@@ -7,9 +7,12 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"unicode"
 )
+
+var defaultValueRegex = regexp.MustCompile(`(?i)Default is ([^.]+)\.`)
 
 func RenderParametersTable(dir string) (string, error) {
 	table, err := processDirectory(dir)
@@ -76,11 +79,15 @@ func generateStructMarkdown(sb *strings.Builder, packageName string, typeSpec *a
 	sb.WriteString("|-------|------|-------------|---------|\n")
 
 	for _, field := range structType.Fields.List {
-		if isExportedField(field) {
-			fieldName := getFieldName(field)
-			fieldType := getFieldType(packageName, field)
-			fieldDesc := getFieldDescription(field)
+		if exportedField(field) {
+			fieldName := fieldName(field)
+			fieldType := fieldType(packageName, field)
+			fieldDesc := fieldDescription(field)
 			fieldDefault := extractDefaultValue(fieldDesc)
+			if fieldDefault == "" {
+				fieldDefault = defaultForType(fieldType)
+			}
+			fieldDesc = removeDefaultValue(fieldDesc)
 			sb.WriteString(fmt.Sprintf("| %s | %s | %s | %s |\n", fieldName, fieldType, fieldDesc, fieldDefault))
 		}
 	}
@@ -88,12 +95,12 @@ func generateStructMarkdown(sb *strings.Builder, packageName string, typeSpec *a
 }
 
 // Check if a field is exported and has a name.
-func isExportedField(field *ast.Field) bool {
+func exportedField(field *ast.Field) bool {
 	return len(field.Names) > 0 && unicode.IsUpper(rune(field.Names[0].Name[0]))
 }
 
 // Resolve field name from tags, or use the struct field name.
-func getFieldName(field *ast.Field) string {
+func fieldName(field *ast.Field) string {
 	fieldName := strings.ToLower(field.Names[0].Name)
 
 	if field.Tag == nil {
@@ -105,7 +112,7 @@ func getFieldName(field *ast.Field) string {
 		if jsonTag == "-" {
 			yamlTag, ok := parseTag(field.Tag.Value, "yaml")
 			if ok {
-				return strings.Split(yamlTag, ",")[0] + " (computed). Not possible to configure!"
+				return strings.Split(yamlTag, ",")[0] + " (computed: Not possible to configure!)"
 			}
 		}
 		return strings.Split(jsonTag, ",")[0]
@@ -115,7 +122,7 @@ func getFieldName(field *ast.Field) string {
 }
 
 // Extract type information and link if necessary.
-func getFieldType(packageName string, field *ast.Field) string {
+func fieldType(packageName string, field *ast.Field) string {
 	fieldType := resolveType(field.Type)
 	if strings.Contains(fieldType, "*") {
 		fullType := fmt.Sprintf("%s.%s", packageName, fieldType)
@@ -128,7 +135,7 @@ func getFieldType(packageName string, field *ast.Field) string {
 }
 
 // Consolidates comments from Doc and Comment fields.
-func getFieldDescription(field *ast.Field) string {
+func fieldDescription(field *ast.Field) string {
 	var parts []string
 	if field.Doc != nil {
 		parts = append(parts, field.Doc.Text())
@@ -137,6 +144,14 @@ func getFieldDescription(field *ast.Field) string {
 		parts = append(parts, field.Comment.Text())
 	}
 	return strings.ReplaceAll(strings.Join(parts, " "), "\n", " ")
+}
+
+func removeDefaultValue(desc string) string {
+	match, defaultValue := defaultValueRegex.FindString(desc), ""
+	if len(match) > 1 {
+		defaultValue = strings.TrimSpace(match)
+	}
+	return strings.ReplaceAll(desc, defaultValue, "") // Remove default value from description
 }
 
 // toMarkdownLink refactors the string replacements to be more idiomatic and maintainable.
@@ -165,4 +180,21 @@ func extractDefaultValue(comment string) string {
 	}
 	defaultValue := comment[startPos+len(prefix):]
 	return strings.Trim(strings.TrimSpace(defaultValue), ".")
+}
+
+func defaultForType(fieldType string) string {
+	switch {
+	case strings.HasPrefix(fieldType, "[]"): // Slice of pointers
+		return "[]"
+	case strings.Contains(fieldType, "*"): // Pointer
+		return "{}"
+	case fieldType == "string":
+		return `""`
+	case fieldType == "bool":
+		return "false"
+	case strings.HasPrefix(fieldType, "int") || strings.HasPrefix(fieldType, "float"):
+		return "0"
+	default:
+		return "" // Unknown types get no default
+	}
 }

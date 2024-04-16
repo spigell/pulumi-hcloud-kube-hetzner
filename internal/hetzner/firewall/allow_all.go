@@ -14,7 +14,6 @@ func NewAllowAllRules() *AllowAllRules {
 
 	rules = append(rules, ICMPRule)
 	rules = append(rules, &RuleConfig{
-		Direction:   string(hcloud.FirewallRuleDirectionIn),
 		Protocol:    string(hcloud.FirewallRuleProtocolTCP),
 		Description: "Allow all tcp for cluster nodes",
 		Port:        "any",
@@ -24,7 +23,6 @@ func NewAllowAllRules() *AllowAllRules {
 		},
 	})
 	rules = append(rules, &RuleConfig{
-		Direction:   string(hcloud.FirewallRuleDirectionIn),
 		Protocol:    string(hcloud.FirewallRuleProtocolUDP),
 		Description: "Allow all udp for cluster nodes",
 		Port:        "any",

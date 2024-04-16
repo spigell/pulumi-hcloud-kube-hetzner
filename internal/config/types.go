@@ -15,24 +15,38 @@ type WithID interface {
 }
 
 type DefaultConfig struct {
-	Global  *NodeConfig
+	// Global provides configuration settings that are applied to all nodes, unless overridden by specific roles.
+	Global *NodeConfig
+
+	// Servers holds configuration settings specific to server nodes, overriding Global settings where specified.
 	Servers *NodeConfig
-	Agents  *NodeConfig
+
+	// Agents holds configuration settings specific to agent nodes, overriding Global settings where specified.
+	Agents *NodeConfig
 }
 
 type NodepoolsConfig struct {
+	// Servers is a list of NodepoolConfig objects, each representing a configuration for a pool of server nodes.
 	Servers []*NodepoolConfig
-	Agents  []*NodepoolConfig
+
+	// Agents is a list of NodepoolConfig objects, each representing a configuration for a pool of agent nodes.
+	Agents []*NodepoolConfig
 }
 
 type NodepoolConfig struct {
-	ID     string
+	// ID is id of group of servers. It is used through entire program as key for the group.
+	// Required.
+	// Default is not specified.
+	ID string
+	// Config is the default node configuration for group
 	Config *NodeConfig
-	Nodes  []*NodeConfig
+	// Nodes is a list of nodes inside of the group.
+	Nodes []*NodeConfig
 }
 
 type NetworkConfig struct {
-	Hetzner *network.Params
+	// Hetzner specifies network configuration for private networking.
+	Hetzner *network.Config
 }
 
 func (n *NodepoolConfig) GetID() string {
@@ -40,12 +54,21 @@ func (n *NodepoolConfig) GetID() string {
 }
 
 type NodeConfig struct {
-	ID     string
+	// ID is id of server. It is used through entire program as key.
+	// Required.
+	// Default is not specified.
+	ID string
+	// Leader specify leader of multi-muster cluster.
+	// Required if number of master more than 1.
+	// Default is not specified.
 	Leader bool
+	// Server is configuration of hetzner server.
 	Server *ServerConfig
-	K3s    *k3s.Config
-	K8S    *k8sconfig.NodeConfig
-	Role   string
+	// K3S is configuration of k3s cluster.
+	K3s *k3s.Config
+	// K8S is common configuration for nodes.
+	K8S  *k8sconfig.NodeConfig
+	Role string
 }
 
 func (n *NodeConfig) GetID() string {
@@ -58,7 +81,7 @@ type ServerConfig struct {
 	ServerType string `json:"server-type" yaml:"server-type"`
 
 	// Hostname is the desired hostname to assign to the server.
-	// Default is 'phkh-<name-of-stack>-<id-of-node>'.
+	// Default is `phkh-${name-of-stack}-${id-of-node}`.
 	Hostname string
 
 	// Firewall points to an optional configuration for a firewall to be associated with the server.
@@ -69,7 +92,6 @@ type ServerConfig struct {
 	Location string
 
 	// AdditionalSSHKeys contains a list of additional public SSH keys to install in the server's user account.
-	// Default is [].
 	AdditionalSSHKeys []string `json:"additional-ssh-keys" yaml:"additional-ssh-keys"`
 
 	// UserName is the primary user account name that will be created on the server.
@@ -77,7 +99,6 @@ type ServerConfig struct {
 	UserName string `json:"user-name" yaml:"user-name"`
 
 	// UserPasswd is the password for the primary user account on the server.
-	// Default is not configured.
 	UserPasswd string `json:"user-password" yaml:"user-password"`
 
 	// Image specifies the operating system image to use for the server (e.g., "ubuntu-20.04" or id of private image).
@@ -86,6 +107,7 @@ type ServerConfig struct {
 }
 
 type FirewallConfig struct {
+	// Hetzner specify firewall configuration for cloud firewall.
 	Hetzner *firewall.Config
 }
 
@@ -119,7 +141,7 @@ func (d *DefaultConfig) WithInited() *DefaultConfig {
 
 func (n *NetworkConfig) WithInited() *NetworkConfig {
 	if n.Hetzner == nil {
-		n.Hetzner = &network.Params{
+		n.Hetzner = &network.Config{
 			Enabled: false,
 		}
 	}

@@ -2,212 +2,219 @@
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| nodepools | [config.*NodepoolsConfig](#confignodepoolsconfig) |  |  |
-| defaults | [config.*DefaultConfig](#configdefaultconfig) |  |  |
-| network | [config.*NetworkConfig](#confignetworkconfig) |  |  |
-| k8s | [*k8sconfig.Config](#k8sconfigconfig) |  |  |
+| nodepools | [config.*NodepoolsConfig](#confignodepoolsconfig) | Nodepools is a map with agents and servers defined. Required for at least one server node.   | not specified |
+| defaults | [config.*DefaultConfig](#configdefaultconfig) | Defaults is a map with default settings for agents and servers. Global values for all nodes can be set here as well. Can be empty, but required.   | not specified |
+| network | [config.*NetworkConfig](#confignetworkconfig) | Network defines network configuration for cluster. Can be empty, but required.   | not specified |
+| k8s | [*k8sconfig.Config](#k8sconfigconfig) | K8S defines a distribution-agnostic cluster configuration. Can be empty, but required.   | not specified |
 
 ## config.DefaultConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| global | [config.*NodeConfig](#confignodeconfig) |  |  |
-| servers | [config.*NodeConfig](#confignodeconfig) |  |  |
-| agents | [config.*NodeConfig](#confignodeconfig) |  |  |
+| global | [config.*NodeConfig](#confignodeconfig) | Global provides configuration settings that are applied to all nodes, unless overridden by specific roles.  | {} |
+| servers | [config.*NodeConfig](#confignodeconfig) | Servers holds configuration settings specific to server nodes, overriding Global settings where specified.  | {} |
+| agents | [config.*NodeConfig](#confignodeconfig) | Agents holds configuration settings specific to agent nodes, overriding Global settings where specified.  | {} |
 
 ## config.NodepoolsConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| servers | [config.[]*NodepoolConfig](#confignodepoolconfig) |  |  |
-| agents | [config.[]*NodepoolConfig](#confignodepoolconfig) |  |  |
+| servers | [config.[]*NodepoolConfig](#confignodepoolconfig) | Servers is a list of NodepoolConfig objects, each representing a configuration for a pool of server nodes.  | {} |
+| agents | [config.[]*NodepoolConfig](#confignodepoolconfig) | Agents is a list of NodepoolConfig objects, each representing a configuration for a pool of agent nodes.  | {} |
 
 ## config.NodepoolConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| id | string |  |  |
-| config | [config.*NodeConfig](#confignodeconfig) |  |  |
-| nodes | [config.[]*NodeConfig](#confignodeconfig) |  |  |
+| id | string | ID is id of group of servers. It is used through entire program as key for the group. Required.   | not specified |
+| config | [config.*NodeConfig](#confignodeconfig) | Config is the default node configuration for group  | {} |
+| nodes | [config.[]*NodeConfig](#confignodeconfig) | Nodes is a list of nodes inside of the group.  | {} |
 
 ## config.NetworkConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| hetzner | [*network.Params](#networkparams) |  |  |
+| hetzner | [*network.Config](#networkconfig) | Hetzner specifies network configuration for private networking.  | {} |
 
 ## config.NodeConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| id | string |  |  |
-| leader | bool |  |  |
-| server | [config.*ServerConfig](#configserverconfig) |  |  |
-| k3s | [*k3s.Config](#k3sconfig) |  |  |
-| k8s | [*k8sconfig.NodeConfig](#k8sconfignodeconfig) |  |  |
-| role | string |  |  |
+| id | string | ID is id of server. It is used through entire program as key. Required.   | not specified |
+| leader | bool | Leader specify leader of multi-muster cluster. Required if number of master more than 1.   | not specified |
+| server | [config.*ServerConfig](#configserverconfig) | Server is configuration of hetzner server.  | {} |
+| k3s | [*k3s.Config](#k3sconfig) | K3S is configuration of k3s cluster.  | {} |
+| k8s | [*k8sconfig.NodeConfig](#k8sconfignodeconfig) | K8S is common configuration for nodes.  | {} |
+| role | string |  | "" |
 
 ## config.ServerConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| server-type | string | ServerType specifies the type of server to be provisioned (e.g., "cx11", "cx21"). Default is cx21.  | cx21 |
-| hostname | string | Hostname is the desired hostname to assign to the server. Default is 'phkh-<name-of-stack>-<id-of-node>'.  | 'phkh-<name-of-stack>-<id-of-node>' |
-| firewall | [config.*FirewallConfig](#configfirewallconfig) | Firewall points to an optional configuration for a firewall to be associated with the server.  |  |
-| location | string | Location specifies the physical location or data center where the server will be hosted (e.g., "fsn1"). Default is hel1.  | hel1 |
-| additional-ssh-keys | []string | AdditionalSSHKeys contains a list of additional public SSH keys to install in the server's user account. Default is [].  | [] |
-| user-name | string | UserName is the primary user account name that will be created on the server. Default is rancher.  | rancher |
-| user-password | string | UserPasswd is the password for the primary user account on the server. Default is not configured.  | not configured |
-| image | string | Image specifies the operating system image to use for the server (e.g., "ubuntu-20.04" or id of private image). Default is autodiscovered.  | autodiscovered |
+| server-type | string | ServerType specifies the type of server to be provisioned (e.g., "cx11", "cx21").   | cx21 |
+| hostname | string | Hostname is the desired hostname to assign to the server.   | `phkh-${name-of-stack}-${id-of-node}` |
+| firewall | [config.*FirewallConfig](#configfirewallconfig) | Firewall points to an optional configuration for a firewall to be associated with the server.  | {} |
+| location | string | Location specifies the physical location or data center where the server will be hosted (e.g., "fsn1").   | hel1 |
+| additional-ssh-keys | []string | AdditionalSSHKeys contains a list of additional public SSH keys to install in the server's user account.  | [] |
+| user-name | string | UserName is the primary user account name that will be created on the server.   | rancher |
+| user-password | string | UserPasswd is the password for the primary user account on the server.  | "" |
+| image | string | Image specifies the operating system image to use for the server (e.g., "ubuntu-20.04" or id of private image).   | autodiscovered |
 
 ## config.FirewallConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| hetzner | [*firewall.Config](#firewallconfig) |  |  |
+| hetzner | [*firewall.Config](#firewallconfig) | Hetzner specify firewall configuration for cloud firewall.  | {} |
 
 ## firewall.Config
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| enabled | bool |  |  |
-| allow-icmp | bool |  |  |
-| ssh | [firewall.*SSHConfig](#firewallsshconfig) |  |  |
-| additional-rules | [firewall.[]*RuleConfig](#firewallruleconfig) |  |  |
+| enabled | bool | Enabled specifies if the configuration is active.  | false |
+| allow-icmp | bool | AllowICMP indicates whether ICMP traffic is allowed.  | false |
+| ssh | [firewall.*SSHConfig](#firewallsshconfig) | SSH holds the SSH specific configurations.  | {} |
+| additional-rules | [firewall.[]*RuleConfig](#firewallruleconfig) | AdditionalRules is a list of additional rules to be applied.  | {} |
 
 ## firewall.SSHConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| allow | bool |  |  |
-| disallow-own-ip | bool |  |  |
-| allowed-ips | []string |  |  |
+| allow | bool | Allow indicates whether SSH access is permitted.  | false |
+| disallow-own-ip | bool | DisallowOwnIP specifies whether SSH access from the deployer's own IP address is disallowed.  | false |
+| allowed-ips | []string | AllowedIps lists specific IP addresses that are permitted to access via SSH.  | [] |
 
 ## firewall.RuleConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| protocol | string |  |  |
-| port | string |  |  |
-| source-ips | []string |  |  |
-| direction | string |  |  |
-| description | string |  |  |
+| protocol | string | Protocol specifies the network protocol (e.g., TCP, UDP) applicable for the rule.   | TCP |
+| port | string | Port specifies the network port number or range applicable for the rule. Required  | "" |
+| source-ips | []string | SourceIps lists IP addresses or subnets from which traffic is allowed or to which traffic is directed, based on the Direction. Required.  | [] |
+| description | string | Description provides a human-readable explanation of what the rule is intended to do.  | "" |
+
+## network.Config
+
+| Field | Type | Description | Default |
+|-------|------|-------------|---------|
+| cidr | string | CIDR of private network. 20.0.0/16  | 10.20.0.0/16 |
+| enabled | bool | Enabled of not.   | false |
+| zone | string | Network zone.   | eu-central |
 
 ## addons.Config
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| ccm | [*ccm.Config](#ccmconfig) |  |  |
-| k3s-upgrade-controller | [*k3supgrader.Config](#k3supgraderconfig) |  |  |
+| ccm | [*ccm.Config](#ccmconfig) | CCM defines configuration [hetzner-cloud-controller-manager](https://github.com/hetznercloud/hcloud-cloud-controller-manager).  | {} |
+| k3s-upgrade-controller | [*k3supgrader.Config](#k3supgraderconfig) | K3SSystemUpgrader defines configuration for [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller).  | {} |
 
 ## ccm.Config
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| enabled | bool | Enabled is a flag to enable or disable hcloud CCM.  |  |
-| helm | [*helm.Config](#helmconfig) |  |  |
-| loadbalancers-enabled | bool | LoadbalancersEnabled is a flag to enable or disable loadbalancers management. Note: internal loadbalancer for k3s will be disabled.  |  |
-| loadbalancers-default-location | string | DefaultloadbalancerLocation is a default location for the loadbancers.  |  |
-| token | string | Token is a hcloud token to access hcloud API for CCM.  |  |
+| enabled | bool | Enabled is a flag to enable or disable hcloud CCM.  | false |
+| helm | [*helm.Config](#helmconfig) |  | {} |
+| loadbalancers-enabled | bool | LoadbalancersEnabled is a flag to enable or disable loadbalancers management. Note: internal loadbalancer for k3s will be disabled.  | false |
+| loadbalancers-default-location | string | DefaultloadbalancerLocation is a default location for the loadbancers.  | "" |
+| token | string | Token is a hcloud token to access hcloud API for CCM.  | "" |
 
-## upgrader.Config
+## k3supgrader.Config
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| enabled | bool |  |  |
-| helm | [*helm.Config](#helmconfig) |  |  |
-| target-version | string | Version is a version to use for the upgrade. Conflicts with Channel.  |  |
-| target-channel | string | Channel is a channel to use for the upgrade. Conflicts with Version.  |  |
-| config-env | []string | ConfigEnv is a map of environment variables to pass to the controller.  |  |
+| enabled | bool |  | false |
+| helm | [*helm.Config](#helmconfig) |  | {} |
+| target-version | string | Version is a version to use for the upgrade. Conflicts with Channel.  | "" |
+| target-channel | string | Channel is a channel to use for the upgrade. Conflicts with Version.  | "" |
+| config-env | []string | ConfigEnv is a map of environment variables to pass to the controller.  | [] |
 
 ## audit.AuditLogConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| enabled | [audit.*bool](#auditbool) |  |  |
-| policy-file-path | string |  |  |
-| audit-log-maxage | int |  |  |
-| audit-log-maxbackup | int |  |  |
-| audit-log-maxsize | int |  |  |
+| enabled | [audit.*bool](#auditbool) | Enabled specifies if the audit log is enabled. If nil, it might default to a cluster-level setting.  | {} |
+| policy-file-path | string | PolicyFilePath is the path to the local file that defines the audit policy configuration.  | "" |
+| audit-log-maxage | int | AuditLogMaxAge defines the maximum number of days to retain old audit log files.   | 10 |
+| audit-log-maxbackup | int | AuditLogMaxBackup specifies the maximum number of audit log files to retain.   | 30 |
+| audit-log-maxsize | int | AuditLogMaxSize specifies the maximum size in megabytes of the audit log file before it gets rotated.   | 100m |
 
 ## helm.Config
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| values-files | []string |  |  |
-| version | string |  |  |
+| values-files | []string | ValuesFilePaths is a list of path/to/file to values files. See https://www.pulumi.com/registry/packages/kubernetes/api-docs/helm/v3/release/#valueyamlfiles_nodejs for details.  | [] |
+| version | string | Version is version of helm chart. yaml in template's versions directory.  | taken from default-helm-versions.yaml in template's versions directory |
 
 ## k8sconfig.Config
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| kube-api-endpoint | [k8sconfig.*K8SEndpointConfig](#k8sconfigk8sendpointconfig) |  |  |
-| audit-log | [*audit.AuditLogConfig](#auditauditlogconfig) |  |  |
-| addons | [*addons.Config](#addonsconfig) |  |  |
+| kube-api-endpoint | [k8sconfig.*K8SEndpointConfig](#k8sconfigk8sendpointconfig) |  | {} |
+| audit-log | [*audit.AuditLogConfig](#auditauditlogconfig) |  | {} |
+| addons | [*addons.Config](#addonsconfig) |  | {} |
 
 ## k8sconfig.NodeConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| node-taint | []string | NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0.  |  |
-| node-label | []string |  |  |
+| node-taint | []string | NodeTaints are used to taint the node with key=value:effect.  But only if disable-default-taints set to false (default)  | server node is tainted with a couple of taints if number of agents nodes more than 0. But only if disable-default-taints set to false (default) |
+| node-label | []string | NodeLabels are used to lable the node with key=value.  | [] |
 
 ## k8sconfig.K8SEndpointConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| type | string |  |  |
-| firewall | [k8sconfig.*BasicFirewallConfig](#k8sconfigbasicfirewallconfig) |  |  |
+| type | string | Type of k8s endpoint: public or private.   | public |
+| firewall | [k8sconfig.*BasicFirewallConfig](#k8sconfigbasicfirewallconfig) |  | {} |
 
 ## k8sconfig.BasicFirewallConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| hetzner-public | [k8sconfig.*HetnzerBasicFirewallConfig](#k8sconfighetnzerbasicfirewallconfig) |  |  |
+| hetzner-public | [k8sconfig.*HetnzerBasicFirewallConfig](#k8sconfighetnzerbasicfirewallconfig) |  | {} |
 
 ## k8sconfig.HetnzerBasicFirewallConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| disallow-own-ip | bool |  |  |
-| allowed-ips | []string |  |  |
+| disallow-own-ip | bool |  | false |
+| allowed-ips | []string |  | [] |
 
 ## k3s.Config
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| version | string | version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.  |  |
-| clean-data-on-upgrade | bool | [Experimental] clean-data-on-upgrade is used to delete all data while upgrade. This is based on the script https://docs.k3s.io/upgrades/killall  |  |
-| disable-default-taints | bool | Do not add default taints to the server node.  |  |
-| config | [k3s.*K3sConfig](#k3sk3sconfig) | The real config of k3s service.  |  |
+| version | string | version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.  | "" |
+| clean-data-on-upgrade | bool | [Experimental] clean-data-on-upgrade is used to delete all data while upgrade. This is based on the script https://docs.k3s.io/upgrades/killall  | false |
+| disable-default-taints | bool | Do not add default taints to the server node.  | false |
+| config | [k3s.*K3sConfig](#k3sk3sconfig) | The real config of k3s service.  | {} |
 
 ## k3s.K3sConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| token (computed). Not possible to configure! | string | Token used for nodes to join the cluster, generated automatically.  |  |
-| server (computed). Not possible to configure! | string | Server specifies the address of the main server node (leader) in the cluster, generated automatically.  |  |
-| flannel-iface (computed). Not possible to configure! | string | FlannelIface specifies the network interface that Flannel should use.  |  |
-| write-kubeconfig-mode (computed). Not possible to configure! | string | WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk.  |  |
-| advertise-address (computed). Not possible to configure! | string | AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster.  |  |
-| node-ip (computed). Not possible to configure! | string | NodeIP specifies the IP address to advertise for this node.  |  |
-| bind-address (computed). Not possible to configure! | string | BindAddress is the IP address that the server should bind to for API server traffic.  |  |
-| cluster-init (computed). Not possible to configure! | bool | ClusterInit indicates whether this node should initialize a new cluster.  |  |
-| node-external-ip (computed). Not possible to configure! | string | ExternalNodeIP specifies the external IP address of the node.  |  |
-| tls-san-security (computed). Not possible to configure! | bool | TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names).  |  |
-| tls-san (computed). Not possible to configure! | string | TLSSan adds specific TLS SANs for securing communication to the K3s server.  |  |
-| node-name (computed). Not possible to configure! | string | NodeName specifies the name of the node within the cluster.  |  |
-| cluster-cidr | string | ClusterCidr defines the IP range from which pod IPs shall be allocated.  |  |
-| service-cidr | string | ServiceCidr defines the IP range from which service cluster IPs are allocated.  |  |
-| cluster-domain | string | ClusterDomain specifies the domain name of the cluster.  |  |
-| cluster-dns | string | ClusterDNS specifies the IP address of the DNS service within the cluster.  |  |
-| flannel-backend | string | FlannelBackend determines the type of backend used for Flannel, a networking solution.  |  |
-| disable-network-policy | bool | DisableNetworkPolicy determines whether to disable network policies.  |  |
-| kubelet-arg | []string | KubeletArgs allows passing additional arguments to the kubelet service.  |  |
-| kube-controller-manager-arg | []string | KubeControllerManagerArgs allows passing additional arguments to the Kubernetes controller manager.  |  |
-| kube-cloud-controller-manager-arg | []string | KubeCloudControllerManagerArgs allows passing additional arguments to the Kubernetes cloud controller manager.  |  |
-| kube-apiserver-arg | []string | KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server.  |  |
-| disable-cloud-controller | bool | DisableCloudController determines whether to disable the integrated cloud controller manager.  |  |
-| disable | []string | Disable lists components or features to disable.  |  |
+| token (computed: Not possible to configure!) | string | Token used for nodes to join the cluster, generated automatically.  | "" |
+| server (computed: Not possible to configure!) | string | Server specifies the address of the main server node (leader) in the cluster, generated automatically.  | "" |
+| flannel-iface (computed: Not possible to configure!) | string | FlannelIface specifies the network interface that Flannel should use.  | "" |
+| write-kubeconfig-mode (computed: Not possible to configure!) | string | WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk.  | "" |
+| advertise-address (computed: Not possible to configure!) | string | AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster.  | "" |
+| node-ip (computed: Not possible to configure!) | string | NodeIP specifies the IP address to advertise for this node.  | "" |
+| bind-address (computed: Not possible to configure!) | string | BindAddress is the IP address that the server should bind to for API server traffic.  | "" |
+| cluster-init (computed: Not possible to configure!) | bool | ClusterInit indicates whether this node should initialize a new cluster.  | false |
+| node-external-ip (computed: Not possible to configure!) | string | ExternalNodeIP specifies the external IP address of the node.  | "" |
+| tls-san-security (computed: Not possible to configure!) | bool | TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names).  | false |
+| tls-san (computed: Not possible to configure!) | string | TLSSan adds specific TLS SANs for securing communication to the K3s server.  | "" |
+| node-name (computed: Not possible to configure!) | string | NodeName specifies the name of the node within the cluster.  | "" |
+| cluster-cidr | string | ClusterCidr defines the IP range from which pod IPs shall be allocated.  | "" |
+| service-cidr | string | ServiceCidr defines the IP range from which service cluster IPs are allocated.  | "" |
+| cluster-domain | string | ClusterDomain specifies the domain name of the cluster.  | "" |
+| cluster-dns | string | ClusterDNS specifies the IP address of the DNS service within the cluster.  | "" |
+| flannel-backend | string | FlannelBackend determines the type of backend used for Flannel, a networking solution.  | "" |
+| disable-network-policy | bool | DisableNetworkPolicy determines whether to disable network policies.  | false |
+| kubelet-arg | []string | KubeletArgs allows passing additional arguments to the kubelet service.  | [] |
+| kube-controller-manager-arg | []string | KubeControllerManagerArgs allows passing additional arguments to the Kubernetes controller manager.  | [] |
+| kube-cloud-controller-manager-arg | []string | KubeCloudControllerManagerArgs allows passing additional arguments to the Kubernetes cloud controller manager.  | [] |
+| kube-apiserver-arg | []string | KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server.  | [] |
+| disable-cloud-controller | bool | DisableCloudController determines whether to disable the integrated cloud controller manager.  | false |
+| disable | []string | Disable lists components or features to disable.  | [] |
 
 

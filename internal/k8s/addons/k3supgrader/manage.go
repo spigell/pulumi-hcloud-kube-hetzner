@@ -1,4 +1,4 @@
-package upgrader
+package k3supgrader
 
 import (
 	"fmt"
