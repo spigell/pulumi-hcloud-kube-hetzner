@@ -18,7 +18,7 @@ import (
 )
 
 func TestK3SUpgradeControllerPlan(t *testing.T) {
-	targetPlans := []string{upgrader.ControlPlanNodesPlanName, upgrader.AgentNodesPlanName}
+	targetPlans := []string{k3supgrader.ControlPlanNodesPlanName, k3supgrader.AgentNodesPlanName}
 
 	t.Parallel()
 
@@ -41,7 +41,7 @@ func TestK3SUpgradeControllerPlan(t *testing.T) {
 	require.NoError(t, err)
 
 	for _, planName := range targetPlans {
-		plan, err := k8s.K3SUpgradePlan(upgrader.Namespace, planName)
+		plan, err := k8s.K3SUpgradePlan(k3supgrader.Namespace, planName)
 		require.NoError(t, err)
 
 		status, ok := plan["status"].(map[string]interface{})
@@ -103,7 +103,7 @@ func TestK3SUpgradeControllerConfigEnv(t *testing.T) {
 	k8s, err := k8s.New(ctx, kubeconfig)
 	require.NoError(t, err)
 
-	cm, err := k8s.ConfigMap(upgrader.Namespace, "k3s-upgrade-controller-system-upgrade-controller-env")
+	cm, err := k8s.ConfigMap(k3supgrader.Namespace, "k3s-upgrade-controller-system-upgrade-controller-env")
 	require.NoError(t, err)
 
 	require.True(t, ok)
