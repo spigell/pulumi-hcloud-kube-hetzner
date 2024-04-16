@@ -3,7 +3,8 @@ on:
   - pull_request
 
 jobs:
-  build:
+  generate-docs:
+    name: Generate documentation
     permissions:
       contents: write
     runs-on: ubuntu-latest
