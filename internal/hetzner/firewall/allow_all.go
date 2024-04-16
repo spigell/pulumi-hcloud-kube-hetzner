@@ -6,15 +6,14 @@ import (
 )
 
 type AllowAllRules struct {
-	rules []*Rule
+	rules []*RuleConfig
 }
 
 func NewAllowAllRules() *AllowAllRules {
-	rules := make([]*Rule, 0)
+	rules := make([]*RuleConfig, 0)
 
 	rules = append(rules, ICMPRule)
-	rules = append(rules, &Rule{
-		Direction:   string(hcloud.FirewallRuleDirectionIn),
+	rules = append(rules, &RuleConfig{
 		Protocol:    string(hcloud.FirewallRuleProtocolTCP),
 		Description: "Allow all tcp for cluster nodes",
 		Port:        "any",
@@ -23,8 +22,7 @@ func NewAllowAllRules() *AllowAllRules {
 			"::/0",
 		},
 	})
-	rules = append(rules, &Rule{
-		Direction:   string(hcloud.FirewallRuleDirectionIn),
+	rules = append(rules, &RuleConfig{
 		Protocol:    string(hcloud.FirewallRuleProtocolUDP),
 		Description: "Allow all udp for cluster nodes",
 		Port:        "any",
@@ -47,6 +45,6 @@ func (a *AllowAllRules) WithPulumiSourceIPs(ips pulumi.StringArray) *AllowAllRul
 	return a
 }
 
-func (a *AllowAllRules) Rules() []*Rule {
+func (a *AllowAllRules) Rules() []*RuleConfig {
 	return a.rules
 }

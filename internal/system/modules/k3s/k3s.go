@@ -150,7 +150,7 @@ func (k *K3S) Up(ctx *program.Context, con *connection.Connection, deps []pulumi
 	case variables.PublicCommunicationMethod:
 		config, _ = pulumi.All(k.leaderIP, con.IP, k.token).ApplyT(
 			func(args []interface{}) (string, error) {
-				rendered, err := k.CompleteConfig(args[2].(string), args[1].(string), args[0].(string), args[1].(string)).render()
+				rendered, err := k.CompileAll(args[2].(string), args[1].(string), args[0].(string), args[1].(string)).render()
 
 				return string(rendered), err
 			},
@@ -161,7 +161,7 @@ func (k *K3S) Up(ctx *program.Context, con *connection.Connection, deps []pulumi
 		internalIP := payload[0].(pulumi.StringOutput)
 		config, _ = pulumi.All(k.leaderIP, con.IP, k.token, internalIP).ApplyT(
 			func(args []interface{}) (string, error) {
-				rendered, err := k.CompleteConfig(args[2].(string), args[3].(string), args[0].(string), args[1].(string)).render()
+				rendered, err := k.CompileAll(args[2].(string), args[3].(string), args[0].(string), args[1].(string)).render()
 
 				return string(rendered), err
 			},
@@ -201,7 +201,7 @@ func (p *Provisioned) Resources() []pulumi.Resource {
 }
 
 // CompleteConfig completes k3s config with pulumi.Outputs values.
-func (k *K3S) CompleteConfig(token, ip, leaderIP, externalIP string) *CompletedConfig {
+func (k *K3S) CompileAll(token, ip, leaderIP, externalIP string) *Compiled {
 	k.Config.K3S.Token = token
 	k.Config.K3S.FlannelIface = k.Sys.CommunicationIface()
 	k.Config.K3S.NodeIP = ip
@@ -223,7 +223,7 @@ func (k *K3S) CompleteConfig(token, ip, leaderIP, externalIP string) *CompletedC
 		k.Config.K3S.Server = ""
 	}
 
-	return &CompletedConfig{
+	return &Compiled{
 		k.Config.K3S,
 	}
 }

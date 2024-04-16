@@ -19,17 +19,24 @@ const (
 	defaultNetCIDR = "10.20.0.0/16"
 )
 
+// Config can be used to configure hetzner network with given CIDR and zone.
+type Config struct {
+	// CIDR of private network.
+	// Default is 10.20.0.0/16
+	CIDR string
+	// Enabled of not.
+	// Default is false.
+	Enabled bool
+	// Network zone.
+	// Default is eu-central.
+	Zone string
+}
+
 type Network struct {
 	ctx  *program.Context
 	ipam *ipam.IPAM
 
 	Config *Config
-}
-
-type Config struct {
-	CIDR    string
-	Enabled bool
-	Zone    string
 }
 
 type Deployed struct {

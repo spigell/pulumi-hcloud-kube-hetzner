@@ -26,7 +26,7 @@ import (
 
 	externalip "github.com/glendc/go-external-ip"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	k3supgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3supgrader"
 )
 
 const (
@@ -43,7 +43,7 @@ type Compiled struct {
 	K8S        *k8s.K8S
 }
 
-func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Node) (*Compiled, error) {
+func preCompile(ctx *program.Context, config *config.Config, nodes []*config.NodeConfig) (*Compiled, error) {
 	if err := config.Validate(nodes); err != nil {
 		return nil, err
 	}
@@ -195,14 +195,14 @@ func fwConfig(ctx *pulumi.Context, compiled *Compiled, id string) (*firewall.Con
 	return fw, nil
 }
 
-func fwWithSSHRules(fw *firewall.Config, node *config.Node, ip net.IP) {
+func fwWithSSHRules(fw *firewall.Config, node *config.NodeConfig, ip net.IP) {
 	// Add firewall rules for SSH access from my IP
 	if !node.Server.Firewall.Hetzner.SSH.DisallowOwnIP {
 		fw.AddRules(sshd.HetznerRulesWithSources([]string{ip2Net(ip)}))
 	}
 }
 
-func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.Node, myIP net.IP) {
+func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.NodeConfig, myIP net.IP) {
 	if !config.K8S.KubeAPIEndpoint.Firewall.HetznerPublic.DisallowOwnIP && node.Role == variables.ServerRole {
 		fw.AddRules(k3s.HetznerRulesWithSources([]string{ip2Net(myIP)}))
 	}
@@ -215,15 +215,15 @@ func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.
 	}
 }
 
-func configureOSForK3S(os os.OperatingSystem, node *config.Node, auditLog *audit.AuditLog) {
+func configureOSForK3S(os os.OperatingSystem, node *config.NodeConfig, auditLog *audit.AuditLog) {
 	os.AddK3SModule(node.Role, node.K3s, auditLog)
-	os.SetupSSHD(&sshd.Config{
+	os.SetupSSHD(&sshd.Params{
 		// TODO: make it discoverable from k3s module
 		AcceptEnv: "INSTALL_K3S_*",
 	})
 }
 
-func configureK3SNodeForHCCM(ctx *pulumi.Context, sys *system.System, addon *ccm.CCM, node *config.Node) {
+func configureK3SNodeForHCCM(ctx *pulumi.Context, sys *system.System, addon *ccm.CCM, node *config.NodeConfig) {
 	if sys.CommunicationMethod().HetznerBased() {
 		ctx.Log.Debug("Hetzner CCM is enabled in hetzner mode, force set external controller kubelet", nil)
 		node.K3s.K3S.KubeletArgs = append(node.K3s.K3S.KubeletArgs, "cloud-provider=external")
@@ -242,7 +242,7 @@ func configureK3SNodeForHCCM(ctx *pulumi.Context, sys *system.System, addon *ccm
 	}
 }
 
-func configureK3SNodeForK3SUpgrader(ctx *pulumi.Context, addon *k3supgrader.Upgrader, node *config.Node) {
+func configureK3SNodeForK3SUpgrader(ctx *pulumi.Context, addon *k3supgrader.Upgrader, node *config.NodeConfig) {
 	// If k3s-upgrade-controller version is set and k3s version is empty, set k3s version.
 	// If k3s version is not set, node managed by manual approach.
 	if addon.Version() != "" && node.K3s.Version == "" {

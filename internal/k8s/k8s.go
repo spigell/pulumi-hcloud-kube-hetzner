@@ -8,8 +8,8 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
 	audit "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/audit"
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/k8sconfig"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 )
 
@@ -23,7 +23,7 @@ type K8S struct {
 	auditLog *audit.AuditLog
 }
 
-func New(ctx *program.Context, config *config.Config, nodes map[string]*manager.Node) *K8S {
+func New(ctx *program.Context, config *k8sconfig.Config, nodes map[string]*manager.Node) *K8S {
 	mgmt := manager.New(ctx, nodes)
 	addons := addons.New(config.Addons)
 

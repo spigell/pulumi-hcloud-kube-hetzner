@@ -2,8 +2,8 @@ package ccm
 
 import (
 	hvariables "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/variables"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config/helm"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/k8sconfig/helm"
 )
 
 const (

@@ -1,0 +1,34 @@
+name: Generate documentation
+on: 
+  - pull_request
+
+jobs:
+  generate-docs:
+    name: Generate documentation
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+        fetch-depth: 0
+    - name: Setup Go ✨
+      uses: actions/setup-go@v4
+      with:
+        cache: false
+        go-version-file: go.mod
+    - name: Generate docs
+      run: go run ./cmd/generate-docs/main.go ./internal > docs/parameters.md
+    - name: Check for changes
+      id: changes
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add docs/parameters.md
+        git commit -m "[auto] update docs" || echo 'No changes'
+    - name: Push changes
+      uses: ad-m/github-push-action@master
+      with:
+        branch: ${{ github.head_ref }}
+

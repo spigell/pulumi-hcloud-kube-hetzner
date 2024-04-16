@@ -11,7 +11,7 @@ import (
 	"testing"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/integration/k8s"
-	upgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3supgrader"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -8,11 +8,11 @@ import (
 
 func TestSingleServer(t *testing.T) {
 	single := &Config{
-		Nodepools: &Nodepools{
-			Servers: []*Nodepool{
+		Nodepools: &NodepoolsConfig{
+			Servers: []*NodepoolConfig{
 				{
 					ID: "servers",
-					Nodes: []*Node{
+					Nodes: []*NodeConfig{
 						{
 							ID: "server01",
 						},
@@ -26,11 +26,11 @@ func TestSingleServer(t *testing.T) {
 	assert.Equal(t, true, single.Nodepools.Servers[0].Nodes[0].Leader)
 
 	multi := &Config{
-		Nodepools: &Nodepools{
-			Servers: []*Nodepool{
+		Nodepools: &NodepoolsConfig{
+			Servers: []*NodepoolConfig{
 				{
 					ID: "servers",
-					Nodes: []*Node{
+					Nodes: []*NodeConfig{
 						{
 							ID: "server01",
 						},
