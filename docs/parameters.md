@@ -131,7 +131,7 @@
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| enabled | [audit.*bool](#auditbool) | Enabled specifies if the audit log is enabled. If nil, it might default to a cluster-level setting.  | {} |
+| enabled | [audit.*bool](#auditbool) | Enabled specifies if the audit log is enabled. If nil, it might default to a cluster-level setting.   | true |
 | policy-file-path | string | PolicyFilePath is the path to the local file that defines the audit policy configuration.  | "" |
 | audit-log-maxage | int | AuditLogMaxAge defines the maximum number of days to retain old audit log files.   | 10 |
 | audit-log-maxbackup | int | AuditLogMaxBackup specifies the maximum number of audit log files to retain.   | 30 |
@@ -164,20 +164,20 @@
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
 | type | string | Type of k8s endpoint: public or private.   | public |
-| firewall | [k8sconfig.*BasicFirewallConfig](#k8sconfigbasicfirewallconfig) |  | {} |
+| firewall | [k8sconfig.*BasicFirewallConfig](#k8sconfigbasicfirewallconfig) | Firewall defines configuration for the firewall attached to api access. This is used only for public type since private network considered to be secure.  | {} |
 
 ## k8sconfig.BasicFirewallConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| hetzner-public | [k8sconfig.*HetnzerBasicFirewallConfig](#k8sconfighetnzerbasicfirewallconfig) |  | {} |
+| hetzner-public | [k8sconfig.*HetnzerBasicFirewallConfig](#k8sconfighetnzerbasicfirewallconfig) | HetznerPublic is used to describe firewall attached to public k8s api endpoint.  | {} |
 
 ## k8sconfig.HetnzerBasicFirewallConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| disallow-own-ip | bool |  | false |
-| allowed-ips | []string |  | [] |
+| disallow-own-ip | bool | DisallowOwnIP is a security setting that, when enabled, prevents access to the server from deployer own public IP address.  | false |
+| allowed-ips | []string | AllowedIps specifies a list of IP addresses that are permitted to access the k8s api endpoint. Only traffic from these IPs will be allowed if this list is configured. 0.0.0/0 (all ipv4 addresses).  | 0.0.0.0/0 (all ipv4 addresses) |
 
 ## k3s.Config
 
@@ -204,17 +204,17 @@
 | tls-san-security (computed: Not possible to configure!) | bool | TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names).  | false |
 | tls-san (computed: Not possible to configure!) | string | TLSSan adds specific TLS SANs for securing communication to the K3s server.  | "" |
 | node-name (computed: Not possible to configure!) | string | NodeName specifies the name of the node within the cluster.  | "" |
-| cluster-cidr | string | ClusterCidr defines the IP range from which pod IPs shall be allocated.  | "" |
-| service-cidr | string | ServiceCidr defines the IP range from which service cluster IPs are allocated.  | "" |
+| cluster-cidr | string | ClusterCidr defines the IP range from which pod IPs shall be allocated. 141.0.0/16.  | 10.141.0.0/16 |
+| service-cidr | string | ServiceCidr defines the IP range from which service cluster IPs are allocated. 140.0.0/16.  | 10.140.0.0/16 |
 | cluster-domain | string | ClusterDomain specifies the domain name of the cluster.  | "" |
-| cluster-dns | string | ClusterDNS specifies the IP address of the DNS service within the cluster.  | "" |
+| cluster-dns | string | ClusterDNS specifies the IP address of the DNS service within the cluster.   | autopicked |
 | flannel-backend | string | FlannelBackend determines the type of backend used for Flannel, a networking solution.  | "" |
 | disable-network-policy | bool | DisableNetworkPolicy determines whether to disable network policies.  | false |
 | kubelet-arg | []string | KubeletArgs allows passing additional arguments to the kubelet service.  | [] |
 | kube-controller-manager-arg | []string | KubeControllerManagerArgs allows passing additional arguments to the Kubernetes controller manager.  | [] |
 | kube-cloud-controller-manager-arg | []string | KubeCloudControllerManagerArgs allows passing additional arguments to the Kubernetes cloud controller manager.  | [] |
 | kube-apiserver-arg | []string | KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server.  | [] |
-| disable-cloud-controller | bool | DisableCloudController determines whether to disable the integrated cloud controller manager.  | false |
+| disable-cloud-controller | bool | DisableCloudController determines whether to disable the integrated cloud controller manager.   | false, but will be true if ccm is enabled |
 | disable | []string | Disable lists components or features to disable.  | [] |
 
 
