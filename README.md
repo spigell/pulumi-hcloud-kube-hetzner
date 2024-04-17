@@ -28,8 +28,8 @@ $ export HCLOUD_TOKEN=<your token>
 $ mkdir pulumi-hcloud-kube-hetzner
 $ cd pulumi-hcloud-kube-hetzner
 $ pulumi new -g https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/pulumi-templates/typescript
-$ make microos
-$ make pulumi-init-stack
+$ make microos (optionanl)
+$ make pulumi-init-stack [PULUMI_EXAMPLE_NAME]
 $ yarn install
 $ pulumi up -yf
 ```
