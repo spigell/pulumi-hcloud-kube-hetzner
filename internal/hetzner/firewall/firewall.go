@@ -49,11 +49,11 @@ func (f *Firewall) Up(ctx *program.Context, name string) (*Firewall, error) {
 	// f.Config.rules = make([]*Rule, 0)
 	var rules hcloud.FirewallRuleArray
 
-	if f.Config.AllowICMP {
+	if *f.Config.AllowICMP {
 		f.Config.rules = append(f.Config.rules, ICMPRule)
 	}
 
-	if ssh := f.Config.SSH; ssh.Allow {
+	if ssh := f.Config.SSH; *ssh.Allow {
 		if ssh.AllowedIps != nil {
 			SSHRule.SourceIps = f.Config.SSH.AllowedIps
 		}

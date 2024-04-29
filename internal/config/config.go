@@ -218,7 +218,7 @@ func merge(node NodeConfig, nodepool *NodeConfig, defaults DefaultConfig) (NodeC
 }
 
 func hetznerFirewallConfigured(server *ServerConfig) bool {
-	if server != nil && server.Firewall != nil && server.Firewall.Hetzner != nil {
+	if server != nil && server.Firewall != nil && server.Firewall.Hetzner != nil && server.Firewall.Hetzner.Enabled != nil && *server.Firewall.Hetzner.Enabled {
 		return true
 	}
 	return false
@@ -230,9 +230,13 @@ type BoolTransformer struct{}
 
 // A Transformer for mergo to avoid overwriting false values from node level.
 func (b BoolTransformer) Transformer(typ reflect.Type) func(dst, src reflect.Value) error {
-	if typ == reflect.TypeOf(bool(true)) {
-		return func(_, _ reflect.Value) error {
-			// Do not overwrite false from node level!
+	if typ == reflect.TypeOf(new(bool)) { // Check for *bool type
+		return func(dst, src reflect.Value) error {
+			// If dst is nil, we should consider the src value
+			if dst.IsNil() {
+				dst.Set(src)
+			}
+			// If dst is set (even to false), do nothing
 			return nil
 		}
 	}

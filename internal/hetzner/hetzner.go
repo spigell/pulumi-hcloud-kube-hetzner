@@ -44,31 +44,13 @@ func New(ctx *program.Context, nodes []*config.NodeConfig) *Hetzner {
 
 	for _, node := range nodes {
 		servers[node.ID] = node
-		if node.Server == nil {
-			node.Server = &config.ServerConfig{}
-		}
-
-		if node.Server.Firewall == nil {
-			node.Server.Firewall = &config.FirewallConfig{}
-		}
-
-		if node.Server.Firewall.Hetzner == nil {
-			node.Server.Firewall.Hetzner = &firewall.Config{
-				Enabled: false,
-			}
-		}
 
 		if node.Server.Firewall.Hetzner.AdditionalRules == nil {
 			node.Server.Firewall.Hetzner.AdditionalRules = make([]*firewall.RuleConfig, 0)
 		}
 
-		if node.Server.Firewall.Hetzner.SSH == nil {
-			node.Server.Firewall.Hetzner.SSH = &firewall.SSHConfig{
-				Allow: false,
-			}
-		}
-
-		if !node.Server.Firewall.Hetzner.Dedicated() && node.Server.Firewall.Hetzner.Enabled && !node.Server.Firewall.Hetzner.DedicatedPool() {
+		if !node.Server.Firewall.Hetzner.Dedicated() && *node.Server.Firewall.Hetzner.Enabled && !node.Server.Firewall.Hetzner.DedicatedPool() {
+			fmt.Println(*node.Server.Firewall.Hetzner.Enabled)
 			switch node.Role {
 			case variables.ServerRole:
 				firewalls[variables.ServerRole] = node.Server.Firewall.Hetzner
@@ -141,7 +123,7 @@ func (h *Hetzner) FindInPools(node string) string {
 func (h *Hetzner) FirewallConfigByID(id, pool string) (*firewall.Config, error) {
 	node := h.Servers[id]
 	fw := node.Server.Firewall.Hetzner
-	if enabled := fw.Enabled; !enabled {
+	if enabled := fw.Enabled; !*enabled {
 		return nil, ErrFirewallDisabled
 	}
 
@@ -258,7 +240,7 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 			return strconv.Atoi(id)
 		}).(pulumi.IntOutput)
 
-		if srv.Server.Firewall.Hetzner.Enabled {
+		if *srv.Server.Firewall.Hetzner.Enabled {
 			// All nodes with enabled FW must be added to the interconnect firewall
 			interFw.Ips = append(interFw.Ips, pulumi.Sprintf("%s/32", node.Resource.Ipv4Address))
 			interFw.IDs = append(interFw.IDs, nodeId)
