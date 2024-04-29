@@ -12,7 +12,7 @@ config:
           # with this label the upgrader controller will not upgrade this node
           - "k3s-upgrade=false"
       k3s:
-        version: v1.28.3+k3s2
+        version: v1.29.3+k3s1
   pulumi-hcloud-kube-hetzner:k8s:
     addons:
       k3s-upgrade-controller:
