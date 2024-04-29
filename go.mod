@@ -218,7 +218,7 @@ require (
 	github.com/prometheus/common v0.52.2 // indirect
 	github.com/prometheus/procfs v0.13.0 // indirect
 	github.com/pulumi/esc v0.8.3 // indirect
-	github.com/pulumi/pulumi-command/sdk v0.9.2
+	github.com/pulumi/pulumi-command/sdk v0.10.0
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
