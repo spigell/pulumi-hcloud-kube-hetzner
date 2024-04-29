@@ -79,8 +79,8 @@ Users are advised to refer to the latest version of this document for the most a
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| enabled | [firewall.*bool](#firewallbool) | Enabled specifies if the configuration is active.  | {} |
-| allow-icmp | [firewall.*bool](#firewallbool) | AllowICMP indicates whether ICMP traffic is allowed.  | {} |
+| enabled | [firewall.*bool](#firewallbool) | Enabled specifies if the configuration is active.   | false |
+| allow-icmp | [firewall.*bool](#firewallbool) | AllowICMP indicates whether ICMP traffic is allowed.   | false |
 | ssh | [firewall.*SSHConfig](#firewallsshconfig) | SSH holds the SSH specific configurations.  | {} |
 | additional-rules | [firewall.[]*RuleConfig](#firewallruleconfig) | AdditionalRules is a list of additional rules to be applied.  | {} |
 
@@ -88,8 +88,8 @@ Users are advised to refer to the latest version of this document for the most a
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| allow | [firewall.*bool](#firewallbool) | Allow indicates whether SSH access is permitted.  | {} |
-| disallow-own-ip | [firewall.*bool](#firewallbool) | DisallowOwnIP specifies whether SSH access from the deployer's own IP address is disallowed.  | {} |
+| allow | [firewall.*bool](#firewallbool) | Allow indicates whether SSH access is permitted.   | false |
+| disallow-own-ip | [firewall.*bool](#firewallbool) | DisallowOwnIP specifies whether SSH access from the deployer's own IP address is disallowed.   | false |
 | allowed-ips | []string | AllowedIps lists specific IP addresses that are permitted to access via SSH.  | [] |
 
 ## firewall.RuleConfig
@@ -194,7 +194,7 @@ Users are advised to refer to the latest version of this document for the most a
 |-------|------|-------------|---------|
 | version | string | version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.  | "" |
 | clean-data-on-upgrade | bool | [Experimental] clean-data-on-upgrade is used to delete all data while upgrade. This is based on the script https://docs.k3s.io/upgrades/killall  | false |
-| disable-default-taints | [k3s.*bool](#k3sbool) | Do not add default taints to the server node.  | {} |
+| disable-default-taints | [k3s.*bool](#k3sbool) | Do not add default taints to the server node.   | false |
 | config | [k3s.*K3sConfig](#k3sk3sconfig) | The real config of k3s service.  | {} |
 
 ## k3s.K3sConfig
