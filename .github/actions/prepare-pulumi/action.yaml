@@ -54,7 +54,7 @@ runs:
     - name: Install pulumi cli
       uses: pulumi/actions@v4
       with:
-        pulumi-version: v3.112.0
+        pulumi-version: v3.114.0
     - name: Download artifact
       id: download-artifact
       uses: dawidd6/action-download-artifact@v3
