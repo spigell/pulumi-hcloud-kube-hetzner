@@ -13,8 +13,8 @@ config:
     addons:
       k3s-upgrade-controller:
         enabled: true
-        target-channel: v1.28
-        target-version: v1.28.4+k3s2
+        target-channel: v1.29
+        target-version: v1.29.3+k3s1
       ccm:
         enabled: true
         loadbalancers-default-location: fsn1
