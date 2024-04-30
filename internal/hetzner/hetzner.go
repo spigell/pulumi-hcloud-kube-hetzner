@@ -50,7 +50,6 @@ func New(ctx *program.Context, nodes []*config.NodeConfig) *Hetzner {
 		}
 
 		if !node.Server.Firewall.Hetzner.Dedicated() && *node.Server.Firewall.Hetzner.Enabled && !node.Server.Firewall.Hetzner.DedicatedPool() {
-			fmt.Println(*node.Server.Firewall.Hetzner.Enabled)
 			switch node.Role {
 			case variables.ServerRole:
 				firewalls[variables.ServerRole] = node.Server.Firewall.Hetzner
