@@ -26,8 +26,6 @@ config:
           server:
             firewall:
               hetzner:
-                # You should explicitly enable firewall for every layer of the configuration.
-                enabled: true
                 # Do not allow ping only this server node explicitly.
                 allow-icmp: false
                 additional-rules: 
@@ -48,13 +46,10 @@ config:
           server:
             firewall:
               hetzner:
-                # You should explicitly enable firewall for every layer of the configuration.
-                enabled: true
                 # Do not allow ping only this server node explicitly.
                 allow-icmp: false
                 ssh:
-                  # You should explicitly enable ssh for every layer of the configuration.
-                  # If you need it of course
+                  # You should explicitly enable ssh for servers of the configuration coz it was disabled on global layer.
                   allow: true
                   # Despite the fact that the ssh is not allowed for your ip address, you can use the ssh service,
                   # because it is added to the firewall by default.
@@ -67,10 +62,6 @@ config:
       server:
         firewall:
           hetzner:
-            # You should explicitly enable firewall for every layer of the configuration.
-            enabled: true
-            # You should explicitly enable ping for every layer of the configuration.
-            allow-icmp: true
             ssh:
               # You should explicitly enable ssh for every layer of the configuration.
               # If you need it, of course
@@ -91,7 +82,9 @@ config:
       server:
         firewall:
           hetzner:
+            # You should explicitly enable firewall for at least one layer of the configuration.
             enabled: true
+            # You should explicitly enable icmp for at least one layer of the configuration.
             allow-icmp: true
             ssh:
               # SSH is not allowed globally, but can be enabled for specific nodes/nodepools and role (server/agent)

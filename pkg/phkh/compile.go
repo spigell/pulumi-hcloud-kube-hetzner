@@ -63,7 +63,7 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 	for _, node := range nodes {
 		// By default, use default taints for server node if they are not set and agents nodes exist.
 		if node.Role == variables.ServerRole &&
-			!node.K3s.DisableDefaultsTaints &&
+			!*node.K3s.DisableDefaultsTaints &&
 			len(node.K8S.NodeTaints) == 0 &&
 			len(config.Nodepools.Agents) > 0 {
 			node.K8S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
@@ -197,7 +197,7 @@ func fwConfig(ctx *pulumi.Context, compiled *Compiled, id string) (*firewall.Con
 
 func fwWithSSHRules(fw *firewall.Config, node *config.NodeConfig, ip net.IP) {
 	// Add firewall rules for SSH access from my IP
-	if !node.Server.Firewall.Hetzner.SSH.DisallowOwnIP {
+	if !*node.Server.Firewall.Hetzner.SSH.DisallowOwnIP {
 		fw.AddRules(sshd.HetznerRulesWithSources([]string{ip2Net(ip)}))
 	}
 }

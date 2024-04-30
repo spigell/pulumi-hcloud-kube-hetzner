@@ -28,15 +28,13 @@ config:
           server:
             location: fsn1
       - id: 02-control-plane-with-workload
+        config:
+          # This nodes can be used for workload. Taints will not be added.
+          k3s:
+            disable-default-taints: true
         nodes:
         - id: server02
-          # This nodes can be used for workload. Taints will not be added.
-          k3s:
-            disable-default-taints: true
         - id: server03
-          # This nodes can be used for workload. Taints will not be added.
-          k3s:
-            disable-default-taints: true
   pulumi-hcloud-kube-hetzner:defaults:
     global:
       server:

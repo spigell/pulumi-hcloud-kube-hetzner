@@ -15,10 +15,12 @@ type Config struct {
 	rules []*RuleConfig
 
 	// Enabled specifies if the configuration is active.
-	Enabled bool
+	// Default is false.
+	Enabled *bool
 
 	// AllowICMP indicates whether ICMP traffic is allowed.
-	AllowICMP bool `json:"allow-icmp" yaml:"allow-icmp"`
+	// Default is false.
+	AllowICMP *bool `json:"allow-icmp" yaml:"allow-icmp"`
 
 	// SSH holds the SSH specific configurations.
 	SSH *SSHConfig
@@ -29,10 +31,12 @@ type Config struct {
 
 type SSHConfig struct {
 	// Allow indicates whether SSH access is permitted.
-	Allow bool
+	// Default is false.
+	Allow *bool
 
 	// DisallowOwnIP specifies whether SSH access from the deployer's own IP address is disallowed.
-	DisallowOwnIP bool `json:"disallow-own-ip" yaml:"disallow-own-ip"`
+	// Default is false.
+	DisallowOwnIP *bool `json:"disallow-own-ip" yaml:"disallow-own-ip"`
 
 	// AllowedIps lists specific IP addresses that are permitted to access via SSH.
 	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`

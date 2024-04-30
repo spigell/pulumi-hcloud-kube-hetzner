@@ -134,8 +134,34 @@ func (d *DefaultConfig) WithInited() *DefaultConfig {
 		d.Global.K3s = &k3s.Config{}
 	}
 
+	if d.Global.K3s.DisableDefaultsTaints == nil {
+		d.Global.K3s.DisableDefaultsTaints = new(bool)
+	}
+
 	if d.Global.K3s.K3S == nil {
 		d.Global.K3s.K3S = &k3s.K3sConfig{}
+	}
+
+	if d.Global.Server == nil {
+		d.Global.Server = &ServerConfig{}
+	}
+
+	if d.Global.Server.Firewall == nil {
+		d.Global.Server.Firewall = &FirewallConfig{}
+	}
+
+	if d.Global.Server.Firewall.Hetzner == nil {
+		d.Global.Server.Firewall.Hetzner = &firewall.Config{}
+	}
+	if d.Global.Server.Firewall.Hetzner.Enabled == nil {
+		d.Global.Server.Firewall.Hetzner.Enabled = new(bool)
+	}
+
+	if d.Global.Server.Firewall.Hetzner.SSH == nil {
+		d.Global.Server.Firewall.Hetzner.SSH = &firewall.SSHConfig{}
+	}
+	if d.Global.Server.Firewall.Hetzner.SSH.DisallowOwnIP == nil {
+		d.Global.Server.Firewall.Hetzner.SSH.DisallowOwnIP = new(bool)
 	}
 
 	return d
