@@ -160,8 +160,17 @@ func (d *DefaultConfig) WithInited() *DefaultConfig {
 	if d.Global.Server.Firewall.Hetzner.SSH == nil {
 		d.Global.Server.Firewall.Hetzner.SSH = &firewall.SSHConfig{}
 	}
+
+	if d.Global.Server.Firewall.Hetzner.SSH.Allow == nil {
+		d.Global.Server.Firewall.Hetzner.SSH.Allow = new(bool)
+	}
+
 	if d.Global.Server.Firewall.Hetzner.SSH.DisallowOwnIP == nil {
 		d.Global.Server.Firewall.Hetzner.SSH.DisallowOwnIP = new(bool)
+	}
+
+	if d.Global.Server.Firewall.Hetzner.AllowICMP == nil {
+		d.Global.Server.Firewall.Hetzner.AllowICMP = new(bool)
 	}
 
 	return d
