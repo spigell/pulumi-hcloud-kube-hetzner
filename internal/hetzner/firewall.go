@@ -13,15 +13,18 @@ type InterconnectFirewall struct {
 }
 
 func NewInterconnectFirewall() *InterconnectFirewall {
+	enabled := true
+	allowICMP := true
+	allowSSH := false
 	return &InterconnectFirewall{
 		Ips: make(pulumi.StringArray, 0),
 		IDs: make(pulumi.IntArray, 0),
 		Config: &firewall.Config{
-			Enabled: true,
-			SSH: &firewall.SSH{
-				Allow: false,
+			Enabled: &enabled,
+			SSH: &firewall.SSHConfig{
+				Allow: &allowSSH,
 			},
-			AllowICMP: false,
+			AllowICMP: &allowICMP,
 		},
 	}
 }

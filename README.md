@@ -3,10 +3,13 @@ This is a [Pulumi component](https://www.pulumi.com/docs/concepts/resources/comp
 
 *Note: This project is in active development, and not everything is completed. However, it DOES work and is usable right now. I definitely appreciate feedback and will help with any issues*
 
-### Features
-- Ability to manage labels and taints!
+### Goal
+The goal of this project is to enable anybody, regardless of their "DevOps tools" expertise, to efficiently deploy and manage Kubernetes clusters on Hetzner's cost-effective cloud infrastructure. Leveraging existing features such as autotests and YAML out-of-box configuration (thanks to Pulumi), along with Hetzner's cheapest cloud offerings, the project aims to minimize operational costs and automate complex deployments. To prioritize security, additional efforts will be made to enhance security measures, ensuring the deployment and running are highly secured.
+
+### Killer Features
+- Ability to manage labels and taints directly!
 - Adding and removing nodepools/nodes without changing internal IP addresses is possible.
-- Most of examples are tested via Github Actions and maintained.
+- Most of the examples are tested via Github Actions and maintained.
 
 ## Getting Started
 ### Prerequisites
@@ -25,8 +28,8 @@ $ export HCLOUD_TOKEN=<your token>
 $ mkdir pulumi-hcloud-kube-hetzner
 $ cd pulumi-hcloud-kube-hetzner
 $ pulumi new -g https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/pulumi-templates/typescript
-$ make microos
-$ make pulumi-init-stack
+$ make microos (optionanl)
+$ make pulumi-init-stack [PULUMI_EXAMPLE_NAME]
 $ yarn install
 $ pulumi up -yf
 ```
@@ -46,9 +49,9 @@ $ make build && make install_provider # It generates all SDKs and build provider
 $ export PATH=$PATH:~/go/bin
 ```
 
-That it. Now you can use all pulumi command like `up` or `pre` with own version of the project.
+That's it. Now you can use all pulumi commands like `up` or `pre` with your own version of the project.
 
-After changes create a PR to the `preview` branch.
+After making changes, create a PR to the `preview` branch.
 
 ## Roadmap
 The roadmap is located in [roadmap.md](./docs/roadmap.md)

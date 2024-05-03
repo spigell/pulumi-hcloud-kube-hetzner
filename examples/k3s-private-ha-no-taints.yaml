@@ -49,7 +49,7 @@ config:
         node-label:
           - "k3s-upgrade=false"
       k3s:
-        version: v1.28.3+k3s2
+        version: v1.29.4+k3s1
         config:
           # It is must be the same for all servers
           # https://docs.k3s.io/datastore/ha-embedded

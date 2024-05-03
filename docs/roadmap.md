@@ -1,17 +1,16 @@
 # RoadMap
 ## Documentation
-- [ ] Add the doc generation from structs
-- [ ] Describe network modes
+- [x] Add the doc generation from structs
+- [x] Describe network modes
+- [x] Spelling
 - [ ] Describe project layout
-- [ ] Spelling
 - [ ] Add roadmap for autoscaling
 - [ ] Add readme for SDK
 
 ## Features
 ### pre-0.1.0
-- [ ] Add support for "destroyed" cluster
 - [ ] Add a licence
-- [ ] Add basic k8s apps (VM, hetzner MCC, upgrader, kured)
+- [ ] Add basic k8s apps (hetzner MCC, upgrader, kured, csi)
 - [x] Add state for internal network IPAM
 - [x] Replace the golang script for ssh checking with binary
 - [ ] Add dotnet and python SDK

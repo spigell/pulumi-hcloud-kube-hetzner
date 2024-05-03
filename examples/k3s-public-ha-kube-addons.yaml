@@ -23,7 +23,7 @@ config:
     addons:
       k3s-upgrade-controller:
         enabled: true
-        target-channel: v1.28
+        target-channel: v1.29
         config-env:
           - "SYSTEM_UPGRADE_CONTROLLER_THREADS=1"
       ccm:

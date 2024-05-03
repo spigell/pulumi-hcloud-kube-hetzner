@@ -6,7 +6,7 @@ import (
 	"slices"
 	"strings"
 
-	k3supgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3supgrader"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 )
 
@@ -28,9 +28,9 @@ var (
 // Validate validates config globally.
 // If checking requires different parts of the configuration it should be done here, in config package.
 // If checking requires only one specific part of the configuration in Validate() method of that part.
-func (c *Config) Validate(nodes []*Node) error {
+func (c *Config) Validate(nodes []*NodeConfig) error {
 	errs := make([]string, 0)
-	validators := make([]func([]*Node) error, 0)
+	validators := make([]func([]*NodeConfig) error, 0)
 
 	if ccm := c.K8S.Addons.CCM; ccm != nil {
 		validators = append(validators, c.ValidateCCM)
@@ -82,11 +82,11 @@ func (c *Config) Validate(nodes []*Node) error {
 	return nil
 }
 
-func (c *Config) ValidateCCM(_ []*Node) error {
+func (c *Config) ValidateCCM(_ []*NodeConfig) error {
 	return nil
 }
 
-func (c *Config) ValidateK3SUpgradeController(merged []*Node) error {
+func (c *Config) ValidateK3SUpgradeController(merged []*NodeConfig) error {
 	for _, node := range merged {
 		disableLabelFound := findLabel(node, fmt.Sprintf("%s=false", k3supgrader.ControlLabelKey))
 		if c.K8S.Addons.K3SSystemUpgrader.Enabled && node.K3s.Version != "" && !disableLabelFound {
@@ -101,7 +101,7 @@ func (c *Config) ValidateK3SUpgradeController(merged []*Node) error {
 	return nil
 }
 
-func findLabel(node *Node, target string) bool {
+func findLabel(node *NodeConfig, target string) bool {
 	for _, label := range node.K8S.NodeLabels {
 		if label == target {
 			return true

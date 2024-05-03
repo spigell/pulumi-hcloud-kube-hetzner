@@ -1,4 +1,4 @@
-package upgrader
+package k3supgrader
 
 import (
 	"fmt"
@@ -21,7 +21,7 @@ const (
 )
 
 func (u *Upgrader) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt *manager.ClusterManager) error {
-	if u.helm.ValuesFiles != nil {
+	if u.helm.ValuesFiles() != nil {
 		return fmt.Errorf("values-files is not supported for %s", u.Name())
 	}
 

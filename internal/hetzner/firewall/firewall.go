@@ -7,11 +7,12 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 
+	hcloudgo "github.com/hetznercloud/hcloud-go/v2/hcloud"
 	"github.com/pulumi/pulumi-hcloud/sdk/go/hcloud"
 )
 
 var (
-	ICMPRule = &Rule{
+	ICMPRule = &RuleConfig{
 		Protocol:    "icmp",
 		Description: "Allow ICMP",
 		Port:        "",
@@ -20,7 +21,7 @@ var (
 			"::/0",
 		},
 	}
-	SSHRule = &Rule{
+	SSHRule = &RuleConfig{
 		Protocol:    "tcp",
 		Description: "Allow SSH",
 		Port:        "22",
@@ -48,11 +49,11 @@ func (f *Firewall) Up(ctx *program.Context, name string) (*Firewall, error) {
 	// f.Config.rules = make([]*Rule, 0)
 	var rules hcloud.FirewallRuleArray
 
-	if f.Config.AllowICMP {
+	if *f.Config.AllowICMP {
 		f.Config.rules = append(f.Config.rules, ICMPRule)
 	}
 
-	if ssh := f.Config.SSH; ssh.Allow {
+	if ssh := f.Config.SSH; *ssh.Allow {
 		if ssh.AllowedIps != nil {
 			SSHRule.SourceIps = f.Config.SSH.AllowedIps
 		}
@@ -68,11 +69,11 @@ func (f *Firewall) Up(ctx *program.Context, name string) (*Firewall, error) {
 
 	for _, rule := range f.Config.rules {
 		if rule.Protocol == "" {
-			rule.Protocol = "tcp"
+			rule.Protocol = string(hcloudgo.FirewallRuleProtocolTCP)
 		}
 
 		r := hcloud.FirewallRuleArgs{
-			Direction:   pulumi.String("in"),
+			Direction:   pulumi.String((hcloudgo.FirewallRuleDirectionIn)),
 			Description: pulumi.String(rule.Description),
 			Protocol:    pulumi.String(rule.Protocol),
 			Port:        pulumi.String(rule.Port),

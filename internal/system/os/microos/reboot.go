@@ -35,7 +35,7 @@ func (m *MicroOS) Reboot(ctx *program.Context, con *connection.Connection) error
 
 	waitCommand := pulumi.Sprintf(strings.Join([]string{
 		"mkdir -p %s",
-		"curl -L -v -o %s https://github.com/spigell/pulumi-hcloud-kube-hetzner/releases/download/v0.0.3/reboot-checker-v0.0.3-%s-%s",
+		"curl -L -o %s https://github.com/spigell/pulumi-hcloud-kube-hetzner/releases/download/v0.0.3/reboot-checker-v0.0.3-%s-%s",
 		"chmod +x %s",
 		"%s %s %s",
 	}, " && "),

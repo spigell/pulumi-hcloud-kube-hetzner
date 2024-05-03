@@ -16,7 +16,7 @@ type Example struct {
 	Decoded *config.Config
 }
 
-type DecodedConfig struct {
+type Decoded struct {
 	Config *config.Config `yaml:"config"`
 }
 
@@ -53,8 +53,8 @@ func (e *Example) NodesIDs() []string {
 	return ids
 }
 
-func (e *Example) UniqConfigsByNodes() map[string]*config.Node {
-	configs := make(map[string]*config.Node)
+func (e *Example) UniqConfigsByNodes() map[string]*config.NodeConfig {
+	configs := make(map[string]*config.NodeConfig)
 
 	for _, pool := range e.Decoded.Nodepools.Agents {
 		for _, n := range pool.Nodes {
@@ -76,7 +76,7 @@ func (e *Example) UniqConfigsByNodes() map[string]*config.Node {
 }
 
 func decodeConfig(path string) (*config.Config, error) {
-	var decoded *DecodedConfig
+	var decoded *Decoded
 	content, err := os.ReadFile(path)
 
 	// Remove namespace from file

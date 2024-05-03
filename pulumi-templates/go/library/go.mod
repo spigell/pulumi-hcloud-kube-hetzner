@@ -3,8 +3,8 @@ module ${PROJECT}
 go 1.21.1
 
 require (
-	github.com/pulumi/pulumi/sdk/v3 v3.112.0
-	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.9
+	github.com/pulumi/pulumi/sdk/v3 v3.114.0
+	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.11
 )
 
 require (
@@ -54,10 +54,10 @@ require (
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
-	github.com/hashicorp/hcl v1.0.0 // indirect
+	github.com/hashicorp/hcl v1.0.1-vault-5 // indirect
 	github.com/hashicorp/hcl/v2 v2.20.1 // indirect
 	github.com/hetznercloud/hcloud-go v1.53.0 // indirect
-	github.com/hetznercloud/hcloud-go/v2 v2.7.0 // indirect
+	github.com/hetznercloud/hcloud-go/v2 v2.7.2 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
@@ -93,10 +93,10 @@ require (
 	github.com/prometheus/procfs v0.13.0 // indirect
 	github.com/pulumi/appdash v0.0.0-20231130102222-75f619a67231 // indirect
 	github.com/pulumi/esc v0.8.3 // indirect
-	github.com/pulumi/pulumi-command/sdk v0.9.2 // indirect
-	github.com/pulumi/pulumi-hcloud/sdk v1.18.0 // indirect
+	github.com/pulumi/pulumi-command/sdk v0.10.0 // indirect
+	github.com/pulumi/pulumi-hcloud/sdk v1.18.1 // indirect
 	github.com/pulumi/pulumi-kubernetes/sdk/v3 v3.30.2 // indirect
-	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.9.1 // indirect
+	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.11.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
@@ -131,7 +131,7 @@ require (
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
-	golang.org/x/exp v0.0.0-20240404231335-c0f41cb1a7a0 // indirect
+	golang.org/x/exp v0.0.0-20240409090435-93d18d7e34b8 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/oauth2 v0.19.0 // indirect
@@ -142,7 +142,7 @@ require (
 	golang.org/x/time v0.5.0 // indirect
 	golang.org/x/tools v0.20.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240401170217-c3f982113cda // indirect
-	google.golang.org/grpc v1.63.0 // indirect
+	google.golang.org/grpc v1.63.2 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect

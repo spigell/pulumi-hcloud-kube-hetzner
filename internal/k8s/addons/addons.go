@@ -2,17 +2,19 @@ package addons
 
 import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/ccm"
-	k3supgrader "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3s-upgrade-controller"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/addons/k3supgrader"
 	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/config/helm"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/k8sconfig/helm"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 
 	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-type Addons struct {
-	CCM               *ccm.Config
+type Config struct {
+	// CCM defines configuration [hetzner-cloud-controller-manager](https://github.com/hetznercloud/hcloud-cloud-controller-manager).
+	CCM *ccm.Config
+	// K3SSystemUpgrader defines configuration for [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller).
 	K3SSystemUpgrader *k3supgrader.Config `json:"k3s-upgrade-controller" yaml:"k3s-upgrade-controller"`
 }
 
@@ -25,7 +27,7 @@ type Addon interface {
 	SetHelm(*helm.Config)
 }
 
-func New(addons *Addons) []Addon {
+func New(addons *Config) []Addon {
 	a := []Addon{
 		WithHelmInited(ccm.New(addons.CCM)),
 		WithHelmInited(k3supgrader.New(addons.K3SSystemUpgrader)),
@@ -63,7 +65,7 @@ func WithHelmInited(addon Addon) Addon {
 		for _, asset := range h.ValuesFilePath {
 			assets = append(assets, pulumi.NewFileAsset(asset))
 		}
-		h.ValuesFiles = assets
+		h.SetValuesFiles(assets)
 	}
 
 	addon.SetHelm(h)
