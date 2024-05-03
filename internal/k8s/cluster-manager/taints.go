@@ -13,6 +13,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	kubeApiMetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd/api"
 
 	// cloudproviderapi "k8s.io/cloud-provider/api".
 	corev1api "k8s.io/api/core/v1"
@@ -31,13 +32,6 @@ var whitelistedTaints = []string{
 }
 
 func (m *ClusterManager) ManageTaints(node *Node) error {
-	// TO DO: This gives an error for non existing nodes.
-	// https://github.com/pulumi/pulumi-kubernetes/issues/2743
-	existed, err := corev1.GetNode(m.ctx.Context(), node.ID, pulumi.ID(node.ID), nil, pulumi.Provider(m.provider))
-	if err != nil {
-		return err
-	}
-
 	// Create NodePatch
 	taints, err := corev1.NewNodePatch(m.ctx.Context(), fmt.Sprintf("taints-%s", node.ID), &corev1.NodePatchArgs{
 		Metadata: &metav1.ObjectMetaPatchArgs{
@@ -47,32 +41,38 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 			},
 		},
 		Spec: &corev1.NodeSpecPatchArgs{
-			Taints: pulumi.All(existed, node.Taints, m.provider.ToProviderOutput()).ApplyT(
-				func(args []interface{}) []corev1.TaintPatch {
-					kubeconfig := args[2].(string)
-					additional := args[1].([]string)
-					current := args[0].([]corev1.Taint)
+			Taints: m.kubeconfig.ApplyT(
+				func(cfg interface{}) []corev1.TaintPatch {
+					kubeconfig := cfg.(*api.Config)
+					additional := node.Taints
+					// current := args[0].([]corev1.Taint)
 
-					restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfig))
+					d, _ := clientcmd.Write(*kubeconfig)
+					restConfig, err := clientcmd.RESTConfigFromKubeConfig(d)
 					if err != nil {
-					  fmt.Errorf("Error creating Kubernetes REST config: %s", err)
+						fmt.Errorf("Error creating Kubernetes REST config: %s", err)
 					}
 					clientSet, err := kubernetes.NewForConfig(restConfig)
 					if err != nil {
-					  fmt.Errorf("error creating the clientset: %v", err)
-					}
-					node, err := clientSet.CoreV1().Nodes().Get(context.Background(), node.ID, kubeApiMetav1.GetOptions{})
-					if err != nil {
-					  fmt.Errorf("failed to get node: %s", err)
+						fmt.Errorf("error creating the clientset: %v", err)
 					}
 
-					fmt.Println(node)
+					current := make([]corev1api.Taint, 0)
 
 					// K3S tries to take ownership of the node taints.
 					// K3S does it after the node is created, so we need to wait for it.
 					// We need to wait for the node to be initialized, wait little more and then apply our taints with pulumi Manager.
 					// Very naive way to do it, but it should work for now.
-					for _, i := range []int64{30, 20, 5, 4, 3, 2, 1} {
+					for _, i := range []int64{1, 2, 3, 5, 10, 20, 30} {
+						node, err := clientSet.CoreV1().Nodes().Get(context.Background(), node.ID, kubeApiMetav1.GetOptions{})
+						if err != nil {
+							fmt.Errorf("failed to get node: %s", err)
+						}
+						for _, f := range node.ManagedFields {
+							if strings.Contains(f.FieldsV1.String(), "f:taints") && strings.HasPrefix(f.Manager, "k3s") {
+								current = append(current, node.Spec.Taints...)
+							}
+						}
 						m.ctx.Context().Log.Debug(fmt.Sprintf("taints: sleep for %d...", i), nil)
 						time.Sleep(time.Duration(i) * time.Second)
 					}
@@ -121,14 +121,15 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 	return nil
 }
 
-func toPatchTaintsFromTaintSlice(taints []corev1.Taint) []corev1.TaintPatch {
+func toPatchTaintsFromTaintSlice(taints []corev1api.Taint) []corev1.TaintPatch {
 	t := make([]corev1.TaintPatch, 0)
 
 	for i := range taints {
+		effect := string(taints[i].Effect)
 		t = append(t, corev1.TaintPatch{
 			Key:    &taints[i].Key,
-			Value:  taints[i].Value,
-			Effect: &taints[i].Effect,
+			Value:  &taints[i].Value,
+			Effect: &effect,
 		})
 	}
 
@@ -157,8 +158,8 @@ func toPatchTaintsFromStringSlice(taints []string) []corev1.TaintPatch {
 	return t
 }
 
-func removeMartianTaints(taints []corev1.Taint) []corev1.Taint {
-	t := make([]corev1.Taint, 0)
+func removeMartianTaints(taints []corev1api.Taint) []corev1api.Taint {
+	t := make([]corev1api.Taint, 0)
 
 	for _, taint := range taints {
 		if slices.Contains(whitelistedTaints, taint.Key) {

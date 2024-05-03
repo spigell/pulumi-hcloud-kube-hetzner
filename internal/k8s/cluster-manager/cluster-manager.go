@@ -14,8 +14,9 @@ import (
 )
 
 type ClusterManager struct {
-	ctx      *program.Context
-	provider *kubernetes.Provider
+	ctx        *program.Context
+	provider   *kubernetes.Provider
+	kubeconfig pulumi.AnyOutput
 
 	nodes     map[string]*Node
 	resources []pulumi.Resource
@@ -45,8 +46,9 @@ func (m *ClusterManager) Resources() []pulumi.Resource {
 	return m.resources
 }
 
-func (m *ClusterManager) ManageNodes(provider *kubernetes.Provider) error {
+func (m *ClusterManager) Up(kubeconfig pulumi.AnyOutput, provider *kubernetes.Provider) error {
 	m.provider = provider
+	m.kubeconfig = kubeconfig
 
 	for _, node := range m.nodes {
 		if err := m.ManageTaints(node); err != nil {
