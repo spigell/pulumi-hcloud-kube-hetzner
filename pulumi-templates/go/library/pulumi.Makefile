@@ -32,13 +32,13 @@ pulumi-create-stack:
 
 pulumi-generate-config: pulumi-create-stack
 	cat $(PULUMI_CONFIG_SOURCE) >> ./Pulumi.$(PULUMI_STACK).yaml
-	sed -i "s/pulumi-hcloud-kube-hetzner/pkhk/g" ./Pulumi.$(PULUMI_STACK).yaml
+	sed -i'' -e "s/pulumi-hcloud-kube-hetzner/pkhk/g" ./Pulumi.$(PULUMI_STACK).yaml
 	@echo "Pulumi.$(PULUMI_STACK).yaml is generated"
 
 pulumi-init-stack: export PROJECT_NAME := $(shell grep name Pulumi.yaml | head -1 | cut -f 2 -d ':' | tr -d ' ')
 pulumi-init-stack: pulumi-create-stack
 	curl -s https://raw.githubusercontent.com/spigell/pulumi-hcloud-kube-hetzner/main/examples/${PULUMI_EXAMPLE_NAME}.yaml >> Pulumi.$(PULUMI_STACK).yaml
-	sed -i "s/pulumi-hcloud-kube-hetzner/$(PROJECT_NAME)/g" ./Pulumi.$(PULUMI_STACK).yaml
+	sed -i'' -e "s/pulumi-hcloud-kube-hetzner/$(PROJECT_NAME)/g" ./Pulumi.$(PULUMI_STACK).yaml
 	@echo "Stack config generated from $(PULUMI_EXAMPLE_NAME) example"
 
 pulumi-ssh-check:
