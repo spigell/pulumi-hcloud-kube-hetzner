@@ -10,6 +10,7 @@ import (
 
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
+	"github.com/pulumi/pulumi/sdk/v3/go/common/util/retry"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	kubeApiMetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -57,30 +58,38 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 						fmt.Errorf("error creating the clientset: %v", err)
 					}
 
-					current := make([]corev1api.Taint, 0)
-
 					// K3S tries to take ownership of the node taints.
 					// K3S does it after the node is created, so we need to wait for it.
 					// We need to wait for the node to be initialized, wait little more and then apply our taints with pulumi Manager.
 					// Very naive way to do it, but it should work for now.
-					for _, i := range []int64{1, 2, 3, 5, 10, 20, 30} {
-						node, err := clientSet.CoreV1().Nodes().Get(context.Background(), node.ID, kubeApiMetav1.GetOptions{})
-						if err != nil {
-							fmt.Errorf("failed to get node: %s", err)
-						}
-						for _, f := range node.ManagedFields {
-							if strings.Contains(f.FieldsV1.String(), "f:taints") && strings.HasPrefix(f.Manager, "k3s") {
-								current = append(current, node.Spec.Taints...)
+					delay := time.Duration(time.Second * 1)
+					_, data, err := retry.Until(context.TODO(), retry.Acceptor{
+						Accept: func(try int, _ time.Duration) (bool, any, error) {
+							current := make([]corev1api.Taint, 0)
+
+							node, err := clientSet.CoreV1().Nodes().Get(context.Background(), node.ID, kubeApiMetav1.GetOptions{})
+							if err != nil {
+								return true, nil, err
 							}
-						}
-						m.ctx.Context().Log.Debug(fmt.Sprintf("taints: sleep for %d...", i), nil)
-						time.Sleep(time.Duration(i) * time.Second)
-					}
+							for _, f := range node.ManagedFields {
+								if strings.Contains(f.FieldsV1.String(), "f:taints") && strings.HasPrefix(f.Manager, "k3s") {
+									current = node.Spec.Taints
+								}
+							}
+
+							if len(current) > 0 {
+								return true, current, nil
+							}
+
+							return false, nil, nil
+						},
+						Delay: &delay,
+					})
 
 					keys := make([]string, 0)
 
 					merged := append(
-						toPatchTaintsFromTaintSlice(removeMartianTaints(current)),
+						toPatchTaintsFromTaintSlice(removeMartianTaints(data.([]corev1api.Taint))),
 						toPatchTaintsFromStringSlice(additional)...,
 					)
 
