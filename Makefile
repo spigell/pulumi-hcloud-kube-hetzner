@@ -42,7 +42,7 @@ up-template-versions:: up-go-lib-template-versions up-go-component-template-vers
 up-go-lib-template-versions: TEMPLATE = go/library
 up-go-lib-template-versions: clean test-go-project
 	cd test-project && go mod edit -dropreplace=github.com/spigell/pulumi-hcloud-kube-hetzner
-	cd test-project && go get -u && go get github.com/spigell/pulumi-hcloud-kube-hetzner@$(TAG) && go mod tidy
+	cd test-project && go get github.com/spigell/pulumi-hcloud-kube-hetzner@$(TAG) && go mod tidy
 	cp ./test-project/go.mod ./pulumi-templates/$(TEMPLATE)/go.mod
 	sed -i "1s/.*/module \\\$${PROJECT}/" ./pulumi-templates/$(TEMPLATE)/go.mod
 	cp ./test-project/go.sum ./pulumi-templates/$(TEMPLATE)/go.sum
@@ -50,7 +50,7 @@ up-go-lib-template-versions: clean test-go-project
 up-go-component-template-versions: TEMPLATE = go/component
 up-go-component-template-versions: clean test-go-project
 	cd test-project && go mod edit -dropreplace=github.com/spigell/pulumi-hcloud-kube-hetzner
-	cd test-project && go get -u && go get github.com/spigell/pulumi-hcloud-kube-hetzner@$(TAG) && go mod tidy
+	cd test-project && go get github.com/spigell/pulumi-hcloud-kube-hetzner@$(TAG) && go mod tidy
 	cp ./test-project/go.mod ./pulumi-templates/$(TEMPLATE)/go.mod
 	sed -i "1s/.*/module \\\$${PROJECT}/" ./pulumi-templates/$(TEMPLATE)/go.mod
 	cp ./test-project/go.sum ./pulumi-templates/$(TEMPLATE)/go.sum

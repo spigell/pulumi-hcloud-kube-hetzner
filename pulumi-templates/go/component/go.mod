@@ -3,8 +3,8 @@ module ${PROJECT}
 go 1.21.1
 
 require (
-	github.com/pulumi/pulumi/sdk/v3 v3.112.0
-	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.10
+	github.com/pulumi/pulumi/sdk/v3 v3.114.0
+	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.11
 )
 
 require (
@@ -57,7 +57,7 @@ require (
 	github.com/hashicorp/hcl v1.0.1-vault-5 // indirect
 	github.com/hashicorp/hcl/v2 v2.20.1 // indirect
 	github.com/hetznercloud/hcloud-go v1.53.0 // indirect
-	github.com/hetznercloud/hcloud-go/v2 v2.7.0 // indirect
+	github.com/hetznercloud/hcloud-go/v2 v2.7.2 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
@@ -93,10 +93,10 @@ require (
 	github.com/prometheus/procfs v0.13.0 // indirect
 	github.com/pulumi/appdash v0.0.0-20231130102222-75f619a67231 // indirect
 	github.com/pulumi/esc v0.8.3 // indirect
-	github.com/pulumi/pulumi-command/sdk v0.9.2 // indirect
+	github.com/pulumi/pulumi-command/sdk v0.10.0 // indirect
 	github.com/pulumi/pulumi-hcloud/sdk v1.18.1 // indirect
 	github.com/pulumi/pulumi-kubernetes/sdk/v3 v3.30.2 // indirect
-	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.9.1 // indirect
+	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.11.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/rogpeppe/go-internal v1.12.0 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20210923224102-525f6e181f06 // indirect
