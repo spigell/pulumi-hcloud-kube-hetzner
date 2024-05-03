@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"sort"
@@ -10,9 +11,12 @@ import (
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	kubeApiMetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
 
 	// cloudproviderapi "k8s.io/cloud-provider/api".
 	corev1api "k8s.io/api/core/v1"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 // whitelistedTaints is a list of taints that should not be treated as user-defined.
@@ -43,10 +47,26 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 			},
 		},
 		Spec: &corev1.NodeSpecPatchArgs{
-			Taints: pulumi.All(existed.Spec.Taints(), node.Taints).ApplyT(
+			Taints: pulumi.All(existed, node.Taints, m.provider.ToProviderOutput()).ApplyT(
 				func(args []interface{}) []corev1.TaintPatch {
-					current := args[0].([]corev1.Taint)
+					kubeconfig := args[2].(string)
 					additional := args[1].([]string)
+					current := args[0].([]corev1.Taint)
+
+					restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfig))
+					if err != nil {
+					  fmt.Errorf("Error creating Kubernetes REST config: %s", err)
+					}
+					clientSet, err := kubernetes.NewForConfig(restConfig)
+					if err != nil {
+					  fmt.Errorf("error creating the clientset: %v", err)
+					}
+					node, err := clientSet.CoreV1().Nodes().Get(context.Background(), node.ID, kubeApiMetav1.GetOptions{})
+					if err != nil {
+					  fmt.Errorf("failed to get node: %s", err)
+					}
+
+					fmt.Println(node)
 
 					// K3S tries to take ownership of the node taints.
 					// K3S does it after the node is created, so we need to wait for it.
