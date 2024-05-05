@@ -10,9 +10,9 @@ import (
 
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
-	"github.com/pulumi/pulumi/sdk/v3/go/common/util/retry"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	kubeApiMetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd/api"
 
@@ -43,53 +43,36 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 		},
 		Spec: &corev1.NodeSpecPatchArgs{
 			Taints: m.kubeconfig.ApplyT(
-				func(cfg interface{}) []corev1.TaintPatch {
-					kubeconfig := cfg.(*api.Config)
+				func(cfg interface{}) ([]corev1.TaintPatch, error) {
 					additional := node.Taints
-					// current := args[0].([]corev1.Taint)
+					kubeconfig := cfg.(*api.Config)
 
 					d, _ := clientcmd.Write(*kubeconfig)
 					restConfig, err := clientcmd.RESTConfigFromKubeConfig(d)
 					if err != nil {
-						fmt.Errorf("Error creating Kubernetes REST config: %s", err)
+						return nil, err
 					}
 					clientSet, err := kubernetes.NewForConfig(restConfig)
 					if err != nil {
-						fmt.Errorf("error creating the clientset: %v", err)
+						return nil, err
 					}
 
 					// K3S tries to take ownership of the node taints.
 					// K3S does it after the node is created, so we need to wait for it.
 					// We need to wait for the node to be initialized, wait little more and then apply our taints with pulumi Manager.
 					// Very naive way to do it, but it should work for now.
-					delay := time.Duration(time.Second * 1)
-					_, data, err := retry.Until(context.TODO(), retry.Acceptor{
-						Accept: func(try int, _ time.Duration) (bool, any, error) {
-							current := make([]corev1api.Taint, 0)
+					ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+					defer cancel()
 
-							node, err := clientSet.CoreV1().Nodes().Get(context.Background(), node.ID, kubeApiMetav1.GetOptions{})
-							if err != nil {
-								return true, nil, err
-							}
-							for _, f := range node.ManagedFields {
-								if strings.Contains(f.FieldsV1.String(), "f:taints") && strings.HasPrefix(f.Manager, "k3s") {
-									current = node.Spec.Taints
-								}
-							}
-
-							if len(current) > 0 {
-								return true, current, nil
-							}
-
-							return false, nil, nil
-						},
-						Delay: &delay,
-					})
+					node, err := clientSet.CoreV1().Nodes().Get(ctx, node.ID, kubeApiMetav1.GetOptions{})
+					if err != nil && !errors.IsNotFound(err) {
+						return nil, err
+					}
 
 					keys := make([]string, 0)
 
 					merged := append(
-						toPatchTaintsFromTaintSlice(removeMartianTaints(data.([]corev1api.Taint))),
+						toPatchTaintsFromTaintSlice(removeMartianTaints(node.Spec.Taints)),
 						toPatchTaintsFromStringSlice(additional)...,
 					)
 
@@ -116,7 +99,7 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 							}
 							return false
 						},
-					)
+					), nil
 				},
 			).(corev1.TaintPatchArrayOutput),
 		},

@@ -51,8 +51,10 @@ func (m *ClusterManager) Up(kubeconfig pulumi.AnyOutput, provider *kubernetes.Pr
 	m.kubeconfig = kubeconfig
 
 	for _, node := range m.nodes {
-		if err := m.ManageTaints(node); err != nil {
-			return err
+		if len(node.Taints) > 0 {
+			if err := m.ManageTaints(node); err != nil {
+				return err
+			}
 		}
 
 		labels, err := corev1.NewNodePatch(m.ctx.Context(), fmt.Sprintf("labels-%s", node.ID), &corev1.NodePatchArgs{
