@@ -11,14 +11,12 @@ import (
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	kubeApiMetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	kubeApiMetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd/api"
 
-	// cloudproviderapi "k8s.io/cloud-provider/api".
+	cloudproviderapi "k8s.io/cloud-provider/api"
 	corev1api "k8s.io/api/core/v1"
-	"k8s.io/client-go/tools/clientcmd"
 )
 
 // whitelistedTaints is a list of taints that should not be treated as user-defined.
@@ -30,6 +28,7 @@ var whitelistedTaints = []string{
 	corev1api.TaintNodeMemoryPressure,
 	corev1api.TaintNodePIDPressure,
 	corev1api.TaintNodeNotReady,
+	cloudproviderapi.TaintExternalCloudProvider,
 }
 
 func (m *ClusterManager) ManageTaints(node *Node) error {
@@ -42,26 +41,14 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 			},
 		},
 		Spec: &corev1.NodeSpecPatchArgs{
-			Taints: m.kubeconfig.ApplyT(
-				func(cfg interface{}) ([]corev1.TaintPatch, error) {
+			// K3S or other controllers tries to take ownership of the node taints sometimes.
+			// Trying to get all taints and filter unknown taints (added by hands)
+			Taints: m.client.ApplyT(
+				func(cli interface{}) ([]corev1.TaintPatch, error) {
 					additional := node.Taints
-					kubeconfig := cfg.(*api.Config)
+					clientSet := cli.(*kubernetes.Clientset)
 
-					d, _ := clientcmd.Write(*kubeconfig)
-					restConfig, err := clientcmd.RESTConfigFromKubeConfig(d)
-					if err != nil {
-						return nil, err
-					}
-					clientSet, err := kubernetes.NewForConfig(restConfig)
-					if err != nil {
-						return nil, err
-					}
-
-					// K3S tries to take ownership of the node taints.
-					// K3S does it after the node is created, so we need to wait for it.
-					// We need to wait for the node to be initialized, wait little more and then apply our taints with pulumi Manager.
-					// Very naive way to do it, but it should work for now.
-					ctx, cancel := context.WithTimeout(context.Background(), 10 * time.Second)
+					ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 					defer cancel()
 
 					node, err := clientSet.CoreV1().Nodes().Get(ctx, node.ID, kubeApiMetav1.GetOptions{})
