@@ -44,14 +44,6 @@ var (
 			"system-reserved": "cpu=100m,memory=100Mi",
 		},
 	}
-	DefaultTaints = map[string][]string{
-		variables.ServerRole: {
-			// This taints are needed to prevent pods from being scheduled on the server node.
-			// Used in situations when agent nodes exists.
-			"CriticalAddonsOnly=true:NoExecute",
-			"node-role.kubernetes.io/control-plane:NoSchedule",
-		},
-	}
 )
 
 func (k *K3sConfig) WithServerDefaults() *K3sConfig {

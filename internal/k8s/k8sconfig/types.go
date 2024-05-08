@@ -14,12 +14,22 @@ type Config struct {
 }
 
 type NodeConfig struct {
-	// NodeTaints are used to taint the node with key=value:effect.
-	// Default is server node is tainted with a couple of taints if number of agents nodes more than 0.
-	// But only if disable-default-taints set to false (default)
-	NodeTaints []string `json:"node-taint" yaml:"node-taint,omitempty"`
 	// NodeLabels are used to lable the node with key=value.
 	NodeLabels []string `json:"node-label" yaml:"node-label,omitempty"`
+	// NodeTaints configures taint node manager.
+	NodeTaints *TaintConfig `json:"node-taint" yaml:"node-taint,omitempty"`
+}
+
+type TaintConfig struct {
+	// Enable or disable taint management.
+	Enabled *bool
+	// Do not add default taints to the server node.
+	// Default is false.
+	DisableDefaultsTaints *bool `json:"disable-default-taints" yaml:"disable-default-taints,omitempty"`
+	// Taints are used to taint the node with key=value:effect.
+	// Default is server node is tainted with a couple of taints if number of agents nodes more than 0.
+	// But only if disable-default-taints set to false (default)
+	Taints []string
 }
 
 type K8SEndpointConfig struct {

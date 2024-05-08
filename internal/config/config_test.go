@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"dario.cat/mergo"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/k8sconfig"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -70,19 +70,19 @@ func TestBoolTransformer(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			dst := &NodeConfig{K3s: &k3s.Config{
+			dst := &k8sconfig.TaintConfig{
 				DisableDefaultsTaints: tt.dst,
-			}}
-			src := &NodeConfig{K3s: &k3s.Config{
+			}
+			src := &k8sconfig.TaintConfig{
 				DisableDefaultsTaints: tt.src,
-			}}
+			}
 
 			if err := mergo.Merge(dst, src, mergo.WithTransformers(BoolTransformer{})); err != nil {
 				t.Errorf("Merge failed: %v", err)
 			}
 
-			if !reflect.DeepEqual(dst.K3s.DisableDefaultsTaints, tt.expected) {
-				t.Errorf("Failed %s, expected value to be %v, got %v", tt.name, tt.expected, dst.K3s.DisableDefaultsTaints)
+			if !reflect.DeepEqual(dst.DisableDefaultsTaints, tt.expected) {
+				t.Errorf("Failed %s, expected value to be %v, got %v", tt.name, tt.expected, dst.DisableDefaultsTaints)
 			}
 		})
 	}

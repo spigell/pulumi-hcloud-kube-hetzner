@@ -63,10 +63,11 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 	for _, node := range nodes {
 		// By default, use default taints for server node if they are not set and agents nodes exist.
 		if node.Role == variables.ServerRole &&
-			!*node.K3s.DisableDefaultsTaints &&
-			len(node.K8S.NodeTaints) == 0 &&
+			!*node.K8S.NodeTaints.DisableDefaultsTaints &&
+			len(node.K8S.NodeTaints.Taints) == 0 &&
+			*node.K8S.NodeTaints.Enabled &&
 			len(config.Nodepools.Agents) > 0 {
-			node.K8S.NodeTaints = k3s.DefaultTaints[variables.ServerRole]
+			node.K8S.NodeTaints.Taints = manager.DefaultTaints[variables.ServerRole]
 		}
 
 		if upgrader := config.K8S.Addons.K3SSystemUpgrader; upgrader != nil {
@@ -76,9 +77,14 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 			)
 		}
 
+		if !*node.K8S.NodeTaints.Enabled && (len(node.K8S.NodeTaints.Taints) > 0 || !*node.K8S.NodeTaints.DisableDefaultsTaints) {
+			ctx.Context().Log.Warn("Taint manager is disabled, but it is expected to be used. Consider to inspect your config", nil)
+			node.K8S.NodeTaints.Taints = make([]string, 0)
+		}
+
 		nodeMap[node.ID] = &manager.Node{
 			ID:     node.Server.Hostname,
-			Taints: slices.Compact(node.K8S.NodeTaints),
+			Taints: slices.Compact(node.K8S.NodeTaints.Taints),
 			Labels: slices.Compact(append(node.K8S.NodeLabels, k3s.NodeManagedLabel)),
 		}
 	}

@@ -134,8 +134,20 @@ func (d *DefaultConfig) WithInited() *DefaultConfig {
 		d.Global.K3s = &k3s.Config{}
 	}
 
-	if d.Global.K3s.DisableDefaultsTaints == nil {
-		d.Global.K3s.DisableDefaultsTaints = new(bool)
+	if d.Global.K8S == nil {
+		d.Global.K8S = &k8sconfig.NodeConfig{}
+	}
+
+	if d.Global.K8S.NodeTaints == nil {
+		d.Global.K8S.NodeTaints = &k8sconfig.TaintConfig{}
+	}
+
+	if d.Global.K8S.NodeTaints.Enabled == nil {
+		d.Global.K8S.NodeTaints.Enabled = new(bool)
+	}
+
+	if d.Global.K8S.NodeTaints.DisableDefaultsTaints == nil {
+		d.Global.K8S.NodeTaints.DisableDefaultsTaints = new(bool)
 	}
 
 	if d.Global.K3s.K3S == nil {
@@ -200,10 +212,6 @@ func initNodepools(ctx *pulumi.Context, pools []*NodepoolConfig) []*NodepoolConf
 		no = append(no, pool)
 		if pool.Config == nil {
 			no[i].Config = &NodeConfig{}
-		}
-
-		if pool.Config.K8S == nil {
-			no[i].Config.K8S = &k8sconfig.NodeConfig{}
 		}
 
 		if pool.Config.K3s == nil {

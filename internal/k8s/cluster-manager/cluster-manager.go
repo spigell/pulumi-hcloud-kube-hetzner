@@ -6,6 +6,7 @@ import (
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils"
 	kube "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -14,6 +15,17 @@ import (
 	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes"
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
+)
+
+var (
+	DefaultTaints = map[string][]string{
+		variables.ServerRole: {
+			// This taints are needed to prevent pods from being scheduled on the server node.
+			// Used in situations when agent nodes exists.
+			"CriticalAddonsOnly=true:NoExecute",
+			"node-role.kubernetes.io/control-plane:NoSchedule",
+		},
+	}
 )
 
 type ClusterManager struct {

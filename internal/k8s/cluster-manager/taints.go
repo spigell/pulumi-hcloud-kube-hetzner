@@ -15,21 +15,8 @@ import (
 	kubeApiMetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 
-	cloudproviderapi "k8s.io/cloud-provider/api"
 	corev1api "k8s.io/api/core/v1"
 )
-
-// whitelistedTaints is a list of taints that should not be treated as user-defined.
-var whitelistedTaints = []string{
-	// Next taints are used by kubernetes itself and can be added by controllers
-	corev1api.TaintNodeUnreachable,
-	corev1api.TaintNodeNetworkUnavailable,
-	corev1api.TaintNodeDiskPressure,
-	corev1api.TaintNodeMemoryPressure,
-	corev1api.TaintNodePIDPressure,
-	corev1api.TaintNodeNotReady,
-	cloudproviderapi.TaintExternalCloudProvider,
-}
 
 func (m *ClusterManager) ManageTaints(node *Node) error {
 	// Create NodePatch
@@ -42,7 +29,7 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 		},
 		Spec: &corev1.NodeSpecPatchArgs{
 			// K3S or other controllers tries to take ownership of the node taints sometimes.
-			// Trying to get all taints and filter unknown taints (added by hands)
+			// Trying to get all taints (including added by hands or other operators) and take ownership.
 			Taints: m.client.ApplyT(
 				func(cli interface{}) ([]corev1.TaintPatch, error) {
 					additional := node.Taints
@@ -59,7 +46,7 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 					keys := make([]string, 0)
 
 					merged := append(
-						toPatchTaintsFromTaintSlice(removeMartianTaints(node.Spec.Taints)),
+						toPatchTaintsFromTaintSlice(node.Spec.Taints),
 						toPatchTaintsFromStringSlice(additional)...,
 					)
 
@@ -90,7 +77,11 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 				},
 			).(corev1.TaintPatchArrayOutput),
 		},
-	}, append(m.ctx.Options(), pulumi.Provider(m.provider))...)
+	}, append(m.ctx.Options(),
+		// Recreate resource on any changes to delete our old fieldManager.
+		pulumi.ReplaceOnChanges([]string{"*"}),
+		pulumi.DeleteBeforeReplace(true),
+		pulumi.Provider(m.provider))...)
 	if err != nil {
 		return err
 	}
@@ -132,18 +123,6 @@ func toPatchTaintsFromStringSlice(taints []string) []corev1.TaintPatch {
 			Value:  &value,
 			Effect: &effect,
 		})
-	}
-
-	return t
-}
-
-func removeMartianTaints(taints []corev1api.Taint) []corev1api.Taint {
-	t := make([]corev1api.Taint, 0)
-
-	for _, taint := range taints {
-		if slices.Contains(whitelistedTaints, taint.Key) {
-			t = append(t, taint)
-		}
 	}
 
 	return t

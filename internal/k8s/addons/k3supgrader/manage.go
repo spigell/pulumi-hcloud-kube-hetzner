@@ -50,6 +50,16 @@ func (u *Upgrader) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt 
 		Transformations: []yaml.Transformation{
 			func(state map[string]interface{}, _ ...pulumi.ResourceOption) {
 				if state["kind"] == "Deployment" {
+					// Deleting taints via in underlayed manager can lead to infinity loop.
+					// Skip waiting for the deployment for now.
+					metadata := state["metadata"].(map[string]interface{})
+					annotations, ok := metadata["annotations"].(map[string]interface{})
+					if !ok {
+						annotations = make(map[string]interface{})
+						metadata["annotations"] = annotations
+					}
+					annotations["pulumi.com/skipAwait"] = "true"
+
 					spec := state["spec"].(map[string]interface{})
 					podSpec := spec["template"].(map[string]interface{})["spec"].(map[string]interface{})
 					// There is only one container in pod spec.
