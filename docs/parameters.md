@@ -165,8 +165,16 @@ Users are advised to refer to the latest version of this document for the most a
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| node-taint | []string | NodeTaints are used to taint the node with key=value:effect.  But only if disable-default-taints set to false (default)  | server node is tainted with a couple of taints if number of agents nodes more than 0. But only if disable-default-taints set to false (default) |
 | node-label | []string | NodeLabels are used to lable the node with key=value.  | [] |
+| node-taint | [k8sconfig.*TaintConfig](#k8sconfigtaintconfig) | NodeTaints configures taint node manager.  | {} |
+
+## k8sconfig.TaintConfig
+
+| Field | Type | Description | Default |
+|-------|------|-------------|---------|
+| enabled | [k8sconfig.*bool](#k8sconfigbool) | Enable or disable taint management.  | {} |
+| disable-default-taints | [k8sconfig.*bool](#k8sconfigbool) | Do not add default taints to the server node.   | false |
+| taints | []string | Taints are used to taint the node with key=value:effect.  But only if disable-default-taints set to false (default)  | server node is tainted with a couple of taints if number of agents nodes more than 0. But only if disable-default-taints set to false (default) |
 
 ## k8sconfig.K8SEndpointConfig
 
@@ -194,7 +202,6 @@ Users are advised to refer to the latest version of this document for the most a
 |-------|------|-------------|---------|
 | version | string | version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.  | "" |
 | clean-data-on-upgrade | bool | [Experimental] clean-data-on-upgrade is used to delete all data while upgrade. This is based on the script https://docs.k3s.io/upgrades/killall  | false |
-| disable-default-taints | [k3s.*bool](#k3sbool) | Do not add default taints to the server node.   | false |
 | config | [k3s.*K3sConfig](#k3sk3sconfig) | The real config of k3s service.  | {} |
 
 ## k3s.K3sConfig
@@ -225,5 +232,7 @@ Users are advised to refer to the latest version of this document for the most a
 | kube-apiserver-arg | []string | KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server.  | [] |
 | disable-cloud-controller | bool | DisableCloudController determines whether to disable the integrated cloud controller manager.   | false, but will be true if ccm is enabled |
 | disable | []string | Disable lists components or features to disable.  | [] |
+| node-label | []string | NodeLables set labels on registration  | [] |
+| node-taint | []string | NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0.  | [] |
 
 
