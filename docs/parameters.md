@@ -172,7 +172,7 @@ Users are advised to refer to the latest version of this document for the most a
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| enabled | [k8sconfig.*bool](#k8sconfigbool) | Enable or disable taint management.  | {} |
+| enabled | [k8sconfig.*bool](#k8sconfigbool) | Enable or disable taint management.   | false |
 | disable-default-taints | [k8sconfig.*bool](#k8sconfigbool) | Do not add default taints to the server node.   | false |
 | taints | []string | Taints are used to taint the node with key=value:effect.  But only if disable-default-taints set to false (default)  | server node is tainted with a couple of taints if number of agents nodes more than 0. But only if disable-default-taints set to false (default) |
 
