@@ -50,7 +50,7 @@ Taints management must be approached with several key considerations in mind:
             taints:
               - node-role.kubernetes.io/ingress:NoSchedule
 ```
-- It is not recommended to manually set taints using kubectl. However, the program will gather all existing taints and will not remove unknown taints.
+- It is not recommended to manually set taints using kubectl. However, the program will gather all existing taints and will not remove unknown taints. Thus, deleting old taints is responsibility for someone else.
 
 
 ## Addons
