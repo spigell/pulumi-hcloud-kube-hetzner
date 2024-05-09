@@ -22,6 +22,7 @@ type NodeConfig struct {
 
 type TaintConfig struct {
 	// Enable or disable taint management.
+	// Default is false.
 	Enabled *bool
 	// Do not add default taints to the server node.
 	// Default is false.

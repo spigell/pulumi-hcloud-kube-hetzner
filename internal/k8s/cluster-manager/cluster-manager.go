@@ -17,16 +17,14 @@ import (
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
 )
 
-var (
-	DefaultTaints = map[string][]string{
-		variables.ServerRole: {
-			// This taints are needed to prevent pods from being scheduled on the server node.
-			// Used in situations when agent nodes exists.
-			"CriticalAddonsOnly=true:NoExecute",
-			"node-role.kubernetes.io/control-plane:NoSchedule",
-		},
-	}
-)
+var DefaultTaints = map[string][]string{
+	variables.ServerRole: {
+		// This taints are needed to prevent pods from being scheduled on the server node.
+		// Used in situations when agent nodes exists.
+		"CriticalAddonsOnly=true:NoExecute",
+		"node-role.kubernetes.io/control-plane:NoSchedule",
+	},
+}
 
 type ClusterManager struct {
 	ctx      *program.Context

@@ -77,7 +77,7 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 			)
 		}
 
-		if !*node.K8S.NodeTaints.Enabled && (len(node.K8S.NodeTaints.Taints) > 0 || !*node.K8S.NodeTaints.DisableDefaultsTaints) {
+		if !*node.K8S.NodeTaints.Enabled && (len(node.K8S.NodeTaints.Taints) > 0 || *node.K8S.NodeTaints.DisableDefaultsTaints) {
 			ctx.Context().Log.Warn("Taint manager is disabled, but it is expected to be used. Consider to inspect your config", nil)
 			node.K8S.NodeTaints.Taints = make([]string, 0)
 		}
