@@ -116,9 +116,9 @@ func TestLabelsTaintsManagement(t *testing.T) {
 			// Default taints must be added.
 			// Disable default taints must be set to false.
 			if len(i.Example.Decoded.Nodepools.Agents) > 0 {
-				exist := false
 				for _, ta := range manager.DefaultTaints[variables.ServerRole] {
 					d := strings.Split(ta, "=")[0]
+					exist := false
 					for _, taint := range n.Spec.Taints {
 						if taint.Key == strings.Split(d, "=")[0] {
 							exist = true
@@ -127,9 +127,9 @@ func TestLabelsTaintsManagement(t *testing.T) {
 					}
 					require.True(t, exist)
 				}
-
 			}
-			// It is enough to check only key existence for now
+			// Even if we delete taint in configuration it should be present on node.
+			// It is enough to check only key existence for now.
 			exist := false
 			for _, taint := range n.Spec.Taints {
 				if taint.Key == strings.Split(desiredTaint, "=")[0] {
@@ -137,7 +137,7 @@ func TestLabelsTaintsManagement(t *testing.T) {
 					break
 				}
 			}
-			assert.False(t, exist)
+			assert.True(t, exist)
 		}
 	}
 }
