@@ -1,37 +1,24 @@
 package manager
 
 import (
+	"context"
 	"fmt"
 	"slices"
 	"sort"
 	"strings"
+	"time"
 
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"k8s.io/apimachinery/pkg/api/errors"
+	kubeApiMetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+
+	corev1api "k8s.io/api/core/v1"
 )
 
-// whitelistedTaints is a list of taints that should not be treated as user-defined.
-var whitelistedTaints = []string{
-	// This taint is used by cloud controllers
-	"node.cloudprovider.kubernetes.io/uninitialized",
-	// Next taints are used by kubernetes itself and can be added by controllers
-	"node.kubernetes.io/unreachable",
-	"node.kubernetes.io/network-unavailable",
-	"node.kubernetes.io/disk-pressure",
-	"node.kubernetes.io/memory-pressure",
-	"node.kubernetes.io/pid-pressure",
-	"node.kubernetes.io/not-ready",
-}
-
 func (m *ClusterManager) ManageTaints(node *Node) error {
-	// TO DO: This gives an error for non existing nodes.
-	// https://github.com/pulumi/pulumi-kubernetes/issues/2743
-	existed, err := corev1.GetNode(m.ctx.Context(), node.ID, pulumi.ID(node.ID), nil, pulumi.Provider(m.provider))
-	if err != nil {
-		return err
-	}
-
 	// Create NodePatch
 	taints, err := corev1.NewNodePatch(m.ctx.Context(), fmt.Sprintf("taints-%s", node.ID), &corev1.NodePatchArgs{
 		Metadata: &metav1.ObjectMetaPatchArgs{
@@ -41,14 +28,27 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 			},
 		},
 		Spec: &corev1.NodeSpecPatchArgs{
-			Taints: pulumi.All(existed.Spec.Taints(), node.Taints).ApplyT(
-				func(args []interface{}) []corev1.TaintPatch {
-					current := args[0].([]corev1.Taint)
-					additional := args[1].([]string)
+			// K3S or other controllers tries to take ownership of the node taints sometimes.
+			// Trying to get all taints (including added by hands or other operators) and take ownership.
+			Taints: m.client.ApplyT(
+				func(cli interface{}) ([]corev1.TaintPatch, error) {
+					additional := node.Taints
+					clientSet := cli.(*kubernetes.Clientset)
+
+					ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+					defer cancel()
+
+					node, err := clientSet.CoreV1().Nodes().Get(ctx, node.ID, kubeApiMetav1.GetOptions{})
+					if err != nil && !errors.IsNotFound(err) {
+						return nil, err
+					}
 
 					keys := make([]string, 0)
 
-					merged := append(toPatchTaintsFromTaintSlice(removeMartianTaints(current)), toPatchTaintsFromStringSlice(additional)...)
+					merged := append(
+						toPatchTaintsFromTaintSlice(node.Spec.Taints),
+						toPatchTaintsFromStringSlice(additional)...,
+					)
 
 					for _, t := range merged {
 						keys = append(keys, *t.Key)
@@ -73,11 +73,15 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 							}
 							return false
 						},
-					)
+					), nil
 				},
 			).(corev1.TaintPatchArrayOutput),
 		},
-	}, append(m.ctx.Options(), pulumi.Provider(m.provider))...)
+	}, append(m.ctx.Options(),
+		// Recreate resource on any changes to delete our old fieldManager.
+		pulumi.ReplaceOnChanges([]string{"*"}),
+		pulumi.DeleteBeforeReplace(true),
+		pulumi.Provider(m.provider))...)
 	if err != nil {
 		return err
 	}
@@ -87,14 +91,15 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 	return nil
 }
 
-func toPatchTaintsFromTaintSlice(taints []corev1.Taint) []corev1.TaintPatch {
+func toPatchTaintsFromTaintSlice(taints []corev1api.Taint) []corev1.TaintPatch {
 	t := make([]corev1.TaintPatch, 0)
 
 	for i := range taints {
+		effect := string(taints[i].Effect)
 		t = append(t, corev1.TaintPatch{
 			Key:    &taints[i].Key,
-			Value:  taints[i].Value,
-			Effect: &taints[i].Effect,
+			Value:  &taints[i].Value,
+			Effect: &effect,
 		})
 	}
 
@@ -118,18 +123,6 @@ func toPatchTaintsFromStringSlice(taints []string) []corev1.TaintPatch {
 			Value:  &value,
 			Effect: &effect,
 		})
-	}
-
-	return t
-}
-
-func removeMartianTaints(taints []corev1.Taint) []corev1.Taint {
-	t := make([]corev1.Taint, 0)
-
-	for _, taint := range taints {
-		if slices.Contains(whitelistedTaints, taint.Key) {
-			t = append(t, taint)
-		}
 	}
 
 	return t

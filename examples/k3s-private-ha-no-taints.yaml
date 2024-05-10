@@ -30,8 +30,10 @@ config:
       - id: 02-control-plane-with-workload
         config:
           # This nodes can be used for workload. Taints will not be added.
-          k3s:
-            disable-default-taints: true
+          k8s:
+            node-taint:
+              enabled: true
+              disable-default-taints: true
         nodes:
         - id: server02
         - id: server03

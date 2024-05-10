@@ -32,8 +32,26 @@ config:
 Internal network networks are considered as *secured*. So, no rules will be applied for them.
 
 ## Node Management
-### Node Labels, Taints, and K3S
+### Node Labels, Taints
 Despite the fact that the labels and taints are only used at the registration stage, the program allows changing them after the registration. It is done by the cluster-manager that uses nodePatch ServerSide Apply to manage labels and taints on the nodes after bootstrapping.
+
+Taints management must be approached with several key considerations in mind:
+- The taint manager is disabled by default. It requires explicit activation to function within the system.
+```
+<project>:nodepools:
+  servers:
+    - id: 02-control-plane-with-workload
+      config:
+        # This nodes can be used for workload. Taints will not be added.
+        k8s:
+          node-taint:
+            enabled: true <--- must be enabled
+            disable-default-taints: true
+            taints:
+              - node-role.kubernetes.io/ingress:NoSchedule
+```
+- It is not recommended to manually set taints using kubectl. However, the program will gather all existing taints and will not remove unknown taints. Thus, deleting old taints is responsibility for someone else.
+
 
 ## Addons
 Most of the addons are installed using helm. So, you can specify `helm` property to configure some values:

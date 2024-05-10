@@ -13,12 +13,14 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/auto"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/integration/k8s"
+	manager "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/cluster-manager"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func TestLabelsTaintsChange(t *testing.T) {
+func TestLabelsTaintsManagement(t *testing.T) {
 	targetLabelKey, targetLabelValue, desiredLabelValue := "example.io/test-label2", changeMe, "good"
 
 	desiredTaint := "example.io/important-node=true:NoSchedule"
@@ -63,8 +65,12 @@ func TestLabelsTaintsChange(t *testing.T) {
 	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-label[0]", auto.ConfigValue{
 		Value: fmt.Sprintf("%s=%s", targetLabelKey, desiredLabelValue),
 	}, &auto.ConfigOptions{Path: true})
+	// Taint management must be enabled first
+	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint.enabled", auto.ConfigValue{
+		Value: "true",
+	}, &auto.ConfigOptions{Path: true})
 
-	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint[0]", auto.ConfigValue{
+	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint.taints[0]", auto.ConfigValue{
 		Value: desiredTaint,
 	}, &auto.ConfigOptions{Path: true})
 
@@ -78,6 +84,10 @@ func TestLabelsTaintsChange(t *testing.T) {
 		if nodeID.Value == n.Name {
 			require.Contains(t, n.Labels, targetLabelKey, fmt.Sprintf("no target label found for node %s", n.Name))
 			require.Equal(t, desiredLabelValue, n.Labels[targetLabelKey])
+
+			// Len of taints must be equal to 1. No default or marsian taints.
+			assert.Len(t, n.Spec.Taints, 1, fmt.Sprintf("node must has only 1 taint. node taints: %+v", n.Name))
+
 			// It is enough to check only key existence for now
 			exist := false
 			for _, taint := range n.Spec.Taints {
@@ -91,7 +101,7 @@ func TestLabelsTaintsChange(t *testing.T) {
 	}
 
 	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-label[0]", &auto.ConfigOptions{Path: true})
-	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint[0]", &auto.ConfigOptions{Path: true})
+	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint.taints[0]", &auto.ConfigOptions{Path: true})
 	require.NoError(t, i.UpWithRetry())
 	require.NoError(t, err)
 
@@ -102,7 +112,24 @@ func TestLabelsTaintsChange(t *testing.T) {
 		if strings.HasSuffix(n.Name, nodeID.Value) {
 			// TO DO: check that label is removed
 			assert.NotContains(t, n.Labels, targetLabelKey, fmt.Sprintf("The label found for node %s", n.Name))
-			// It is enough to check only key existence for now
+
+			// Default taints must be added.
+			// Disable default taints must be set to false.
+			if len(i.Example.Decoded.Nodepools.Agents) > 0 {
+				for _, ta := range manager.DefaultTaints[variables.ServerRole] {
+					d := strings.Split(ta, "=")[0]
+					exist := false
+					for _, taint := range n.Spec.Taints {
+						if taint.Key == strings.Split(d, "=")[0] {
+							exist = true
+							break
+						}
+					}
+					require.True(t, exist)
+				}
+			}
+			// Even if we delete taint in configuration it should be present on node.
+			// It is enough to check only key existence for now.
 			exist := false
 			for _, taint := range n.Spec.Taints {
 				if taint.Key == strings.Split(desiredTaint, "=")[0] {
@@ -110,7 +137,7 @@ func TestLabelsTaintsChange(t *testing.T) {
 					break
 				}
 			}
-			assert.False(t, exist)
+			assert.True(t, exist)
 		}
 	}
 }

@@ -24,7 +24,9 @@ config:
             node-label:
             - kubernetes.io/role=ingress
             node-taint:
-            - node-role.kubernetes.io/ingress:NoSchedule
+              enabled: true
+              taints:
+              - node-role.kubernetes.io/ingress:NoSchedule
           server:
             # There is no need to use a big server for ingress nodes
             # The cpx11 is the minimal for the program

@@ -69,7 +69,7 @@ func (k *K8S) Up(kubeconfig pulumi.AnyOutput, deps []pulumi.Resource) error {
 		return err
 	}
 
-	if err := k.mgmt.ManageNodes(prov); err != nil {
+	if err := k.mgmt.Up(kubeconfig, prov); err != nil {
 		return err
 	}
 
