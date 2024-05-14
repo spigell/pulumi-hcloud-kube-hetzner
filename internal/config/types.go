@@ -34,11 +34,11 @@ type NodepoolsConfig struct {
 }
 
 type NodepoolConfig struct {
-	// ID is id of group of servers. It is used through entire program as key for the group.
+	// ID is id of group of servers. It is used through the entire program as key for the group.
 	// Required.
 	// Default is not specified.
 	ID string
-	// Config is the default node configuration for group
+	// Config is the default node configuration for the group.
 	Config *NodeConfig
 	// Nodes is a list of nodes inside of the group.
 	Nodes []*NodeConfig
@@ -54,21 +54,21 @@ func (n *NodepoolConfig) GetID() string {
 }
 
 type NodeConfig struct {
-	// ID is id of server. It is used through entire program as key.
+	// ID is the id of a server. It is used throughout the entire program as a key.
 	// Required.
 	// Default is not specified.
 	ID string
-	// Leader specify leader of multi-muster cluster.
-	// Required if number of master more than 1.
+	// Leader specifies the leader of a multi-master cluster.
+	// Required if the number of masters is more than 1.
 	// Default is not specified.
 	Leader bool
-	// Server is configuration of hetzner server.
+	// Server is the configuration of a Hetzner server.
 	Server *ServerConfig
-	// K3S is configuration of k3s cluster.
+	// K3S is the configuration of a k3s cluster.
 	K3s *k3s.Config
 	// K8S is common configuration for nodes.
 	K8S *k8sconfig.NodeConfig
-	// Role specifes role of server (server or agent). Do not set manually.
+	// Role specifies the role of the server (server or agent). Do not set manually.
 	// Default is computed.
 	Role string
 }
@@ -80,7 +80,7 @@ func (n *NodeConfig) GetID() string {
 type ServerConfig struct {
 	// ServerType specifies the type of server to be provisioned (e.g., "cx11", "cx21").
 	// Default is cx21.
-	ServerType string `json:"server-type" yaml:"server-type"`
+	ServerType string `json:"server-type" yaml:"server-type" mapstructure:"server-type"`
 
 	// Hostname is the desired hostname to assign to the server.
 	// Default is `phkh-${name-of-stack}-${id-of-node}`.
@@ -94,14 +94,14 @@ type ServerConfig struct {
 	Location string
 
 	// AdditionalSSHKeys contains a list of additional public SSH keys to install in the server's user account.
-	AdditionalSSHKeys []string `json:"additional-ssh-keys" yaml:"additional-ssh-keys"`
+	AdditionalSSHKeys []string `json:"additional-ssh-keys" yaml:"additional-ssh-keys" mapstructure:"additional-ssh-keys"`
 
 	// UserName is the primary user account name that will be created on the server.
 	// Default is rancher.
-	UserName string `json:"user-name" yaml:"user-name"`
+	UserName string `json:"user-name" yaml:"user-name" mapstructure:"user-name"`
 
 	// UserPasswd is the password for the primary user account on the server.
-	UserPasswd string `json:"user-password" yaml:"user-password"`
+	UserPasswd string `json:"user-password" yaml:"user-password" mapstructure:"user-password"`
 
 	// Image specifies the operating system image to use for the server (e.g., "ubuntu-20.04" or id of private image).
 	// Default is autodiscovered.

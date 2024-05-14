@@ -13,7 +13,13 @@
         "hcloud-kube-hetzner:index:Cluster": {
             "description": "Component for creating a Hetzner Cloud Kubernetes cluster.",
             "isComponent": true,
-            "inputProperties": {},
+            "inputProperties": {
+                "configuration": {
+                    "description": "The configuration for cluster",
+                    "type": "object",
+                    "required": true
+                }
+            },
             "properties": {
                 "kubeconfig": {
                     "description": "The kubeconfig for the cluster.",

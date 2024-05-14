@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"dario.cat/mergo"
+	"github.com/mitchellh/mapstructure"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/k8sconfig"
@@ -61,6 +62,17 @@ func New(ctx *pulumi.Context) *Config {
 		Defaults:  defaults,
 		K8S:       k8s,
 	}
+}
+
+func NewFromMap(ctx *pulumi.Context, cfg map[string]any) (*Config, error) {
+	var c *Config
+	if err := mapstructure.Decode(cfg, &c); err != nil {
+		return nil, err
+	}
+	fmt.Println(c)
+	c.ctx = ctx
+
+	return c, nil
 }
 
 // WithInited returns the parsed configuration for the cluster with all the defaults set.

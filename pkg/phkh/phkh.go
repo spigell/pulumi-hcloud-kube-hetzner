@@ -44,8 +44,14 @@ type Cluster struct {
 
 // New creates a new project instance.
 // It parses the config and compiles the project.
-func New(ctx *pulumi.Context, opts []pulumi.ResourceOption) (*PHKH, error) {
-	cfg := config.New(ctx).WithInited()
+func New(ctx *pulumi.Context, name string, configuration map[string]any, opts []pulumi.ResourceOption) (*PHKH, error) {
+	cfg2, err := config.NewFromMap(ctx, configuration)
+	if err != nil {
+		return nil, err
+	}
+
+	cfg := cfg2.WithInited()
+	// cfg := config.New(ctx).WithInited()
 
 	state, err := program.LoadStateFile(ctx)
 	if err != nil {

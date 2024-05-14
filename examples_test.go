@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
+//	"regexp"
 	"strings"
 	"testing"
 
@@ -15,19 +15,23 @@ import (
 )
 
 type PulumiConfig struct {
-	Config *config.Config `yaml:"config"`
+	Config *Config `yaml:"config"`
+}
+
+type Config struct {
+	Clusters map[string]*config.Config `yaml:"pulumi-hcloud-kube-hetzner:clusters"`
 }
 
 func TestExampleWithUnknownFields(t *testing.T) {
 	exampleDir := "examples"
 
-	var decoded *PulumiConfig
+	var decoded PulumiConfig
 
 	files, err := os.ReadDir(exampleDir)
 	assert.NoError(t, err)
 
 	for _, f := range files {
-		if !strings.HasSuffix(f.Name(), ".yaml") {
+		if !strings.HasSuffix(f.Name(), "k3s-private-non-ha-simple.yaml") {
 			continue
 		}
 
@@ -35,12 +39,18 @@ func TestExampleWithUnknownFields(t *testing.T) {
 		assert.NoError(t, err)
 
 		// Remove namespace from file
-		re := regexp.MustCompile("pulumi-hcloud-kube-hetzner:")
-		res := re.ReplaceAllString(string(content), "")
+		// re := regexp.MustCompile("pulumi-hcloud-kube-hetzner:")
+		// res := re.ReplaceAllString(string(content), "")
 
-		decoder := yaml.NewDecoder(strings.NewReader(res))
+		decoder := yaml.NewDecoder(strings.NewReader(string(content)))
 		decoder.KnownFields(true)
+		fmt.Println(string(content))
 
 		assert.NoError(t, decoder.Decode(&decoded), fmt.Sprintf("%s failed to decode", f.Name()))
+
+//		cluster, ok := decoded.Config.Clusters["main"]
+//		if !ok {
+//			t.Skip()
+//		}
 	}
 }

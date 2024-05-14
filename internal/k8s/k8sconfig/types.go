@@ -8,16 +8,16 @@ import (
 )
 
 type Config struct {
-	KubeAPIEndpoint *K8SEndpointConfig    `json:"kube-api-endpoint" yaml:"kube-api-endpoint"`
-	AuditLog        *audit.AuditLogConfig `json:"audit-log" yaml:"audit-log"`
+	KubeAPIEndpoint *K8SEndpointConfig    `json:"kube-api-endpoint" yaml:"kube-api-endpoint" mapstructure:"kube-api-endpoint"`
+	AuditLog        *audit.AuditLogConfig `json:"audit-log" yaml:"audit-log" mapstructure:"audit-log"`
 	Addons          *addons.Config
 }
 
 type NodeConfig struct {
-	// NodeLabels are used to lable the node with key=value.
-	NodeLabels []string `json:"node-label" yaml:"node-label,omitempty"`
+	// NodeLabels are used to label the node with key=value.
+	NodeLabels []string `json:"node-label" yaml:"node-label,omitempty" mapstructure:"node-label"`
 	// NodeTaints configures taint node manager.
-	NodeTaints *TaintConfig `json:"node-taint" yaml:"node-taint,omitempty"`
+	NodeTaints *TaintConfig `json:"node-taint" yaml:"node-taint,omitempty" mapstructure:"node-taint"`
 }
 
 type TaintConfig struct {
@@ -26,7 +26,7 @@ type TaintConfig struct {
 	Enabled *bool
 	// Do not add default taints to the server node.
 	// Default is false.
-	DisableDefaultsTaints *bool `json:"disable-default-taints" yaml:"disable-default-taints,omitempty"`
+	DisableDefaultsTaints *bool `json:"disable-default-taints" yaml:"disable-default-taints,omitempty" mapstructure:"disable-default-taints"`
 	// Taints are used to taint the node with key=value:effect.
 	// Default is server node is tainted with a couple of taints if number of agents nodes more than 0.
 	// But only if disable-default-taints set to false (default)
@@ -44,17 +44,17 @@ type K8SEndpointConfig struct {
 
 type BasicFirewallConfig struct {
 	// HetznerPublic is used to describe firewall attached to public k8s api endpoint.
-	HetznerPublic *HetnzerBasicFirewallConfig `json:"hetzner-public" yaml:"hetzner-public"`
+	HetznerPublic *HetnzerBasicFirewallConfig `json:"hetzner-public" yaml:"hetzner-public" mapstructure:"hetzner-public"`
 }
 
 type HetnzerBasicFirewallConfig struct {
 	// DisallowOwnIP is a security setting that, when enabled, prevents access to the server from deployer own public IP address.
-	DisallowOwnIP bool `json:"disallow-own-ip" yaml:"disallow-own-ip"`
+	DisallowOwnIP bool `json:"disallow-own-ip" yaml:"disallow-own-ip" mapstructure:"disallow-own-ip"`
 
 	// AllowedIps specifies a list of IP addresses that are permitted to access the k8s api endpoint.
 	// Only traffic from these IPs will be allowed if this list is configured.
 	// Default is 0.0.0.0/0 (all ipv4 addresses).
-	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
+	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips" mapstructure:"allowed-ips"`
 }
 
 func (k *Config) WithInited() *Config {

@@ -19,7 +19,9 @@ func (c *Cluster) Type() string {
 	return ComponentName
 }
 
-type ClusterArgs struct{}
+type ClusterArgs struct{
+	Configuration pulumi.Map  `pulumi:"configuration"`
+}
 
 func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
 	args *ClusterArgs, inputs provider.ConstructInputs, opts ...pulumi.ResourceOption,
@@ -39,9 +41,8 @@ func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
 		return nil, err
 	}
 
-	opts = append(opts, pulumi.Parent(c))
-
-	cluster, err := phkh.New(ctx, opts)
+	// This is doesn't work.
+	cluster, err := phkh.New(ctx, name, nil, opts)
 	if err != nil {
 		return nil, err
 	}

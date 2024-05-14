@@ -46,6 +46,7 @@ export class Cluster extends pulumi.ComponentResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
+            resourceInputs["configuration"] = args ? args.configuration : undefined;
             resourceInputs["kubeconfig"] = undefined /*out*/;
             resourceInputs["privatekey"] = undefined /*out*/;
             resourceInputs["servers"] = undefined /*out*/;
@@ -65,4 +66,8 @@ export class Cluster extends pulumi.ComponentResource {
  * The set of arguments for constructing a Cluster resource.
  */
 export interface ClusterArgs {
+    /**
+     * The configuration for cluster
+     */
+    configuration?: pulumi.Input<{[key: string]: pulumi.Input<string>}>;
 }
