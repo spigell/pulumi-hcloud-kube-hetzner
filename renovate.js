@@ -1,5 +1,7 @@
 module.exports = {
   branchPrefix: 'test-renovate/',
+  useBaseBranchConfig: 'merge',
+  baseBranches: ["ci/k3s-version-management"],
   enabledManagers: ["custom.regex"],
   username: 'renovate-release',
   gitAuthor: 'Renovate Bot <bot@renovateapp.com>',
