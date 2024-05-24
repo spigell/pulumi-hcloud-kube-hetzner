@@ -1,7 +1,6 @@
 package firewall
 
 import (
-	"fmt"
 	"strconv"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -87,10 +86,10 @@ func (f *Firewall) Up(ctx *program.Context, name string) (*Firewall, error) {
 		rules = append(rules, r)
 	}
 
-	created, err := hcloud.NewFirewall(ctx.Context(), name, &hcloud.FirewallArgs{
-		Name:  pulumi.String(fmt.Sprintf("%s-%s-%s", ctx.Context().Project(), ctx.Context().Stack(), name)),
+	created, err := program.PulumiRun(ctx, hcloud.NewFirewall, name, &hcloud.FirewallArgs{
+		Name:  pulumi.Sprintf("%s-%s", ctx.FullName(), name),
 		Rules: rules,
-	}, ctx.Options()...)
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -101,13 +100,13 @@ func (f *Firewall) Up(ctx *program.Context, name string) (*Firewall, error) {
 }
 
 func (f *Firewall) Attach(ctx *program.Context, name string, serverIDs pulumi.IntArray) (*hcloud.FirewallAttachment, error) {
-	created, err := hcloud.NewFirewallAttachment(ctx.Context(), name, &hcloud.FirewallAttachmentArgs{
+	created, err := program.PulumiRun(ctx, hcloud.NewFirewallAttachment, name, &hcloud.FirewallAttachmentArgs{
 		//nolint: gocritic // this is the only way to convert string to int
 		FirewallId: f.firewall.ID().ToStringOutput().ApplyT(func(id string) (int, error) {
 			return strconv.Atoi(id)
 		}).(pulumi.IntOutput),
 		ServerIds: serverIDs,
-	}, ctx.Options()...)
+	})
 	if err != nil {
 		return nil, err
 	}

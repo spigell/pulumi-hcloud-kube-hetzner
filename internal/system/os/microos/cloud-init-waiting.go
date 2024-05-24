@@ -15,17 +15,10 @@ func (m *MicroOS) WaitForCloudInit(ctx *program.Context, con *connection.Connect
 	// There is always error
 	cmd := "cloud-init status -l --wait 1>/dev/null || echo 'skip error since cloud-init status always returns error now. TO DO: see https://github.com/lima-vm/lima/issues/1496'"
 
-	opts := []pulumi.ResourceOption{
-		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "5m", Update: "5m"}),
-		pulumi.DependsOn(m.resources),
-	}
-
-	opts = append(opts, ctx.Options()...)
-
-	installed, err := remote.NewCommand(ctx.Context(), fmt.Sprintf("wait-for-cloudinit-%s", m.ID), &remote.CommandArgs{
+	installed, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("wait-for-cloudinit:%s", m.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.String(cmd),
-	}, opts...)
+	}, pulumi.DependsOn(m.resources))
 	if err != nil {
 		return err
 	}

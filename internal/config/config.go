@@ -6,71 +6,87 @@ import (
 	"sort"
 
 	"dario.cat/mergo"
-	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/config"
+	"github.com/mitchellh/mapstructure"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/k8sconfig"
 )
 
 const (
 	AgentRole  = "agent"
 	ServerRole = "server"
-	// ServerName must be a valid hostname.
-	// Since ctx.Project() can be a quite long string, prefix for server name is 4 character.
-	ServerNamePrefix = "phkh"
 )
 
 type Config struct {
-	ctx *pulumi.Context
-
 	// Nodepools is a map with agents and servers defined.
 	// Required for at least one server node.
 	// Default is not specified.
 	Nodepools *NodepoolsConfig
 	// Defaults is a map with default settings for agents and servers.
 	// Global values for all nodes can be set here as well.
-	// Can be empty, but required.
 	// Default is not specified.
 	Defaults *DefaultConfig
 	// Network defines network configuration for cluster.
-	// Can be empty, but required.
 	// Default is not specified.
 	Network *NetworkConfig
 	// K8S defines a distribution-agnostic cluster configuration.
-	// Can be empty, but required.
 	// Default is not specified.
 	K8S *k8sconfig.Config
 }
 
 // New returns the parsed configuration for the cluster as is without any modifications.
-func New(ctx *pulumi.Context) *Config {
-	var defaults *DefaultConfig
-	var nodepools *NodepoolsConfig
-	var network *NetworkConfig
-	var k8s *k8sconfig.Config
-	c := config.New(ctx, "")
+func New(cfg map[string]any) (*Config, error) {
+	var c *Config
 
-	c.RequireSecretObject("defaults", &defaults)
-	c.RequireSecretObject("nodepools", &nodepools)
-	c.RequireSecretObject("network", &network)
-	c.RequireSecretObject("k8s", &k8s)
-
-	return &Config{
-		ctx:       ctx,
-		Nodepools: nodepools,
-		Network:   network,
-		Defaults:  defaults,
-		K8S:       k8s,
+	// Copying with custom tag for preserving values from GO and TS SDKs in CamelCase.
+	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
+		TagName: "my-reserved-tag",
+		Result:  &c,
+	})
+	if err != nil {
+		return nil, err
 	}
+
+	if err := decoder.Decode(cfg); err != nil {
+		return nil, err
+	}
+
+	return c, nil
+}
+
+// New returns the parsed configuration for the cluster as is without any modifications.
+func NewFromMap(cfg map[string]any) (*Config, error) {
+	var c *Config
+
+	if err := mapstructure.Decode(cfg, &c); err != nil {
+		return nil, err
+	}
+
+	return c, nil
 }
 
 // WithInited returns the parsed configuration for the cluster with all the defaults set.
-// Nodepools and Nodes returned sorted.
+// Nodepools and Nodes are returned sorted.
 // This is required for the network module to work correctly when user changes order of nodepools and nodes.
 func (c *Config) WithInited() *Config {
+	if c.Network == nil {
+		c.Network = &NetworkConfig{}
+	}
+
+	if c.Defaults == nil {
+		c.Defaults = &DefaultConfig{}
+	}
+
+	if c.K8S == nil {
+		c.K8S = &k8sconfig.Config{}
+	}
+
+	if c.Nodepools == nil {
+		c.Nodepools = &NodepoolsConfig{}
+	}
+
 	c.Network.WithInited()
 	c.Defaults.WithInited()
 	c.K8S.WithInited()
-	c.Nodepools.WithInited(c.ctx)
+	c.Nodepools.WithInited()
 	c.Nodepools.SpecifyLeader()
 
 	// Sort

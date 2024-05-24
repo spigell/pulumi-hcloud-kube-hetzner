@@ -26,17 +26,18 @@ func (u *Upgrader) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt 
 	}
 
 	// Create ns
-	ns, err := corev1.NewNamespace(ctx.Context(), Namespace, &corev1.NamespaceArgs{
+	ns, err := program.PulumiRun(ctx, corev1.NewNamespace, Namespace, &corev1.NamespaceArgs{
 		Metadata: &metav1.ObjectMetaArgs{
 			Name: pulumi.String(Namespace),
 		},
-	}, append(ctx.Options(), pulumi.Provider(prov))...)
+	}, pulumi.Provider(prov))
 	if err != nil {
 		return fmt.Errorf("unable to create namespace: %w", err)
 	}
 
 	// Use Chart in sake of Transformations.
-	deployed, err := helmv3.NewChart(ctx.Context(), Name, helmv3.ChartArgs{
+	// It is not possible to use RunPulumi now coz the ':' is not valid for yaml rendering.
+	deployed, err := helmv3.NewChart(ctx.Context(), fmt.Sprintf("%s-%s", ctx.ClusterName(), Name), helmv3.ChartArgs{
 		Chart:     pulumi.String(helmChart),
 		Namespace: ns.Metadata.Name().Elem(),
 		Version:   pulumi.String(u.helm.Version),
@@ -46,9 +47,20 @@ func (u *Upgrader) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt 
 		Values: pulumi.Map{
 			"tolerations": pulumi.ToMapArray(manager.ComputeTolerationsFromNodes(mgmt.Nodes())),
 			"configEnv":   utils.ToPulumiMap(u.configEnv, "="),
+			"serviceAccount": pulumi.Map{
+				"name": pulumi.Sprintf("%s-%s", ctx.ClusterName(), Name),
+			},
 		},
 		Transformations: []yaml.Transformation{
 			func(state map[string]interface{}, _ ...pulumi.ResourceOption) {
+				// The chart has a hardcoded value for clusterrolebinging.
+				// It is required for deploying several clusters in the same stack.
+				if state["kind"] == "ClusterRoleBinding" {
+					metadata := state["metadata"].(map[string]interface{})
+					name := fmt.Sprintf("%s-%s", ctx.ClusterName(), metadata["name"].(string))
+
+					metadata["name"] = name
+				}
 				if state["kind"] == "Deployment" {
 					// Deleting taints via in underlayed manager can lead to infinity loop.
 					// Skip waiting for the deployment for now.
@@ -84,11 +96,10 @@ func (u *Upgrader) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt 
 				}
 			},
 		},
-	},
-		append(ctx.Options(),
-			pulumi.Provider(prov),
-			pulumi.DeleteBeforeReplace(true),
-		)...)
+	}, append(ctx.Options(),
+		pulumi.Provider(prov),
+		pulumi.DeleteBeforeReplace(true),
+	)...)
 	if err != nil {
 		return fmt.Errorf("unable to create helm release: %w", err)
 	}

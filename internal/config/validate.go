@@ -30,7 +30,9 @@ var (
 // If checking requires only one specific part of the configuration in Validate() method of that part.
 func (c *Config) Validate(nodes []*NodeConfig) error {
 	errs := make([]string, 0)
-	validators := make([]func([]*NodeConfig) error, 0)
+	validators := []func([]*NodeConfig) error{
+		c.ValidateNodes,
+	}
 
 	if ccm := c.K8S.Addons.CCM; ccm != nil {
 		validators = append(validators, c.ValidateCCM)
@@ -46,7 +48,18 @@ func (c *Config) Validate(nodes []*NodeConfig) error {
 		}
 	}
 
-	leaderFounded := false
+	if len(errs) > 0 {
+		return fmt.Errorf("config validation failed: errors: %s", strings.Join(errs, "|"))
+	}
+
+	return nil
+}
+
+func (c *Config) ValidateNodes(merged []*NodeConfig) error {
+	if len(merged) == 0 {
+		return errors.New("at least one nodepools and node must be specified")
+	}
+
 	// k8s endpoint types are the same as communication methods.
 	// Let's reuse it
 	if c.K8S.KubeAPIEndpoint.Type != "" {
@@ -58,7 +71,12 @@ func (c *Config) Validate(nodes []*NodeConfig) error {
 			return errInternalNetworkDisabled
 		}
 	}
-	for _, node := range nodes {
+
+	leaderFounded := false
+	for _, node := range merged {
+		if node.NodeID == "" {
+			return errors.New("ID for node must be set")
+		}
 		if node.Leader {
 			if node.Role == AgentRole {
 				return errAgentLeader
@@ -73,10 +91,6 @@ func (c *Config) Validate(nodes []*NodeConfig) error {
 	}
 	if !leaderFounded {
 		return errNoLeader
-	}
-
-	if len(errs) > 0 {
-		return fmt.Errorf("config validation failed: errors: %s", strings.Join(errs, "|"))
 	}
 
 	return nil

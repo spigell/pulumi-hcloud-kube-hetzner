@@ -18,7 +18,7 @@ const (
 var installCommand = fmt.Sprintf(strings.Join([]string{
 	// Check if initial install or upgrade.
 	"sudo mkdir -p %s && if [[ -e %s ]]; then restart=true; fi",
-	"curl -sfL https://get.k3s.io | sudo -E sh -x - 2>&1 >> /tmp/k3s-install-pulumi.log",
+	"curl -sfL https://get.k3s.io | sudo -E sh - 2>&1 >> /tmp/k3s-install-pulumi.log",
 	"sudo systemctl daemon-reload",
 	// Fix selinux context
 	"sudo /sbin/restorecon -v %s",
@@ -30,7 +30,7 @@ var installCommand = fmt.Sprintf(strings.Join([]string{
 func (k *K3S) install(ctx *program.Context, con *connection.Connection, deps []pulumi.Resource) (pulumi.Resource, error) {
 	k3sExec := k.role
 
-	installed, err := remote.NewCommand(ctx.Context(), fmt.Sprintf("install-k3s-binary-for-%s", k.ID), &remote.CommandArgs{
+	installed, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("install-k3s-binary:%s", k.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Environment: pulumi.StringMap{
 			"INSTALL_K3S_SKIP_START":       pulumi.String("true"),
@@ -42,11 +42,10 @@ func (k *K3S) install(ctx *program.Context, con *connection.Connection, deps []p
 		Create: pulumi.String(installCommand),
 		Delete: pulumi.String("/usr/local/bin/k3s-killall.sh"),
 	},
-		append(ctx.Options(),
-			pulumi.DependsOn(deps),
-			pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m", Delete: "10m"}),
-			pulumi.RetainOnDelete(!k.Config.CleanDataOnUpgrade),
-		)...)
+		pulumi.DependsOn(deps),
+		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m", Delete: "10m"}),
+		pulumi.RetainOnDelete(!k.Config.CleanDataOnUpgrade),
+	)
 	if err != nil {
 		return nil, fmt.Errorf("error install a k3s cluster via script: %w", err)
 	}

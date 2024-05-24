@@ -2,6 +2,8 @@
 // *** Do not edit by hand unless you're certain you know what you are doing! ***
 
 import * as pulumi from "@pulumi/pulumi";
+import * as inputs from "./types/input";
+import * as outputs from "./types/output";
 import * as utilities from "./utilities";
 
 /**
@@ -25,15 +27,15 @@ export class Cluster extends pulumi.ComponentResource {
     /**
      * The kubeconfig for the cluster.
      */
-    public /*out*/ readonly kubeconfig!: pulumi.Output<string>;
+    public /*out*/ readonly kubeconfig!: pulumi.Output<string | undefined>;
     /**
-     * The private key for nodes
+     * The private key for nodes.
      */
-    public /*out*/ readonly privatekey!: pulumi.Output<string>;
+    public /*out*/ readonly privatekey!: pulumi.Output<string | undefined>;
     /**
-     * The servers for the cluster.
+     * Information about hetnzer servers.
      */
-    public /*out*/ readonly servers!: pulumi.Output<{[key: string]: string}[]>;
+    public /*out*/ readonly servers!: pulumi.Output<outputs.cluster.Servers[] | undefined>;
 
     /**
      * Create a Cluster resource with the given unique name, arguments, and options.
@@ -46,6 +48,8 @@ export class Cluster extends pulumi.ComponentResource {
         let resourceInputs: pulumi.Inputs = {};
         opts = opts || {};
         if (!opts.id) {
+            resourceInputs["config"] = args ? args.config : undefined;
+            resourceInputs["useKebabConfigFormat"] = (args ? args.useKebabConfigFormat : undefined) ?? false;
             resourceInputs["kubeconfig"] = undefined /*out*/;
             resourceInputs["privatekey"] = undefined /*out*/;
             resourceInputs["servers"] = undefined /*out*/;
@@ -55,8 +59,6 @@ export class Cluster extends pulumi.ComponentResource {
             resourceInputs["servers"] = undefined /*out*/;
         }
         opts = pulumi.mergeOptions(utilities.resourceOptsDefaults(), opts);
-        const secretOpts = { additionalSecretOutputs: ["kubeconfig", "privatekey"] };
-        opts = pulumi.mergeOptions(opts, secretOpts);
         super(Cluster.__pulumiType, name, resourceInputs, opts, true /*remote*/);
     }
 }
@@ -65,4 +67,19 @@ export class Cluster extends pulumi.ComponentResource {
  * The set of arguments for constructing a Cluster resource.
  */
 export interface ClusterArgs {
+    /**
+     * Configuration for the cluster. 
+     * Can be Struct or pulumi.Map types. 
+     * Despite of the fact that SDK can accept multiple types it is recommended to use strong typep struct if possible. 
+     * Caution: Not all configuration options for k3s cluster are available. 
+     * Additional information can be found at https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md
+     */
+    config?: pulumi.Input<inputs.cluster.ConfigConfigArgs | {[key: string]: pulumi.Input<string>}>;
+    /**
+     * Instruct parser to use kebab-case for configuration when using Map format. 
+     * It must be a map with string keys. 
+     * All available configuration options can be found here - https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md. 
+     * Useful for direct parsing from configuration files.
+     */
+    useKebabConfigFormat?: pulumi.Input<boolean>;
 }

@@ -3,8 +3,8 @@ on:
   - pull_request
 
 jobs:
-  generate-docs:
-    name: Generate documentation
+  generate:
+    name: Update schema, SDK and documentation
     permissions:
       contents: write
     runs-on: ubuntu-latest
@@ -20,13 +20,22 @@ jobs:
         go-version-file: go.mod
     - name: Generate docs
       run: go run ./cmd/generate-docs/main.go ./internal > docs/parameters.md
+    - name: Generate SDK and schema
+      run: make generate
+      working-directory: pulumi-component
+    - name: Build SDK
+      run: make build_nodejs_sdk
+      working-directory: pulumi-component
     - name: Check for changes
-      id: changes
       run: |
         git config --local user.email "github-actions[bot]@users.noreply.github.com"
         git config --local user.name "github-actions[bot]"
         git add docs/parameters.md
-        git commit -m "[auto] update docs" || echo 'No changes'
+        git commit -m "[auto] update docs" || echo 'Docs: no changes'
+        git add pulumi-component/sdk
+        git commit -m "[auto] update SDK" || echo 'SDK: no changes'
+        git add pulumi-component/provider/cmd/pulumi-resource-hcloud-kube-hetzner/schema.json 
+        git commit -m "[auto] update schema" || echo 'schema: no changes'
     - name: Push changes
       uses: ad-m/github-push-action@master
       with:

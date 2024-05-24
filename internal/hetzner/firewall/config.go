@@ -5,7 +5,7 @@ import (
 )
 
 type Config struct {
-	// dedicated indicates whether the server is on a dedicated hardware.
+	// dedicated indicates whether the server is on dedicated hardware.
 	dedicated bool
 
 	// dedicatedPool specifies if the server is part of a dedicated pool.
@@ -20,13 +20,13 @@ type Config struct {
 
 	// AllowICMP indicates whether ICMP traffic is allowed.
 	// Default is false.
-	AllowICMP *bool `json:"allow-icmp" yaml:"allow-icmp"`
+	AllowICMP *bool `json:"allow-icmp" yaml:"allow-icmp" mapstructure:"allow-icmp"`
 
 	// SSH holds the SSH specific configurations.
 	SSH *SSHConfig
 
 	// AdditionalRules is a list of additional rules to be applied.
-	AdditionalRules []*RuleConfig `json:"additional-rules" yaml:"additional-rules"`
+	AdditionalRules []*RuleConfig `json:"additional-rules" yaml:"additional-rules" mapstructure:"additional-rules"`
 }
 
 type SSHConfig struct {
@@ -36,10 +36,10 @@ type SSHConfig struct {
 
 	// DisallowOwnIP specifies whether SSH access from the deployer's own IP address is disallowed.
 	// Default is false.
-	DisallowOwnIP *bool `json:"disallow-own-ip" yaml:"disallow-own-ip"`
+	DisallowOwnIP *bool `json:"disallow-own-ip" yaml:"disallow-own-ip" mapstructure:"disallow-own-ip"`
 
 	// AllowedIps lists specific IP addresses that are permitted to access via SSH.
-	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips"`
+	AllowedIps []string `json:"allowed-ips" yaml:"allowed-ips" mapstructure:"allowed-ips"`
 }
 
 type RuleConfig struct {
@@ -51,12 +51,12 @@ type RuleConfig struct {
 	Protocol string
 
 	// Port specifies the network port number or range applicable for the rule.
-	// Required
+	// Required.
 	Port string
 
 	// SourceIps lists IP addresses or subnets from which traffic is allowed or to which traffic is directed, based on the Direction.
 	// Required.
-	SourceIps []string `json:"source-ips" yaml:"source-ips"`
+	SourceIps []string `json:"source-ips" yaml:"source-ips" mapstructure:"source-ips"`
 
 	// Description provides a human-readable explanation of what the rule is intended to do.
 	Description string

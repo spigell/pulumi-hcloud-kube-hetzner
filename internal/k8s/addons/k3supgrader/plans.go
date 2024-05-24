@@ -73,17 +73,16 @@ func (u *Upgrader) DeployPlans(ctx *program.Context, ns *corev1.Namespace, prov 
 
 	for name, spec := range plans {
 		spec = u.specifyVersionAndChannel(spec)
-		if _, err := upgradev1.NewPlan(ctx.Context(), name, &upgradev1.PlanArgs{
+		if _, err := program.PulumiRun(ctx, upgradev1.NewPlan, name, &upgradev1.PlanArgs{
 			Metadata: &metav1.ObjectMetaArgs{
 				Name:      pulumi.String(name),
 				Namespace: ns.Metadata.Name(),
 			},
 			Spec: spec,
-		}, append(
-			ctx.Options(),
+		},
 			pulumi.Provider(prov),
 			pulumi.DependsOnInputs(deps),
-		)...); err != nil {
+		); err != nil {
 			return err
 		}
 	}

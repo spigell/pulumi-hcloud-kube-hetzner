@@ -8,12 +8,12 @@ CODEGEN         := pulumi-gen-${PACK}
 VERSION_PATH    := pulumi-component/provider/pkg/version.Version
 
 WORKING_DIR     := $(shell pwd)
-SCHEMA_PATH     := ${WORKING_DIR}/schema.json
+SCHEMA_PATH     := ${WORKING_DIR}/provider/cmd/${PROVIDER}/schema.json
 
 GOPATH          := $(shell go env GOPATH)
 
 # generate:: gen_go_sdk gen_dotnet_sdk gen_nodejs_sdk gen_python_sdk
-generate:: gen_go_sdk gen_nodejs_sdk
+generate:: generate_schema gen_go_sdk gen_nodejs_sdk
 
 # build:: build_provider build_dotnet_sdk build_nodejs_sdk build_python_sdk
 build:: build_provider build_nodejs_sdk
@@ -24,21 +24,24 @@ install:: install_provider install_nodejs_sdk
 # Provider
 
 generate_schema::
+	cd provider/cmd/$(CODEGEN) && go run . schema ../$(PROVIDER)
 	cd provider/cmd/${PROVIDER} && VERSION=${VERSION} SCHEMA=${SCHEMA_PATH} go generate main.go
 
 build_provider:: generate_schema
 	rm -rf ${WORKING_DIR}/bin/${PROVIDER}
-	cd provider/cmd/${PROVIDER} && go build -o ${WORKING_DIR}/bin/${PROVIDER} -ldflags "-X ${PROJECT}/${VERSION_PATH}=${VERSION}" .
+	cd provider/cmd/${PROVIDER} && go build -o ${WORKING_DIR}/bin/${PROVIDER} -ldflags "-X ${PROJECT}/${VERSION_PATH}=${VERSION}" -gcflags 'all=-N -l' .
 
 install_provider:: build_provider
 	cp ${WORKING_DIR}/bin/${PROVIDER} ${GOPATH}/bin
 
+start_delve:
+	dlv debug --listen=:2345 --headless=true --api-version=2 --build-flags="-gcflags 'all=-N -l'" ./provider/cmd/${PROVIDER}/ --accept-multiclient --api-version=2 --continue --wd ../test-project --output ${WORKING_DIR}/bin/${PROVIDER}
 
 # Go SDK
 
 gen_go_sdk::
 	rm -rf sdk/go
-	cd provider/cmd/${CODEGEN} && go run . go ../../../sdk/go ${SCHEMA_PATH}
+	cd provider/cmd/${CODEGEN} && go run . go ../../../sdk/go ${SCHEMA_PATH} $(VERSION)
 
 
 # .NET SDK
@@ -63,7 +66,7 @@ install_dotnet_sdk:: build_dotnet_sdk
 
 gen_nodejs_sdk::
 	rm -rf sdk/nodejs
-	cd provider/cmd/${CODEGEN} && go run . nodejs ../../../sdk/nodejs ${SCHEMA_PATH}
+	cd provider/cmd/${CODEGEN} && go run . nodejs ../../../sdk/nodejs ${SCHEMA_PATH} $(VERSION)
 
 build_nodejs_sdk:: VERSION := $(shell pulumictl get version --language javascript)
 build_nodejs_sdk:: gen_nodejs_sdk

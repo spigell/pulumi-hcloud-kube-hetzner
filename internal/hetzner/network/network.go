@@ -106,10 +106,10 @@ func (n *Network) PickSubnet(id string, from string) error {
 }
 
 func (n *Network) Up() (*Deployed, error) {
-	net, err := hcloud.NewNetwork(n.ctx.Context(), fmt.Sprintf("%s-%s", n.ctx.Context().Project(), n.ctx.Context().Stack()), &hcloud.NetworkArgs{
+	net, err := program.PulumiRun(n.ctx, hcloud.NewNetwork, "private-network", &hcloud.NetworkArgs{
 		IpRange: pulumi.String(n.Config.CIDR),
-		Name:    pulumi.String(fmt.Sprintf("%s-%s", n.ctx.Context().Project(), n.ctx.Context().Stack())),
-	}, n.ctx.Options()...)
+		Name:    pulumi.String(n.ctx.FullName()),
+	}, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -121,12 +121,12 @@ func (n *Network) Up() (*Deployed, error) {
 	subnets := make(map[string]*Subnet)
 	for _, subnet := range n.ipam.Subnets {
 		if subnet.Used {
-			s, err := hcloud.NewNetworkSubnet(n.ctx.Context(), subnet.ID, &hcloud.NetworkSubnetArgs{
+			s, err := program.PulumiRun(n.ctx, hcloud.NewNetworkSubnet, subnet.ID, &hcloud.NetworkSubnetArgs{
 				NetworkId:   converted,
 				Type:        pulumi.String(hcloudapi.NetworkSubnetTypeCloud),
 				IpRange:     pulumi.String(subnet.CIDR),
 				NetworkZone: pulumi.String(n.Config.Zone),
-			}, append(n.ctx.Options(), pulumi.DeleteBeforeReplace(true))...)
+			}, pulumi.DeleteBeforeReplace(true))
 			if err != nil {
 				return nil, fmt.Errorf("failed to create subnet %s: %w", subnet.ID, err)
 			}

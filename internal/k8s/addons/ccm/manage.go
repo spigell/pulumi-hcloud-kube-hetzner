@@ -27,7 +27,7 @@ func (m *CCM) Manage(ctx *program.Context, prov *kubernetes.Provider, _ *manager
 		return fmt.Errorf("unable to discover hcloud token: %w", err)
 	}
 
-	secret, err := corev1.NewSecret(ctx.Context(), name, &corev1.SecretArgs{
+	secret, err := program.PulumiRun(ctx, corev1.NewSecret, name, &corev1.SecretArgs{
 		Metadata: &metav1.ObjectMetaArgs{
 			// hcloud is hardcoded secretn name in ccm helm chart.
 			Name:      pulumi.String("hcloud"),
@@ -37,15 +37,15 @@ func (m *CCM) Manage(ctx *program.Context, prov *kubernetes.Provider, _ *manager
 			"token": pulumi.String(token),
 			// If networking is disabled it is doesn't used.
 			// But it will be created anyway.
-			"network": pulumi.Sprintf("%s-%s", ctx.Context().Project(), ctx.Context().Stack()),
+			// TO DO: it must be aligned with name of network in the cloud!
+			"network": pulumi.String(ctx.FullName()),
 		},
-		//	}, append(ctx.Options(), pulumi.Provider(prov), pulumi.DependsOn(mgmt.Resources()))...)
-	}, append(ctx.Options(), pulumi.Provider(prov))...)
+	}, pulumi.Provider(prov))
 	if err != nil {
 		return fmt.Errorf("unable to create secret: %w", err)
 	}
 
-	_, err = helmv3.NewRelease(ctx.Context(), name, &helmv3.ReleaseArgs{
+	_, err = program.PulumiRun(ctx, helmv3.NewRelease, name, &helmv3.ReleaseArgs{
 		Chart:     pulumi.String(name),
 		Namespace: pulumi.String(namespace),
 		Version:   pulumi.String(m.helm.Version),
@@ -76,12 +76,11 @@ func (m *CCM) Manage(ctx *program.Context, prov *kubernetes.Provider, _ *manager
 				},
 			},
 		},
-	}, append(
-		ctx.Options(),
+	},
 		pulumi.Provider(prov),
 		pulumi.DeleteBeforeReplace(true),
 		pulumi.DependsOn([]pulumi.Resource{secret}),
-	)...)
+	)
 	if err != nil {
 		return fmt.Errorf("unable to create helm release: %w", err)
 	}

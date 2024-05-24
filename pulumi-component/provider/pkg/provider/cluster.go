@@ -1,7 +1,11 @@
 package provider
 
 import (
+	"encoding/json"
+	"fmt"
+
 	"github.com/pkg/errors"
+	"github.com/pulumi/pulumi-command/sdk/go/command/local"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi/provider"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
@@ -16,44 +20,67 @@ type Cluster struct {
 }
 
 func (c *Cluster) Type() string {
-	return ComponentName
+	return ProviderName + ":index:Cluster"
 }
 
-type ClusterArgs struct{}
+type ClusterArgs struct {
+	Config               pulumi.MapOutput  `pulumi:"config"`
+	UseKebabConfigFormat pulumi.BoolOutput `pulumi:"useKebabConfigFormat"`
+}
 
-func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
+func construct(ctx *pulumi.Context, c *Cluster, name string,
 	args *ClusterArgs, inputs provider.ConstructInputs, opts ...pulumi.ResourceOption,
 ) (*provider.ConstructResult, error) {
-	// Ensure we have the right token.
-	if et := c.Type(); typ != et {
-		return nil, errors.Errorf("unknown resource type %s; expected %s", typ, et)
-	}
-
 	// Blit the inputs onto the arguments struct.
 	if err := inputs.CopyTo(args); err != nil {
 		return nil, errors.Wrap(err, "setting args")
 	}
 
 	// Register our component resource.
-	if err := ctx.RegisterComponentResource(typ, name, c, opts...); err != nil {
+	if err := ctx.RegisterComponentResource(c.Type(), name, c, opts...); err != nil {
 		return nil, err
 	}
 
-	opts = append(opts, pulumi.Parent(c))
+	finalizer, err := local.NewCommand(ctx, fmt.Sprintf("%s-finalizer", name), &local.CommandArgs{
+		Create: pulumi.All(args.UseKebabConfigFormat, args.Config).ApplyT(
+			func(args []any) (v pulumi.StringOutput, err error) {
+				cfg, native := args[1].(map[string]any), args[0].(bool)
 
-	cluster, err := phkh.New(ctx, opts)
+				cluster, err := phkh.NewCluster(ctx, name, native, cfg, opts)
+				if err != nil {
+					return v, err
+				}
+
+				deployed, err := cluster.Up()
+				if err != nil {
+					return v, err
+				}
+
+				// Create json map manually since json.Marshal can't process output values.
+				outputs := pulumi.Sprintf(`{
+					"%s": %s,
+					"%s": %s,
+					"%s": %s
+				}`,
+					phkh.KubeconfigKey,
+					pulumi.JSONMarshal(deployed.Kubeconfig),
+					phkh.HetznerServersKey,
+					pulumi.JSONMarshal(deployed.Servers),
+					phkh.PrivatekeyKey,
+					pulumi.JSONMarshal(deployed.Privatekey),
+				)
+
+				return pulumi.Sprintf("echo '%s' ", outputs), nil
+			}).(pulumi.StringOutput),
+	},
+	)
 	if err != nil {
 		return nil, err
 	}
 
-	deployed, err := cluster.Up()
-	if err != nil {
-		return nil, err
-	}
-
-	c.HetznerServers = pulumi.ToMapArray(deployed.Servers).ToMapArrayOutput()
-	c.Kubeconfig = deployed.Kubeconfig
-	c.Privatekey = deployed.PrivateKey
+	c.HetznerServers = getPulumiKey(finalizer.Stdout, phkh.HetznerServersKey).AsMapArrayOutput()
+	c.Kubeconfig = pulumi.ToSecret(getPulumiKey(finalizer.Stdout, phkh.KubeconfigKey).AsStringOutput()).(pulumi.StringOutput)
+	c.Privatekey = pulumi.ToSecret(getPulumiKey(finalizer.Stdout, phkh.PrivatekeyKey).AsStringOutput()).(pulumi.StringOutput)
 
 	if err := ctx.RegisterResourceOutputs(c, pulumi.Map{
 		phkh.HetznerServersKey: c.HetznerServers,
@@ -64,4 +91,17 @@ func construct(ctx *pulumi.Context, c *Cluster, typ, name string,
 	}
 
 	return provider.NewConstructResult(c)
+}
+
+func getPulumiKey(state pulumi.StringOutput, key string) pulumi.AnyOutput {
+	return state.ApplyT(func(keys string) (any, error) {
+		var c map[string]any
+
+		err := json.Unmarshal([]byte(keys), &c)
+		if err != nil {
+			return "", err
+		}
+
+		return c[key], nil
+	}).(pulumi.AnyOutput)
 }

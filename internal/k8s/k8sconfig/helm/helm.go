@@ -17,7 +17,7 @@ type Config struct {
 
 	// ValuesFilePaths is a list of path/to/file to values files.
 	// See https://www.pulumi.com/registry/packages/kubernetes/api-docs/helm/v3/release/#valueyamlfiles_nodejs for details.
-	ValuesFilePath []string `json:"values-files" yaml:"values-files"`
+	ValuesFilePath []string `json:"values-files" yaml:"values-files" mapstructure:"values-files"`
 	// Version is version of helm chart.
 	// Default is taken from default-helm-versions.yaml in template's versions directory.
 	Version string

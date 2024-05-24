@@ -15,7 +15,7 @@ type Config struct {
 	// CCM defines configuration [hetzner-cloud-controller-manager](https://github.com/hetznercloud/hcloud-cloud-controller-manager).
 	CCM *ccm.Config
 	// K3SSystemUpgrader defines configuration for [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller).
-	K3SSystemUpgrader *k3supgrader.Config `json:"k3s-upgrade-controller" yaml:"k3s-upgrade-controller"`
+	K3SSystemUpgrader *k3supgrader.Config `json:"k3s-upgrade-controller" yaml:"k3s-upgrade-controller" mapstructure:"k3s-upgrade-controller"`
 }
 
 type Addon interface {

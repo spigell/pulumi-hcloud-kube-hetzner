@@ -11,8 +11,15 @@ type AllowAllRules struct {
 
 func NewAllowAllRules() *AllowAllRules {
 	rules := make([]*RuleConfig, 0)
-
-	rules = append(rules, ICMPRule)
+	rules = append(rules, &RuleConfig{
+		Protocol:    "icmp",
+		Description: "Allow ICMP for cluster nodes",
+		Port:        "",
+		SourceIps: []string{
+			"0.0.0.0/0",
+			"::/0",
+		},
+	})
 	rules = append(rules, &RuleConfig{
 		Protocol:    string(hcloud.FirewallRuleProtocolTCP),
 		Description: "Allow all tcp for cluster nodes",

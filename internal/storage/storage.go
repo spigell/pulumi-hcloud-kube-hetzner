@@ -48,7 +48,7 @@ func (s *Storage) Store(ctx *program.Context) error {
 		s.opts = append(s.opts, pulumi.IgnoreChanges([]string{"create"}))
 	}
 
-	out, err := local.NewCommand(ctx.Context(), s.Name, &local.CommandArgs{
+	out, err := program.PulumiRun(ctx, local.NewCommand, s.Name, &local.CommandArgs{
 		Create: pulumi.ToSecret(pulumi.Sprintf("echo %s", encoded)).(pulumi.StringOutput),
 	}, s.opts...)
 	if err != nil {

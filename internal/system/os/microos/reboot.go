@@ -16,14 +16,14 @@ import (
 )
 
 func (m *MicroOS) Reboot(ctx *program.Context, con *connection.Connection) error {
-	rebooted, err := remote.NewCommand(ctx.Context(), fmt.Sprintf("reboot-%s", m.ID), &remote.CommandArgs{
+	rebooted, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("reboot:%s", m.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		// Use very primitive way to reboot node.
 		Create:   pulumi.String("(sleep 1 && sudo /sbin/shutdown -r now) &"),
 		Triggers: utils.ExtractRemoteCommandResources(m.resources),
-	}, append(ctx.Options(), pulumi.DependsOn(m.resources),
+	}, pulumi.DependsOn(m.resources),
 		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "2m"}),
-	)...)
+	)
 	if err != nil {
 		return fmt.Errorf("error reboot node: %w", err)
 	}
@@ -31,11 +31,14 @@ func (m *MicroOS) Reboot(ctx *program.Context, con *connection.Connection) error
 	m.resources = append(m.resources, rebooted)
 
 	rebootCheckerDir := "tmp/reboot-checker"
-	rebootCheckerBinaryPath := filepath.Join(rebootCheckerDir, fmt.Sprintf("reboot-checker-for-%s", m.ID))
+	rebootCheckerBinaryPath := filepath.Join(rebootCheckerDir, fmt.Sprintf("reboot-checker-for-%s-%s",
+		ctx.ClusterName(),
+		m.ID),
+	)
 
 	waitCommand := pulumi.Sprintf(strings.Join([]string{
 		"mkdir -p %s",
-		"curl -L -o %s https://github.com/spigell/pulumi-hcloud-kube-hetzner/releases/download/v0.0.3/reboot-checker-v0.0.3-%s-%s",
+		"curl -sL -o %s https://github.com/spigell/pulumi-hcloud-kube-hetzner/releases/download/v0.0.3/reboot-checker-v0.0.3-%s-%s",
 		"chmod +x %s",
 		"%s %s %s",
 	}, " && "),
@@ -49,7 +52,7 @@ func (m *MicroOS) Reboot(ctx *program.Context, con *connection.Connection) error
 		con.User,
 	)
 
-	waited, err := local.NewCommand(ctx.Context(), fmt.Sprintf("local-wait-for-%s", m.ID), &local.CommandArgs{
+	waited, err := program.PulumiRun(ctx, local.NewCommand, fmt.Sprintf("local-wait:%s", m.ID), &local.CommandArgs{
 		Create: waitCommand,
 		Update: pulumi.String("echo 'checker already used before. Skipping...'"),
 		Environment: pulumi.StringMap{

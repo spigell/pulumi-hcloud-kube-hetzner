@@ -40,13 +40,13 @@ func (e *Example) NodesIDs() []string {
 
 	for _, pool := range e.Decoded.Nodepools.Agents {
 		for _, n := range pool.Nodes {
-			ids = append(ids, n.ID)
+			ids = append(ids, n.NodeID)
 		}
 	}
 
 	for _, pool := range e.Decoded.Nodepools.Servers {
 		for _, n := range pool.Nodes {
-			ids = append(ids, n.ID)
+			ids = append(ids, n.NodeID)
 		}
 	}
 
@@ -59,7 +59,7 @@ func (e *Example) UniqConfigsByNodes() map[string]*config.NodeConfig {
 	for _, pool := range e.Decoded.Nodepools.Agents {
 		for _, n := range pool.Nodes {
 			if n.Server != nil || n.K3s != nil {
-				configs[n.ID] = n
+				configs[n.NodeID] = n
 			}
 		}
 	}
@@ -67,7 +67,7 @@ func (e *Example) UniqConfigsByNodes() map[string]*config.NodeConfig {
 	for _, pool := range e.Decoded.Nodepools.Servers {
 		for _, n := range pool.Nodes {
 			if n.Server != nil || n.K3s != nil {
-				configs[n.ID] = n
+				configs[n.NodeID] = n
 			}
 		}
 	}

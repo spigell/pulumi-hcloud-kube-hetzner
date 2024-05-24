@@ -8,6 +8,7 @@ import (
 	"reflect"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/sdk/go/hcloud-kube-hetzner/cluster"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/sdk/go/hcloud-kube-hetzner/internal"
 )
 
@@ -16,11 +17,11 @@ type Cluster struct {
 	pulumi.ResourceState
 
 	// The kubeconfig for the cluster.
-	Kubeconfig pulumi.StringOutput `pulumi:"kubeconfig"`
-	// The private key for nodes
-	Privatekey pulumi.StringOutput `pulumi:"privatekey"`
-	// The servers for the cluster.
-	Servers pulumi.StringMapArrayOutput `pulumi:"servers"`
+	Kubeconfig pulumi.StringPtrOutput `pulumi:"kubeconfig"`
+	// The private key for nodes.
+	Privatekey pulumi.StringPtrOutput `pulumi:"privatekey"`
+	// Information about hetnzer servers.
+	Servers cluster.ServersArrayOutput `pulumi:"servers"`
 }
 
 // NewCluster registers a new resource with the given unique name, arguments, and options.
@@ -30,11 +31,9 @@ func NewCluster(ctx *pulumi.Context,
 		args = &ClusterArgs{}
 	}
 
-	secrets := pulumi.AdditionalSecretOutputs([]string{
-		"kubeconfig",
-		"privatekey",
-	})
-	opts = append(opts, secrets)
+	if args.UseKebabConfigFormat == nil {
+		args.UseKebabConfigFormat = pulumi.BoolPtr(false)
+	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource Cluster
 	err := ctx.RegisterRemoteComponentResource("hcloud-kube-hetzner:index:Cluster", name, args, &resource, opts...)
@@ -45,10 +44,32 @@ func NewCluster(ctx *pulumi.Context,
 }
 
 type clusterArgs struct {
+	// Configuration for the cluster.
+	// Can be Struct or pulumi.Map types.
+	// Despite of the fact that SDK can accept multiple types it is recommended to use strong typep struct if possible.
+	// Caution: Not all configuration options for k3s cluster are available.
+	// Additional information can be found at https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md
+	Config interface{} `pulumi:"config"`
+	// Instruct parser to use kebab-case for configuration when using Map format.
+	// It must be a map with string keys.
+	// All available configuration options can be found here - https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md.
+	// Useful for direct parsing from configuration files.
+	UseKebabConfigFormat *bool `pulumi:"useKebabConfigFormat"`
 }
 
 // The set of arguments for constructing a Cluster resource.
 type ClusterArgs struct {
+	// Configuration for the cluster.
+	// Can be Struct or pulumi.Map types.
+	// Despite of the fact that SDK can accept multiple types it is recommended to use strong typep struct if possible.
+	// Caution: Not all configuration options for k3s cluster are available.
+	// Additional information can be found at https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md
+	Config pulumi.Input
+	// Instruct parser to use kebab-case for configuration when using Map format.
+	// It must be a map with string keys.
+	// All available configuration options can be found here - https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md.
+	// Useful for direct parsing from configuration files.
+	UseKebabConfigFormat pulumi.BoolPtrInput
 }
 
 func (ClusterArgs) ElementType() reflect.Type {
@@ -139,18 +160,18 @@ func (o ClusterOutput) ToClusterOutputWithContext(ctx context.Context) ClusterOu
 }
 
 // The kubeconfig for the cluster.
-func (o ClusterOutput) Kubeconfig() pulumi.StringOutput {
-	return o.ApplyT(func(v *Cluster) pulumi.StringOutput { return v.Kubeconfig }).(pulumi.StringOutput)
+func (o ClusterOutput) Kubeconfig() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Cluster) pulumi.StringPtrOutput { return v.Kubeconfig }).(pulumi.StringPtrOutput)
 }
 
-// The private key for nodes
-func (o ClusterOutput) Privatekey() pulumi.StringOutput {
-	return o.ApplyT(func(v *Cluster) pulumi.StringOutput { return v.Privatekey }).(pulumi.StringOutput)
+// The private key for nodes.
+func (o ClusterOutput) Privatekey() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *Cluster) pulumi.StringPtrOutput { return v.Privatekey }).(pulumi.StringPtrOutput)
 }
 
-// The servers for the cluster.
-func (o ClusterOutput) Servers() pulumi.StringMapArrayOutput {
-	return o.ApplyT(func(v *Cluster) pulumi.StringMapArrayOutput { return v.Servers }).(pulumi.StringMapArrayOutput)
+// Information about hetnzer servers.
+func (o ClusterOutput) Servers() cluster.ServersArrayOutput {
+	return o.ApplyT(func(v *Cluster) cluster.ServersArrayOutput { return v.Servers }).(cluster.ServersArrayOutput)
 }
 
 type ClusterArrayOutput struct{ *pulumi.OutputState }
