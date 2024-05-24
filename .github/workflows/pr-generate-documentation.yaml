@@ -13,6 +13,14 @@ jobs:
       with:
         ref: ${{ github.head_ref }}
         fetch-depth: 0
+    - uses: runs-on/cache@v4
+      with:
+        path: |
+          ~/.cache/go-build
+          ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
     - name: Setup Go ✨
       uses: actions/setup-go@v4
       with:

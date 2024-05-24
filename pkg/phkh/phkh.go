@@ -30,8 +30,8 @@ const (
 	ServerIPKey = "ip"
 	// ServerInternalIPKey is the key used to export internal ip of servers.
 	ServerInternalIPKey = "internalIP"
-	ServerUserKey = "user"
-	ServerNameKey = "name"
+	ServerUserKey       = "user"
+	ServerNameKey       = "name"
 )
 
 // PHKH is the main struct.
