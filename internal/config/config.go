@@ -32,31 +32,32 @@ type Config struct {
 	K8S *k8sconfig.Config
 }
 
-// New returns the parsed configuration for the cluster as is without any modifications.
-func New(cfg map[string]any) (*Config, error) {
-	var c *Config
+func ParseClusterConfig(cfg map[string]any) (*Config, error) {
+	return parse(cfg)
+}
+
+func parse[T Config](cfg map[string]any) (*T, error) {
+	var c *T
+
+	// This tag is not used
+	tagName := "not-used-tag"
+
+	if _, ok := cfg["nodepools"]; ok {
+		// My config if the kebab-case map.
+		tagName = "mapstructure"
+	}
 
 	// Copying with custom tag for preserving values from GO and TS SDKs in CamelCase.
 	decoder, err := mapstructure.NewDecoder(&mapstructure.DecoderConfig{
-		TagName: "my-reserved-tag",
+		TagName: tagName,
 		Result:  &c,
 	})
+
 	if err != nil {
 		return nil, err
 	}
 
 	if err := decoder.Decode(cfg); err != nil {
-		return nil, err
-	}
-
-	return c, nil
-}
-
-// New returns the parsed configuration for the cluster as is without any modifications.
-func NewFromMap(cfg map[string]any) (*Config, error) {
-	var c *Config
-
-	if err := mapstructure.Decode(cfg, &c); err != nil {
 		return nil, err
 	}
 

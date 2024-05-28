@@ -42,11 +42,11 @@ func construct(ctx *pulumi.Context, c *Cluster, name string,
 	}
 
 	finalizer, err := local.NewCommand(ctx, fmt.Sprintf("%s-finalizer", name), &local.CommandArgs{
-		Create: pulumi.All(args.UseKebabConfigFormat, args.Config).ApplyT(
+		Create: pulumi.All(args.Config).ApplyT(
 			func(args []any) (v pulumi.StringOutput, err error) {
-				cfg, native := args[1].(map[string]any), args[0].(bool)
+				cfg := args[0].(map[string]any)
 
-				cluster, err := phkh.NewCluster(ctx, name, native, cfg, opts)
+				cluster, err := phkh.NewCluster(ctx, name, cfg, opts)
 				if err != nil {
 					return v, err
 				}

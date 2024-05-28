@@ -49,7 +49,7 @@ export class Cluster extends pulumi.ComponentResource {
         opts = opts || {};
         if (!opts.id) {
             resourceInputs["config"] = args ? args.config : undefined;
-            resourceInputs["useKebabConfigFormat"] = (args ? args.useKebabConfigFormat : undefined) ?? false;
+            resourceInputs["useKebabConfigFormat"] = (args ? args.useKebabConfigFormat : undefined) ?? true;
             resourceInputs["kubeconfig"] = undefined /*out*/;
             resourceInputs["privatekey"] = undefined /*out*/;
             resourceInputs["servers"] = undefined /*out*/;

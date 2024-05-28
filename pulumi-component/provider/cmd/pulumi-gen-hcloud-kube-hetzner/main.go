@@ -131,14 +131,6 @@ func generateSchema() schema.PackageSpec {
 							"Caution: Not all configuration options for k3s cluster are available. \n" +
 							"Additional information can be found at https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md",
 					},
-					"useKebabConfigFormat": {
-						TypeSpec: schema.TypeSpec{Type: "boolean"},
-						Description: "Instruct parser to use kebab-case for configuration when using Map format. \n" +
-							"It must be a map with string keys. \n" +
-							"All available configuration options can be found here - https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md. \n" +
-							"Useful for direct parsing from configuration files.",
-						Default: false,
-					},
 				},
 			},
 		},

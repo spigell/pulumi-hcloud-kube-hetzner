@@ -50,18 +50,10 @@ type Cluster struct {
 
 // New creates a new project instance.
 // It parses the config and compiles the project.
-func NewCluster(ctx *pulumi.Context, name string, nativeFormat bool, configuration map[string]any, opts []pulumi.ResourceOption) (*PHKH, error) {
-	cfg, err := config.New(configuration)
+func NewCluster(ctx *pulumi.Context, name string, configuration map[string]any, opts []pulumi.ResourceOption) (*PHKH, error) {
+	cfg, err := config.ParseClusterConfig(configuration)
 	if err != nil {
 		return nil, err
-	}
-
-	// Old method for kebab-case maps
-	if nativeFormat {
-		cfg, err = config.NewFromMap(configuration)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	cfg = cfg.WithInited()

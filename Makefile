@@ -1,5 +1,6 @@
 SHELL := bash
-TEMPLATE ?= go/library
+DEV_TEMPLATE ?= dev/go-module-development
+DEV_PROJECT := phkh-dev
 TAG ?= $(shell git describe --tags --abbrev=0)
 
 GH_EXAMPLE ?= k3s-private-non-ha-simple
@@ -8,7 +9,7 @@ GH_EXAMPLE ?= k3s-private-non-ha-simple
 test-go-project: clean
 	@mkdir -p test-project
 	@cd test-project && \
-	pulumi new ../pulumi-templates/$(TEMPLATE) -g -n pkhk --yes && \
+	pulumi new ../pulumi-templates/$(DEV_TEMPLATE) -g -n $(DEV_PROJECT) --yes && \
 	go mod edit -replace=github.com/spigell/pulumi-hcloud-kube-hetzner=../
 	@go work use ./test-project
 	@echo "Now you can create stack for test project in test-project directory"
@@ -18,13 +19,12 @@ test-go-project: clean
 test-ts-project: clean
 	@mkdir -p test-project
 	@cd test-project && \
-	pulumi new ../pulumi-templates/typescript -g -n pkhk --yes && \
+	pulumi new ../pulumi-templates/$(DEV_TEMPLATE) -g -n $(DEV_PROJECT) --yes && \
 	yarn link --cwd ../pulumi-component/sdk/nodejs/bin && \
 	sed -i '/\@spigell\/hcloud-kube-hetzner/d' package.json && \
 	yarn link "@spigell/hcloud-kube-hetzner" && \
 	yarn install
 	@echo "Now you can create stack for test project in test-project directory"
-	@echo 'Please use command `pulumi-config PULUMI_CONFIG_SOURCE=/path/to/file` to set config source for the stack'
 	@echo -e "If the list of files: \033[0;31m [index.ts, package.json] \033[0m changed, please add the changes in pulumi-template directory"
 	
 clean:
@@ -55,17 +55,29 @@ up-go-component-template-versions: clean test-go-project
 	sed -i "1s/.*/module \\\$${PROJECT}/" ./pulumi-templates/$(TEMPLATE)/go.mod
 	cp ./test-project/go.sum ./pulumi-templates/$(TEMPLATE)/go.sum
 
-# This stage syncs templates with the GO library template
-sync-templates:
-	for a in go/component typescript; do \
+sync-cluster-files: export SOURCE = phkh-go-cluster-files
+sync-cluster-files: export TARGETS = phkh-typescript-cluster-files
+sync-cluster-files:	
+	@for a in $(TARGETS); do \
 		cd pulumi-templates && \
 		cp -vr \
-			go/library/README.md \
-			go/library/pulumi.Makefile \
-			go/library/versions \
-			go/library/Makefile \
-			go/library/.gitignore \
-			go/library/image-builder \
+			$(SOURCE)/cluster-examples \
+			./$${a}/ ; \
+		cd - ; \
+	done
+
+# This stage syncs templates with the GO temlates
+sync-templates: sync-cluster-files
+sync-templates: export SOURCE = phkh-go-simple
+sync-templates: export TARGETS = phkh-go-cluster-files phkh-go-multiple-clusters phkh-typescript-cluster-files phkh-typescript-simple dev/go-module-development
+sync-templates:
+	@for a in $(TARGETS); do \
+		cd pulumi-templates && \
+		cp -vr \
+			$(SOURCE)/versions \
+			$(SOURCE)/Makefile \
+			$(SOURCE)/.gitignore \
+			$(SOURCE)/image-builder \
 			./$${a}/ ; \
 		cd - ; \
 	done

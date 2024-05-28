@@ -1,0 +1,97 @@
+# This example shows how to use the firewall configuration.
+# There are a lot of overrides for the server's firewall configuration.
+# It shows howt to limit access to basic service as well.
+# It is used for testing.
+defaults:
+  global:
+    server:
+      firewall:
+        hetzner: &global_firewall
+          # You should explicitly enable firewall for at least one layer of the configuration.
+          enabled: true
+          # You should explicitly enable icmp for at least one layer of the configuration.
+          allow-icmp: true
+          ssh:
+            allow: false
+          additional-rules:
+            - description: custom rule 1
+              port: "51825"
+              protocol: udp
+              source-ips:
+                - 102.0.0.0/8
+                - ::/0
+  agents:
+    server:
+      firewall:
+        hetzner:
+          ssh:
+            # You should explicitly enable ssh for every layer of the configuration.
+            # If you need it, of course
+            allow: true
+            # Do not add my ip to rules as allowed for ssh.
+            # This is not needed since allowed-ips includes all addresses.
+            disallow-own-ip: true
+            allowed-ips:
+              - '0.0.0.0/0'
+          # Append (!) to additional rules this rule for agent nodes only.
+          additional-rules:
+            - description: custom rule 2
+              port: "10000"
+              protocol: tcp
+              source-ips:
+                - 0.0.0.0/0
+
+network:
+  hetzner:
+    enabled: true
+    # It is highly recommended to set a cidr for the private network for at least /20
+    cidr: 192.168.16.0/20
+k8s:
+  kube-api-endpoint:
+    # By default, public endpoint type is used.
+    type: public
+    firewall:
+      # This only works for the public endpoint.
+      hetzner-public:
+        # Allow access to the k8s api from the this cidr!
+        # Applied only if firewall enabled and kube-api-endpoint.type == public
+        allowed-ips: []
+nodepools:
+  agents:
+    - pool-id: 01-small-nodes
+      config:
+        server:
+          firewall:
+            <<: *global_firewall
+            hetzner:
+              # Do not allow ping only this server node explicitly.
+              allow-icmp: false
+              additional-rules: 
+                - description: custom rule
+                  port: "100"
+                  protocol: tcp
+                  source-ips:
+                    - 0.0.0.0/0
+      nodes:
+        - node-id: k3s-agent01
+    - pool-id: 02-small-nodes
+      nodes:
+        - node-id: k3s-agent02
+  servers:
+    - pool-id: control-plane
+      nodes:
+      - node-id: k3s-server01
+        server:
+          firewall:
+            hetzner:
+              # Do not allow ping only this server node explicitly.
+              allow-icmp: false
+              ssh:
+                # You should explicitly enable ssh for servers of the configuration coz it was disabled on global layer.
+                allow: true
+                # Despite the fact that the ssh is not allowed for your ip address, you can use the ssh service,
+                # because it is added to the firewall by default.
+                allowed-ips:
+                  - '127.0.0.1/32'
+                  - '100.0.0.0/24'
+          location: fsn1

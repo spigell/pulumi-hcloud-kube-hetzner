@@ -644,7 +644,7 @@
                 "useKebabConfigFormat": {
                     "type": "boolean",
                     "description": "Instruct parser to use kebab-case for configuration when using Map format. \nIt must be a map with string keys. \nAll available configuration options can be found here - https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md. \nUseful for direct parsing from configuration files.",
-                    "default": false
+                    "default": true
                 }
             },
             "isComponent": true

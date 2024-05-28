@@ -32,7 +32,7 @@ func NewCluster(ctx *pulumi.Context,
 	}
 
 	if args.UseKebabConfigFormat == nil {
-		args.UseKebabConfigFormat = pulumi.BoolPtr(false)
+		args.UseKebabConfigFormat = pulumi.BoolPtr(true)
 	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource Cluster
