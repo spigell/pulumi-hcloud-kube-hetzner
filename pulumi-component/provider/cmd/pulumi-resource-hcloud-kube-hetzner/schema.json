@@ -369,13 +369,21 @@
                 },
                 "Version": {
                     "type": "string",
-                    "description": "version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded. "
+                    "description": "Version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded. "
                 }
             },
             "type": "object"
         },
         "hcloud-kube-hetzner:cluster:k3sK3sConfig": {
             "properties": {
+                "AdvertiseAddr": {
+                    "type": "string",
+                    "description": "AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster. "
+                },
+                "BindAddress": {
+                    "type": "string",
+                    "description": "BindAddress is the IP address that the server should bind to for API server traffic. "
+                },
                 "ClusterCidr": {
                     "type": "string",
                     "description": "ClusterCidr defines the IP range from which pod IPs shall be allocated. Default is 10.141.0.0/16. "
@@ -387,6 +395,10 @@
                 "ClusterDomain": {
                     "type": "string",
                     "description": "ClusterDomain specifies the domain name of the cluster. "
+                },
+                "ClusterInit": {
+                    "type": "boolean",
+                    "description": "ClusterInit indicates whether this node should initialize a new cluster. "
                 },
                 "Disable": {
                     "type": "array",
@@ -403,9 +415,17 @@
                     "type": "boolean",
                     "description": "DisableNetworkPolicy determines whether to disable network policies. "
                 },
+                "ExternalNodeIP": {
+                    "type": "string",
+                    "description": "ExternalNodeIP specifies the external IP address of the node. "
+                },
                 "FlannelBackend": {
                     "type": "string",
                     "description": "FlannelBackend determines the type of backend used for Flannel, a networking solution. "
+                },
+                "FlannelIface": {
+                    "type": "string",
+                    "description": "FlannelIface specifies the network interface that Flannel should use. "
                 },
                 "KubeAPIServerArgs": {
                     "type": "array",
@@ -435,12 +455,20 @@
                     },
                     "description": "KubeletArgs allows passing additional arguments to the kubelet service. "
                 },
+                "NodeIP": {
+                    "type": "string",
+                    "description": "NodeIP specifies the IP address to advertise for this node. "
+                },
                 "NodeLabels": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     },
-                    "description": "NodeLables set labels on registration "
+                    "description": "NodeLabels set labels on registration. "
+                },
+                "NodeName": {
+                    "type": "string",
+                    "description": "NodeName specifies the name of the node within the cluster. "
                 },
                 "NodeTaints": {
                     "type": "array",
@@ -449,9 +477,29 @@
                     },
                     "description": "NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0. "
                 },
+                "Server": {
+                    "type": "string",
+                    "description": "Server specifies the address of the main server node (leader) in the cluster, generated automatically. "
+                },
                 "ServiceCidr": {
                     "type": "string",
                     "description": "ServiceCidr defines the IP range from which service cluster IPs are allocated. Default is 10.140.0.0/16. "
+                },
+                "TLSSan": {
+                    "type": "string",
+                    "description": "TLSSan adds specific TLS SANs for securing communication to the K3s server. "
+                },
+                "TLSSanSecurity": {
+                    "type": "boolean",
+                    "description": "TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names). "
+                },
+                "Token": {
+                    "type": "string",
+                    "description": "Token used for nodes to join the cluster, generated automatically. "
+                },
+                "WriteKubeconfigMode": {
+                    "type": "string",
+                    "description": "WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk. "
                 }
             },
             "type": "object"
@@ -640,11 +688,6 @@
                         }
                     ],
                     "description": "Configuration for the cluster. \nCan be Struct or pulumi.Map types. \nDespite of the fact that SDK can accept multiple types it is recommended to use strong typep struct if possible. \nCaution: Not all configuration options for k3s cluster are available. \nAdditional information can be found at https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md"
-                },
-                "useKebabConfigFormat": {
-                    "type": "boolean",
-                    "description": "Instruct parser to use kebab-case for configuration when using Map format. \nIt must be a map with string keys. \nAll available configuration options can be found here - https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md. \nUseful for direct parsing from configuration files.",
-                    "default": true
                 }
             },
             "isComponent": true
