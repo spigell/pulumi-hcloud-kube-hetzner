@@ -12,3 +12,6 @@ endif
 microos:
 	@cd image-builder/microos && \
 	packer init template.pkr.hcl && packer build template.pkr.hcl
+
+pulumi-debug-provider:
+        PULUMI_DEBUG_PROVIDERS="hcloud-kube-hetzner:$(shell sudo ss -tulnp | grep 'pulumi-resource' | awk '{print $$5}' | cut -f 2 -d ":")" pulumi $(DEBUG_COMMAND) --logtostderr -v 9 2> /tmp/log.txt
