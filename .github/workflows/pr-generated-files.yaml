@@ -21,6 +21,10 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-
+    - uses: jaxxstorm/action-install-gh-release@v1.10.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repo: pulumi/pulumictl
     - name: Setup Go ✨
       uses: actions/setup-go@v4
       with:
