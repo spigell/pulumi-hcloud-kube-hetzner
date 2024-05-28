@@ -208,18 +208,18 @@ Users are advised to refer to the latest version of this document for the most a
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| token | string | Token used for nodes to join the cluster, generated automatically.  | "" |
-| server | string | Server specifies the address of the main server node (leader) in the cluster, generated automatically.  | "" |
-| flanneliface | string | FlannelIface specifies the network interface that Flannel should use.  | "" |
-| writekubeconfigmode | string | WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk.  | "" |
-| advertiseaddr | string | AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster.  | "" |
-| nodeip | string | NodeIP specifies the IP address to advertise for this node.  | "" |
-| bindaddress | string | BindAddress is the IP address that the server should bind to for API server traffic.  | "" |
-| clusterinit | bool | ClusterInit indicates whether this node should initialize a new cluster.  | false |
-| externalnodeip | string | ExternalNodeIP specifies the external IP address of the node.  | "" |
-| tlssansecurity | bool | TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names).  | false |
-| tlssan | string | TLSSan adds specific TLS SANs for securing communication to the K3s server.  | "" |
-| nodename | string | NodeName specifies the name of the node within the cluster.  | "" |
+| token (computed: Not possible to configure!) | string | Token used for nodes to join the cluster, generated automatically.  | "" |
+| server (computed: Not possible to configure!) | string | Server specifies the address of the main server node (leader) in the cluster, generated automatically.  | "" |
+| flannel-iface (computed: Not possible to configure!) | string | FlannelIface specifies the network interface that Flannel should use.  | "" |
+| write-kubeconfig-mode (computed: Not possible to configure!) | string | WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk.  | "" |
+| advertise-address (computed: Not possible to configure!) | string | AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster.  | "" |
+| node-ip (computed: Not possible to configure!) | string | NodeIP specifies the IP address to advertise for this node.  | "" |
+| bind-address (computed: Not possible to configure!) | string | BindAddress is the IP address that the server should bind to for API server traffic.  | "" |
+| cluster-init (computed: Not possible to configure!) | bool | ClusterInit indicates whether this node should initialize a new cluster.  | false |
+| node-external-ip (computed: Not possible to configure!) | string | ExternalNodeIP specifies the external IP address of the node.  | "" |
+| tls-san-security (computed: Not possible to configure!) | bool | TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names).  | false |
+| tls-san (computed: Not possible to configure!) | string | TLSSan adds specific TLS SANs for securing communication to the K3s server.  | "" |
+| node-name (computed: Not possible to configure!) | string | NodeName specifies the name of the node within the cluster.  | "" |
 | cluster-cidr | string | ClusterCidr defines the IP range from which pod IPs shall be allocated. 141.0.0/16.  | 10.141.0.0/16 |
 | service-cidr | string | ServiceCidr defines the IP range from which service cluster IPs are allocated. 140.0.0/16.  | 10.140.0.0/16 |
 | cluster-domain | string | ClusterDomain specifies the domain name of the cluster.  | "" |
