@@ -41,7 +41,7 @@ func construct(ctx *pulumi.Context, c *Cluster, name string,
 		return nil, err
 	}
 
-	finalizer, err := local.NewCommand(ctx, fmt.Sprintf("%s-finalizer", name), &local.CommandArgs{
+	finalizer, err := local.NewCommand(ctx, fmt.Sprintf("%s:finalizer", name), &local.CommandArgs{
 		Create: pulumi.All(args.Config).ApplyT(
 			func(args []any) (v pulumi.StringOutput, err error) {
 				cfg := args[0].(map[string]any)

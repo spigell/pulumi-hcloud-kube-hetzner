@@ -28,40 +28,40 @@ type Config struct {
 
 type K3sConfig struct { //nolint: revive // This name is better
 	// Token used for nodes to join the cluster, generated automatically.
-	Token string `yaml:"token"`
+	Token string `json:"-" yaml:"token"`
 
 	// Server specifies the address of the main server node (leader) in the cluster, generated automatically.
-	Server string `yaml:"server,omitempty"`
+	Server string `json:"-" yaml:"server,omitempty"`
 
 	// FlannelIface specifies the network interface that Flannel should use.
-	FlannelIface string `yaml:"flannel-iface,omitempty"`
+	FlannelIface string `json:"-" yaml:"flannel-iface,omitempty"`
 
 	// WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk.
-	WriteKubeconfigMode string `yaml:"write-kubeconfig-mode,omitempty"`
+	WriteKubeconfigMode string `json:"-" yaml:"write-kubeconfig-mode,omitempty"`
 
 	// AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster.
-	AdvertiseAddr string `yaml:"advertise-address,omitempty"`
+	AdvertiseAddr string `json:"-" yaml:"advertise-address,omitempty"`
 
 	// NodeIP specifies the IP address to advertise for this node.
-	NodeIP string `yaml:"node-ip,omitempty"`
+	NodeIP string `json:"-" yaml:"node-ip,omitempty"`
 
 	// BindAddress is the IP address that the server should bind to for API server traffic.
-	BindAddress string `yaml:"bind-address,omitempty"`
+	BindAddress string `json:"-" yaml:"bind-address,omitempty"`
 
 	// ClusterInit indicates whether this node should initialize a new cluster.
-	ClusterInit bool `yaml:"cluster-init,omitempty"`
+	ClusterInit bool `json:"-" yaml:"cluster-init,omitempty"`
 
 	// ExternalNodeIP specifies the external IP address of the node.
-	ExternalNodeIP string `yaml:"node-external-ip,omitempty"`
+	ExternalNodeIP string `json:"-" yaml:"node-external-ip,omitempty"`
 
 	// TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names).
-	TLSSanSecurity bool `yaml:"tls-san-security,omitempty"`
+	TLSSanSecurity bool `json:"-" yaml:"tls-san-security,omitempty"`
 
 	// TLSSan adds specific TLS SANs for securing communication to the K3s server.
-	TLSSan string `yaml:"tls-san,omitempty"`
+	TLSSan string `json:"-" yaml:"tls-san,omitempty"`
 
 	// NodeName specifies the name of the node within the cluster.
-	NodeName string `yaml:"node-name,omitempty"`
+	NodeName string `json:"-" yaml:"node-name,omitempty"`
 
 	// ClusterCidr defines the IP range from which pod IPs shall be allocated.
 	// Default is 10.141.0.0/16.
