@@ -49,7 +49,6 @@ export class Cluster extends pulumi.ComponentResource {
         opts = opts || {};
         if (!opts.id) {
             resourceInputs["config"] = args ? args.config : undefined;
-            resourceInputs["useKebabConfigFormat"] = (args ? args.useKebabConfigFormat : undefined) ?? true;
             resourceInputs["kubeconfig"] = undefined /*out*/;
             resourceInputs["privatekey"] = undefined /*out*/;
             resourceInputs["servers"] = undefined /*out*/;
@@ -75,11 +74,4 @@ export interface ClusterArgs {
      * Additional information can be found at https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md
      */
     config?: pulumi.Input<inputs.cluster.ConfigConfigArgs | {[key: string]: pulumi.Input<string>}>;
-    /**
-     * Instruct parser to use kebab-case for configuration when using Map format. 
-     * It must be a map with string keys. 
-     * All available configuration options can be found here - https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md. 
-     * Useful for direct parsing from configuration files.
-     */
-    useKebabConfigFormat?: pulumi.Input<boolean>;
 }

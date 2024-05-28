@@ -31,9 +31,6 @@ func NewCluster(ctx *pulumi.Context,
 		args = &ClusterArgs{}
 	}
 
-	if args.UseKebabConfigFormat == nil {
-		args.UseKebabConfigFormat = pulumi.BoolPtr(true)
-	}
 	opts = internal.PkgResourceDefaultOpts(opts)
 	var resource Cluster
 	err := ctx.RegisterRemoteComponentResource("hcloud-kube-hetzner:index:Cluster", name, args, &resource, opts...)
@@ -50,11 +47,6 @@ type clusterArgs struct {
 	// Caution: Not all configuration options for k3s cluster are available.
 	// Additional information can be found at https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md
 	Config interface{} `pulumi:"config"`
-	// Instruct parser to use kebab-case for configuration when using Map format.
-	// It must be a map with string keys.
-	// All available configuration options can be found here - https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md.
-	// Useful for direct parsing from configuration files.
-	UseKebabConfigFormat *bool `pulumi:"useKebabConfigFormat"`
 }
 
 // The set of arguments for constructing a Cluster resource.
@@ -65,11 +57,6 @@ type ClusterArgs struct {
 	// Caution: Not all configuration options for k3s cluster are available.
 	// Additional information can be found at https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md
 	Config pulumi.Input
-	// Instruct parser to use kebab-case for configuration when using Map format.
-	// It must be a map with string keys.
-	// All available configuration options can be found here - https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md.
-	// Useful for direct parsing from configuration files.
-	UseKebabConfigFormat pulumi.BoolPtrInput
 }
 
 func (ClusterArgs) ElementType() reflect.Type {

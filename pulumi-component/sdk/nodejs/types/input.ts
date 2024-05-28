@@ -266,12 +266,20 @@ export namespace cluster {
          */
         K3S?: pulumi.Input<inputs.cluster.K3sK3sConfigArgs>;
         /**
-         * version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded. 
+         * Version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded. 
          */
         Version?: pulumi.Input<string>;
     }
 
     export interface K3sK3sConfigArgs {
+        /**
+         * AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster. 
+         */
+        AdvertiseAddr?: pulumi.Input<string>;
+        /**
+         * BindAddress is the IP address that the server should bind to for API server traffic. 
+         */
+        BindAddress?: pulumi.Input<string>;
         /**
          * ClusterCidr defines the IP range from which pod IPs shall be allocated. Default is 10.141.0.0/16. 
          */
@@ -285,6 +293,10 @@ export namespace cluster {
          */
         ClusterDomain?: pulumi.Input<string>;
         /**
+         * ClusterInit indicates whether this node should initialize a new cluster. 
+         */
+        ClusterInit?: pulumi.Input<boolean>;
+        /**
          * Disable lists components or features to disable. 
          */
         Disable?: pulumi.Input<pulumi.Input<string>[]>;
@@ -297,9 +309,17 @@ export namespace cluster {
          */
         DisableNetworkPolicy?: pulumi.Input<boolean>;
         /**
+         * ExternalNodeIP specifies the external IP address of the node. 
+         */
+        ExternalNodeIP?: pulumi.Input<string>;
+        /**
          * FlannelBackend determines the type of backend used for Flannel, a networking solution. 
          */
         FlannelBackend?: pulumi.Input<string>;
+        /**
+         * FlannelIface specifies the network interface that Flannel should use. 
+         */
+        FlannelIface?: pulumi.Input<string>;
         /**
          * KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server. 
          */
@@ -317,17 +337,45 @@ export namespace cluster {
          */
         KubeletArgs?: pulumi.Input<pulumi.Input<string>[]>;
         /**
-         * NodeLables set labels on registration 
+         * NodeIP specifies the IP address to advertise for this node. 
+         */
+        NodeIP?: pulumi.Input<string>;
+        /**
+         * NodeLabels set labels on registration. 
          */
         NodeLabels?: pulumi.Input<pulumi.Input<string>[]>;
+        /**
+         * NodeName specifies the name of the node within the cluster. 
+         */
+        NodeName?: pulumi.Input<string>;
         /**
          * NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0. 
          */
         NodeTaints?: pulumi.Input<pulumi.Input<string>[]>;
         /**
+         * Server specifies the address of the main server node (leader) in the cluster, generated automatically. 
+         */
+        Server?: pulumi.Input<string>;
+        /**
          * ServiceCidr defines the IP range from which service cluster IPs are allocated. Default is 10.140.0.0/16. 
          */
         ServiceCidr?: pulumi.Input<string>;
+        /**
+         * TLSSan adds specific TLS SANs for securing communication to the K3s server. 
+         */
+        TLSSan?: pulumi.Input<string>;
+        /**
+         * TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names). 
+         */
+        TLSSanSecurity?: pulumi.Input<boolean>;
+        /**
+         * Token used for nodes to join the cluster, generated automatically. 
+         */
+        Token?: pulumi.Input<string>;
+        /**
+         * WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk. 
+         */
+        WriteKubeconfigMode?: pulumi.Input<string>;
     }
 
     export interface K3supgraderConfigArgs {

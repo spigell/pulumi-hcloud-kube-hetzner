@@ -2687,7 +2687,7 @@ type K3sConfig struct {
 	CleanDataOnUpgrade *bool `pulumi:"CleanDataOnUpgrade"`
 	// The real config of k3s service.
 	K3S *K3sK3sConfig `pulumi:"K3S"`
-	// version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.
+	// Version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.
 	Version *string `pulumi:"Version"`
 }
 
@@ -2707,7 +2707,7 @@ type K3sConfigArgs struct {
 	CleanDataOnUpgrade pulumi.BoolPtrInput `pulumi:"CleanDataOnUpgrade"`
 	// The real config of k3s service.
 	K3S K3sK3sConfigPtrInput `pulumi:"K3S"`
-	// version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.
+	// Version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.
 	Version pulumi.StringPtrInput `pulumi:"Version"`
 }
 
@@ -2798,7 +2798,7 @@ func (o K3sConfigOutput) K3S() K3sK3sConfigPtrOutput {
 	return o.ApplyT(func(v K3sConfig) *K3sK3sConfig { return v.K3S }).(K3sK3sConfigPtrOutput)
 }
 
-// version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.
+// Version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.
 func (o K3sConfigOutput) Version() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v K3sConfig) *string { return v.Version }).(pulumi.StringPtrOutput)
 }
@@ -2847,7 +2847,7 @@ func (o K3sConfigPtrOutput) K3S() K3sK3sConfigPtrOutput {
 	}).(K3sK3sConfigPtrOutput)
 }
 
-// version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.
+// Version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.
 func (o K3sConfigPtrOutput) Version() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *K3sConfig) *string {
 		if v == nil {
@@ -2858,20 +2858,30 @@ func (o K3sConfigPtrOutput) Version() pulumi.StringPtrOutput {
 }
 
 type K3sK3sConfig struct {
+	// AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster.
+	AdvertiseAddr *string `pulumi:"AdvertiseAddr"`
+	// BindAddress is the IP address that the server should bind to for API server traffic.
+	BindAddress *string `pulumi:"BindAddress"`
 	// ClusterCidr defines the IP range from which pod IPs shall be allocated. Default is 10.141.0.0/16.
 	ClusterCidr *string `pulumi:"ClusterCidr"`
 	// ClusterDNS specifies the IP address of the DNS service within the cluster. Default is autopicked.
 	ClusterDNS *string `pulumi:"ClusterDNS"`
 	// ClusterDomain specifies the domain name of the cluster.
 	ClusterDomain *string `pulumi:"ClusterDomain"`
+	// ClusterInit indicates whether this node should initialize a new cluster.
+	ClusterInit *bool `pulumi:"ClusterInit"`
 	// Disable lists components or features to disable.
 	Disable []string `pulumi:"Disable"`
 	// DisableCloudController determines whether to disable the integrated cloud controller manager. Default is false, but will be true if ccm is enabled.
 	DisableCloudController *bool `pulumi:"DisableCloudController"`
 	// DisableNetworkPolicy determines whether to disable network policies.
 	DisableNetworkPolicy *bool `pulumi:"DisableNetworkPolicy"`
+	// ExternalNodeIP specifies the external IP address of the node.
+	ExternalNodeIP *string `pulumi:"ExternalNodeIP"`
 	// FlannelBackend determines the type of backend used for Flannel, a networking solution.
 	FlannelBackend *string `pulumi:"FlannelBackend"`
+	// FlannelIface specifies the network interface that Flannel should use.
+	FlannelIface *string `pulumi:"FlannelIface"`
 	// KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server.
 	KubeAPIServerArgs []string `pulumi:"KubeAPIServerArgs"`
 	// KubeCloudControllerManagerArgs allows passing additional arguments to the Kubernetes cloud controller manager.
@@ -2880,12 +2890,26 @@ type K3sK3sConfig struct {
 	KubeControllerManagerArgs []string `pulumi:"KubeControllerManagerArgs"`
 	// KubeletArgs allows passing additional arguments to the kubelet service.
 	KubeletArgs []string `pulumi:"KubeletArgs"`
-	// NodeLables set labels on registration
+	// NodeIP specifies the IP address to advertise for this node.
+	NodeIP *string `pulumi:"NodeIP"`
+	// NodeLabels set labels on registration.
 	NodeLabels []string `pulumi:"NodeLabels"`
+	// NodeName specifies the name of the node within the cluster.
+	NodeName *string `pulumi:"NodeName"`
 	// NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0.
 	NodeTaints []string `pulumi:"NodeTaints"`
+	// Server specifies the address of the main server node (leader) in the cluster, generated automatically.
+	Server *string `pulumi:"Server"`
 	// ServiceCidr defines the IP range from which service cluster IPs are allocated. Default is 10.140.0.0/16.
 	ServiceCidr *string `pulumi:"ServiceCidr"`
+	// TLSSan adds specific TLS SANs for securing communication to the K3s server.
+	TLSSan *string `pulumi:"TLSSan"`
+	// TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names).
+	TLSSanSecurity *bool `pulumi:"TLSSanSecurity"`
+	// Token used for nodes to join the cluster, generated automatically.
+	Token *string `pulumi:"Token"`
+	// WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk.
+	WriteKubeconfigMode *string `pulumi:"WriteKubeconfigMode"`
 }
 
 // K3sK3sConfigInput is an input type that accepts K3sK3sConfigArgs and K3sK3sConfigOutput values.
@@ -2900,20 +2924,30 @@ type K3sK3sConfigInput interface {
 }
 
 type K3sK3sConfigArgs struct {
+	// AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster.
+	AdvertiseAddr pulumi.StringPtrInput `pulumi:"AdvertiseAddr"`
+	// BindAddress is the IP address that the server should bind to for API server traffic.
+	BindAddress pulumi.StringPtrInput `pulumi:"BindAddress"`
 	// ClusterCidr defines the IP range from which pod IPs shall be allocated. Default is 10.141.0.0/16.
 	ClusterCidr pulumi.StringPtrInput `pulumi:"ClusterCidr"`
 	// ClusterDNS specifies the IP address of the DNS service within the cluster. Default is autopicked.
 	ClusterDNS pulumi.StringPtrInput `pulumi:"ClusterDNS"`
 	// ClusterDomain specifies the domain name of the cluster.
 	ClusterDomain pulumi.StringPtrInput `pulumi:"ClusterDomain"`
+	// ClusterInit indicates whether this node should initialize a new cluster.
+	ClusterInit pulumi.BoolPtrInput `pulumi:"ClusterInit"`
 	// Disable lists components or features to disable.
 	Disable pulumi.StringArrayInput `pulumi:"Disable"`
 	// DisableCloudController determines whether to disable the integrated cloud controller manager. Default is false, but will be true if ccm is enabled.
 	DisableCloudController pulumi.BoolPtrInput `pulumi:"DisableCloudController"`
 	// DisableNetworkPolicy determines whether to disable network policies.
 	DisableNetworkPolicy pulumi.BoolPtrInput `pulumi:"DisableNetworkPolicy"`
+	// ExternalNodeIP specifies the external IP address of the node.
+	ExternalNodeIP pulumi.StringPtrInput `pulumi:"ExternalNodeIP"`
 	// FlannelBackend determines the type of backend used for Flannel, a networking solution.
 	FlannelBackend pulumi.StringPtrInput `pulumi:"FlannelBackend"`
+	// FlannelIface specifies the network interface that Flannel should use.
+	FlannelIface pulumi.StringPtrInput `pulumi:"FlannelIface"`
 	// KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server.
 	KubeAPIServerArgs pulumi.StringArrayInput `pulumi:"KubeAPIServerArgs"`
 	// KubeCloudControllerManagerArgs allows passing additional arguments to the Kubernetes cloud controller manager.
@@ -2922,12 +2956,26 @@ type K3sK3sConfigArgs struct {
 	KubeControllerManagerArgs pulumi.StringArrayInput `pulumi:"KubeControllerManagerArgs"`
 	// KubeletArgs allows passing additional arguments to the kubelet service.
 	KubeletArgs pulumi.StringArrayInput `pulumi:"KubeletArgs"`
-	// NodeLables set labels on registration
+	// NodeIP specifies the IP address to advertise for this node.
+	NodeIP pulumi.StringPtrInput `pulumi:"NodeIP"`
+	// NodeLabels set labels on registration.
 	NodeLabels pulumi.StringArrayInput `pulumi:"NodeLabels"`
+	// NodeName specifies the name of the node within the cluster.
+	NodeName pulumi.StringPtrInput `pulumi:"NodeName"`
 	// NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0.
 	NodeTaints pulumi.StringArrayInput `pulumi:"NodeTaints"`
+	// Server specifies the address of the main server node (leader) in the cluster, generated automatically.
+	Server pulumi.StringPtrInput `pulumi:"Server"`
 	// ServiceCidr defines the IP range from which service cluster IPs are allocated. Default is 10.140.0.0/16.
 	ServiceCidr pulumi.StringPtrInput `pulumi:"ServiceCidr"`
+	// TLSSan adds specific TLS SANs for securing communication to the K3s server.
+	TLSSan pulumi.StringPtrInput `pulumi:"TLSSan"`
+	// TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names).
+	TLSSanSecurity pulumi.BoolPtrInput `pulumi:"TLSSanSecurity"`
+	// Token used for nodes to join the cluster, generated automatically.
+	Token pulumi.StringPtrInput `pulumi:"Token"`
+	// WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk.
+	WriteKubeconfigMode pulumi.StringPtrInput `pulumi:"WriteKubeconfigMode"`
 }
 
 func (K3sK3sConfigArgs) ElementType() reflect.Type {
@@ -3007,6 +3055,16 @@ func (o K3sK3sConfigOutput) ToK3sK3sConfigPtrOutputWithContext(ctx context.Conte
 	}).(K3sK3sConfigPtrOutput)
 }
 
+// AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster.
+func (o K3sK3sConfigOutput) AdvertiseAddr() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *string { return v.AdvertiseAddr }).(pulumi.StringPtrOutput)
+}
+
+// BindAddress is the IP address that the server should bind to for API server traffic.
+func (o K3sK3sConfigOutput) BindAddress() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *string { return v.BindAddress }).(pulumi.StringPtrOutput)
+}
+
 // ClusterCidr defines the IP range from which pod IPs shall be allocated. Default is 10.141.0.0/16.
 func (o K3sK3sConfigOutput) ClusterCidr() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v K3sK3sConfig) *string { return v.ClusterCidr }).(pulumi.StringPtrOutput)
@@ -3020,6 +3078,11 @@ func (o K3sK3sConfigOutput) ClusterDNS() pulumi.StringPtrOutput {
 // ClusterDomain specifies the domain name of the cluster.
 func (o K3sK3sConfigOutput) ClusterDomain() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v K3sK3sConfig) *string { return v.ClusterDomain }).(pulumi.StringPtrOutput)
+}
+
+// ClusterInit indicates whether this node should initialize a new cluster.
+func (o K3sK3sConfigOutput) ClusterInit() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *bool { return v.ClusterInit }).(pulumi.BoolPtrOutput)
 }
 
 // Disable lists components or features to disable.
@@ -3037,9 +3100,19 @@ func (o K3sK3sConfigOutput) DisableNetworkPolicy() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v K3sK3sConfig) *bool { return v.DisableNetworkPolicy }).(pulumi.BoolPtrOutput)
 }
 
+// ExternalNodeIP specifies the external IP address of the node.
+func (o K3sK3sConfigOutput) ExternalNodeIP() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *string { return v.ExternalNodeIP }).(pulumi.StringPtrOutput)
+}
+
 // FlannelBackend determines the type of backend used for Flannel, a networking solution.
 func (o K3sK3sConfigOutput) FlannelBackend() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v K3sK3sConfig) *string { return v.FlannelBackend }).(pulumi.StringPtrOutput)
+}
+
+// FlannelIface specifies the network interface that Flannel should use.
+func (o K3sK3sConfigOutput) FlannelIface() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *string { return v.FlannelIface }).(pulumi.StringPtrOutput)
 }
 
 // KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server.
@@ -3062,9 +3135,19 @@ func (o K3sK3sConfigOutput) KubeletArgs() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v K3sK3sConfig) []string { return v.KubeletArgs }).(pulumi.StringArrayOutput)
 }
 
-// NodeLables set labels on registration
+// NodeIP specifies the IP address to advertise for this node.
+func (o K3sK3sConfigOutput) NodeIP() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *string { return v.NodeIP }).(pulumi.StringPtrOutput)
+}
+
+// NodeLabels set labels on registration.
 func (o K3sK3sConfigOutput) NodeLabels() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v K3sK3sConfig) []string { return v.NodeLabels }).(pulumi.StringArrayOutput)
+}
+
+// NodeName specifies the name of the node within the cluster.
+func (o K3sK3sConfigOutput) NodeName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *string { return v.NodeName }).(pulumi.StringPtrOutput)
 }
 
 // NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0.
@@ -3072,9 +3155,34 @@ func (o K3sK3sConfigOutput) NodeTaints() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v K3sK3sConfig) []string { return v.NodeTaints }).(pulumi.StringArrayOutput)
 }
 
+// Server specifies the address of the main server node (leader) in the cluster, generated automatically.
+func (o K3sK3sConfigOutput) Server() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *string { return v.Server }).(pulumi.StringPtrOutput)
+}
+
 // ServiceCidr defines the IP range from which service cluster IPs are allocated. Default is 10.140.0.0/16.
 func (o K3sK3sConfigOutput) ServiceCidr() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v K3sK3sConfig) *string { return v.ServiceCidr }).(pulumi.StringPtrOutput)
+}
+
+// TLSSan adds specific TLS SANs for securing communication to the K3s server.
+func (o K3sK3sConfigOutput) TLSSan() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *string { return v.TLSSan }).(pulumi.StringPtrOutput)
+}
+
+// TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names).
+func (o K3sK3sConfigOutput) TLSSanSecurity() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *bool { return v.TLSSanSecurity }).(pulumi.BoolPtrOutput)
+}
+
+// Token used for nodes to join the cluster, generated automatically.
+func (o K3sK3sConfigOutput) Token() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *string { return v.Token }).(pulumi.StringPtrOutput)
+}
+
+// WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk.
+func (o K3sK3sConfigOutput) WriteKubeconfigMode() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v K3sK3sConfig) *string { return v.WriteKubeconfigMode }).(pulumi.StringPtrOutput)
 }
 
 type K3sK3sConfigPtrOutput struct{ *pulumi.OutputState }
@@ -3099,6 +3207,26 @@ func (o K3sK3sConfigPtrOutput) Elem() K3sK3sConfigOutput {
 		var ret K3sK3sConfig
 		return ret
 	}).(K3sK3sConfigOutput)
+}
+
+// AdvertiseAddr specifies the IP address that the server uses to advertise to members of the cluster.
+func (o K3sK3sConfigPtrOutput) AdvertiseAddr() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *string {
+		if v == nil {
+			return nil
+		}
+		return v.AdvertiseAddr
+	}).(pulumi.StringPtrOutput)
+}
+
+// BindAddress is the IP address that the server should bind to for API server traffic.
+func (o K3sK3sConfigPtrOutput) BindAddress() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *string {
+		if v == nil {
+			return nil
+		}
+		return v.BindAddress
+	}).(pulumi.StringPtrOutput)
 }
 
 // ClusterCidr defines the IP range from which pod IPs shall be allocated. Default is 10.141.0.0/16.
@@ -3131,6 +3259,16 @@ func (o K3sK3sConfigPtrOutput) ClusterDomain() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+// ClusterInit indicates whether this node should initialize a new cluster.
+func (o K3sK3sConfigPtrOutput) ClusterInit() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.ClusterInit
+	}).(pulumi.BoolPtrOutput)
+}
+
 // Disable lists components or features to disable.
 func (o K3sK3sConfigPtrOutput) Disable() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *K3sK3sConfig) []string {
@@ -3161,6 +3299,16 @@ func (o K3sK3sConfigPtrOutput) DisableNetworkPolicy() pulumi.BoolPtrOutput {
 	}).(pulumi.BoolPtrOutput)
 }
 
+// ExternalNodeIP specifies the external IP address of the node.
+func (o K3sK3sConfigPtrOutput) ExternalNodeIP() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *string {
+		if v == nil {
+			return nil
+		}
+		return v.ExternalNodeIP
+	}).(pulumi.StringPtrOutput)
+}
+
 // FlannelBackend determines the type of backend used for Flannel, a networking solution.
 func (o K3sK3sConfigPtrOutput) FlannelBackend() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *K3sK3sConfig) *string {
@@ -3168,6 +3316,16 @@ func (o K3sK3sConfigPtrOutput) FlannelBackend() pulumi.StringPtrOutput {
 			return nil
 		}
 		return v.FlannelBackend
+	}).(pulumi.StringPtrOutput)
+}
+
+// FlannelIface specifies the network interface that Flannel should use.
+func (o K3sK3sConfigPtrOutput) FlannelIface() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *string {
+		if v == nil {
+			return nil
+		}
+		return v.FlannelIface
 	}).(pulumi.StringPtrOutput)
 }
 
@@ -3211,7 +3369,17 @@ func (o K3sK3sConfigPtrOutput) KubeletArgs() pulumi.StringArrayOutput {
 	}).(pulumi.StringArrayOutput)
 }
 
-// NodeLables set labels on registration
+// NodeIP specifies the IP address to advertise for this node.
+func (o K3sK3sConfigPtrOutput) NodeIP() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *string {
+		if v == nil {
+			return nil
+		}
+		return v.NodeIP
+	}).(pulumi.StringPtrOutput)
+}
+
+// NodeLabels set labels on registration.
 func (o K3sK3sConfigPtrOutput) NodeLabels() pulumi.StringArrayOutput {
 	return o.ApplyT(func(v *K3sK3sConfig) []string {
 		if v == nil {
@@ -3219,6 +3387,16 @@ func (o K3sK3sConfigPtrOutput) NodeLabels() pulumi.StringArrayOutput {
 		}
 		return v.NodeLabels
 	}).(pulumi.StringArrayOutput)
+}
+
+// NodeName specifies the name of the node within the cluster.
+func (o K3sK3sConfigPtrOutput) NodeName() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *string {
+		if v == nil {
+			return nil
+		}
+		return v.NodeName
+	}).(pulumi.StringPtrOutput)
 }
 
 // NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0.
@@ -3231,6 +3409,16 @@ func (o K3sK3sConfigPtrOutput) NodeTaints() pulumi.StringArrayOutput {
 	}).(pulumi.StringArrayOutput)
 }
 
+// Server specifies the address of the main server node (leader) in the cluster, generated automatically.
+func (o K3sK3sConfigPtrOutput) Server() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Server
+	}).(pulumi.StringPtrOutput)
+}
+
 // ServiceCidr defines the IP range from which service cluster IPs are allocated. Default is 10.140.0.0/16.
 func (o K3sK3sConfigPtrOutput) ServiceCidr() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v *K3sK3sConfig) *string {
@@ -3238,6 +3426,46 @@ func (o K3sK3sConfigPtrOutput) ServiceCidr() pulumi.StringPtrOutput {
 			return nil
 		}
 		return v.ServiceCidr
+	}).(pulumi.StringPtrOutput)
+}
+
+// TLSSan adds specific TLS SANs for securing communication to the K3s server.
+func (o K3sK3sConfigPtrOutput) TLSSan() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *string {
+		if v == nil {
+			return nil
+		}
+		return v.TLSSan
+	}).(pulumi.StringPtrOutput)
+}
+
+// TLSSanSecurity enables or disables the addition of TLS SANs (Subject Alternative Names).
+func (o K3sK3sConfigPtrOutput) TLSSanSecurity() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.TLSSanSecurity
+	}).(pulumi.BoolPtrOutput)
+}
+
+// Token used for nodes to join the cluster, generated automatically.
+func (o K3sK3sConfigPtrOutput) Token() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *string {
+		if v == nil {
+			return nil
+		}
+		return v.Token
+	}).(pulumi.StringPtrOutput)
+}
+
+// WriteKubeconfigMode defines the file permission mode for the kubeconfig file on disk.
+func (o K3sK3sConfigPtrOutput) WriteKubeconfigMode() pulumi.StringPtrOutput {
+	return o.ApplyT(func(v *K3sK3sConfig) *string {
+		if v == nil {
+			return nil
+		}
+		return v.WriteKubeconfigMode
 	}).(pulumi.StringPtrOutput)
 }
 
