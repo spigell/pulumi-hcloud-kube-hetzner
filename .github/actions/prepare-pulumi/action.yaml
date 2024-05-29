@@ -16,6 +16,8 @@ runs:
   using: "composite"
   steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-tags: true
     - id: 'auth'
       uses: 'google-github-actions/auth@v1'
       with:
