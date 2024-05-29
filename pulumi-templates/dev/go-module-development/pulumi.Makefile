@@ -4,13 +4,11 @@ PULUMI_SSH_KEY_FILE ?= /tmp/phkh.key
 # Default is pulumi service
 PULUMI_BACKEND ?=
 PULUMI_EXAMPLE_NAME ?= k3s-private-non-ha-simple
-PULUMI_CONFIG_SOURCE ?= ../examples/$(PULUMI_EXAMPLE_NAME).yaml
+PULUMI_CONFIG_SOURCE ?= cluster-examples/$(PULUMI_EXAMPLE_NAME).yaml
 PULUMI_STACK_INIT_FLAGS ?=
 HCLOUD_IMAGE ?= 
 
-ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
-
-WITH_PULUMI_STACK_DEFINED := pulumi-create-stack pulumi-generate-config
+WITH_PULUMI_STACK_DEFINED := pulumi-create-stack pulumi-generate-config-from-cluster-example
 
 ifneq (,$(filter $(MAKECMDGOALS),$(WITH_PULUMI_STACK_DEFINED)))
         ifeq ($(PULUMI_STACK),)
@@ -32,14 +30,11 @@ pulumi-create-stack:
 	$(PULUMI) stack rm --yes --force -s $(PULUMI_STACK) || true
 	$(PULUMI) stack init $(PULUMI_STACK) $(PULUMI_STACK_INIT_FLAGS)
 
-pulumi-generate-config: export STACK = $(firstword $(ARGS))
-pulumi-generate-config: pulumi-create-stack
-	echo 'config-examples/${STACK}.yaml' > /Pulumi.$(PULUMI_STACK).yaml.bak
-	rm ./Pulumi.$(PULUMI_STACK).yaml.bak
-	@echo "Pulumi.$(PULUMI_STACK).yaml is generated"
-
-pulumi-debug-provider:
-	PULUMI_DEBUG_PROVIDERS="hcloud-kube-hetzner:$(shell sudo ss -tulnp | grep 'pulumi-resource' | awk '{print $$5}' | cut -f 2 -d ":")" pulumi $(DEBUG_COMMAND) --logtostderr -v 9 2> /tmp/log.txt
+pulumi-generate-config-from-cluster-example: pulumi-create-stack
+	@echo "Converting $(PULUMI_CONFIG_SOURCE) to Pulumi.$(PULUMI_STACK).yaml"
+	@echo "config:" >> Pulumi.$(PULUMI_STACK).yaml
+	@echo "  phkh-dev:cluster:" >> Pulumi.$(PULUMI_STACK).yaml
+	@sed 's/^/    /' $(PULUMI_CONFIG_SOURCE) >> Pulumi.$(PULUMI_STACK).yaml
 
 pulumi-ssh-check:
 	$(PULUMI) stack output --show-secrets -j phkh | jq '.privatekey' -r > $(PULUMI_SSH_KEY_FILE)

@@ -53,7 +53,7 @@ up-go-template-versions:
 		$(MAKE) clean ; \
 	done
 
-up-typescript-template-versions: export TEMPLATES = phkh-typescript-cluster-files phkh-typescript-simple
+up-typescript-template-versions: export TEMPLATES = phkh-typescript-cluster-files phkh-typescript-simple phkh-typescript-pulumi-config
 up-typescript-template-versions:
 	@for TMP in $(TEMPLATES); do \
 		$(MAKE) test-ts-project DEV_TEMPLATE=$${TMP} && \
@@ -68,7 +68,7 @@ up-typescript-template-versions:
 	done
 
 sync-cluster-files: export SOURCE = phkh-go-cluster-files
-sync-cluster-files: export TARGETS = phkh-typescript-cluster-files
+sync-cluster-files: export TARGETS = phkh-typescript-cluster-files phkh-typescript-pulumi-config
 sync-cluster-files:	
 	@for a in $(TARGETS); do \
 		cd pulumi-templates && \
@@ -81,7 +81,7 @@ sync-cluster-files:
 # This stage syncs templates with the GO temlates
 sync-templates: sync-cluster-files
 sync-templates: export SOURCE = phkh-go-simple
-sync-templates: export TARGETS = phkh-go-cluster-files phkh-go-multiple-clusters phkh-typescript-cluster-files phkh-typescript-simple dev/go-module-development
+sync-templates: export TARGETS = phkh-go-cluster-files phkh-go-multiple-clusters phkh-typescript-cluster-files phkh-typescript-simple dev/go-module-development phkh-typescript-pulumi-config
 sync-templates:
 	@for a in $(TARGETS); do \
 		cd pulumi-templates && \

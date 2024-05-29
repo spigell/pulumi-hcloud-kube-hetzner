@@ -9,10 +9,10 @@ Since I am a person from the operations world, I prefer integration tests over u
 
 The package [integration](../internal/integration) exists to keep all required test suites and scenarios. Some tests require additional utilities and must be run in the Linux OS.
 
-#### Examples
-There are examples in the [examples](../pulumi-template/examples) directory. Most of them are used in GithubActions and tested for almost every commit to the `main` branch.
+#### Pulumi-templates
+There are examples in the [examples](../pulumi-templates) directory. Most of them are used in Github Actions and tested for almost every commit to the `main` branch.
 
-The schema of the example file name is:
+The schema for the yaml example filename is:
 ```
 <k8s type>-<type of net>-<ha or non-ha>-<name>.yaml
 ```

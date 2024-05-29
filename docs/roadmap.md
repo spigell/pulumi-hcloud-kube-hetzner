@@ -8,8 +8,8 @@
 - [ ] Add readme for SDK
 
 ## Features
-### pre-0.1.0
-- [ ] Add a licence
+### pre-1.0.0
+- [x] Add a licence
 - [ ] Add basic k8s apps (hetzner MCC, upgrader, kured, csi)
 - [x] Add state for internal network IPAM
 - [x] Replace the golang script for ssh checking with binary

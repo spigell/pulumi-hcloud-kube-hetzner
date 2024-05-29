@@ -1,4 +1,4 @@
-name: The reusable workflow for deploying clusters
+name: The reusable workflow for deploying the exacly one cluster for tests
 run-name: Cluster ${{ inputs.pulumi-stack }} by @${{ github.actor }}
 
 on:

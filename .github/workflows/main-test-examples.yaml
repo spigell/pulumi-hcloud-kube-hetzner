@@ -1,4 +1,4 @@
-name: The cluster deployment for examples for long-living branches
+name: The cluster deployment for pulumi-templates
 on:
   push:
     branches:
@@ -32,7 +32,7 @@ jobs:
     outputs:
       short-sha: ${{ steps.short-sha.outputs.sha }}
 
-  default:
+  simple:
     needs:
       - init
     name: The simple private cluster
@@ -40,8 +40,7 @@ jobs:
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-private-non-ha-simple-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-private-non-ha-simple.yaml
-      template: go/component
+      pulumi-config-source: cluster-examples/k3s-private-non-ha-simple.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
