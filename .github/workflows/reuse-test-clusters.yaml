@@ -36,6 +36,8 @@ jobs:
       PULUMI_CONFIG_SOURCE: ${{ inputs.pulumi-config-source }}
     steps:
       - uses: actions/checkout@v3
+        with:
+          fetch-tags: true
       - uses: ./.github/actions/prepare-pulumi
         name: Prepare pulumi environment
         with:
