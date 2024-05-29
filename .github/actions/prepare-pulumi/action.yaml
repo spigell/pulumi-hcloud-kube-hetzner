@@ -41,7 +41,6 @@ runs:
     - name: Install pulumictl
       uses: jaxxstorm/action-install-gh-release@v1.10.0
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
         repo: pulumi/pulumictl
     - name: Generate nodejs sdk package
       shell: bash
