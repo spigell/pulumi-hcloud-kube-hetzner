@@ -16,7 +16,7 @@ on:
         type: string
       template:
         type: string
-        default: go/library
+        default: phkh-typescript-pulumi-config
     secrets:
       google-credentials:
         required: true
