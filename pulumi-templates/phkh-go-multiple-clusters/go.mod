@@ -4,7 +4,8 @@ go 1.21.1
 
 require (
 	github.com/pulumi/pulumi/sdk/v3 v3.114.0
-	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.11
+	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.12
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -158,7 +159,6 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.29.3 // indirect
 	k8s.io/apimachinery v0.29.3 // indirect
 	k8s.io/client-go v0.29.3 // indirect

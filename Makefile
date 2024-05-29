@@ -37,23 +37,35 @@ github-run:
 	sleep 10
 	watch gh run view $$(gh run list --workflow=main-test-examples.yaml -b $$(git rev-parse --abbrev-ref HEAD) -L 1 --json databaseId | jq .[0].databaseId -r) -v
 
-up-template-versions:: up-go-lib-template-versions up-go-component-template-versions clean
+up-template-versions:: up-go-template-versions up-typescript-template-versions
 
-up-go-lib-template-versions: TEMPLATE = go/library
-up-go-lib-template-versions: clean test-go-project
-	cd test-project && go mod edit -dropreplace=github.com/spigell/pulumi-hcloud-kube-hetzner
-	cd test-project && go get github.com/spigell/pulumi-hcloud-kube-hetzner@$(TAG) && go mod tidy
-	cp ./test-project/go.mod ./pulumi-templates/$(TEMPLATE)/go.mod
-	sed -i "1s/.*/module \\\$${PROJECT}/" ./pulumi-templates/$(TEMPLATE)/go.mod
-	cp ./test-project/go.sum ./pulumi-templates/$(TEMPLATE)/go.sum
+up-go-template-versions: export TEMPLATES = dev/go-module-development phkh-go-multiple-clusters phkh-go-simple phkh-go-cluster-files
+up-go-template-versions:
+	@for TMP in $(TEMPLATES); do \
+		$(MAKE) test-go-project DEV_TEMPLATE=$${TMP} && \
+		cd test-project && \
+		go mod edit -dropreplace=github.com/spigell/pulumi-hcloud-kube-hetzner && \
+		go get -u && go get github.com/spigell/pulumi-hcloud-kube-hetzner@$(TAG) && go mod tidy && \
+		cp go.mod ../pulumi-templates/$${TMP}/go.mod && \
+		sed -i "1s/.*/module \\\$${PROJECT}/" ../pulumi-templates/$${TMP}/go.mod && \
+		cp go.sum ../pulumi-templates/$${TMP}/go.sum && \
+		cd .. && \
+		$(MAKE) clean ; \
+	done
 
-up-go-component-template-versions: TEMPLATE = go/component
-up-go-component-template-versions: clean test-go-project
-	cd test-project && go mod edit -dropreplace=github.com/spigell/pulumi-hcloud-kube-hetzner
-	cd test-project && go get github.com/spigell/pulumi-hcloud-kube-hetzner@$(TAG) && go mod tidy
-	cp ./test-project/go.mod ./pulumi-templates/$(TEMPLATE)/go.mod
-	sed -i "1s/.*/module \\\$${PROJECT}/" ./pulumi-templates/$(TEMPLATE)/go.mod
-	cp ./test-project/go.sum ./pulumi-templates/$(TEMPLATE)/go.sum
+up-typescript-template-versions: export TEMPLATES = phkh-typescript-cluster-files phkh-typescript-simple
+up-typescript-template-versions:
+	@for TMP in $(TEMPLATES); do \
+		$(MAKE) test-ts-project DEV_TEMPLATE=$${TMP} && \
+		cd test-project && \
+		yarn add @spigell/hcloud-kube-hetzner@$(TAG) && \
+		yarn add yaml && \
+		cp package.json ../pulumi-templates/$${TMP}/package.json && \
+		sed -i "2s/.*/    \"name\": \\\"\$${PROJECT}\",/" ../pulumi-templates/$${TMP}/package.json && \
+		cp yarn.lock ../pulumi-templates/$${TMP}/yarn.lock && \
+		cd .. && \
+		$(MAKE) clean ; \
+	done
 
 sync-cluster-files: export SOURCE = phkh-go-cluster-files
 sync-cluster-files: export TARGETS = phkh-typescript-cluster-files
