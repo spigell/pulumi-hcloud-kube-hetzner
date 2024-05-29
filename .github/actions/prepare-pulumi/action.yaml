@@ -15,6 +15,7 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - uses: actions/checkout@v4
     - id: 'auth'
       uses: 'google-github-actions/auth@v1'
       with:
@@ -42,9 +43,6 @@ runs:
       uses: jaxxstorm/action-install-gh-release@v1.10.0
       with:
         repo: pulumi/pulumictl
-    - name: fetch tags
-      shell: bash
-      run: git fetch --tags
     - name: Generate nodejs sdk package
       shell: bash
       run: make build_nodejs_sdk
