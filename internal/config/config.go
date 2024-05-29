@@ -52,7 +52,6 @@ func parse[T Config](cfg map[string]any) (*T, error) {
 		TagName: tagName,
 		Result:  &c,
 	})
-
 	if err != nil {
 		return nil, err
 	}

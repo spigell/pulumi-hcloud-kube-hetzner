@@ -20,6 +20,9 @@ const (
 
 func TestExampleWithUnknownFields(t *testing.T) {
 	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 		if !info.IsDir() {
 			return nil
 		}
@@ -55,7 +58,6 @@ func TestExampleWithUnknownFields(t *testing.T) {
 }
 
 func hasExamplesDir(target string) (bool, error) {
-
 	dirs, err := os.ReadDir(target)
 	if err != nil {
 		return false, err
