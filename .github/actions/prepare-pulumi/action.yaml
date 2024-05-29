@@ -38,6 +38,11 @@ runs:
       with:
         node-version: 20
       if: startsWith(inputs.template, 'phkh-typescript')
+    - name: Install pulumictl
+      uses: jaxxstorm/action-install-gh-release@v1.10.0
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        repo: pulumi/pulumictl
     - name: Generate nodejs sdk package
       shell: bash
       run: make build_nodejs_sdk
