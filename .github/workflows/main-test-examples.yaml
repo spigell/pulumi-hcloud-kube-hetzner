@@ -86,7 +86,7 @@ jobs:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
       github-token: ${{ secrets.GITHUB_TOKEN }}
-  simple:
+  defaults:
     needs: init
     name: The simplest cluster with defaults
     if: contains(fromJson('["all", "k3s-public-non-ha-with-defaults"]'), inputs.example) || contains(fromJson('["refs/heads/preview", "refs/heads/main"]'), github.ref)
