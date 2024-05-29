@@ -6,7 +6,7 @@ defaults:
   global:
     server:
       firewall:
-        hetzner: &global_firewall
+        hetzner:
           # You should explicitly enable firewall for at least one layer of the configuration.
           enabled: true
           # You should explicitly enable icmp for at least one layer of the configuration.
@@ -62,7 +62,6 @@ nodepools:
       config:
         server:
           firewall:
-            <<: *global_firewall
             hetzner:
               # Do not allow ping only this server node explicitly.
               allow-icmp: false
