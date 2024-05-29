@@ -42,6 +42,9 @@ runs:
       uses: jaxxstorm/action-install-gh-release@v1.10.0
       with:
         repo: pulumi/pulumictl
+    - name: fetch tags
+      shell: bash
+      run: git fetch --tags
     - name: Generate nodejs sdk package
       shell: bash
       run: make build_nodejs_sdk
