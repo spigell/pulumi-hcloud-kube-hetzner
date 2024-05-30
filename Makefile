@@ -86,6 +86,7 @@ sync-templates:
 	@for a in $(TARGETS); do \
 		cd pulumi-templates && \
 		cp -vr \
+			$(SOURCE)/README.md \
 			$(SOURCE)/versions \
 			$(SOURCE)/Makefile \
 			$(SOURCE)/.gitignore \

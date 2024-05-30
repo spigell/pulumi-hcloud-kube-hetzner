@@ -15,8 +15,7 @@ However, you can provide it every time when you requested it.
 ```
 $ export HCLOUD_TOKEN=<your token>
 $ make microos
-$ make pulumi-init-stack
-$ yarn install (if typescript is the runtime)
+$ pulumi pre -yf
 $ pulumi up -yf
 ```
 
@@ -34,23 +33,15 @@ It will create microos snapshot with name `microos-amd64-<timestamp>`. It uses p
 
 *Note*: right now only x86 architecture is supported. If you need arm64, please create an issue.
 
-#### 3. Create pulumi stack and generate configuration for it
-```
-make pulumi-init-stack [PULUMI_EXAMPLE_NAME=<name of the file in /examples directory without .yaml suffix>]
-```
-#### 4. Install dependencies (if required)
-```
-yarn instal
-```
 **That's it! Now you can use pulumi commands like `up` or `preview`.**
 
 ### Outputs
 The program sends outputs via map called `phkh`. The one can get outputs using command `pulumi stack output --show-secrets -j phkh`.
 
-The YAML state file will be created as well. It is used by the program for internal purposes. If you use some VCS, like git, you should store this file along with your configuration.
+The YAML state file will be created as well in `states` directory. It is used by the program for internal purposes. If you use some VCS, like git, you should store this file along with your configuration.
 
 ### Configuration
-Configuration can be made via editing Pulumi.<stack>.yaml file.
+Configuration can be made via `config` key in the `Cluster`.
 
 All valid conbinations between defauls/nodepools/nodes are considered to be supported, but some changes require cluster recreation (cluster recreation means `pulumi destroy` and `pulumi up`).
 If you find any panic (due accessing to a null value or like that), please create an issue!
@@ -58,29 +49,9 @@ If you find any panic (due accessing to a null value or like that), please creat
 ### Useful commands and snippets
 #### Get ssh private key
 ```
-pulumi stack output --show-secrets -j phkh | jq .privatekey -r
+pulumi stack output --show-secrets -j phkh | jq .<name-of-cluster>.privatekey -r
 ```
 #### Get kubeconfig
 ```
-pulumi stack output --show-secrets -j phkh | jq .kubeconfig -r
+pulumi stack output --show-secrets -j phkh | jq .<name-of-cluster>.kubeconfig -r
 ```
-#### Check ssh connectivity to nodes from local machine
-```
-make pulumi-ssh-check
-```
-#### SSH to node with make
-```
-make pulumi-ssh-to-node TARGET=<ID of node>
-```
-
-
-## Development
-This directory contains files for bootstrap pulumi project.
-
-It used by `Makefile` in the root of the repository as well
-
-Includes:
-- A packer template for microos image creation in Hetzner Cloud;
-- A pulumi stack template for creating a cluster with required files;
-
-*Note*: Please do not change `${PROJECT}` in `package.json`, `go.mod`, and `Pulumi.yaml` files if changes are required there.

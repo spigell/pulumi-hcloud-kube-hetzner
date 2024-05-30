@@ -75,7 +75,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: phkh-artifacts-${{ env.PULUMI_STACK }}
-          path: test-project/phkh*
+          path: |
+            test-project/phkh*
+            test-project/states
 
   main-integration-tests:
     needs:
