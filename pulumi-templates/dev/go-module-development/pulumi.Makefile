@@ -17,7 +17,7 @@ ifneq (,$(filter $(MAKECMDGOALS),$(WITH_PULUMI_STACK_DEFINED)))
         endif
 endif
 
-pulumi-ci-prepare: pulumi-login pulumi-create-stack pulumi-generate-config
+pulumi-ci-prepare: pulumi-login pulumi-create-stack pulumi-generate-config-from-cluster-example
 
 pulumi-login:
 	pulumi logout
