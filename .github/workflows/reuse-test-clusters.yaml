@@ -87,7 +87,7 @@ jobs:
     timeout-minutes: 30
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
-      PULUMI_CONFIG_SOURCE: ../../pulumi-temlates/${{ inputs.template }}/${{ inputs.pulumi-config-source }}
+      PULUMI_CONFIG_SOURCE: ../../${{ inputs.template }}/${{ inputs.pulumi-config-source }}
       PULUMI_STACK_CONFIG: ../../test-project/Pulumi.${{ inputs.pulumi-stack }}.yaml
     steps:
       - uses: actions/checkout@v3
