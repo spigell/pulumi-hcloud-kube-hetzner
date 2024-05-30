@@ -29,7 +29,7 @@ generate_schema::
 
 build_provider:: generate_schema
 	rm -rf ${WORKING_DIR}/bin/${PROVIDER}
-	cd provider/cmd/${PROVIDER} && go build -o ${WORKING_DIR}/bin/${PROVIDER} -ldflags "-X ${PROJECT}/${VERSION_PATH}=${VERSION}" -gcflags 'all=-N -l' .
+	cd provider/cmd/${PROVIDER} && go build -o ${WORKING_DIR}/bin/${PROVIDER} -ldflags "-X ${PROJECT}/${VERSION_PATH}=${VERSION}" .
 
 install_provider:: build_provider
 	cp ${WORKING_DIR}/bin/${PROVIDER} ${GOPATH}/bin
