@@ -72,7 +72,8 @@ func construct(ctx *pulumi.Context, c *Cluster, name string,
 
 				return pulumi.Sprintf("echo '%s' ", outputs), nil
 			}).(pulumi.StringOutput),
-	},
+		Logging: local.LoggingStderr,
+	}, pulumi.AdditionalSecretOutputs([]string{"stdout"}),
 	)
 	if err != nil {
 		return nil, err

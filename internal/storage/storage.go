@@ -49,7 +49,8 @@ func (s *Storage) Store(ctx *program.Context) error {
 	}
 
 	out, err := program.PulumiRun(ctx, local.NewCommand, s.Name, &local.CommandArgs{
-		Create: pulumi.ToSecret(pulumi.Sprintf("echo %s", encoded)).(pulumi.StringOutput),
+		Create:  pulumi.ToSecret(pulumi.Sprintf("echo %s", encoded)).(pulumi.StringOutput),
+		Logging: local.LoggingStderr,
 	}, s.opts...)
 	if err != nil {
 		return err

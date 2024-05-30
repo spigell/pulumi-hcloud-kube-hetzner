@@ -15,6 +15,7 @@ func (k *K3S) kubeconfig(ctx *program.Context, con *connection.Connection, deps 
 	grabbed, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("get-kubeconfig:%s", k.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.String("sudo cat /etc/rancher/k3s/k3s.yaml"),
+		Logging:    remote.LoggingStderr,
 	},
 		pulumi.DependsOn(deps),
 		pulumi.AdditionalSecretOutputs([]string{"stdout"}),

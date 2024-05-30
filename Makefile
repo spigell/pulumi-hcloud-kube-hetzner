@@ -1,5 +1,5 @@
 SHELL := bash
-DEV_TEMPLATE ?= dev/go-module-development
+DEV_TEMPLATE ?= pulumi-templates/dev/go-module-development
 DEV_PROJECT := phkh-dev
 TAG ?= $(shell git describe --tags --abbrev=0)
 
@@ -9,7 +9,7 @@ GH_EXAMPLE ?= k3s-private-non-ha-simple
 test-go-project: clean
 	@mkdir -p test-project
 	@cd test-project && \
-	pulumi new ../pulumi-templates/$(DEV_TEMPLATE) -g -n $(DEV_PROJECT) --yes && \
+	pulumi new ../$(DEV_TEMPLATE) -g -n $(DEV_PROJECT) --yes && \
 	go mod edit -replace=github.com/spigell/pulumi-hcloud-kube-hetzner=../
 	@go work use ./test-project
 	@echo "Now you can create stack for test project in test-project directory"
@@ -19,7 +19,7 @@ test-go-project: clean
 test-ts-project: clean
 	@mkdir -p test-project
 	@cd test-project && \
-	pulumi new ../pulumi-templates/$(DEV_TEMPLATE) -g -n $(DEV_PROJECT) --yes && \
+	pulumi new ../$(DEV_TEMPLATE) -g -n $(DEV_PROJECT) --yes && \
 	yarn link --cwd ../pulumi-component/sdk/nodejs/bin && \
 	sed -i '/\@spigell\/hcloud-kube-hetzner/d' package.json && \
 	yarn link "@spigell/hcloud-kube-hetzner" && \
