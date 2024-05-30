@@ -1,9 +1,9 @@
 package provider
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/pulumi/pulumi-command/sdk/go/command/local"
@@ -25,8 +25,7 @@ func (c *Cluster) Type() string {
 }
 
 type ClusterArgs struct {
-	Config               pulumi.MapOutput  `pulumi:"config"`
-	UseKebabConfigFormat pulumi.BoolOutput `pulumi:"useKebabConfigFormat"`
+	Config pulumi.MapOutput `pulumi:"config"`
 }
 
 func construct(ctx *pulumi.Context, c *Cluster, name string,
@@ -58,11 +57,11 @@ func construct(ctx *pulumi.Context, c *Cluster, name string,
 				}
 
 				// Create json map manually since json.Marshal can't process output values.
-				outputs := pulumi.Sprintf(strings.TrimSpace(`{
+				outputs := pulumi.Sprintf(`{
 					"%s": %s,
 					"%s": %s,
 					"%s": %s
-				}`),
+				}`,
 					phkh.KubeconfigKey,
 					pulumi.JSONMarshal(deployed.Kubeconfig),
 					phkh.HetznerServersKey,
@@ -71,7 +70,11 @@ func construct(ctx *pulumi.Context, c *Cluster, name string,
 					pulumi.JSONMarshal(deployed.Privatekey),
 				)
 
-				return pulumi.Sprintf("echo '%s' ", outputs), nil
+				return pulumi.Sprintf("echo '%s' ", outputs.ApplyT(
+					func(v string) string {
+						return base64.StdEncoding.EncodeToString([]byte(v))
+					})), nil
+
 			}).(pulumi.StringOutput),
 		Logging: local.LoggingStderr,
 	}, pulumi.AdditionalSecretOutputs([]string{"stdout"}),
@@ -99,8 +102,12 @@ func getPulumiKey(state pulumi.StringOutput, key string) pulumi.AnyOutput {
 	return state.ApplyT(func(keys string) (any, error) {
 		var c map[string]any
 
-		err := json.Unmarshal([]byte(keys), &c)
-		fmt.Printf("VALUE OF %s: %+v", key, c[key])
+		decoded, err := base64.StdEncoding.DecodeString(keys)
+		if err != nil {
+			return "", nil
+		}
+
+		err = json.Unmarshal([]byte(decoded), &c)
 		if err != nil {
 			return "", err
 		}
