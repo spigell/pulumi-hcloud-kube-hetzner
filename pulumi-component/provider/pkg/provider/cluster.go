@@ -74,7 +74,6 @@ func construct(ctx *pulumi.Context, c *Cluster, name string,
 					func(v string) string {
 						return base64.StdEncoding.EncodeToString([]byte(v))
 					})), nil
-
 			}).(pulumi.StringOutput),
 		Logging: local.LoggingStderr,
 	}, pulumi.AdditionalSecretOutputs([]string{"stdout"}),
@@ -107,7 +106,7 @@ func getPulumiKey(state pulumi.StringOutput, key string) pulumi.AnyOutput {
 			return "", nil
 		}
 
-		err = json.Unmarshal([]byte(decoded), &c)
+		err = json.Unmarshal(decoded, &c)
 		if err != nil {
 			return "", err
 		}
