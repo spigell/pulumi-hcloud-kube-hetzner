@@ -50,7 +50,7 @@ func TestLabelsTaintsManagement(t *testing.T) {
 	require.NoError(t, err)
 
 	// Get first server node id
-	nodeID, err := i.Stack.GetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].id", &auto.ConfigOptions{Path: true})
+	nodeID, err := i.Stack.GetConfigWithOptions(ctx, "cluster.nodepools.servers[0].nodes[0].id", &auto.ConfigOptions{Path: true})
 	require.NoError(t, err)
 
 	for _, n := range old {
@@ -62,15 +62,15 @@ func TestLabelsTaintsManagement(t *testing.T) {
 	assert.NotEqual(t, targetLabelValue, fmt.Sprintf("target label is not changed for node %s. Is node exist?", nodeID.Value))
 
 	// Try to patch node labels and taints with new values
-	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-label[0]", auto.ConfigValue{
+	i.Stack.SetConfigWithOptions(ctx, "cluster.nodepools.servers[0].nodes[0].k8s.node-label[0]", auto.ConfigValue{
 		Value: fmt.Sprintf("%s=%s", targetLabelKey, desiredLabelValue),
 	}, &auto.ConfigOptions{Path: true})
 	// Taint management must be enabled first
-	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint.enabled", auto.ConfigValue{
+	i.Stack.SetConfigWithOptions(ctx, "cluster.nodepools.servers[0].nodes[0].k8s.node-taint.enabled", auto.ConfigValue{
 		Value: "true",
 	}, &auto.ConfigOptions{Path: true})
 
-	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint.taints[0]", auto.ConfigValue{
+	i.Stack.SetConfigWithOptions(ctx, "cluster.nodepools.servers[0].nodes[0].k8s.node-taint.taints[0]", auto.ConfigValue{
 		Value: desiredTaint,
 	}, &auto.ConfigOptions{Path: true})
 
@@ -100,8 +100,8 @@ func TestLabelsTaintsManagement(t *testing.T) {
 		}
 	}
 
-	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-label[0]", &auto.ConfigOptions{Path: true})
-	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint.taints[0]", &auto.ConfigOptions{Path: true})
+	i.Stack.RemoveConfigWithOptions(ctx, "cluster.nodepools.servers[0].nodes[0].k8s.node-label[0]", &auto.ConfigOptions{Path: true})
+	i.Stack.RemoveConfigWithOptions(ctx, "cluster.servers[0].nodes[0].k8s.node-taint.taints[0]", &auto.ConfigOptions{Path: true})
 	require.NoError(t, i.UpWithRetry())
 	require.NoError(t, err)
 
