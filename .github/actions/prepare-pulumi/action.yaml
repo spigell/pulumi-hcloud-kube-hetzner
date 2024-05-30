@@ -73,7 +73,7 @@ runs:
         mv -v pulumi-component-*/pulumi-resource-hcloud-kube-hetzner hcloud-kube-hetzner && \
         chmod +x hcloud-kube-hetzner && \
         stat hcloud-kube-hetzner && \
-        pulumi plugin install resource hcloud-kube-hetzner 0.0.1 -f hcloud-kube-hetzner
+        pulumi plugin install resource hcloud-kube-hetzner $(pulumictl get version) -f hcloud-kube-hetzner
       shell: bash
     - name: Create a temporary Pulumi project
       run: make test-go-project
