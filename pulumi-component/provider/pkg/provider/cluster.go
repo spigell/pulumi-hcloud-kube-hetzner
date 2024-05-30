@@ -3,6 +3,7 @@ package provider
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/pulumi/pulumi-command/sdk/go/command/local"
@@ -57,11 +58,11 @@ func construct(ctx *pulumi.Context, c *Cluster, name string,
 				}
 
 				// Create json map manually since json.Marshal can't process output values.
-				outputs := pulumi.Sprintf(`{
+				outputs := pulumi.Sprintf(strings.TrimSpace(`{
 					"%s": %s,
 					"%s": %s,
 					"%s": %s
-				}`,
+				}`),
 					phkh.KubeconfigKey,
 					pulumi.JSONMarshal(deployed.Kubeconfig),
 					phkh.HetznerServersKey,
@@ -99,6 +100,7 @@ func getPulumiKey(state pulumi.StringOutput, key string) pulumi.AnyOutput {
 		var c map[string]any
 
 		err := json.Unmarshal([]byte(keys), &c)
+		fmt.Printf("VALUE OF %s: %+v", key, c[key])
 		if err != nil {
 			return "", err
 		}
