@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
@@ -16,18 +15,19 @@ type Example struct {
 	Decoded *config.Config
 }
 
-type Decoded struct {
-	Config *config.Config `yaml:"config"`
-}
-
 func DiscoverExample(path string) (*Example, error) {
+	var decoded *config.Config
 	example := &Example{
 		Name: strings.TrimSuffix(filepath.Base(path), filepath.Ext(path)),
 	}
 
-	decoded, err := decodeConfig(path)
+	content, err := os.ReadFile(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode config: %w", err)
+		return nil, fmt.Errorf("failed to read file: %w", err)
+	}
+
+	if err = yaml.Unmarshal(content, &decoded); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal yaml: %w", err)
 	}
 
 	example.Decoded = decoded
@@ -73,23 +73,4 @@ func (e *Example) UniqConfigsByNodes() map[string]*config.NodeConfig {
 	}
 
 	return configs
-}
-
-func decodeConfig(path string) (*config.Config, error) {
-	var decoded *Decoded
-	content, err := os.ReadFile(path)
-
-	// Remove namespace from file
-	re := regexp.MustCompile("pulumi-hcloud-kube-hetzner:")
-	res := re.ReplaceAllString(string(content), "")
-
-	if err != nil {
-		return nil, fmt.Errorf("failed to read file: %w", err)
-	}
-
-	if err = yaml.Unmarshal([]byte(res), &decoded); err != nil {
-		return nil, fmt.Errorf("failed to unmarshal yaml: %w", err)
-	}
-
-	return decoded.Config, nil
 }
