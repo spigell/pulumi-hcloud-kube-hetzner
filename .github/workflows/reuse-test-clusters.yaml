@@ -16,7 +16,7 @@ on:
         type: string
       template:
         type: string
-        default: phkh-typescript-pulumi-config
+        default: pulumi-templates/phkh-typescript-pulumi-config
     secrets:
       google-credentials:
         required: true

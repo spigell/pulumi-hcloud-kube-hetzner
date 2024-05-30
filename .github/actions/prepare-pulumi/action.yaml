@@ -10,7 +10,7 @@ inputs:
   template:
     required: false
     description: 'source of pulumi template'
-    default: phkh-typescript-pulumi-config
+    default: pulumi-templates/phkh-typescript-pulumi-config
 
 runs:
   using: "composite"
