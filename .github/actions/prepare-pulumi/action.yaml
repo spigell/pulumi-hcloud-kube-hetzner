@@ -78,13 +78,13 @@ runs:
     - name: Create a temporary Pulumi project
       run: make test-go-project
       env:
-        TEMPLATE: ${{ inputs.template }}
+        DEV_TEMPLATE: ${{ inputs.template }}
       shell: bash
       if: startsWith(inputs.template, 'phkh-go')
     - name: Create a temporary Pulumi project
       run: make test-ts-project
       env:
-        TEMPLATE: ${{ inputs.template }}
+        DEV_TEMPLATE: ${{ inputs.template }}
       shell: bash
       if: startsWith(inputs.template, 'phkh-typescript')
     - name: Downloading GO dependencies 📦
