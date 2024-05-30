@@ -36,6 +36,7 @@ $ pulumi up -yf
 
 ## Development
 ### GO
+*Note: It is recommended to use Pulumi local storage for development, as using the Pulumi service or self-hosted S3 storage can impact the speed of deployments.*
 ```
 $ make test-go-project [TEMPLATE=go/library|go/component]
 $ cd test-component

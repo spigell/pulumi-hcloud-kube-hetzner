@@ -41,7 +41,7 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: 20
-      if: startsWith(inputs.template, 'phkh-typescript')
+      if: startsWith(inputs.template, 'pulumi-templates/phkh-typescript')
     - name: Install pulumictl
       uses: jaxxstorm/action-install-gh-release@v1.10.0
       with:
@@ -50,7 +50,7 @@ runs:
       shell: bash
       run: make build_nodejs_sdk
       working-directory: pulumi-component
-      if: startsWith(inputs.template, 'phkh-typescript')
+      if: startsWith(inputs.template, 'pulumi-templates/phkh-typescript')
     - name: Wait for builds
       uses: lewagon/wait-on-check-action@v1.3.1
       with:
@@ -80,15 +80,15 @@ runs:
       env:
         DEV_TEMPLATE: ${{ inputs.template }}
       shell: bash
-      if: startsWith(inputs.template, 'phkh-go')
+      if: startsWith(inputs.template, 'pulumi-templates/phkh-go')
     - name: Create a temporary Pulumi project
       run: make test-ts-project
       env:
         DEV_TEMPLATE: ${{ inputs.template }}
       shell: bash
-      if: startsWith(inputs.template, 'phkh-typescript')
+      if: startsWith(inputs.template, 'pulumi-templates/phkh-typescript')
     - name: Downloading GO dependencies 📦
-      if: startsWith(inputs.template, 'go')
+      if: startsWith(inputs.template, 'pulumi-templates/phkh-go')
       shell: bash
       run: go mod download
       working-directory: test-project
