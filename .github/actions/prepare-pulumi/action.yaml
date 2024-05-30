@@ -97,6 +97,7 @@ runs:
       run: |
         cp -v ../pulumi-templates/dev/go-module-development/pulumi.Makefile ./
         echo 'include pulumi.Makefile' >> Makefile
+      working-directory: test-project
     - name: Create a stack
       shell: bash
       if: ${{ inputs.create-stack == 'true'}}
@@ -104,7 +105,7 @@ runs:
       env:
         PULUMI_STACK_INIT_FLAGS: --secrets-provider=gcpkms://projects/spigell-infra/locations/global/keyRings/spigell-infra-keyring/cryptoKeys/spigell-infra-phkh-pulumi-key
         PULUMI_BACKEND: gs://spigell-infra-phkh-pulumi-states
-        PULUMI_CONFIG_SOURCE: ../${{ env.PULUMI_CONFIG_SOURCE }}
+        PULUMI_CONFIG_SOURCE: ${{ env.PULUMI_CONFIG_SOURCE }}
       working-directory: test-project
     - name: Login to Pulumi
       shell: bash

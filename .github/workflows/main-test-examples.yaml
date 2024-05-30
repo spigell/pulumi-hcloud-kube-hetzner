@@ -54,7 +54,6 @@ jobs:
       pulumi-stack: k3s-private-non-ha-firewall-rules-${{ needs.init.outputs.short-sha }}
       pulumi-config-source: examples/k3s-private-non-ha-firewall-rules.yaml
       open-kubeapi-for-public-net: true
-      template: go/component
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
