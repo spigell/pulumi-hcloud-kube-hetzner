@@ -108,8 +108,8 @@ func (u *Upgrader) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt 
 }
 
 func trimString(s string) string {
-    if len(s) > 53 {
-        return s[:53]
-    }
-    return s
+	if len(s) > 53 {
+		return s[:53]
+	}
+	return s
 }
