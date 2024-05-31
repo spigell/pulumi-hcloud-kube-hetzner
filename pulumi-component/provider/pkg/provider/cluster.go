@@ -14,6 +14,7 @@ import (
 
 type Cluster struct {
 	pulumi.ResourceState
+	ClusterArgs
 
 	HetznerServers pulumi.MapArrayOutput `pulumi:"servers"`
 	Kubeconfig     pulumi.StringOutput   `pulumi:"kubeconfig"`
