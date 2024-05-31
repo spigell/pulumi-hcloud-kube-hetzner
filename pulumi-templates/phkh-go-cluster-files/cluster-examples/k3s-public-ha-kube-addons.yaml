@@ -61,6 +61,8 @@ nodepools:
   servers:
     - pool-id: 01-control-plane-nodes
       config:
+        node-taint:
+          enabled: true
         server:
           # Increased size of server nodes
           server-type: cpx21
