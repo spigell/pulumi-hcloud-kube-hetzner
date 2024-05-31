@@ -610,6 +610,10 @@
         "hcloud-kube-hetzner:index:Cluster": {
             "description": "Component for creating a Hetzner Cloud Kubernetes cluster.",
             "properties": {
+                "config": {
+                    "type": "object",
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configConfig"
+                },
                 "kubeconfig": {
                     "type": "string",
                     "description": "The kubeconfig for the cluster."

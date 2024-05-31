@@ -24,6 +24,7 @@ export class Cluster extends pulumi.ComponentResource {
         return obj['__pulumiType'] === Cluster.__pulumiType;
     }
 
+    public readonly config!: pulumi.Output<outputs.cluster.ConfigConfig | undefined>;
     /**
      * The kubeconfig for the cluster.
      */
@@ -53,6 +54,7 @@ export class Cluster extends pulumi.ComponentResource {
             resourceInputs["privatekey"] = undefined /*out*/;
             resourceInputs["servers"] = undefined /*out*/;
         } else {
+            resourceInputs["config"] = undefined /*out*/;
             resourceInputs["kubeconfig"] = undefined /*out*/;
             resourceInputs["privatekey"] = undefined /*out*/;
             resourceInputs["servers"] = undefined /*out*/;

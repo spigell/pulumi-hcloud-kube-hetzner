@@ -86,8 +86,10 @@ func construct(ctx *pulumi.Context, c *Cluster, name string,
 	c.HetznerServers = getPulumiKey(finalizer.Stdout, phkh.HetznerServersKey).AsMapArrayOutput()
 	c.Kubeconfig = pulumi.ToSecret(getPulumiKey(finalizer.Stdout, phkh.KubeconfigKey).AsStringOutput()).(pulumi.StringOutput)
 	c.Privatekey = pulumi.ToSecret(getPulumiKey(finalizer.Stdout, phkh.PrivatekeyKey).AsStringOutput()).(pulumi.StringOutput)
+	c.Config = args.Config
 
 	if err := ctx.RegisterResourceOutputs(c, pulumi.Map{
+		"config":               c.Config,
 		phkh.HetznerServersKey: c.HetznerServers,
 		phkh.KubeconfigKey:     c.Kubeconfig,
 		phkh.PrivatekeyKey:     c.Privatekey,

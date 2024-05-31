@@ -50,7 +50,7 @@ func TestLabelsTaintsManagement(t *testing.T) {
 	require.NoError(t, err)
 
 	// Get first server node id
-	nodeID, err := i.Stack.GetConfigWithOptions(ctx, "cluster.nodepools.servers[0].nodes[0].id", &auto.ConfigOptions{Path: true})
+	nodeID, err := i.Stack.GetConfigWithOptions(ctx, "cluster.nodepools.servers[0].nodes[0].node-id", &auto.ConfigOptions{Path: true})
 	require.NoError(t, err)
 
 	for _, n := range old {

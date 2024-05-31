@@ -110,6 +110,12 @@ func generateSchema() schema.PackageSpec {
 							},
 							Description: "Information about hetnzer servers.",
 						},
+						"config": {
+							TypeSpec: schema.TypeSpec{
+								Type: "object",
+								Ref:  "#types/" + resources.ClusterTypePrefix + ":" + resources.ClusterConfigType,
+							},
+						},
 					},
 				},
 				InputProperties: map[string]schema.PropertySpec{

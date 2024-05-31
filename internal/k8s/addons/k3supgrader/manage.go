@@ -37,7 +37,7 @@ func (u *Upgrader) Manage(ctx *program.Context, prov *kubernetes.Provider, mgmt 
 
 	// Use Chart in sake of Transformations.
 	// It is not possible to use RunPulumi now coz the ':' is not valid for yaml rendering.
-	deployed, err := helmv3.NewChart(ctx.Context(), fmt.Sprintf("%s-%s", ctx.ClusterName(), Name), helmv3.ChartArgs{
+	deployed, err := helmv3.NewChart(ctx.Context(), fmt.Sprintf("%s-%s", ctx.ClusterName(), Name)[:53], helmv3.ChartArgs{
 		Chart:     pulumi.String(helmChart),
 		Namespace: ns.Metadata.Name().Elem(),
 		Version:   pulumi.String(u.helm.Version),

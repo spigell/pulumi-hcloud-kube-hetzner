@@ -42,7 +42,7 @@ up-template-versions:: up-go-template-versions up-typescript-template-versions
 up-go-template-versions: export TEMPLATES = dev/go-module-development phkh-go-multiple-clusters phkh-go-simple phkh-go-cluster-files
 up-go-template-versions:
 	@for TMP in $(TEMPLATES); do \
-		$(MAKE) test-go-project DEV_TEMPLATE=$${TMP} && \
+		$(MAKE) test-go-project DEV_TEMPLATE=pulumi-templates/$${TMP} && \
 		cd test-project && \
 		go mod edit -dropreplace=github.com/spigell/pulumi-hcloud-kube-hetzner && \
 		go get -u && go get github.com/spigell/pulumi-hcloud-kube-hetzner@$(TAG) && go mod tidy && \
@@ -56,7 +56,7 @@ up-go-template-versions:
 up-typescript-template-versions: export TEMPLATES = phkh-typescript-cluster-files phkh-typescript-simple phkh-typescript-pulumi-config
 up-typescript-template-versions:
 	@for TMP in $(TEMPLATES); do \
-		$(MAKE) test-ts-project DEV_TEMPLATE=$${TMP} && \
+		$(MAKE) test-ts-project DEV_TEMPLATE=pulumi-templates/$${TMP} && \
 		cd test-project && \
 		yarn add @spigell/hcloud-kube-hetzner@$(TAG) && \
 		yarn add yaml && \

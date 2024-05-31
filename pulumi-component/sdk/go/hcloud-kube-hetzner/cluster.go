@@ -16,6 +16,7 @@ import (
 type Cluster struct {
 	pulumi.ResourceState
 
+	Config cluster.ConfigConfigPtrOutput `pulumi:"config"`
 	// The kubeconfig for the cluster.
 	Kubeconfig pulumi.StringPtrOutput `pulumi:"kubeconfig"`
 	// The private key for nodes.
@@ -144,6 +145,10 @@ func (o ClusterOutput) ToClusterOutput() ClusterOutput {
 
 func (o ClusterOutput) ToClusterOutputWithContext(ctx context.Context) ClusterOutput {
 	return o
+}
+
+func (o ClusterOutput) Config() cluster.ConfigConfigPtrOutput {
+	return o.ApplyT(func(v *Cluster) cluster.ConfigConfigPtrOutput { return v.Config }).(cluster.ConfigConfigPtrOutput)
 }
 
 // The kubeconfig for the cluster.
