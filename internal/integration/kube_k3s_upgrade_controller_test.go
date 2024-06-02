@@ -107,7 +107,7 @@ func TestK3SUpgradeControllerConfigEnv(t *testing.T) {
 	require.NoError(t, err)
 	// How the name of Config Name generated?
 	cm, err := k8s.ConfigMap(k3supgrader.Namespace, "test-k3s-upgrade-controller-system-upgrade-controller-env")
-	require.NoError(t, err, fmt.Sprintf("error while getting config map: %s. All config maps are %+v", err.Error(), cms))
+	require.NoError(t, err, fmt.Errorf("error while getting config map: %w. All config maps are %+v", err, cms))
 
 	require.True(t, ok)
 	for _, env := range i.Example.Decoded.K8S.Addons.K3SSystemUpgrader.ConfigEnv {
