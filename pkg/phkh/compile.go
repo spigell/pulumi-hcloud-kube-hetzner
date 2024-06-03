@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"net"
-	"runtime"
 	"slices"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
