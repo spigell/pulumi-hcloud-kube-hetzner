@@ -5,7 +5,7 @@ go 1.22.0
 toolchain go1.22.2
 
 require (
-	github.com/pulumi/pulumi/sdk/v3 v3.117.0
+	github.com/pulumi/pulumi/sdk/v3 v3.118.0
 	github.com/spigell/pulumi-hcloud-kube-hetzner v0.0.12
 	gopkg.in/yaml.v3 v3.0.1
 )
@@ -56,7 +56,7 @@ require (
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
-	github.com/go-playground/validator/v10 v10.20.0 // indirect
+	github.com/go-playground/validator/v10 v10.21.0 // indirect
 	github.com/goccy/go-json v0.10.3 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v1.2.1 // indirect
@@ -70,8 +70,8 @@ require (
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-5 // indirect
 	github.com/hashicorp/hcl/v2 v2.20.1 // indirect
-	github.com/hetznercloud/hcloud-go v1.55.0 // indirect
-	github.com/hetznercloud/hcloud-go/v2 v2.8.0 // indirect
+	github.com/hetznercloud/hcloud-go v1.56.0 // indirect
+	github.com/hetznercloud/hcloud-go/v2 v2.9.0 // indirect
 	github.com/imdario/mergo v0.3.16 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jbenet/go-context v0.0.0-20150711004518-d14ea06fba99 // indirect
@@ -129,7 +129,7 @@ require (
 	github.com/spf13/cast v1.6.0 // indirect
 	github.com/spf13/cobra v1.8.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/spf13/viper v1.18.2 // indirect
+	github.com/spf13/viper v1.19.0 // indirect
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99 // indirect
 	github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99 // indirect
 	github.com/spigell/pulumi-file/sdk v0.0.0-20240124083824-da5e49302f10 // indirect
