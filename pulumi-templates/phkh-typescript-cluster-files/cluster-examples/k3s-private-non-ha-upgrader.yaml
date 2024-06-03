@@ -1,0 +1,33 @@
+# The simple cluster with only k3s system upgrader controller
+defaults:
+  # Disable automatic upgrades for servers and set version of k3s by hands
+  servers:
+    k8s:
+      node-label:
+        # with this label the upgrader controller will not upgrade this node
+        - "k3s-upgrade=false"
+    k3s:
+      version: v1.29.3+k3s1
+
+# Cluster definition
+network:
+  hetzner:
+    enabled: true
+    cidr: 10.1.0.0/16
+k8s:
+  addons:
+    k3s-upgrade-controller:
+      enabled: true
+      target-channel: latest
+      config-env:
+        - "SYSTEM_UPGRADE_JOB_TTL_SECONDS_AFTER_FINISH=10"
+        - "SYSTEM_UPGRADE_PLAN_POLLING_INTERVAL=1m"
+nodepools:
+  servers:
+    - pool-id: 01-control-plane
+      nodes:
+      - node-id: k3s-server01
+  agents:
+    - pool-id: 01-agents
+      nodes:
+      - node-id: k3s-agent01

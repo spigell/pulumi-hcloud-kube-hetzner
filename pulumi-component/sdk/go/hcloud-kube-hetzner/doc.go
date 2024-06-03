@@ -1,2 +1,2 @@
-// Package hcloudkubehetzner exports types, functions, subpackages for provisioning hcloudkubehetzner resources.
+// Hetzner Cloud Kubernetes
 package hcloudkubehetzner

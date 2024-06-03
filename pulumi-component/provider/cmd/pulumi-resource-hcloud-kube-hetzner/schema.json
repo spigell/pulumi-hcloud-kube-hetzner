@@ -1,0 +1,652 @@
+{
+    "name": "hcloud-kube-hetzner",
+    "description": "Hetzner Cloud Kubernetes",
+    "keywords": [
+        "pulumi",
+        "hetzner",
+        "k3s",
+        "category/infrastructure",
+        "kind/component",
+        "kubernetes"
+    ],
+    "license": "Apache-2.0",
+    "repository": "https://github.com/spigell/pulumi-hcloud-kube-hetzner",
+    "pluginDownloadURL": "github://api.github.com/spigell/pulumi-hcloud-kube-hetzner",
+    "publisher": "spigell",
+    "language": {
+        "csharp": {
+            "packageReferences": {
+                "Pulumi": "3.*",
+                "Pulumi.Kubernetes": "4.*"
+            }
+        },
+        "go": {
+            "generateResourceContainerTypes": true,
+            "importBasePath": "github.com/spigell/pulumi-hcloud-kube-hetzner/pulumi-component/sdk/go/hcloud-kube-hetzner"
+        },
+        "nodejs": {
+            "dependencies": {
+                "@pulumi/command": "0.11.1",
+                "@pulumi/hcloud": "1.18.1",
+                "@pulumi/kubernetes": "^4.0.0",
+                "@pulumi/pulumi": "^3.0.0"
+            },
+            "devDependencies": {
+                "@types/node": "^20.0.0",
+                "typescript": "^4.3.5"
+            },
+            "packageName": "@spigell/hcloud-kube-hetzner"
+        },
+        "python": {
+            "liftSingleValueMethodReturns": true,
+            "pyproject": {
+                "enabled": true
+            },
+            "requires": {
+                "pulumi": "\u003e=3.0.0,\u003c4.0.0",
+                "pulumi-kubernetes": "\u003e=4.0.0,\u003c5.0.0"
+            },
+            "usesIOClasses": true
+        }
+    },
+    "config": {},
+    "types": {
+        "hcloud-kube-hetzner:cluster:addonsConfig": {
+            "properties": {
+                "CCM": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:ccmConfig",
+                    "description": "CCM defines configuration [hetzner-cloud-controller-manager](https://github.com/hetznercloud/hcloud-cloud-controller-manager). "
+                },
+                "K3SSystemUpgrader": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:k3supgraderConfig",
+                    "description": "K3SSystemUpgrader defines configuration for [system-upgrade-controller](https://github.com/rancher/system-upgrade-controller). "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:auditAuditLogConfig": {
+            "properties": {
+                "AuditLogMaxAge": {
+                    "type": "number",
+                    "description": "AuditLogMaxAge defines the maximum number of days to retain old audit log files. Default is 10. "
+                },
+                "AuditLogMaxBackup": {
+                    "type": "number",
+                    "description": "AuditLogMaxBackup specifies the maximum number of audit log files to retain. Default is 30. "
+                },
+                "AuditLogMaxSize": {
+                    "type": "number",
+                    "description": "AuditLogMaxSize specifies the maximum size in megabytes of the audit log file before it gets rotated. Default is 100. "
+                },
+                "Enabled": {
+                    "type": "boolean",
+                    "description": "Enabled specifies if the audit log is enabled. If nil, it might default to a cluster-level setting. Default is true. "
+                },
+                "PolicyFilePath": {
+                    "type": "string",
+                    "description": "PolicyFilePath is the path to the local file that defines the audit policy configuration. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:ccmConfig": {
+            "properties": {
+                "Enabled": {
+                    "type": "boolean",
+                    "description": "Enabled is a flag to enable or disable hcloud CCM. "
+                },
+                "Helm": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:helmConfig"
+                },
+                "LoadbalancersDefaultLocation": {
+                    "type": "string",
+                    "description": "DefaultloadbalancerLocation is a default location for the loadbancers. "
+                },
+                "LoadbalancersEnabled": {
+                    "type": "boolean",
+                    "description": "LoadbalancersEnabled is a flag to enable or disable loadbalancers management. Note: internal loadbalancer for k3s will be disabled. "
+                },
+                "Token": {
+                    "type": "string",
+                    "description": "Token is a hcloud token to access hcloud API for CCM. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:configConfig": {
+            "properties": {
+                "Defaults": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configDefaultConfig",
+                    "description": "Defaults is a map with default settings for agents and servers. Global values for all nodes can be set here as well. Default is not specified. "
+                },
+                "K8S": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:k8sconfigConfig",
+                    "description": "K8S defines a distribution-agnostic cluster configuration. Default is not specified. "
+                },
+                "Network": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configNetworkConfig",
+                    "description": "Network defines network configuration for cluster. Default is not specified. "
+                },
+                "Nodepools": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configNodepoolsConfig",
+                    "description": "Nodepools is a map with agents and servers defined. Required for at least one server node. Default is not specified. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:configDefaultConfig": {
+            "properties": {
+                "Agents": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configNodeConfig",
+                    "description": "Agents holds configuration settings specific to agent nodes, overriding Global settings where specified. "
+                },
+                "Global": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configNodeConfig",
+                    "description": "Global provides configuration settings that are applied to all nodes, unless overridden by specific roles. "
+                },
+                "Servers": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configNodeConfig",
+                    "description": "Servers holds configuration settings specific to server nodes, overriding Global settings where specified. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:configFirewallConfig": {
+            "properties": {
+                "Hetzner": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:firewallConfig",
+                    "description": "Hetzner specify firewall configuration for cloud firewall. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:configNetworkConfig": {
+            "properties": {
+                "Hetzner": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:networkConfig",
+                    "description": "Hetzner specifies network configuration for private networking. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:configNodeConfig": {
+            "properties": {
+                "K3s": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:k3sConfig",
+                    "description": "K3S is the configuration of a k3s cluster. "
+                },
+                "K8S": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:k8sconfigNodeConfig",
+                    "description": "K8S is common configuration for nodes. "
+                },
+                "Leader": {
+                    "type": "boolean",
+                    "description": "Leader specifies the leader of a multi-master cluster. Required if the number of masters is more than 1. Default is not specified. "
+                },
+                "NodeID": {
+                    "type": "string",
+                    "description": "NodeID is the id of a server. It is used throughout the entire program as a key. Required. Default is not specified. "
+                },
+                "Server": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configServerConfig",
+                    "description": "Server is the configuration of a Hetzner server. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:configNodepoolConfig": {
+            "properties": {
+                "Config": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configNodeConfig",
+                    "description": "Config is the default node configuration for the group. "
+                },
+                "Nodes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#types/hcloud-kube-hetzner:cluster:configNodeConfig"
+                    },
+                    "description": "Nodes is a list of nodes inside of the group. "
+                },
+                "PoolID": {
+                    "type": "string",
+                    "description": "PoolID is id of group of servers. It is used through the entire program as key for the group. Required. Default is not specified. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:configNodepoolsConfig": {
+            "properties": {
+                "Agents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#types/hcloud-kube-hetzner:cluster:configNodepoolConfig"
+                    },
+                    "description": "Agents is a list of NodepoolConfig objects, each representing a configuration for a pool of agent nodes. "
+                },
+                "Servers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#types/hcloud-kube-hetzner:cluster:configNodepoolConfig"
+                    },
+                    "description": "Servers is a list of NodepoolConfig objects, each representing a configuration for a pool of server nodes. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:configServerConfig": {
+            "properties": {
+                "AdditionalSSHKeys": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "AdditionalSSHKeys contains a list of additional public SSH keys to install in the server's user account. "
+                },
+                "Firewall": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configFirewallConfig",
+                    "description": "Firewall points to an optional configuration for a firewall to be associated with the server. "
+                },
+                "Hostname": {
+                    "type": "string",
+                    "description": "Hostname is the desired hostname to assign to the server. Default is `phkh-${name-of-stack}-${name-of-cluster}-${id-of-node}`. "
+                },
+                "Image": {
+                    "type": "string",
+                    "description": "Image specifies the operating system image to use for the server (e.g., \"ubuntu-20.04\" or id of private image). Default is autodiscovered. "
+                },
+                "Location": {
+                    "type": "string",
+                    "description": "Location specifies the physical location or data center where the server will be hosted (e.g., \"fsn1\"). Default is hel1. "
+                },
+                "ServerType": {
+                    "type": "string",
+                    "description": "ServerType specifies the type of server to be provisioned (e.g., \"cx11\", \"cx21\"). Default is cx21. "
+                },
+                "UserName": {
+                    "type": "string",
+                    "description": "UserName is the primary user account name that will be created on the server. Default is rancher. "
+                },
+                "UserPasswd": {
+                    "type": "string",
+                    "description": "UserPasswd is the password for the primary user account on the server. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:firewallConfig": {
+            "properties": {
+                "AdditionalRules": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#types/hcloud-kube-hetzner:cluster:firewallRuleConfig"
+                    },
+                    "description": "AdditionalRules is a list of additional rules to be applied. "
+                },
+                "AllowICMP": {
+                    "type": "boolean",
+                    "description": "AllowICMP indicates whether ICMP traffic is allowed. Default is false. "
+                },
+                "Enabled": {
+                    "type": "boolean",
+                    "description": "Enabled specifies if the configuration is active. Default is false. "
+                },
+                "SSH": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:firewallSSHConfig",
+                    "description": "SSH holds the SSH specific configurations. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:firewallRuleConfig": {
+            "properties": {
+                "Description": {
+                    "type": "string",
+                    "description": "Description provides a human-readable explanation of what the rule is intended to do. "
+                },
+                "Port": {
+                    "type": "string",
+                    "description": "Port specifies the network port number or range applicable for the rule. Required. "
+                },
+                "Protocol": {
+                    "type": "string",
+                    "description": "Protocol specifies the network protocol (e.g., TCP, UDP) applicable for the rule. Default is TCP. "
+                },
+                "SourceIps": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "SourceIps lists IP addresses or subnets from which traffic is allowed or to which traffic is directed, based on the Direction. Required. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:firewallSSHConfig": {
+            "properties": {
+                "Allow": {
+                    "type": "boolean",
+                    "description": "Allow indicates whether SSH access is permitted. Default is false. "
+                },
+                "AllowedIps": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "AllowedIps lists specific IP addresses that are permitted to access via SSH. "
+                },
+                "DisallowOwnIP": {
+                    "type": "boolean",
+                    "description": "DisallowOwnIP specifies whether SSH access from the deployer's own IP address is disallowed. Default is false. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:helmConfig": {
+            "properties": {
+                "ValuesFilePath": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "ValuesFilePaths is a list of path/to/file to values files. See https://www.pulumi.com/registry/packages/kubernetes/api-docs/helm/v3/release/#valueyamlfiles_nodejs for details. "
+                },
+                "Version": {
+                    "type": "string",
+                    "description": "Version is version of helm chart. Default is taken from default-helm-versions.yaml in template's versions directory. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:k3sConfig": {
+            "properties": {
+                "CleanDataOnUpgrade": {
+                    "type": "boolean",
+                    "description": "[Experimental] clean-data-on-upgrade is used to delete all data while upgrade. This is based on the script https://docs.k3s.io/upgrades/killall "
+                },
+                "K3S": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:k3sK3sConfig",
+                    "description": "The real config of k3s service. "
+                },
+                "Version": {
+                    "type": "string",
+                    "description": "Version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:k3sK3sConfig": {
+            "properties": {
+                "ClusterCidr": {
+                    "type": "string",
+                    "description": "ClusterCidr defines the IP range from which pod IPs shall be allocated. Default is 10.141.0.0/16. "
+                },
+                "ClusterDNS": {
+                    "type": "string",
+                    "description": "ClusterDNS specifies the IP address of the DNS service within the cluster. Default is autopicked. "
+                },
+                "ClusterDomain": {
+                    "type": "string",
+                    "description": "ClusterDomain specifies the domain name of the cluster. "
+                },
+                "Disable": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Disable lists components or features to disable. "
+                },
+                "DisableCloudController": {
+                    "type": "boolean",
+                    "description": "DisableCloudController determines whether to disable the integrated cloud controller manager. Default is false, but will be true if ccm is enabled. "
+                },
+                "DisableNetworkPolicy": {
+                    "type": "boolean",
+                    "description": "DisableNetworkPolicy determines whether to disable network policies. "
+                },
+                "FlannelBackend": {
+                    "type": "string",
+                    "description": "FlannelBackend determines the type of backend used for Flannel, a networking solution. "
+                },
+                "KubeAPIServerArgs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server. "
+                },
+                "KubeCloudControllerManagerArgs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "KubeCloudControllerManagerArgs allows passing additional arguments to the Kubernetes cloud controller manager. "
+                },
+                "KubeControllerManagerArgs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "KubeControllerManagerArgs allows passing additional arguments to the Kubernetes controller manager. "
+                },
+                "KubeletArgs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "KubeletArgs allows passing additional arguments to the kubelet service. "
+                },
+                "NodeLabels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "NodeLabels set labels on registration. "
+                },
+                "NodeTaints": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0. "
+                },
+                "ServiceCidr": {
+                    "type": "string",
+                    "description": "ServiceCidr defines the IP range from which service cluster IPs are allocated. Default is 10.140.0.0/16. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:k3supgraderConfig": {
+            "properties": {
+                "ConfigEnv": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "ConfigEnv is a map of environment variables to pass to the controller. "
+                },
+                "Enabled": {
+                    "type": "boolean"
+                },
+                "Helm": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:helmConfig"
+                },
+                "TargetChannel": {
+                    "type": "string",
+                    "description": "Channel is a channel to use for the upgrade. Conflicts with Version. "
+                },
+                "TargetVersion": {
+                    "type": "string",
+                    "description": "Version is a version to use for the upgrade. Conflicts with Channel. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:k8sconfigBasicFirewallConfig": {
+            "properties": {
+                "HetznerPublic": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:k8sconfigHetnzerBasicFirewallConfig",
+                    "description": "HetznerPublic is used to describe firewall attached to public k8s api endpoint. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:k8sconfigConfig": {
+            "properties": {
+                "Addons": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:addonsConfig"
+                },
+                "AuditLog": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:auditAuditLogConfig"
+                },
+                "KubeAPIEndpoint": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:k8sconfigK8SEndpointConfig"
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:k8sconfigHetnzerBasicFirewallConfig": {
+            "properties": {
+                "AllowedIps": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "AllowedIps specifies a list of IP addresses that are permitted to access the k8s api endpoint. Only traffic from these IPs will be allowed if this list is configured. Default is 0.0.0.0/0 (all ipv4 addresses). "
+                },
+                "DisallowOwnIP": {
+                    "type": "boolean",
+                    "description": "DisallowOwnIP is a security setting that, when enabled, prevents access to the server from deployer own public IP address. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:k8sconfigK8SEndpointConfig": {
+            "properties": {
+                "Firewall": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:k8sconfigBasicFirewallConfig",
+                    "description": "Firewall defines configuration for the firewall attached to api access. This is used only for public type since private network considered to be secure. "
+                },
+                "Type": {
+                    "type": "string",
+                    "description": "Type of k8s endpoint: public or private. Default is public. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:k8sconfigNodeConfig": {
+            "properties": {
+                "NodeLabels": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "NodeLabels are used to label the node with key=value. "
+                },
+                "NodeTaints": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:k8sconfigTaintConfig",
+                    "description": "NodeTaints configures taint node manager. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:k8sconfigTaintConfig": {
+            "properties": {
+                "DisableDefaultsTaints": {
+                    "type": "boolean",
+                    "description": "Do not add default taints to the server node. Default is false. "
+                },
+                "Enabled": {
+                    "type": "boolean",
+                    "description": "Enable or disable taint management. Default is false. "
+                },
+                "Taints": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "description": "Taints are used to taint the node with key=value:effect. Default is server node is tainted with a couple of taints if number of agents nodes more than 0. But only if disable-default-taints set to false. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:networkConfig": {
+            "properties": {
+                "CIDR": {
+                    "type": "string",
+                    "description": "CIDR of private network. Default is 10.20.0.0/16 "
+                },
+                "Enabled": {
+                    "type": "boolean",
+                    "description": "Enabled of not. Default is false. "
+                },
+                "Zone": {
+                    "type": "string",
+                    "description": "Network zone. Default is eu-central. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:servers": {
+            "properties": {
+                "internalIP": {
+                    "type": "string"
+                },
+                "ip": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "provider": {},
+    "resources": {
+        "hcloud-kube-hetzner:index:Cluster": {
+            "description": "Component for creating a Hetzner Cloud Kubernetes cluster.",
+            "properties": {
+                "config": {
+                    "type": "object",
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:configConfig"
+                },
+                "kubeconfig": {
+                    "type": "string",
+                    "description": "The kubeconfig for the cluster."
+                },
+                "privatekey": {
+                    "type": "string",
+                    "description": "The private key for nodes."
+                },
+                "servers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#types/hcloud-kube-hetzner:cluster:servers"
+                    },
+                    "description": "Information about hetnzer servers."
+                }
+            },
+            "inputProperties": {
+                "config": {
+                    "oneOf": [
+                        {
+                            "$ref": "#types/hcloud-kube-hetzner:cluster:configConfig"
+                        },
+                        {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    ],
+                    "description": "Configuration for the cluster. \nCan be Struct or pulumi.Map types. \nDespite of the fact that SDK can accept multiple types it is recommended to use strong typep struct if possible. \nCaution: Not all configuration options for k3s cluster are available. \nAdditional information can be found at https://github.com/spigell/pulumi-hcloud-kube-hetzner/blob/main/docs/parameters.md"
+                }
+            },
+            "isComponent": true
+        }
+    }
+}

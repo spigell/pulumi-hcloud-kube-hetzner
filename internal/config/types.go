@@ -1,9 +1,6 @@
 package config
 
 import (
-	"fmt"
-
-	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/firewall"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/k8sconfig"
@@ -34,11 +31,11 @@ type NodepoolsConfig struct {
 }
 
 type NodepoolConfig struct {
-	// ID is id of group of servers. It is used through entire program as key for the group.
+	// PoolID is id of group of servers. It is used through the entire program as key for the group.
 	// Required.
 	// Default is not specified.
-	ID string
-	// Config is the default node configuration for group
+	PoolID string `json:"pool-id" yaml:"pool-id" mapstructure:"pool-id"`
+	// Config is the default node configuration for the group.
 	Config *NodeConfig
 	// Nodes is a list of nodes inside of the group.
 	Nodes []*NodeConfig
@@ -50,40 +47,40 @@ type NetworkConfig struct {
 }
 
 func (n *NodepoolConfig) GetID() string {
-	return n.ID
+	return n.PoolID
 }
 
 type NodeConfig struct {
-	// ID is id of server. It is used through entire program as key.
+	// NodeID is the id of a server. It is used throughout the entire program as a key.
 	// Required.
 	// Default is not specified.
-	ID string
-	// Leader specify leader of multi-muster cluster.
-	// Required if number of master more than 1.
+	NodeID string `json:"node-id" yaml:"node-id" mapstructure:"node-id"`
+	// Leader specifies the leader of a multi-master cluster.
+	// Required if the number of masters is more than 1.
 	// Default is not specified.
 	Leader bool
-	// Server is configuration of hetzner server.
+	// Server is the configuration of a Hetzner server.
 	Server *ServerConfig
-	// K3S is configuration of k3s cluster.
+	// K3S is the configuration of a k3s cluster.
 	K3s *k3s.Config
 	// K8S is common configuration for nodes.
 	K8S *k8sconfig.NodeConfig
-	// Role specifes role of server (server or agent). Do not set manually.
+	// Role specifies the role of the server (server or agent).
 	// Default is computed.
-	Role string
+	Role string `json:"-" yaml:"-" mapstructure:"-"`
 }
 
 func (n *NodeConfig) GetID() string {
-	return n.ID
+	return n.NodeID
 }
 
 type ServerConfig struct {
 	// ServerType specifies the type of server to be provisioned (e.g., "cx11", "cx21").
 	// Default is cx21.
-	ServerType string `json:"server-type" yaml:"server-type"`
+	ServerType string `json:"server-type" yaml:"server-type" mapstructure:"server-type"`
 
 	// Hostname is the desired hostname to assign to the server.
-	// Default is `phkh-${name-of-stack}-${id-of-node}`.
+	// Default is `phkh-${name-of-stack}-${name-of-cluster}-${id-of-node}`.
 	Hostname string
 
 	// Firewall points to an optional configuration for a firewall to be associated with the server.
@@ -94,14 +91,14 @@ type ServerConfig struct {
 	Location string
 
 	// AdditionalSSHKeys contains a list of additional public SSH keys to install in the server's user account.
-	AdditionalSSHKeys []string `json:"additional-ssh-keys" yaml:"additional-ssh-keys"`
+	AdditionalSSHKeys []string `json:"additional-ssh-keys" yaml:"additional-ssh-keys" mapstructure:"additional-ssh-keys"`
 
 	// UserName is the primary user account name that will be created on the server.
 	// Default is rancher.
-	UserName string `json:"user-name" yaml:"user-name"`
+	UserName string `json:"user-name" yaml:"user-name" mapstructure:"user-name"`
 
 	// UserPasswd is the password for the primary user account on the server.
-	UserPasswd string `json:"user-password" yaml:"user-password"`
+	UserPasswd string `json:"user-password" yaml:"user-password" mapstructure:"user-password"`
 
 	// Image specifies the operating system image to use for the server (e.g., "ubuntu-20.04" or id of private image).
 	// Default is autodiscovered.
@@ -198,14 +195,14 @@ func (n *NetworkConfig) WithInited() *NetworkConfig {
 	return n
 }
 
-func (no *NodepoolsConfig) WithInited(ctx *pulumi.Context) *NodepoolsConfig {
-	no.Agents = initNodepools(ctx, no.Agents)
-	no.Servers = initNodepools(ctx, no.Servers)
+func (no *NodepoolsConfig) WithInited() *NodepoolsConfig {
+	no.Agents = initNodepools(no.Agents)
+	no.Servers = initNodepools(no.Servers)
 
 	return no
 }
 
-func initNodepools(ctx *pulumi.Context, pools []*NodepoolConfig) []*NodepoolConfig {
+func initNodepools(pools []*NodepoolConfig) []*NodepoolConfig {
 	no := make([]*NodepoolConfig, 0)
 
 	for i, pool := range pools {
@@ -229,10 +226,6 @@ func initNodepools(ctx *pulumi.Context, pools []*NodepoolConfig) []*NodepoolConf
 		for j, node := range pool.Nodes {
 			if node.Server == nil {
 				no[i].Nodes[j].Server = &ServerConfig{}
-			}
-
-			if node.Server.Hostname == "" {
-				no[i].Nodes[j].Server.Hostname = fmt.Sprintf("%s-%s-%s", ServerNamePrefix, ctx.Stack(), node.ID)
 			}
 
 			if node.K3s == nil {

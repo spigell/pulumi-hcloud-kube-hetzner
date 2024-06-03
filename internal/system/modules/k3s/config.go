@@ -14,14 +14,16 @@ type Compiled struct {
 }
 
 type Config struct {
-	// version is used to determine if k3s should be upgraded if auto-upgrade is disabled.
+	// Version is used to determine if k3s should be upgraded if auto-upgrade is disabled.
 	// If the version is changed, k3s will be upgraded.
 	Version string
+
 	// [Experimental] clean-data-on-upgrade is used to delete all data while upgrade.
 	// This is based on the script https://docs.k3s.io/upgrades/killall
-	CleanDataOnUpgrade bool `json:"clean-data-on-upgrade" yaml:"clean-data-on-upgrade,omitempty"`
+	CleanDataOnUpgrade bool `json:"clean-data-on-upgrade" yaml:"clean-data-on-upgrade,omitempty" mapstructure:"clean-data-on-upgrade"`
+
 	// The real config of k3s service.
-	K3S *K3sConfig `json:"config" yaml:"config"`
+	K3S *K3sConfig `json:"config" yaml:"config" mapstructure:"config"`
 }
 
 type K3sConfig struct { //nolint: revive // This name is better
@@ -63,50 +65,50 @@ type K3sConfig struct { //nolint: revive // This name is better
 
 	// ClusterCidr defines the IP range from which pod IPs shall be allocated.
 	// Default is 10.141.0.0/16.
-	ClusterCidr string `json:"cluster-cidr" yaml:"cluster-cidr,omitempty"`
+	ClusterCidr string `json:"cluster-cidr" yaml:"cluster-cidr,omitempty" mapstructure:"cluster-cidr"`
 
 	// ServiceCidr defines the IP range from which service cluster IPs are allocated.
 	// Default is 10.140.0.0/16.
-	ServiceCidr string `json:"service-cidr" yaml:"service-cidr,omitempty"`
+	ServiceCidr string `json:"service-cidr" yaml:"service-cidr,omitempty" mapstructure:"service-cidr"`
 
 	// ClusterDomain specifies the domain name of the cluster.
-	ClusterDomain string `json:"cluster-domain" yaml:"cluster-domain,omitempty"`
+	ClusterDomain string `json:"cluster-domain" yaml:"cluster-domain,omitempty" map]structure:"cluster-domain"`
 
 	// ClusterDNS specifies the IP address of the DNS service within the cluster.
 	// Default is autopicked.
-	ClusterDNS string `json:"cluster-dns" yaml:"cluster-dns,omitempty"`
+	ClusterDNS string `json:"cluster-dns" yaml:"cluster-dns,omitempty" mapstructure:"cluster-dns"`
 
 	// FlannelBackend determines the type of backend used for Flannel, a networking solution.
-	FlannelBackend string `json:"flannel-backend" yaml:"flannel-backend,omitempty"`
+	FlannelBackend string `json:"flannel-backend" yaml:"flannel-backend,omitempty" mapstructure:"flannel-backend"`
 
 	// DisableNetworkPolicy determines whether to disable network policies.
-	DisableNetworkPolicy bool `json:"disable-network-policy" yaml:"disable-network-policy,omitempty"`
+	DisableNetworkPolicy bool `json:"disable-network-policy" yaml:"disable-network-policy,omitempty" mapstructure:"disable-network-policy"`
 
 	// KubeletArgs allows passing additional arguments to the kubelet service.
-	KubeletArgs []string `json:"kubelet-arg" yaml:"kubelet-arg,omitempty"`
+	KubeletArgs []string `json:"kubelet-arg" yaml:"kubelet-arg,omitempty" mapstructure:"kubelet-arg"`
 
 	// KubeControllerManagerArgs allows passing additional arguments to the Kubernetes controller manager.
-	KubeControllerManagerArgs []string `json:"kube-controller-manager-arg" yaml:"kube-controller-manager-arg,omitempty"`
+	KubeControllerManagerArgs []string `json:"kube-controller-manager-arg" yaml:"kube-controller-manager-arg,omitempty" mapstructure:"kube-controller-manager-arg"`
 
 	// KubeCloudControllerManagerArgs allows passing additional arguments to the Kubernetes cloud controller manager.
-	KubeCloudControllerManagerArgs []string `json:"kube-cloud-controller-manager-arg" yaml:"kube-cloud-controller-manager-arg,omitempty"`
+	KubeCloudControllerManagerArgs []string `json:"kube-cloud-controller-manager-arg" yaml:"kube-cloud-controller-manager-arg,omitempty" mapstructure:"kube-cloud-controller-manager-arg"`
 
 	// KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server.
-	KubeAPIServerArgs []string `json:"kube-apiserver-arg" yaml:"kube-apiserver-arg,omitempty"`
+	KubeAPIServerArgs []string `json:"kube-apiserver-arg" yaml:"kube-apiserver-arg,omitempty" mapstructure:"kube-apiserver-arg"`
 
 	// DisableCloudController determines whether to disable the integrated cloud controller manager.
 	// Default is false, but will be true if ccm is enabled.
-	DisableCloudController bool `json:"disable-cloud-controller" yaml:"disable-cloud-controller,omitempty"`
+	DisableCloudController bool `json:"disable-cloud-controller" yaml:"disable-cloud-controller,omitempty" mapstructure:"disable-cloud-controller"`
 
 	// Disable lists components or features to disable.
 	Disable []string `yaml:"disable,omitempty"`
 
-	// NodeLables set labels on registration
-	NodeLabels []string `json:"node-label" yaml:"node-label,omitempty"`
+	// NodeLabels set labels on registration.
+	NodeLabels []string `json:"node-label" yaml:"node-label,omitempty" mapstructure:"node-label"`
 
 	// NodeTaints are used to taint the node with key=value:effect.
 	// By default, server node is tainted with a couple of taints if number of agents nodes more than 0.
-	NodeTaints []string `json:"node-taint" yaml:"node-taint,omitempty"`
+	NodeTaints []string `json:"node-taint" yaml:"node-taint,omitempty" mapstructure:"node-taint"`
 }
 
 func (c *Compiled) render() ([]byte, error) {

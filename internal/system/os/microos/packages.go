@@ -32,13 +32,12 @@ func (m *MicroOS) Packages(ctx *program.Context, con *connection.Connection) err
 	// Add retry logic
 	withRetry := fmt.Sprintf(retry, cmd)
 
-	installed, err := remote.NewCommand(ctx.Context(), fmt.Sprintf("packages-%s", m.ID), &remote.CommandArgs{
+	installed, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("packages:%s", m.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.String(withRetry),
-	}, append(ctx.Options(),
-		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m", Update: "10m"}),
+	}, pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m", Update: "10m"}),
 		pulumi.DependsOn(m.resources),
-	)...)
+	)
 	if err != nil {
 		return err
 	}

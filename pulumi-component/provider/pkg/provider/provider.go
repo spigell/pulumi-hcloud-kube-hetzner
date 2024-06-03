@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"github.com/pkg/errors"
 	"github.com/pulumi/pulumi/pkg/v3/resource/provider"
 	"github.com/pulumi/pulumi/sdk/v3/go/common/util/cmdutil"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
@@ -8,8 +9,7 @@ import (
 )
 
 const (
-	ProviderName  = "hcloud-kube-hetzner"
-	ComponentName = ProviderName + ":index:Cluster"
+	ProviderName = "hcloud-kube-hetzner"
 )
 
 // Serve launches the gRPC server for the resource provider.
@@ -24,5 +24,12 @@ func Serve(version string, schema []byte) {
 func Construct(ctx *pulumi.Context, typ, name string, inputs pp.ConstructInputs,
 	opts pulumi.ResourceOption,
 ) (*pp.ConstructResult, error) {
-	return construct(ctx, &Cluster{}, typ, name, &ClusterArgs{}, inputs, opts)
+	var cluster *Cluster
+
+	switch typ {
+	case cluster.Type():
+		return construct(ctx, &Cluster{}, name, &ClusterArgs{}, inputs, opts)
+	default:
+		return nil, errors.Errorf("unknown resource type %s", typ)
+	}
 }

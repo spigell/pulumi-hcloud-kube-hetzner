@@ -1,0 +1,12 @@
+{
+    "name": "${PROJECT}",
+    "main": "index.ts",
+    "devDependencies": {
+        "@types/node": "^16"
+    },
+    "dependencies": {
+        "@pulumi/pulumi": "^3",
+        "@spigell/hcloud-kube-hetzner": "0.0.12",
+        "yaml": "^2.4.2"
+    }
+}

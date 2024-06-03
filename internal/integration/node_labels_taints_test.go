@@ -25,6 +25,9 @@ func TestLabelsTaintsManagement(t *testing.T) {
 
 	desiredTaint := "example.io/important-node=true:NoSchedule"
 
+	taintConfigKey := "cluster.nodepools.servers[0].nodes[0].k8s.node-taint.taints[0]"
+	labelConfigKey := "cluster.nodepools.servers[0].nodes[0].k8s.node-label[0]"
+
 	// t.Parallel()
 
 	ctx, cancel := context.WithDeadline(context.Background(), withPulumiDeadline)
@@ -50,7 +53,7 @@ func TestLabelsTaintsManagement(t *testing.T) {
 	require.NoError(t, err)
 
 	// Get first server node id
-	nodeID, err := i.Stack.GetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].id", &auto.ConfigOptions{Path: true})
+	nodeID, err := i.Stack.GetConfigWithOptions(ctx, "cluster.nodepools.servers[0].nodes[0].node-id", &auto.ConfigOptions{Path: true})
 	require.NoError(t, err)
 
 	for _, n := range old {
@@ -62,15 +65,15 @@ func TestLabelsTaintsManagement(t *testing.T) {
 	assert.NotEqual(t, targetLabelValue, fmt.Sprintf("target label is not changed for node %s. Is node exist?", nodeID.Value))
 
 	// Try to patch node labels and taints with new values
-	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-label[0]", auto.ConfigValue{
+	i.Stack.SetConfigWithOptions(ctx, labelConfigKey, auto.ConfigValue{
 		Value: fmt.Sprintf("%s=%s", targetLabelKey, desiredLabelValue),
 	}, &auto.ConfigOptions{Path: true})
 	// Taint management must be enabled first
-	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint.enabled", auto.ConfigValue{
+	i.Stack.SetConfigWithOptions(ctx, "cluster.nodepools.servers[0].nodes[0].k8s.node-taint.enabled", auto.ConfigValue{
 		Value: "true",
 	}, &auto.ConfigOptions{Path: true})
 
-	i.Stack.SetConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint.taints[0]", auto.ConfigValue{
+	i.Stack.SetConfigWithOptions(ctx, taintConfigKey, auto.ConfigValue{
 		Value: desiredTaint,
 	}, &auto.ConfigOptions{Path: true})
 
@@ -100,8 +103,8 @@ func TestLabelsTaintsManagement(t *testing.T) {
 		}
 	}
 
-	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-label[0]", &auto.ConfigOptions{Path: true})
-	i.Stack.RemoveConfigWithOptions(ctx, "nodepools.servers[0].nodes[0].k8s.node-taint.taints[0]", &auto.ConfigOptions{Path: true})
+	i.Stack.RemoveConfigWithOptions(ctx, labelConfigKey, &auto.ConfigOptions{Path: true})
+	i.Stack.RemoveConfigWithOptions(ctx, taintConfigKey, &auto.ConfigOptions{Path: true})
 	require.NoError(t, i.UpWithRetry())
 	require.NoError(t, err)
 
@@ -117,14 +120,7 @@ func TestLabelsTaintsManagement(t *testing.T) {
 			// Disable default taints must be set to false.
 			if len(i.Example.Decoded.Nodepools.Agents) > 0 {
 				for _, ta := range manager.DefaultTaints[variables.ServerRole] {
-					parsed := strings.Split(ta, "=")
-					d := parsed[0]
-
-					// If there is no value.
-					if len(parsed) == 1 {
-						d = strings.Split(d, ":")[0]
-					}
-
+					d := strings.Split(ta, "=")[0]
 					exist := false
 					for _, taint := range n.Spec.Taints {
 						if taint.Key == strings.Split(d, "=")[0] {

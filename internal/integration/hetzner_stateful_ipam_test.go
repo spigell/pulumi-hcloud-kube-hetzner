@@ -42,7 +42,7 @@ func TestHetznerDeleteNode(t *testing.T) {
 	assert.True(t, ok, "expected []interface{} got %T", out[phkh.HetznerServersKey])
 
 	require.NoError(t,
-		i.Stack.RemoveConfigWithOptions(ctx, "nodepools.agents[0].nodes[0]",
+		i.Stack.RemoveConfigWithOptions(ctx, "cluster.nodepools.agents[0].nodes[0]",
 			&auto.ConfigOptions{Path: true},
 		),
 	)
@@ -62,7 +62,7 @@ func TestHetznerDeleteNode(t *testing.T) {
 
 	// Remove entire nodepool
 	require.NoError(t,
-		i.Stack.RemoveConfigWithOptions(ctx, "nodepools.agents[0]",
+		i.Stack.RemoveConfigWithOptions(ctx, "cluster.nodepools.agents[0]",
 			&auto.ConfigOptions{Path: true},
 		),
 	)
@@ -79,18 +79,18 @@ func TestHetznerDeleteNode(t *testing.T) {
 
 func checkIPS(t *testing.T, new, old []interface{}) {
 	for _, node := range new {
-		ip, ok := node.(map[string]interface{})["internal-ip"].(string)
+		ip, ok := node.(map[string]interface{})[phkh.ServerInternalIPKey].(string)
 		assert.True(t, ok)
 		assert.NotEmpty(t, ip)
 
-		name, ok := node.(map[string]interface{})["name"].(string)
+		name, ok := node.(map[string]interface{})[phkh.ServerNameKey].(string)
 		assert.True(t, ok)
 
 		for _, n := range old {
-			name2, ok := n.(map[string]interface{})["name"].(string)
+			name2, ok := n.(map[string]interface{})[phkh.ServerNameKey].(string)
 			assert.True(t, ok)
 
-			ip2, ok := node.(map[string]interface{})["internal-ip"].(string)
+			ip2, ok := node.(map[string]interface{})[phkh.ServerInternalIPKey].(string)
 			assert.True(t, ok)
 			assert.NotEmpty(t, ip)
 

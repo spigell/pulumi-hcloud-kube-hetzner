@@ -14,10 +14,10 @@ func TestSingleServer(t *testing.T) {
 		Nodepools: &NodepoolsConfig{
 			Servers: []*NodepoolConfig{
 				{
-					ID: "servers",
+					PoolID: "servers",
 					Nodes: []*NodeConfig{
 						{
-							ID: "server01",
+							NodeID: "server01",
 						},
 					},
 				},
@@ -32,13 +32,13 @@ func TestSingleServer(t *testing.T) {
 		Nodepools: &NodepoolsConfig{
 			Servers: []*NodepoolConfig{
 				{
-					ID: "servers",
+					PoolID: "servers",
 					Nodes: []*NodeConfig{
 						{
-							ID: "server01",
+							NodeID: "server01",
 						},
 						{
-							ID: "server02",
+							NodeID: "server02",
 						},
 					},
 				},

@@ -13,17 +13,29 @@ import (
 )
 
 type Context struct {
-	ctx   *pulumi.Context
-	opts  []pulumi.ResourceOption
-	state *State
+	clusterName string
+	ctx         *pulumi.Context
+	opts        []pulumi.ResourceOption
+	state       *State
 }
 
-func NewContext(ctx *pulumi.Context, state *State, opts ...pulumi.ResourceOption) *Context {
-	return &Context{
-		ctx:   ctx,
-		opts:  opts,
-		state: state,
+func NewContext(ctx *pulumi.Context, name string, opts ...pulumi.ResourceOption) (*Context, error) {
+	c := &Context{
+		ctx:         ctx,
+		clusterName: name,
+		opts:        opts,
 	}
+
+	state, err := c.loadStateFile()
+	if err != nil {
+		if !errors.Is(err, ErrNoStateFile) {
+			return nil, err
+		}
+	}
+
+	c.state = state
+
+	return c, nil
 }
 
 func (c *Context) Context() *pulumi.Context {
@@ -34,9 +46,9 @@ func (c *Context) Options() []pulumi.ResourceOption {
 	return c.opts
 }
 
-func LoadStateFile(ctx *pulumi.Context) (*State, error) {
+func (c *Context) loadStateFile() (*State, error) {
 	var state *State
-	path := fmt.Sprintf("%s-%s.yaml", stateFilePrefix, ctx.Stack())
+	path := c.StatePath()
 	file, err := os.ReadFile(path)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -54,9 +66,8 @@ func LoadStateFile(ctx *pulumi.Context) (*State, error) {
 
 func (c *Context) DumpStateToFile(deps []pulumi.Resource) error {
 	// Dump file with pulumi
-	path := fmt.Sprintf("%s-%s.yaml", stateFilePrefix, c.Context().Stack())
 
-	_, err := local.NewCommand(c.Context(), "store-state", &local.CommandArgs{
+	_, err := PulumiRun(c, local.NewCommand, "store-state", &local.CommandArgs{
 		Create: c.state.IPAM.InternalIPS.ToArrayMapOutput().ApplyT(
 			func(m map[string][]any) (string, error) {
 				for _, subnet := range c.state.IPAM.Subnets {
@@ -75,14 +86,26 @@ func (c *Context) DumpStateToFile(deps []pulumi.Resource) error {
 					return "", fmt.Errorf("failed to marshal state: %w", err)
 				}
 
-				return fmt.Sprintf("echo '%s' > %s", encoded, path), nil
+				return fmt.Sprintf("mkdir -p %s && echo '%s' > %s", stateDirectory, encoded, c.StatePath()), nil
 			},
 		).(pulumi.StringOutput),
-	}, append(c.Options(), pulumi.DependsOn(deps))...)
+	}, pulumi.DependsOn(deps))
 
 	return err
 }
 
 func (c *Context) State() *State {
 	return c.state
+}
+
+func (c *Context) ClusterName() string {
+	return c.clusterName
+}
+
+func (c *Context) FullName() string {
+	return fmt.Sprintf("%s-%s-%s", c.ctx.Project(), c.ctx.Stack(), c.ClusterName())
+}
+
+func (c *Context) StatePath() string {
+	return fmt.Sprintf("%s/%s-%s.yaml", stateDirectory, stateFilePrefix, c.ClusterName())
 }

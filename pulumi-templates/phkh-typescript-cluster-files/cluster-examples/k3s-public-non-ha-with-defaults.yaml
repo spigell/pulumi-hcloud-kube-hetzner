@@ -1,0 +1,8 @@
+# The simpliest cluster!
+# This cluster will be created without firewalls and internal network.
+# This example used for testing purposes.
+nodepools:
+    servers:
+      - pool-id: control-plane
+        nodes:
+        - node-id: k3s-server01

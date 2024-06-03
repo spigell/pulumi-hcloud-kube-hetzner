@@ -70,7 +70,7 @@ func (m *ClusterManager) Up(kubeconfig pulumi.AnyOutput, provider *kubernetes.Pr
 			}
 		}
 
-		labels, err := corev1.NewNodePatch(m.ctx.Context(), fmt.Sprintf("labels-%s", node.ID), &corev1.NodePatchArgs{
+		labels, err := program.PulumiRun(m.ctx, corev1.NewNodePatch, fmt.Sprintf("labels-%s", node.ID), &corev1.NodePatchArgs{
 			Metadata: &metav1.ObjectMetaPatchArgs{
 				Name: pulumi.String(node.ID),
 				Annotations: pulumi.StringMap{
@@ -78,7 +78,7 @@ func (m *ClusterManager) Up(kubeconfig pulumi.AnyOutput, provider *kubernetes.Pr
 				},
 				Labels: utils.ToPulumiMap(node.Labels, "="),
 			},
-		}, append(m.ctx.Options(), pulumi.Provider(provider))...)
+		}, pulumi.Provider(provider))
 		if err != nil {
 			return err
 		}

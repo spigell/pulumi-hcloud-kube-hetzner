@@ -47,31 +47,29 @@ func (s *SSHD) Up(ctx *program.Context, con *connection.Connection, deps []pulum
 
 	// Delete default sshd config file.
 	// It blocks SetEnv from working.
-	deleted, err := remote.NewCommand(ctx.Context(), fmt.Sprintf("delete-default-sshd-%s", s.ID), &remote.CommandArgs{
+	deleted, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("delete-default-sshd:%s", s.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.String("sudo rm -rfv /etc/ssh/sshd_config"),
-	}, append(ctx.Options(), pulumi.DependsOn(deps),
-		pulumi.DeleteBeforeReplace(true),
-	)...)
+	}, pulumi.DependsOn(deps), pulumi.DeleteBeforeReplace(true))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ssh configuration file: %w", err)
 	}
 	resources = append(resources, deleted)
 
-	deployed, err := remotefile.NewFile(ctx.Context(), fmt.Sprintf("add-sshd-config-%s", s.ID), &remotefile.FileArgs{
+	deployed, err := program.PulumiRun(ctx, remotefile.NewFile, fmt.Sprintf("add-sshd-config:%s", s.ID), &remotefile.FileArgs{
 		Connection:  con.RemoteFile(),
 		UseSudo:     pulumi.Bool(true),
 		Path:        pulumi.String("/etc/ssh/sshd_config.d/phkh.conf"),
 		Content:     pulumi.String(s.Config.String()),
 		SftpPath:    pulumi.String(s.OS.SFTPServerPath()),
 		Permissions: pulumi.String("664"),
-	}, append(ctx.Options(), pulumi.RetainOnDelete(true), pulumi.DependsOn(deps))...)
+	}, pulumi.RetainOnDelete(true), pulumi.DependsOn(deps))
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ssh configuration file: %w", err)
 	}
 	resources = append(resources, deployed)
 
-	restarted, err := remote.NewCommand(ctx.Context(), fmt.Sprintf("restart-sshd-%s", s.ID), &remote.CommandArgs{
+	restarted, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("restart-sshd:%s", s.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.String("sudo systemctl restart sshd"),
 		Triggers: pulumi.Array{
@@ -81,10 +79,10 @@ func (s *SSHD) Up(ctx *program.Context, con *connection.Connection, deps []pulum
 			deployed.Connection,
 			deleted.Create,
 		},
-	}, append(ctx.Options(), pulumi.DependsOn(resources),
+	}, pulumi.DependsOn(resources),
 		pulumi.DeleteBeforeReplace(true),
 		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "2m"}),
-	)...)
+	)
 	if err != nil {
 		return nil, fmt.Errorf("failed to restart sshd: %w", err)
 	}

@@ -12,14 +12,14 @@ import (
 )
 
 func (k *K3S) kubeconfig(ctx *program.Context, con *connection.Connection, deps []pulumi.Resource) (pulumi.AnyOutput, error) {
-	grabbed, err := remote.NewCommand(ctx.Context(), fmt.Sprintf("get-kubeconfig-on-%s", k.ID), &remote.CommandArgs{
+	grabbed, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("get-kubeconfig:%s", k.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.String("sudo cat /etc/rancher/k3s/k3s.yaml"),
-	}, append(
-		ctx.Options(),
+		Logging:    remote.LoggingStderr,
+	},
 		pulumi.DependsOn(deps),
 		pulumi.AdditionalSecretOutputs([]string{"stdout"}),
-	)...)
+	)
 	if err != nil {
 		return pulumi.AnyOutput{}, fmt.Errorf("error getting kubeconfig: %w", err)
 	}

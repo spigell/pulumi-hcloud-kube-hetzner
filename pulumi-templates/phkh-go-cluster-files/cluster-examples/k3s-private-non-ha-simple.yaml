@@ -1,0 +1,63 @@
+# This is the example with 1 server and 2 agents.
+# It is a pretty simple configuration with reasonable defaults.
+network:
+  hetzner:
+    enabled: true
+    # It is highly recommended to set a cidr for the private network for at least /20
+    cidr: 10.18.0.0/16
+k8s:
+  kube-api-endpoint:
+    # public|internal
+    type: public
+  addons:
+    k3s-upgrade-controller:
+      enabled: true
+      target-channel: v1.29
+      target-version: v1.29.3+k3s1
+    ccm:
+      enabled: true
+      loadbalancers-default-location: fsn1
+      loadbalancers-enabled: false
+nodepools:
+  agents:
+    - pool-id: 01-agents
+      nodes:
+      - node-id: k3s-fsn-agent01
+        server:
+          location: fsn1
+      - node-id: k3s-hel-agent01
+        server:
+          location: hel1
+    - pool-id: 02-agents
+      nodes:
+      - node-id: k3s-fsn-agent03
+        server:
+          location: fsn1
+  servers:
+    - pool-id: 01-control-plane
+      config:
+        server:
+          server-type: cpx21
+      nodes:
+      - node-id: k3s-server01
+defaults:
+  global:
+    server:
+      # Override the default user name for the servers. Default value is rancher.
+      user-name: my-user-name
+      # Set the password for user. It must be encrypted!
+      user-password: my-user-password
+      additional-ssh-keys:
+        - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIBwNcI4Bvvru89Gy0jixZdoaHJEaZsF7tvUnmcxn+IVM spigell@dragonfish.mos.lazynetwork.tech'
+      firewall:
+        hetzner:
+          enabled: true
+          allow-icmp: true
+          ssh:
+            allow: true
+  servers:
+    k3s:
+      config:
+        disable:
+          - metrics-server
+          - traefik

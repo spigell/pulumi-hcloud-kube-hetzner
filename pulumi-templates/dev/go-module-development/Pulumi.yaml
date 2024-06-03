@@ -1,0 +1,6 @@
+name: ${PROJECT}
+runtime:
+  name: go
+  options:
+    binary: ./run.sh
+description: Optimized and Maintenance-free Kubernetes on Hetzner Cloud in one command! with Pulumi!

@@ -12,9 +12,9 @@ Users are advised to refer to the latest version of this document for the most a
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
 | nodepools | [config.*NodepoolsConfig](#confignodepoolsconfig) | Nodepools is a map with agents and servers defined. Required for at least one server node.   | not specified |
-| defaults | [config.*DefaultConfig](#configdefaultconfig) | Defaults is a map with default settings for agents and servers. Global values for all nodes can be set here as well. Can be empty, but required.   | not specified |
-| network | [config.*NetworkConfig](#confignetworkconfig) | Network defines network configuration for cluster. Can be empty, but required.   | not specified |
-| k8s | [*k8sconfig.Config](#k8sconfigconfig) | K8S defines a distribution-agnostic cluster configuration. Can be empty, but required.   | not specified |
+| defaults | [config.*DefaultConfig](#configdefaultconfig) | Defaults is a map with default settings for agents and servers. Global values for all nodes can be set here as well.   | not specified |
+| network | [config.*NetworkConfig](#confignetworkconfig) | Network defines network configuration for cluster.   | not specified |
+| k8s | [*k8sconfig.Config](#k8sconfigconfig) | K8S defines a distribution-agnostic cluster configuration.   | not specified |
 
 ## config.DefaultConfig
 
@@ -35,8 +35,8 @@ Users are advised to refer to the latest version of this document for the most a
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| id | string | ID is id of group of servers. It is used through entire program as key for the group. Required.   | not specified |
-| config | [config.*NodeConfig](#confignodeconfig) | Config is the default node configuration for group  | {} |
+| pool-id | string | PoolID is id of group of servers. It is used through the entire program as key for the group. Required.   | not specified |
+| config | [config.*NodeConfig](#confignodeconfig) | Config is the default node configuration for the group.  | {} |
 | nodes | [config.[]*NodeConfig](#confignodeconfig) | Nodes is a list of nodes inside of the group.  | {} |
 
 ## config.NetworkConfig
@@ -49,19 +49,19 @@ Users are advised to refer to the latest version of this document for the most a
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| id | string | ID is id of server. It is used through entire program as key. Required.   | not specified |
-| leader | bool | Leader specify leader of multi-muster cluster. Required if number of master more than 1.   | not specified |
-| server | [config.*ServerConfig](#configserverconfig) | Server is configuration of hetzner server.  | {} |
-| k3s | [*k3s.Config](#k3sconfig) | K3S is configuration of k3s cluster.  | {} |
+| node-id | string | NodeID is the id of a server. It is used throughout the entire program as a key. Required.   | not specified |
+| leader | bool | Leader specifies the leader of a multi-master cluster. Required if the number of masters is more than 1.   | not specified |
+| server | [config.*ServerConfig](#configserverconfig) | Server is the configuration of a Hetzner server.  | {} |
+| k3s | [*k3s.Config](#k3sconfig) | K3S is the configuration of a k3s cluster.  | {} |
 | k8s | [*k8sconfig.NodeConfig](#k8sconfignodeconfig) | K8S is common configuration for nodes.  | {} |
-| role | string | Role specifes role of server (server or agent). Do not set manually.   | computed |
+| - (computed: Not possible to configure!) | string | Role specifies the role of the server (server or agent).   | computed |
 
 ## config.ServerConfig
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
 | server-type | string | ServerType specifies the type of server to be provisioned (e.g., "cx11", "cx21").   | cx21 |
-| hostname | string | Hostname is the desired hostname to assign to the server.   | `phkh-${name-of-stack}-${id-of-node}` |
+| hostname | string | Hostname is the desired hostname to assign to the server.   | `phkh-${name-of-stack}-${name-of-cluster}-${id-of-node}` |
 | firewall | [config.*FirewallConfig](#configfirewallconfig) | Firewall points to an optional configuration for a firewall to be associated with the server.  | {} |
 | location | string | Location specifies the physical location or data center where the server will be hosted (e.g., "fsn1").   | hel1 |
 | additional-ssh-keys | []string | AdditionalSSHKeys contains a list of additional public SSH keys to install in the server's user account.  | [] |
@@ -97,7 +97,7 @@ Users are advised to refer to the latest version of this document for the most a
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
 | protocol | string | Protocol specifies the network protocol (e.g., TCP, UDP) applicable for the rule.   | TCP |
-| port | string | Port specifies the network port number or range applicable for the rule. Required  | "" |
+| port | string | Port specifies the network port number or range applicable for the rule. Required.  | "" |
 | source-ips | []string | SourceIps lists IP addresses or subnets from which traffic is allowed or to which traffic is directed, based on the Direction. Required.  | [] |
 | description | string | Description provides a human-readable explanation of what the rule is intended to do.  | "" |
 
@@ -165,7 +165,7 @@ Users are advised to refer to the latest version of this document for the most a
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| node-label | []string | NodeLabels are used to lable the node with key=value.  | [] |
+| node-label | []string | NodeLabels are used to label the node with key=value.  | [] |
 | node-taint | [k8sconfig.*TaintConfig](#k8sconfigtaintconfig) | NodeTaints configures taint node manager.  | {} |
 
 ## k8sconfig.TaintConfig
@@ -174,7 +174,7 @@ Users are advised to refer to the latest version of this document for the most a
 |-------|------|-------------|---------|
 | enabled | [k8sconfig.*bool](#k8sconfigbool) | Enable or disable taint management.   | false |
 | disable-default-taints | [k8sconfig.*bool](#k8sconfigbool) | Do not add default taints to the server node.   | false |
-| taints | []string | Taints are used to taint the node with key=value:effect.  But only if disable-default-taints set to false (default)  | server node is tainted with a couple of taints if number of agents nodes more than 0. But only if disable-default-taints set to false (default) |
+| taints | []string | Taints are used to taint the node with key=value:effect.  But only if disable-default-taints set to false.  | server node is tainted with a couple of taints if number of agents nodes more than 0. But only if disable-default-taints set to false |
 
 ## k8sconfig.K8SEndpointConfig
 
@@ -200,7 +200,7 @@ Users are advised to refer to the latest version of this document for the most a
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| version | string | version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.  | "" |
+| version | string | Version is used to determine if k3s should be upgraded if auto-upgrade is disabled. If the version is changed, k3s will be upgraded.  | "" |
 | clean-data-on-upgrade | bool | [Experimental] clean-data-on-upgrade is used to delete all data while upgrade. This is based on the script https://docs.k3s.io/upgrades/killall  | false |
 | config | [k3s.*K3sConfig](#k3sk3sconfig) | The real config of k3s service.  | {} |
 
@@ -232,7 +232,7 @@ Users are advised to refer to the latest version of this document for the most a
 | kube-apiserver-arg | []string | KubeAPIServerArgs allows passing additional arguments to the Kubernetes API server.  | [] |
 | disable-cloud-controller | bool | DisableCloudController determines whether to disable the integrated cloud controller manager.   | false, but will be true if ccm is enabled |
 | disable | []string | Disable lists components or features to disable.  | [] |
-| node-label | []string | NodeLables set labels on registration  | [] |
+| node-label | []string | NodeLabels set labels on registration.  | [] |
 | node-taint | []string | NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0.  | [] |
 
 
