@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"runtime"
 	"slices"
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
@@ -92,6 +93,8 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 			ctx.Context().Log.Warn("Taint manager is disabled, but it is expected to be used. Consider to inspect your config", nil)
 			node.K8S.NodeTaints.Taints = make([]string, 0)
 		}
+
+		runtime.Breakpoint()
 
 		nodeMap[node.NodeID] = &manager.Node{
 			ID:     node.Server.Hostname,

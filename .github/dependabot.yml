@@ -5,3 +5,15 @@ updates:
     target-branch: preview
     schedule:
       interval: daily
+    groups:
+      pulumi-dependencies:
+        applies-to: version-updates # Applies the group rule to version updates
+        patterns:
+          - "github.com/pulumi/pulumi/pkg/v3"
+          - "github.com/pulumi/pulumi/sdk/v3"
+      k8s-dependencies:
+        applies-to: version-updates # Applies the group rule to version updates
+        patterns:
+          - "k8s.io/*"
+
+

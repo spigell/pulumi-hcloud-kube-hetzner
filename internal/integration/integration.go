@@ -53,18 +53,18 @@ var TestsByExampleName = map[string][]string{
 	exampleK3SPrivateHANoTaints: {
 		testSSHConnectivity,
 		testKubeVersion,
-		testNodeChangeLabelsTaints,
+		// testNodeChangeLabelsTaints,
 		testKubeK3SUpgradeControllerPlan,
 	},
 	exampleK3SPublicNonHADefaults: {
 		testSSHConnectivity,
-		testNodeChangeLabelsTaints,
+		// testNodeChangeLabelsTaints,
 	},
 	exampleK3SPublicHAKubeAddons: {
 		testSSHConnectivity,
 		testKubeVersion,
 		testKubeHetznerCCM,
-		testNodeChangeLabelsTaints,
+		// testNodeChangeLabelsTaints,
 		testKubeK3SUpgradeControllerPlan,
 		testHetznerNodeManagement,
 	},

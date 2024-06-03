@@ -165,10 +165,11 @@ func generateSchema() schema.PackageSpec {
 					"@types/node": "^20.0.0",
 				},
 				"dependencies": map[string]any{
-					"@pulumi/pulumi":     "^3.0.0",
-					"@pulumi/command":    "0.11.1",
-					"@pulumi/kubernetes": "^4.0.0",
-					"@pulumi/hcloud":     "1.18.1",
+					"@pulumi/pulumi":       "^3.0.0",
+					"@pulumi/command":      "0.11.1",
+					"@pulumi/kubernetes":   "^4.0.0",
+					"@spigell/pulumi-file": "0.0.6",
+					"@pulumi/hcloud":       "1.19.0",
 				},
 			}),
 			"go": rawMessage(map[string]interface{}{
