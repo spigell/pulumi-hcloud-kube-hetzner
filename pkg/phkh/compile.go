@@ -94,8 +94,6 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 			node.K8S.NodeTaints.Taints = make([]string, 0)
 		}
 
-		runtime.Breakpoint()
-
 		nodeMap[node.NodeID] = &manager.Node{
 			ID:     node.Server.Hostname,
 			Taints: slices.Compact(node.K8S.NodeTaints.Taints),

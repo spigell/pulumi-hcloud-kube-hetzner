@@ -58,7 +58,7 @@ var TestsByExampleName = map[string][]string{
 	},
 	exampleK3SPublicNonHADefaults: {
 		testSSHConnectivity,
-		// testNodeChangeLabelsTaints,
+		testNodeChangeLabelsTaints,
 	},
 	exampleK3SPublicHAKubeAddons: {
 		testSSHConnectivity,
