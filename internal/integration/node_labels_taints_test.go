@@ -120,7 +120,14 @@ func TestLabelsTaintsManagement(t *testing.T) {
 			// Disable default taints must be set to false.
 			if len(i.Example.Decoded.Nodepools.Agents) > 0 {
 				for _, ta := range manager.DefaultTaints[variables.ServerRole] {
-					d := strings.Split(ta, "=")[0]
+					parsed := strings.Split(ta, "=")
+					d := parsed[0]
+
+					// If there is no value.
+					if len(parsed) == 1 {
+						d = strings.Split(d, ":")[0]
+					}
+
 					exist := false
 					for _, taint := range n.Spec.Taints {
 						if taint.Key == strings.Split(d, "=")[0] {

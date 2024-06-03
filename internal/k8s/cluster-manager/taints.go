@@ -82,6 +82,7 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 		// Recreate resource on any changes to delete our old fieldManager.
 		pulumi.ReplaceOnChanges([]string{"*"}),
 		pulumi.DeleteBeforeReplace(true),
+		pulumi.RetainOnDelete(true),
 		pulumi.Provider(m.provider),
 	)
 	if err != nil {
