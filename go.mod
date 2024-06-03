@@ -1,8 +1,7 @@
 module github.com/spigell/pulumi-hcloud-kube-hetzner
 
 go 1.21.0
-
-toolchain go1.21.1
+toolchain go1.22.3
 
 require (
 	dario.cat/mergo v1.0.0
@@ -22,8 +21,8 @@ require (
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.22.0
 	gopkg.in/yaml.v3 v3.0.1
-	k8s.io/api v0.29.3
-	k8s.io/apimachinery v0.29.3
+	k8s.io/api v0.30.1
+	k8s.io/apimachinery v0.30.1
 	k8s.io/client-go v0.29.3
 )
 
