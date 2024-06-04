@@ -169,7 +169,7 @@ func generateSchema() schema.PackageSpec {
 					"@pulumi/command":      "0.11.1",
 					"@pulumi/kubernetes":   "^4.0.0",
 					"@spigell/pulumi-file": "0.0.6",
-					"@pulumi/hcloud":       "1.19.0",
+					"@pulumi/hcloud":       "1.19.1",
 				},
 			}),
 			"go": rawMessage(map[string]interface{}{

@@ -98,3 +98,16 @@ sync-templates:
 unit-tests:
 	cd pulumi-component && make generate_schema
 	set -o pipefail ; go test $$(go list ./... | grep -v integration | grep -v crds/generated) | grep -v 'no test files'
+
+
+test-templates: export TEMPLATES = phkh-typescript-cluster-files phkh-typescript-simple phkh-go-cluster-files phkh-go-simple
+test-templates:
+	@for TMP in $(TEMPLATES); do \
+		mkdir -p test-template && cd test-template && \
+		export GOWORK=off && \
+		pulumi new -n phkh-template-test ../pulumi-templates/$${TMP} -y -s $${TMP} && \
+		pulumi pre --diff && \
+		pulumi stack rm -y --force $${TMP} && \
+		cd .. && \
+		rm -rf test-template ; \
+	done

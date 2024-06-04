@@ -6,7 +6,7 @@
     },
     "dependencies": {
         "@pulumi/pulumi": "^3",
-        "@spigell/hcloud-kube-hetzner": "0.0.12",
-        "yaml": "^2.4.2"
+        "@spigell/hcloud-kube-hetzner": "0.1.0",
+        "yaml": "^2.4.3"
     }
 }

@@ -39,7 +39,7 @@ func main() {
 		)
 
 		if err != nil {
-			return fmt.Errorf("error while the `%s` cluster initialization: %w", %clusterName, err)
+			return fmt.Errorf("error while the `%s` cluster initialization: %w", clusterName, err)
 		}
 
 
