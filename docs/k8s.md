@@ -1,10 +1,9 @@
 ## Kubernetes API Server
 KubeAPI Server listens on port `6443` for **all** interfaces. By default, kube api endpoint is considered as `public`. It can be changed by specifying `k8s.endpoint.type` property in the cluster configuration:
 ```yaml
-config:
-  <project>:k8s:
-    kube-api-endpoint:
-      type: internal
+k8s:
+  kube-api-endpoint:
+    type: internal
 ```
 The following values are supported: ['public', 'internal']
 
@@ -19,15 +18,14 @@ For using kubeconfig with `internal` type you should have access to private netw
 ### K8S APIServer external access
 By default, a Hetzner firewall rule allows all traffic to **6443** port if `k8s.endpoint.type` is specified as `public` (this is a default value). If you want to restrict access to the apiserver from the public network, you can use the following configuration:
 ```yaml
-config:
-  <project>:k8s:
-    endpoint:
-      type: public
-      firewall:
-        # This only works for the public endpoint.
-        hetzner-public:
-          allowed-ips:
-            - '102.0.0.0/8' # <--- Allow access to the k8s api from this cidr!
+k8s:
+  endpoint:
+    type: public
+    firewall:
+      # This only works for the public endpoint.
+      hetzner-public:
+        allowed-ips:
+          - '102.0.0.0/8' # <--- Allow access to the k8s api from this cidr!
 ```
 Internal network networks are considered as *secured*. So, no rules will be applied for them.
 
@@ -37,8 +35,8 @@ Despite the fact that the labels and taints are only used at the registration st
 
 Taints management must be approached with several key considerations in mind:
 - The taint manager is disabled by default. It requires explicit activation to function within the system.
-```
-<project>:nodepools:
+```yaml
+nodepools:
   servers:
     - id: 02-control-plane-with-workload
       config:
@@ -62,17 +60,16 @@ Most of the addons are installed using helm. So, you can specify `helm` property
 ### Addons
 Additional components can be installed to the cluster using the `addons` property:
 ```yaml
-config:
-  <project>:k8s:
-    addons:
-      ccm:
-        enabled: true
-        default-loadbalancers-location: fsn1
-        loadbalancers-enabled: true
-        helm:
-          version: v1.2.0
-          values-files:
-            - ./yaml/ccm/values.yaml
+k8s:
+  addons:
+    ccm:
+      enabled: true
+      default-loadbalancers-location: fsn1
+      loadbalancers-enabled: true
+      helm:
+        version: v1.2.0
+        values-files:
+          - ./yaml/ccm/values.yaml
 ```
 
 #### Hetzner CCM
@@ -81,13 +78,12 @@ Please note that Hetzner CCM is disabled by default. It is used to provision loa
 #### K3S Upgrade Controller
 K3S upgrade controller is used to upgrade the k3s cluster to the specified `target-version` and/or `target-channel`. It is disabled by default and utilizes the [system-upgrade-controller chart by nimbolus](https://github.com/nimbolus/helm-charts/blob/main/charts/system-upgrade-controller). It doesn't support `values-files` property. But settings of the upgrader can be configured using the `config-env` property:
 ```yaml
-config:
-  <project>:k8s:
-    addons:
-      k3s-upgrade-controller:
-        enabled: true
-        target-channel: v1.28
-        config-env:
-          - "SYSTEM_UPGRADE_CONTROLLER_DEBUG=false"
+k8s:
+  addons:
+    k3s-upgrade-controller:
+      enabled: true
+      target-channel: v1.28
+      config-env:
+        - "SYSTEM_UPGRADE_CONTROLLER_DEBUG=false"
 ```
 Please see all available variables in the [chart default values](https://github.com/nimbolus/helm-charts/blob/main/charts/system-upgrade-controller/values.yaml).

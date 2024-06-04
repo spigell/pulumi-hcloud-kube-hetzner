@@ -182,9 +182,8 @@ func (s *Server) Up(ctx *program.Context, id string, internalIP string, netID pu
 		"image",
 		"networks[0].ip",
 	}))
-	opts = append(opts, ctx.Options()...)
 
-	created, err := hcloud.NewServer(ctx.Context(), id, args, opts...)
+	created, err := program.PulumiRun(ctx, hcloud.NewServer, id, args, opts...)
 	if err != nil {
 		return nil, err
 	}

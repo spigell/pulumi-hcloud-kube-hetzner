@@ -1,4 +1,4 @@
-name: The cluster deployment for examples for long-living branches
+name: The cluster deployment for pulumi-templates
 on:
   push:
     branches:
@@ -32,7 +32,7 @@ jobs:
     outputs:
       short-sha: ${{ steps.short-sha.outputs.sha }}
 
-  default:
+  simple:
     needs:
       - init
     name: The simple private cluster
@@ -40,8 +40,7 @@ jobs:
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-private-non-ha-simple-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-private-non-ha-simple.yaml
-      template: go/component
+      pulumi-config-source: cluster-examples/k3s-private-non-ha-simple.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -53,9 +52,8 @@ jobs:
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-private-non-ha-firewall-rules-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-private-non-ha-firewall-rules.yaml
+      pulumi-config-source: cluster-examples/k3s-private-non-ha-firewall-rules.yaml
       open-kubeapi-for-public-net: true
-      template: go/component
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -67,8 +65,7 @@ jobs:
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-private-ha-no-taint-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-private-ha-no-taints.yaml
-      template: typescript
+      pulumi-config-source: cluster-examples/k3s-private-ha-no-taints.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -80,22 +77,20 @@ jobs:
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-public-ha-kube-addons-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-public-ha-kube-addons.yaml
+      pulumi-config-source: cluster-examples/k3s-public-ha-kube-addons.yaml
       open-kubeapi-for-public-net: true
-      template: typescript
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
       github-token: ${{ secrets.GITHUB_TOKEN }}
-  simple:
+  defaults:
     needs: init
     name: The simplest cluster with defaults
     if: contains(fromJson('["all", "k3s-public-non-ha-with-defaults"]'), inputs.example) || contains(fromJson('["refs/heads/preview", "refs/heads/main"]'), github.ref)
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-public-non-ha-with-defaults-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-public-non-ha-with-defaults.yaml
-      template: typescript
+      pulumi-config-source: cluster-examples/k3s-public-non-ha-with-defaults.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}
@@ -107,7 +102,7 @@ jobs:
     uses: ./.github/workflows/reuse-test-clusters.yaml
     with:
       pulumi-stack: k3s-private-non-ha-upgrader-${{ needs.init.outputs.short-sha }}
-      pulumi-config-source: examples/k3s-private-non-ha-upgrader.yaml
+      pulumi-config-source: cluster-examples/k3s-private-non-ha-upgrader.yaml
     secrets:
       google-credentials: ${{ secrets.GOOGLE_CREDENTIALS }}
       hcloud-token: ${{ secrets.HCLOUD_TOKEN }}

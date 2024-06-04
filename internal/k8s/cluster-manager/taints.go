@@ -11,6 +11,7 @@ import (
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
 	metav1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/meta/v1"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"k8s.io/apimachinery/pkg/api/errors"
 	kubeApiMetav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -20,7 +21,7 @@ import (
 
 func (m *ClusterManager) ManageTaints(node *Node) error {
 	// Create NodePatch
-	taints, err := corev1.NewNodePatch(m.ctx.Context(), fmt.Sprintf("taints-%s", node.ID), &corev1.NodePatchArgs{
+	taints, err := program.PulumiRun(m.ctx, corev1.NewNodePatch, fmt.Sprintf("taints-%s", node.ID), &corev1.NodePatchArgs{
 		Metadata: &metav1.ObjectMetaPatchArgs{
 			Name: pulumi.String(node.ID),
 			Annotations: pulumi.StringMap{
@@ -77,11 +78,13 @@ func (m *ClusterManager) ManageTaints(node *Node) error {
 				},
 			).(corev1.TaintPatchArrayOutput),
 		},
-	}, append(m.ctx.Options(),
+	},
 		// Recreate resource on any changes to delete our old fieldManager.
 		pulumi.ReplaceOnChanges([]string{"*"}),
 		pulumi.DeleteBeforeReplace(true),
-		pulumi.Provider(m.provider))...)
+		pulumi.RetainOnDelete(true),
+		pulumi.Provider(m.provider),
+	)
 	if err != nil {
 		return err
 	}

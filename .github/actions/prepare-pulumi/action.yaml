@@ -10,11 +10,15 @@ inputs:
   template:
     required: false
     description: 'source of pulumi template'
-    default: go/library
+    default: pulumi-templates/phkh-typescript-pulumi-config
 
 runs:
   using: "composite"
   steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        fetch-tags: true
     - id: 'auth'
       uses: 'google-github-actions/auth@v1'
       with:
@@ -37,12 +41,16 @@ runs:
       uses: actions/setup-node@v3
       with:
         node-version: 20
-      if: startsWith(inputs.template, 'typescript')
+      if: startsWith(inputs.template, 'pulumi-templates/phkh-typescript')
+    - name: Install pulumictl
+      uses: jaxxstorm/action-install-gh-release@v1.10.0
+      with:
+        repo: pulumi/pulumictl
     - name: Generate nodejs sdk package
       shell: bash
       run: make build_nodejs_sdk
       working-directory: pulumi-component
-      if: startsWith(inputs.template, 'typescript')
+      if: startsWith(inputs.template, 'pulumi-templates/phkh-typescript')
     - name: Wait for builds
       uses: lewagon/wait-on-check-action@v1.3.1
       with:
@@ -50,42 +58,45 @@ runs:
         check-name: "Build and save component binary"
         repo-token: ${{ github.token }}
         wait-interval: 10
-      if: ${{ inputs.template != 'go/library' }}
     - name: Install pulumi cli
       uses: pulumi/actions@v4
       with:
-        pulumi-version: v3.114.0
+        pulumi-version: v3.118.0
     - name: Download artifact
       id: download-artifact
       uses: dawidd6/action-download-artifact@v3
       with:
         workflow: all-build-component.yaml
         workflow_conclusion: success
-      if: ${{ inputs.template != 'go/library' }}
     - name: Add component to pulumi plugin directory
       run: |
         mv -v pulumi-component-*/pulumi-resource-hcloud-kube-hetzner hcloud-kube-hetzner && \
         chmod +x hcloud-kube-hetzner && \
         stat hcloud-kube-hetzner && \
-        pulumi plugin install resource hcloud-kube-hetzner 0.0.1 -f hcloud-kube-hetzner
+        pulumi plugin install resource hcloud-kube-hetzner $(pulumictl get version) -f hcloud-kube-hetzner
       shell: bash
-      if: ${{ inputs.template != 'go/library' }}
     - name: Create a temporary Pulumi project
       run: make test-go-project
       env:
-        TEMPLATE: ${{ inputs.template }}
+        DEV_TEMPLATE: ${{ inputs.template }}
       shell: bash
-      if: startsWith(inputs.template, 'go')
+      if: startsWith(inputs.template, 'pulumi-templates/phkh-go')
     - name: Create a temporary Pulumi project
       run: make test-ts-project
       env:
-        TEMPLATE: ${{ inputs.template }}
+        DEV_TEMPLATE: ${{ inputs.template }}
       shell: bash
-      if: startsWith(inputs.template, 'typescript')
+      if: startsWith(inputs.template, 'pulumi-templates/phkh-typescript')
     - name: Downloading GO dependencies 📦
-      if: startsWith(inputs.template, 'go')
+      if: startsWith(inputs.template, 'pulumi-templates/phkh-go')
       shell: bash
       run: go mod download
+      working-directory: test-project
+    - name: Include developers tools
+      shell: bash
+      run: |
+        cp -v ../pulumi-templates/dev/go-module-development/pulumi.Makefile ./
+        echo 'include pulumi.Makefile' >> Makefile
       working-directory: test-project
     - name: Create a stack
       shell: bash
@@ -94,7 +105,7 @@ runs:
       env:
         PULUMI_STACK_INIT_FLAGS: --secrets-provider=gcpkms://projects/spigell-infra/locations/global/keyRings/spigell-infra-keyring/cryptoKeys/spigell-infra-phkh-pulumi-key
         PULUMI_BACKEND: gs://spigell-infra-phkh-pulumi-states
-        PULUMI_CONFIG_SOURCE: ../${{ env.PULUMI_CONFIG_SOURCE }}
+        PULUMI_CONFIG_SOURCE: ${{ env.PULUMI_CONFIG_SOURCE }}
       working-directory: test-project
     - name: Login to Pulumi
       shell: bash

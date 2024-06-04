@@ -1,0 +1,63 @@
+# This is a simple example of HA cluster with internal network.
+# It has one main k3s server known as leader and 2 node without taints.
+# It also has an additional worker node.
+
+defaults:
+  global:
+    server:
+      firewall:
+        hetzner:
+          enabled: true
+          allow-icmp: true
+          ssh:
+            allow: true
+  servers:
+    k8s:
+      node-label:
+        - "k3s-upgrade=false"
+    k3s:
+      version: v1.29.4+k3s1
+      config:
+        # It is must be the same for all servers
+        # https://docs.k3s.io/datastore/ha-embedded
+        service-cidr: 10.143.0.0/16
+        # It is must be the same for all servers
+        # https://docs.k3s.io/datastore/ha-embedded
+        disable:
+          - traefik
+        kubelet-arg:
+          - node-status-update-frequency=10s
+network:
+  hetzner:
+    enabled: true
+    # It is highly recommended to set a cidr for the private network for at least /20
+    cidr: 10.20.0.0/16
+k8s:
+  # By default, the firewall allows access to the k8s api from all ip addresses (if firewall for node is enabled).
+  kube-api-endpoint:
+    type: public
+  addons:
+    k3s-upgrade-controller:
+      enabled: true
+nodepools:
+  agents:
+    - pool-id: 01-agent
+      nodes:
+        - node-id: agent01
+  servers:
+    - pool-id: 01-control-plane-leader
+      nodes:
+      - node-id: server01
+        leader: true
+        server:
+          location: fsn1
+    - pool-id: 02-control-plane-with-workload
+      config:
+        # This nodes can be used for workload. Taints will not be added.
+        k8s:
+          node-taint:
+            enabled: true
+            disable-default-taints: true
+      nodes:
+      - node-id: server02
+      - node-id: server03

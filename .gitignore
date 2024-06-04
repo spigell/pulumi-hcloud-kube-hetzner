@@ -20,3 +20,5 @@ bin/
 node_modules
 yarn.lock
 pulumi-component/provider/cmd/pulumi-resource-hcloud-kube-hetzner/schema.go
+__debug*
+test-template

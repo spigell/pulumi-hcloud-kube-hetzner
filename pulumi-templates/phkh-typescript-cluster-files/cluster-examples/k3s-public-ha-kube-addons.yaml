@@ -1,0 +1,77 @@
+# This is the example with 3 servers and 2 agents nodes.
+# It is a pretty solid cluster with all kubernetes addons enabled.
+# It uses a public network with firewall rules applied.
+defaults:
+  # Basic firewall settings for all nodes
+  global:
+    server:
+      firewall:
+        hetzner:
+          enabled: true
+          allow-icmp: true
+          ssh:
+            allow: true
+            # Empty allowed-ips means that ssh is not allowed
+            # It is synonym for allow: false
+            allowed-ips: []
+network:
+  hetzner:
+    enabled: false
+k8s:
+  audit-log:
+    enabled: true
+    # Use default policy file
+    # policy-file-path: /path/to/file
+    audit-log-maxage: 30
+    audit-log-maxbackup: 10
+    audit-log-maxsize: 100
+  kube-api-endpoint:
+    type: public
+    firewall:
+      hetzner-public:
+        # Deny all traffic to the public API endpoint
+        # But traffic from the my own ip will be allow tho :)
+        allowed-ips: []
+  addons:
+    k3s-upgrade-controller:
+      enabled: true
+      target-channel: v1.29
+      config-env:
+        - "SYSTEM_UPGRADE_CONTROLLER_THREADS=1"
+    ccm:
+      enabled: true
+      loadbalancers-default-location: fsn1
+      loadbalancers-enabled: false
+nodepools:
+  agents:
+    - pool-id: 01-agents
+      config:
+        server:
+          server-type: cx31
+      nodes:
+      - node-id: k3s-hel1-agent01
+      - node-id: k3s-fsn1-agent01
+        server:
+          location: fsn1
+    - pool-id: 02-agents
+      nodes:
+      - node-id: k3s-fsn1-agent02
+        server:
+          location: fsn1
+  servers:
+    - pool-id: 01-control-plane-nodes
+      config:
+        k8s:
+          node-taint:
+            enabled: true
+            disable-default-taints: true
+        server:
+          # Increased size of server nodes
+          server-type: cpx21
+          # It is recomended that all servers are located in the same location
+          location: fsn1
+      nodes:
+      - node-id: k3s-fsn1-server01
+      - node-id: k3s-fsn1-server02
+        leader: true
+      - node-id: k3s-fsn1-server03

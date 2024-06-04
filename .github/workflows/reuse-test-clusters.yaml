@@ -1,4 +1,4 @@
-name: The reusable workflow for deploying clusters
+name: The reusable workflow for deploying the exacly one cluster for tests
 run-name: Cluster ${{ inputs.pulumi-stack }} by @${{ github.actor }}
 
 on:
@@ -16,7 +16,7 @@ on:
         type: string
       template:
         type: string
-        default: go/library
+        default: pulumi-templates/phkh-typescript-pulumi-config
     secrets:
       google-credentials:
         required: true
@@ -34,7 +34,9 @@ jobs:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
       PULUMI_CONFIG_SOURCE: ${{ inputs.pulumi-config-source }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-tags: true
       - uses: ./.github/actions/prepare-pulumi
         name: Prepare pulumi environment
         with:
@@ -43,7 +45,7 @@ jobs:
           template: ${{ inputs.template }}
       - name: Set open kubernetes api in public network
         if: inputs.open-kubeapi-for-public-net
-        run: pulumi config set --path 'k8s.kube-api-endpoint.firewall.hetzner-public.allowed-ips[0]' 0.0.0.0/0
+        run: pulumi config set --path 'cluster.k8s.kube-api-endpoint.firewall.hetzner-public.allowed-ips[0]' 0.0.0.0/0
         working-directory: test-project
       - uses: actions/upload-artifact@v4
         with:
@@ -72,7 +74,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: phkh-artifacts-${{ env.PULUMI_STACK }}
-          path: test-project/phkh*
+          path: |
+            test-project/phkh*
+            test-project/states
 
   main-integration-tests:
     needs:
@@ -82,7 +86,7 @@ jobs:
     timeout-minutes: 30
     env:
       PULUMI_STACK: ${{ inputs.pulumi-stack }}
-      PULUMI_CONFIG_SOURCE: ../../${{ inputs.pulumi-config-source }}
+      PULUMI_CONFIG_SOURCE: ../../${{ inputs.template }}/${{ inputs.pulumi-config-source }}
       PULUMI_STACK_CONFIG: ../../test-project/Pulumi.${{ inputs.pulumi-stack }}.yaml
     steps:
       - uses: actions/checkout@v3

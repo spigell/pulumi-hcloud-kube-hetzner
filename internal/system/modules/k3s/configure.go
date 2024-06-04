@@ -20,14 +20,14 @@ func (k *K3S) configure(ctx *program.Context, con *connection.Connection, config
 
 	result := make([]pulumi.Resource, 0)
 
-	deployed, err := remotefile.NewFile(ctx.Context(), fmt.Sprintf("configure-k3s-for-%s", k.ID), &remotefile.FileArgs{
+	deployed, err := program.PulumiRun(ctx, remotefile.NewFile, fmt.Sprintf("write-k3s-config:%s", k.ID), &remotefile.FileArgs{
 		Connection:  con.RemoteFile(),
 		UseSudo:     pulumi.Bool(true),
 		Path:        pulumi.String(cfgPath),
 		Content:     pulumi.ToSecret(config).(pulumi.StringOutput),
 		SftpPath:    pulumi.String(k.OS.SFTPServerPath()),
 		Permissions: pulumi.String("664"),
-	}, append(ctx.Options(), pulumi.DependsOn(deps), pulumi.RetainOnDelete(true))...)
+	}, pulumi.DependsOn(deps), pulumi.RetainOnDelete(true))
 	if err != nil {
 		return nil, err
 	}
@@ -67,14 +67,14 @@ func (k *K3S) configure(ctx *program.Context, con *connection.Connection, config
 	}
 
 	if k.auditPolicyEnabled {
-		policied, err := remotefile.NewFile(ctx.Context(), fmt.Sprintf("audit-policy-for-%s", k.ID), &remotefile.FileArgs{
+		policied, err := program.PulumiRun(ctx, remotefile.NewFile, fmt.Sprintf("audit-policy:%s", k.ID), &remotefile.FileArgs{
 			Connection:  con.RemoteFile(),
 			UseSudo:     pulumi.Bool(true),
 			Path:        pulumi.String(auditPolicyFIle),
 			Content:     pulumi.String(*k.auditPolicyContent),
 			SftpPath:    pulumi.String(k.OS.SFTPServerPath()),
 			Permissions: pulumi.String("700"),
-		}, append(ctx.Options(), pulumi.DependsOn(result), pulumi.RetainOnDelete(true))...)
+		}, pulumi.DependsOn(result), pulumi.RetainOnDelete(true))
 		if err != nil {
 			return nil, err
 		}
@@ -91,14 +91,14 @@ func (k *K3S) configure(ctx *program.Context, con *connection.Connection, config
 		"echo 'systemctl status command returned' $? exit code",
 	}, " && "), svcName, svcName, svcName)
 
-	restared, err := remote.NewCommand(ctx.Context(), fmt.Sprintf("restart-k3s-service-for-%s", k.ID), &remote.CommandArgs{
+	restared, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("restart-k3s-service:%s", k.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     restartCommand,
 		Triggers:   triggers,
-	}, append(ctx.Options(), pulumi.DependsOn(result),
+	}, pulumi.DependsOn(result),
 		pulumi.Timeouts(&pulumi.CustomTimeouts{Create: "10m"}),
 		pulumi.DeleteBeforeReplace(false),
-	)...)
+	)
 	if err != nil {
 		return nil, err
 	}

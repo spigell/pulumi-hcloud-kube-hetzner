@@ -26,6 +26,12 @@ const (
 	KubeconfigKey = "kubeconfig"
 	// HetznerServersKey is the key used to export the hetzner servers.
 	HetznerServersKey = "servers"
+	// ServerIPKey is the key used to export external IP of servers.
+	ServerIPKey = "ip"
+	// ServerInternalIPKey is the key used to export internal ip of servers.
+	ServerInternalIPKey = "internalIP"
+	ServerUserKey       = "user"
+	ServerNameKey       = "name"
 )
 
 // PHKH is the main struct.
@@ -37,24 +43,27 @@ type PHKH struct {
 
 // Cluster contains the information about the created cluster.
 type Cluster struct {
-	Servers    []map[string]interface{}
+	Servers    pulumi.MapArray
 	Kubeconfig pulumi.StringOutput
-	PrivateKey pulumi.StringOutput
+	Privatekey pulumi.StringOutput
 }
 
 // New creates a new project instance.
 // It parses the config and compiles the project.
-func New(ctx *pulumi.Context, opts []pulumi.ResourceOption) (*PHKH, error) {
-	cfg := config.New(ctx).WithInited()
+func NewCluster(ctx *pulumi.Context, name string, configuration map[string]any, opts []pulumi.ResourceOption) (*PHKH, error) {
+	cfg, err := config.ParseClusterConfig(configuration)
+	if err != nil {
+		return nil, err
+	}
 
-	state, err := program.LoadStateFile(ctx)
+	cfg = cfg.WithInited()
+
+	context, err := program.NewContext(ctx, name, opts...)
 	if err != nil {
 		if !errors.Is(err, program.ErrNoStateFile) {
 			return nil, err
 		}
 	}
-
-	context := program.NewContext(ctx, state, opts...)
 
 	compiled, err := compile(context, cfg)
 	if err != nil {
@@ -89,14 +98,8 @@ func (c *PHKH) Up() (*Cluster, error) {
 		return nil, err
 	}
 
-	outputs := pulumi.Map{
-		PrivatekeyKey:     pulumi.ToSecret(keypair.PrivateKey()),
-		HetznerServersKey: pulumi.ToMapArray(toExportedHetznerServers(cloud)),
-	}
-
 	switch distr := c.compiled.K8S.Distr(); distr {
 	case k3s.DistrName:
-		outputs[KubeconfigKey] = pulumi.ToSecret(toExportedKubeconfig(sys.K3s.KubeconfigForExport))
 		err = c.compiled.K8S.Up(sys.K3s.KubeconfigForUsage, sys.Resources)
 		if err != nil {
 			return nil, err
@@ -106,12 +109,10 @@ func (c *PHKH) Up() (*Cluster, error) {
 		return nil, fmt.Errorf("unsupported kubernetes distribution: %s", distr)
 	}
 
-	c.ctx.Context().Export(PhkhKey, outputs)
-
 	return &Cluster{
 		Servers:    toExportedHetznerServers(cloud),
 		Kubeconfig: toExportedKubeconfig(sys.K3s.KubeconfigForExport),
-		PrivateKey: keypair.PrivateKey(),
+		Privatekey: keypair.PrivateKey(),
 	}, nil
 }
 
@@ -121,19 +122,19 @@ func (c *PHKH) DumpConfig() string {
 	return litter.Sdump(c.config)
 }
 
-func toExportedHetznerServers(deployed *hetzner.Deployed) []map[string]interface{} {
+func toExportedHetznerServers(deployed *hetzner.Deployed) pulumi.MapArray {
 	export := make([]map[string]interface{}, 0)
 	for k, v := range deployed.Servers {
 		m := make(map[string]interface{})
-		m["ip"] = v.Connection.IP
-		m["internal-ip"] = v.InternalIP
-		m["user"] = v.Connection.User
-		m["name"] = k
+		m[ServerIPKey] = v.Connection.IP
+		m[ServerInternalIPKey] = v.InternalIP
+		m[ServerUserKey] = v.Connection.User
+		m[ServerNameKey] = k
 
 		export = append(export, m)
 	}
 
-	return export
+	return pulumi.ToMapArray(export)
 }
 
 func toExportedKubeconfig(kube pulumi.AnyOutput) pulumi.StringOutput {

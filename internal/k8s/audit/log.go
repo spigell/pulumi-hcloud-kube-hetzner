@@ -13,19 +13,19 @@ type AuditLogConfig struct { //nolint: revive
 	Enabled *bool
 
 	// PolicyFilePath is the path to the local file that defines the audit policy configuration.
-	PolicyFilePath string `json:"policy-file-path" yaml:"policy-file-path"`
+	PolicyFilePath string `json:"policy-file-path" yaml:"policy-file-path" mapstructure:"policy-file-path"`
 
 	// AuditLogMaxAge defines the maximum number of days to retain old audit log files.
 	// Default is 10.
-	AuditLogMaxAge int `json:"audit-log-maxage" yaml:"audit-log-maxage"`
+	AuditLogMaxAge int `json:"audit-log-maxage" yaml:"audit-log-maxage" mapstructure:"audit-log-maxage"`
 
 	// AuditLogMaxBackup specifies the maximum number of audit log files to retain.
 	// Default is 30.
-	AuditLogMaxBackup int `json:"audit-log-maxbackup" yaml:"audit-log-maxbackup"`
+	AuditLogMaxBackup int `json:"audit-log-maxbackup" yaml:"audit-log-maxbackup" mapstructure:"audit-log-maxbackup"`
 
 	// AuditLogMaxSize specifies the maximum size in megabytes of the audit log file before it gets rotated.
 	// Default is 100.
-	AuditLogMaxSize int `json:"audit-log-maxsize" yaml:"audit-log-maxsize"`
+	AuditLogMaxSize int `json:"audit-log-maxsize" yaml:"audit-log-maxsize" mapstructure:"audit-log-maxsize"`
 }
 
 type AuditLog struct { //nolint: revive

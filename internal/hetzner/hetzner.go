@@ -43,7 +43,7 @@ func New(ctx *program.Context, nodes []*config.NodeConfig) *Hetzner {
 	firewalls := make(map[string]*firewall.Config)
 
 	for _, node := range nodes {
-		servers[node.ID] = node
+		servers[node.NodeID] = node
 
 		if node.Server.Firewall.Hetzner.AdditionalRules == nil {
 			node.Server.Firewall.Hetzner.AdditionalRules = make([]*firewall.RuleConfig, 0)
@@ -86,15 +86,15 @@ func (h *Hetzner) WithNodepools(pools *config.NodepoolsConfig) *Hetzner {
 
 func (h *Hetzner) configureNodepoolNetwork(pool *config.NodepoolConfig, from string) {
 	if pool.Nodes[0].Server.Firewall.Hetzner.DedicatedPool() {
-		h.Firewalls[pool.ID] = pool.Config.Server.Firewall.Hetzner
+		h.Firewalls[pool.PoolID] = pool.Config.Server.Firewall.Hetzner
 	}
 
 	for _, node := range pool.Nodes {
-		h.addToPool(pool.ID, node.ID)
+		h.addToPool(pool.PoolID, node.NodeID)
 	}
 
 	if h.Network.Config.Enabled {
-		h.Network.PickSubnet(pool.ID, from)
+		h.Network.PickSubnet(pool.PoolID, from)
 	}
 }
 

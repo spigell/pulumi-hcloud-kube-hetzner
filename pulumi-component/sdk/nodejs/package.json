@@ -3,15 +3,23 @@
     "version": "${VERSION}",
     "keywords": [
         "pulumi",
-        "kubernetes",
+        "hetzner",
+        "k3s",
+        "category/infrastructure",
         "kind/component",
-        "category/infrastructure"
+        "kubernetes"
     ],
+    "repository": "https://github.com/spigell/pulumi-hcloud-kube-hetzner",
+    "license": "Apache-2.0",
     "scripts": {
         "build": "tsc"
     },
     "dependencies": {
-        "@pulumi/pulumi": "^3.0.0"
+        "@pulumi/command": "0.11.1",
+        "@pulumi/hcloud": "1.19.0",
+        "@pulumi/kubernetes": "^4.0.0",
+        "@pulumi/pulumi": "^3.0.0",
+        "@spigell/pulumi-file": "0.0.6"
     },
     "devDependencies": {
         "@types/node": "^20.0.0",

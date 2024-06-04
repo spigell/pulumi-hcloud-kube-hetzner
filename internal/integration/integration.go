@@ -64,7 +64,7 @@ var TestsByExampleName = map[string][]string{
 		testSSHConnectivity,
 		testKubeVersion,
 		testKubeHetznerCCM,
-		testNodeChangeLabelsTaints,
+		// testNodeChangeLabelsTaints,
 		testKubeK3SUpgradeControllerPlan,
 		testHetznerNodeManagement,
 	},

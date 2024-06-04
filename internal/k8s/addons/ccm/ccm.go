@@ -17,9 +17,9 @@ type Config struct {
 	Enabled bool
 	Helm    *helm.Config
 	// LoadbalancersEnabled is a flag to enable or disable loadbalancers management. Note: internal loadbalancer for k3s will be disabled.
-	LoadbalancersEnabled bool `json:"loadbalancers-enabled" yaml:"loadbalancers-enabled"`
+	LoadbalancersEnabled bool `json:"loadbalancers-enabled" yaml:"loadbalancers-enabled" mapstructure:"loadbalancers-enabled"`
 	// DefaultloadbalancerLocation is a default location for the loadbancers.
-	LoadbalancersDefaultLocation string `json:"loadbalancers-default-location" yaml:"loadbalancers-default-location"`
+	LoadbalancersDefaultLocation string `json:"loadbalancers-default-location" yaml:"loadbalancers-default-location" mapstructure:"loadbalancers-default-location"`
 	// Token is a hcloud token to access hcloud API for CCM.
 	Token string
 }

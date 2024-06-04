@@ -18,11 +18,11 @@ type Config struct {
 	Enabled bool
 	Helm    *helm.Config
 	// Version is a version to use for the upgrade. Conflicts with Channel.
-	TargetVersion string `json:"target-version" yaml:"target-version"`
+	TargetVersion string `json:"target-version" yaml:"target-version" mapstructure:"target-version"`
 	// Channel is a channel to use for the upgrade. Conflicts with Version.
-	TargetChannel string `json:"target-channel" yaml:"target-channel"`
+	TargetChannel string `json:"target-channel" yaml:"target-channel" mapstructure:"target-channel"`
 	// ConfigEnv is a map of environment variables to pass to the controller.
-	ConfigEnv []string `json:"config-env" yaml:"config-env"`
+	ConfigEnv []string `json:"config-env" yaml:"config-env" mapstructure:"config-env"`
 }
 
 type Upgrader struct {

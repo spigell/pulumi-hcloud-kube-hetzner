@@ -1,3 +1,0 @@
-name: pulumi-hcloud-kube-hetzner-example-go
-runtime: go
-description: A minimal Go Pulumi program

@@ -34,6 +34,9 @@ const (
 	defaultKube = distrK3S.DistrName
 	// This is the only supported kubernetes distribution right now.
 	kube = defaultKube
+	// ServerName and Hostname for hcloud must be a valid hostname.
+	// Since ctx.Project() can be a quite long string, prefix for server name is 4 character only.
+	serverNamePrefix = "phkh"
 )
 
 // Compiled is a collection of Hetzner, System and k8s clusters.
@@ -61,6 +64,14 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 
 	nodeMap := make(map[string]*manager.Node)
 	for _, node := range nodes {
+		if node.Server.Hostname == "" {
+			node.Server.Hostname = fmt.Sprintf("%s-%s-%s-%s",
+				serverNamePrefix,
+				ctx.Context().Stack(),
+				ctx.ClusterName(),
+				node.NodeID,
+			)
+		}
 		// By default, use default taints for server node if they are not set and agents nodes exist.
 		if node.Role == variables.ServerRole &&
 			!*node.K8S.NodeTaints.DisableDefaultsTaints &&
@@ -82,7 +93,7 @@ func preCompile(ctx *program.Context, config *config.Config, nodes []*config.Nod
 			node.K8S.NodeTaints.Taints = make([]string, 0)
 		}
 
-		nodeMap[node.ID] = &manager.Node{
+		nodeMap[node.NodeID] = &manager.Node{
 			ID:     node.Server.Hostname,
 			Taints: slices.Compact(node.K8S.NodeTaints.Taints),
 			Labels: slices.Compact(append(node.K8S.NodeLabels, k3s.NodeManagedLabel)),
@@ -115,17 +126,17 @@ func compile(ctx *program.Context, config *config.Config) (*Compiled, error) { /
 
 	ip, err := externalIP()
 	if err != nil {
-		return nil, fmt.Errorf("failed to get external IP: %w", err)
+		return nil, fmt.Errorf("failed to get our external IP: %w", err)
 	}
 
 	s := make(system.Cluster, 0)
 	for _, node := range nodes {
-		fw, err := fwConfig(ctx.Context(), compiled, node.ID)
+		fw, err := fwConfig(ctx.Context(), compiled, node.NodeID)
 		if err != nil {
 			return nil, err
 		}
 
-		sys := system.New(ctx, node.ID).WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
+		sys := system.New(ctx, node.NodeID).WithK8SEndpointType(config.K8S.KubeAPIEndpoint.Type)
 		os := sys.MicroOS()
 
 		// Network type
@@ -224,8 +235,7 @@ func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.
 func configureOSForK3S(os os.OperatingSystem, node *config.NodeConfig, auditLog *audit.AuditLog) {
 	os.AddK3SModule(node.Role, node.K3s, auditLog)
 	os.SetupSSHD(&sshd.Params{
-		// TODO: make it discoverable from k3s module
-		AcceptEnv: "INSTALL_K3S_*",
+		AcceptEnv: "INSTALL_K3S_* PULUMI_*",
 	})
 }
 

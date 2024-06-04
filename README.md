@@ -1,5 +1,5 @@
 ## Pulumi Hcloud Kube Hetzner
-This is a [Pulumi component](https://www.pulumi.com/docs/concepts/resources/components) (only GO and Typescript/JS are supported now) for creating Kubernetes clusters in Hetzner Cloud. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner). It can be used as a golang library/module as well, tho :)
+This is a [Pulumi component](https://www.pulumi.com/docs/concepts/resources/components) (only GO and Typescript/JS are supported now) for creating Kubernetes clusters in Hetzner Cloud. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner).
 
 *Note: This project is in active development, and not everything is completed. However, it DOES work and is usable right now. I definitely appreciate feedback and will help with any issues*
 
@@ -27,19 +27,17 @@ You need to have a Hetzner Cloud account. You can sign up for free [here](https:
 $ export HCLOUD_TOKEN=<your token>
 $ mkdir pulumi-hcloud-kube-hetzner
 $ cd pulumi-hcloud-kube-hetzner
-$ pulumi new -g https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/pulumi-templates/typescript
-$ make microos (optionanl)
-$ make pulumi-init-stack [PULUMI_EXAMPLE_NAME]
-$ yarn install
+$ pulumi new https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/main/pulumi-templates/phkh-typescript-simple
+$ make microos (optional)
 $ pulumi up -yf
 ```
 
 ## Development
 ### GO
+*Note: It is recommended to use Pulumi local storage for development, as using the Pulumi service or self-hosted S3 storage can impact the speed of deployments.*
 ```
-$ make test-go-project [TEMPLATE=go/library|go/component]
-$ cd test-component
-$ make pulumi-generate-config [PULUMI_CONFIG_SOURCE=../examples/<EXAMPLE>.yaml]
+$ make test-go-project [DEV_TEMPLATE=<path/to/template-in-pulumi-template>]
+$ cd test-project
 ```
 
 For component building:
