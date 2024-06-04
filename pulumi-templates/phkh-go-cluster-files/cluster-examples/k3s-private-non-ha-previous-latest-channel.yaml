@@ -1,9 +1,8 @@
 # The example is used for testing pre latest channel version of k3s.
-config:
-  pulumi-hcloud-kube-hetzner:network:
+network:
     hetzner:
       enabled: true
-  pulumi-hcloud-kube-hetzner:k8s:
+k8s:
     addons:
       k3s-upgrade-controller:
         enabled: true
@@ -11,13 +10,10 @@ config:
         target-channel: v1.29
       ccm:
         enabled: true
-  pulumi-hcloud-kube-hetzner:nodepools:
+nodepools:
     agents:
       - id: 01-agents
         nodes:
-        - id: k3s-fsn1-agent01
-          server:
-            location: fsn1
         - id: k3s-hel1-agent01
           server:
             location: hel1
@@ -28,4 +24,3 @@ config:
             server-type: cpx21
         nodes:
         - id: k3s-server01
-  pulumi-hcloud-kube-hetzner:defaults: {}
