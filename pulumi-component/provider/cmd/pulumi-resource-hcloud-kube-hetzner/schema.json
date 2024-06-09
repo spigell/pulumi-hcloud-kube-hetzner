@@ -27,7 +27,7 @@
         "nodejs": {
             "dependencies": {
                 "@pulumi/command": "0.11.1",
-                "@pulumi/hcloud": "1.19.0",
+                "@pulumi/hcloud": "1.19.1",
                 "@pulumi/kubernetes": "^4.0.0",
                 "@pulumi/pulumi": "^3.0.0",
                 "@spigell/pulumi-file": "0.0.6"
@@ -187,6 +187,10 @@
                 "NodeID": {
                     "type": "string",
                     "description": "NodeID is the id of a server. It is used throughout the entire program as a key. Required. Default is not specified. "
+                },
+                "OS": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:osconfigOSConfig",
+                    "description": "OS defines configuration for operating system. "
                 },
                 "Server": {
                     "$ref": "#types/hcloud-kube-hetzner:cluster:configServerConfig",
@@ -354,6 +358,17 @@
                 "Version": {
                     "type": "string",
                     "description": "Version is version of helm chart. Default is taken from default-helm-versions.yaml in template's versions directory. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:journaldConfig": {
+            "properties": {
+                "GatherAuditD": {
+                    "type": "boolean"
+                },
+                "GatherToLeader": {
+                    "type": "boolean"
                 }
             },
             "type": "object"
@@ -584,6 +599,14 @@
                 "Zone": {
                     "type": "string",
                     "description": "Network zone. Default is eu-central. "
+                }
+            },
+            "type": "object"
+        },
+        "hcloud-kube-hetzner:cluster:osconfigOSConfig": {
+            "properties": {
+                "JournalD": {
+                    "$ref": "#types/hcloud-kube-hetzner:cluster:journaldConfig"
                 }
             },
             "type": "object"
