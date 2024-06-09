@@ -233,6 +233,7 @@ func configureFwForK3s(fw *firewall.Config, config *config.Config, node *config.
 }
 
 func configureOSForK3S(os os.OperatingSystem, node *config.NodeConfig, auditLog *audit.AuditLog) {
+	os.SetupJournalD(node.OS.JournalD)
 	os.AddK3SModule(node.Role, node.K3s, auditLog)
 	os.SetupSSHD(&sshd.Params{
 		AcceptEnv: "INSTALL_K3S_* PULUMI_*",
