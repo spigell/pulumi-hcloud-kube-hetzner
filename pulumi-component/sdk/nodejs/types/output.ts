@@ -126,6 +126,10 @@ export namespace cluster {
          */
         NodeID?: string;
         /**
+         * OS defines configuration for operating system. 
+         */
+        OS?: outputs.cluster.OsconfigOSConfig;
+        /**
          * Server is the configuration of a Hetzner server. 
          */
         Server?: outputs.cluster.ConfigServerConfig;
@@ -254,6 +258,11 @@ export namespace cluster {
          * Version is version of helm chart. Default is taken from default-helm-versions.yaml in template's versions directory. 
          */
         Version?: string;
+    }
+
+    export interface JournaldConfig {
+        GatherAuditD?: boolean;
+        GatherToLeader?: boolean;
     }
 
     export interface K3sConfig {
@@ -421,6 +430,10 @@ export namespace cluster {
          * Network zone. Default is eu-central. 
          */
         Zone?: string;
+    }
+
+    export interface OsconfigOSConfig {
+        JournalD?: outputs.cluster.JournaldConfig;
     }
 
     export interface Servers {
