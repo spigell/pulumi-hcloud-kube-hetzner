@@ -55,6 +55,7 @@ Users are advised to refer to the latest version of this document for the most a
 | k3s | [*k3s.Config](#k3sconfig) | K3S is the configuration of a k3s cluster.  | {} |
 | k8s | [*k8sconfig.NodeConfig](#k8sconfignodeconfig) | K8S is common configuration for nodes.  | {} |
 | - (computed: Not possible to configure!) | string | Role specifies the role of the server (server or agent).   | computed |
+| os | [*osconfig.OSConfig](#osconfigosconfig) | OS defines configuration for operating system.  | {} |
 
 ## config.ServerConfig
 
@@ -196,6 +197,13 @@ Users are advised to refer to the latest version of this document for the most a
 | disallow-own-ip | bool | DisallowOwnIP is a security setting that, when enabled, prevents access to the server from deployer own public IP address.  | false |
 | allowed-ips | []string | AllowedIps specifies a list of IP addresses that are permitted to access the k8s api endpoint. Only traffic from these IPs will be allowed if this list is configured. 0.0.0/0 (all ipv4 addresses).  | 0.0.0.0/0 (all ipv4 addresses) |
 
+## journald.Config
+
+| Field | Type | Description | Default |
+|-------|------|-------------|---------|
+| gather-auditd | [journald.*bool](#journaldbool) |  | {} |
+| gather-to-leader | [journald.*bool](#journaldbool) |  | {} |
+
 ## k3s.Config
 
 | Field | Type | Description | Default |
@@ -234,5 +242,11 @@ Users are advised to refer to the latest version of this document for the most a
 | disable | []string | Disable lists components or features to disable.  | [] |
 | node-label | []string | NodeLabels set labels on registration.  | [] |
 | node-taint | []string | NodeTaints are used to taint the node with key=value:effect. By default, server node is tainted with a couple of taints if number of agents nodes more than 0.  | [] |
+
+## osconfig.OSConfig
+
+| Field | Type | Description | Default |
+|-------|------|-------------|---------|
+| journald | [*journald.Config](#journaldconfig) |  | {} |
 
 
