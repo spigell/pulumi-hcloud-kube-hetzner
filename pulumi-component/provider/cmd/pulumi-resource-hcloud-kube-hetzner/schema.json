@@ -27,7 +27,7 @@
         "nodejs": {
             "dependencies": {
                 "@pulumi/command": "0.11.1",
-                "@pulumi/hcloud": "1.19.0",
+                "@pulumi/hcloud": "1.19.1",
                 "@pulumi/kubernetes": "^4.0.0",
                 "@pulumi/pulumi": "^3.0.0",
                 "@spigell/pulumi-file": "0.0.6"
