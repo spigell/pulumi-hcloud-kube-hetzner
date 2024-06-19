@@ -9,8 +9,9 @@ const (
 	PublicIface  = "eth0"
 	PrivateIface = "eth1"
 	// Name of modules.
-	K3s  = "k3s"
-	SSHD = "sshd"
+	K3s      = "k3s"
+	SSHD     = "sshd"
+	JournalD = "journald"
 )
 
 type CommunicationMethod string

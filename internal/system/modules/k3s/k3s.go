@@ -16,7 +16,6 @@ import (
 const (
 	// ManagedLabel is a label for node Label. Used for internal purposes.
 	NodeManagedLabel = "phkh.io/managed=true"
-	logDir           = "/var/lib/rancher/k3s/server/logs"
 	auditPolicyFIle  = "/var/lib/audit.yaml"
 )
 
@@ -105,10 +104,7 @@ func (k *K3S) WithK8SAuditLog(log *audit.AuditLog) *K3S {
 		k.auditPolicyContent = log.PolicyContent()
 		k.Config.K3S.KubeAPIServerArgs = append(k.Config.K3S.KubeAPIServerArgs,
 			fmt.Sprintf("audit-policy-file=%s", auditPolicyFIle),
-			fmt.Sprintf("audit-log-path=%s/audit.log", logDir),
-			fmt.Sprintf("audit-log-maxage=%d", log.AuditLogMaxAge()),
-			fmt.Sprintf("audit-log-maxbackup=%d", log.AuditLogMaxBackup()),
-			fmt.Sprintf("audit-log-maxsize=%d", log.AuditLogMaxSize()),
+			"audit-log-path=-",
 		)
 	}
 

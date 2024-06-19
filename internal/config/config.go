@@ -85,6 +85,7 @@ func (c *Config) WithInited() *Config {
 
 	c.Network.WithInited()
 	c.Defaults.WithInited()
+	c.Defaults.Global.OS.WithDefaults()
 	c.K8S.WithInited()
 	c.Nodepools.WithInited()
 	c.Nodepools.SpecifyLeader()

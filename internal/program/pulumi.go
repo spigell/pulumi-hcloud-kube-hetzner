@@ -9,6 +9,7 @@ import (
 	"github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes"
 	corev1 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/core/v1"
 	helmv3 "github.com/pulumi/pulumi-kubernetes/sdk/v4/go/kubernetes/helm/v3"
+	"github.com/pulumi/pulumi-tls/sdk/v4/go/tls"
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	remotefile "github.com/spigell/pulumi-file/sdk/go/file/remote"
 	upgradev1 "github.com/spigell/pulumi-hcloud-kube-hetzner/crds/generated/rancher/upgrade/v1"
@@ -24,6 +25,10 @@ type resourceArgs interface {
 		*local.CommandArgs |
 		*remotefile.FileArgs |
 		*remote.CommandArgs |
+		*tls.PrivateKeyArgs |
+		*tls.LocallySignedCertArgs |
+		*tls.SelfSignedCertArgs |
+		*tls.CertRequestArgs |
 		*kubernetes.ProviderArgs |
 		*corev1.NodePatchArgs |
 		*corev1.SecretArgs |
@@ -43,6 +48,10 @@ type resources interface {
 		*local.Command |
 		*remote.Command |
 		*remotefile.File |
+		*tls.CertRequest |
+		*tls.PrivateKey |
+		*tls.SelfSignedCert |
+		*tls.LocallySignedCert |
 		*kubernetes.Provider |
 		*corev1.NodePatch |
 		*corev1.Secret |

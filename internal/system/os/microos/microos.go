@@ -7,6 +7,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/audit"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/journald"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/sshd"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os"
@@ -118,6 +119,14 @@ func (m *MicroOS) SetupSSHD(config *sshd.Params) {
 
 	module.SetOrder(AfterNetwork)
 	m.modules[variables.SSHD] = module
+}
+
+func (m *MicroOS) SetupJournalD(config *journald.Config) {
+	module := journald.New(m.ID, &MicroOS{}, config)
+	m.AddAdditionalRequiredPackages(module.RequiredPkgs())
+
+	module.SetOrder(AfterReboot)
+	m.modules[variables.JournalD] = module
 }
 
 func (m *MicroOS) AddK3SModule(role string, config *k3s.Config, auditLog *audit.AuditLog) {
