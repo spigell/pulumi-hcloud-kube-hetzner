@@ -2702,7 +2702,9 @@ func (o HelmConfigPtrOutput) Version() pulumi.StringPtrOutput {
 }
 
 type JournaldConfig struct {
-	GatherAuditD   *bool `pulumi:"GatherAuditD"`
+	// GatherAuditD indicates whether auditd logs should be gathered. Default is true.
+	GatherAuditD *bool `pulumi:"GatherAuditD"`
+	// GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true.
 	GatherToLeader *bool `pulumi:"GatherToLeader"`
 }
 
@@ -2718,7 +2720,9 @@ type JournaldConfigInput interface {
 }
 
 type JournaldConfigArgs struct {
-	GatherAuditD   pulumi.BoolPtrInput `pulumi:"GatherAuditD"`
+	// GatherAuditD indicates whether auditd logs should be gathered. Default is true.
+	GatherAuditD pulumi.BoolPtrInput `pulumi:"GatherAuditD"`
+	// GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true.
 	GatherToLeader pulumi.BoolPtrInput `pulumi:"GatherToLeader"`
 }
 
@@ -2799,10 +2803,12 @@ func (o JournaldConfigOutput) ToJournaldConfigPtrOutputWithContext(ctx context.C
 	}).(JournaldConfigPtrOutput)
 }
 
+// GatherAuditD indicates whether auditd logs should be gathered. Default is true.
 func (o JournaldConfigOutput) GatherAuditD() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v JournaldConfig) *bool { return v.GatherAuditD }).(pulumi.BoolPtrOutput)
 }
 
+// GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true.
 func (o JournaldConfigOutput) GatherToLeader() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v JournaldConfig) *bool { return v.GatherToLeader }).(pulumi.BoolPtrOutput)
 }
@@ -2831,6 +2837,7 @@ func (o JournaldConfigPtrOutput) Elem() JournaldConfigOutput {
 	}).(JournaldConfigOutput)
 }
 
+// GatherAuditD indicates whether auditd logs should be gathered. Default is true.
 func (o JournaldConfigPtrOutput) GatherAuditD() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v *JournaldConfig) *bool {
 		if v == nil {
@@ -2840,6 +2847,7 @@ func (o JournaldConfigPtrOutput) GatherAuditD() pulumi.BoolPtrOutput {
 	}).(pulumi.BoolPtrOutput)
 }
 
+// GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true.
 func (o JournaldConfigPtrOutput) GatherToLeader() pulumi.BoolPtrOutput {
 	return o.ApplyT(func(v *JournaldConfig) *bool {
 		if v == nil {

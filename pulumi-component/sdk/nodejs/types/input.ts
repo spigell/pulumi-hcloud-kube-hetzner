@@ -261,7 +261,13 @@ export namespace cluster {
     }
 
     export interface JournaldConfigArgs {
+        /**
+         * GatherAuditD indicates whether auditd logs should be gathered. Default is true. 
+         */
         GatherAuditD?: pulumi.Input<boolean>;
+        /**
+         * GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true. 
+         */
         GatherToLeader?: pulumi.Input<boolean>;
     }
 

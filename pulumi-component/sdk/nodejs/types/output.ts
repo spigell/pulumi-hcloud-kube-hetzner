@@ -261,7 +261,13 @@ export namespace cluster {
     }
 
     export interface JournaldConfig {
+        /**
+         * GatherAuditD indicates whether auditd logs should be gathered. Default is true. 
+         */
         GatherAuditD?: boolean;
+        /**
+         * GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true. 
+         */
         GatherToLeader?: boolean;
     }
 
