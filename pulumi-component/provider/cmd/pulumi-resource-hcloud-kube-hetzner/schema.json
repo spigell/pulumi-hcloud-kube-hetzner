@@ -365,10 +365,12 @@
         "hcloud-kube-hetzner:cluster:journaldConfig": {
             "properties": {
                 "GatherAuditD": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "GatherAuditD indicates whether auditd logs should be gathered. Default is true. "
                 },
                 "GatherToLeader": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "description": "GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true. "
                 }
             },
             "type": "object"
