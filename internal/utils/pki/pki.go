@@ -53,7 +53,7 @@ func New(ctx *program.Context, name string) (*PKI, error) {
 	}, nil
 }
 
-func (n *PKI) NewCertificate(name string, options ...func(*Certificate)) (*Certificate, error) {
+func (n *PKI) NewCertificate(name string, usages []string, options ...func(*Certificate)) (*Certificate, error) {
 	certificate := &Certificate{}
 
 	for _, o := range options {
@@ -88,7 +88,7 @@ func (n *PKI) NewCertificate(name string, options ...func(*Certificate)) (*Certi
 
 		ValidityPeriodHours: pulumi.Int(8784),
 		EarlyRenewalHours:   pulumi.Int(360),
-		AllowedUses:         pulumi.ToStringArray(certificate.allowedUsages),
+		AllowedUses:         pulumi.ToStringArray(usages),
 	})
 	if err != nil {
 		return nil, err
@@ -103,11 +103,5 @@ func (n *PKI) NewCertificate(name string, options ...func(*Certificate)) (*Certi
 func WithIPAddesses(ips pulumi.StringArray) func(*Certificate) {
 	return func(c *Certificate) {
 		c.ipAddreses = ips
-	}
-}
-
-func WithAllowedUsages(usages []string) func(*Certificate) {
-	return func(c *Certificate) {
-		c.allowedUsages = usages
 	}
 }

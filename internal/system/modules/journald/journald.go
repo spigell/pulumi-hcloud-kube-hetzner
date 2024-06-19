@@ -24,9 +24,9 @@ func New(id string, os info.OSInfo, config *Config) *JournalD {
 
 func (j *JournalD) RequiredPkgs() []string {
 	packages := make([]string, 0)
-	if *j.Config.GatherToLeader {
-		packages = append(packages, "systemd-journal-remote")
-	}
+
+	packages = append(packages, "systemd-journal-remote")
+
 	return packages
 }
 

@@ -14,10 +14,17 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/utils/ssh/connection"
 )
 
-var restartSystemDTemplate = strings.Join([]string{
+var enableSystemdServiceCMD = strings.Join([]string{
 	"sudo systemctl daemon-reload",
 	"sudo systemctl disable --now %[1]s",
 	"sudo systemctl enable --now %[1]s",
+	"sudo systemctl status %[1]s",
+	"echo 'systemctl status command returned' $? exit code",
+}, " && ")
+
+var disableSystemdServiceCMD = strings.Join([]string{
+	"sudo systemctl daemon-reload",
+	"sudo systemctl disable --now %[1]s",
 	"sudo systemctl status %[1]s",
 	"echo 'systemctl status command returned' $? exit code",
 }, " && ")
@@ -45,7 +52,7 @@ func (j *JournalD) Up(ctx *program.Context, con *connection.Connection, deps []p
 		auditAction = "disable --now"
 	}
 
-	auditd, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("enable-auditd-socket:%s", j.ID), &remote.CommandArgs{
+	auditd, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("manage-auditd-socket:%s", j.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
 		Create:     pulumi.Sprintf(auditCMD, auditAction),
 	}, pulumi.DependsOn(deps), pulumi.DeleteBeforeReplace(true))
@@ -57,15 +64,14 @@ func (j *JournalD) Up(ctx *program.Context, con *connection.Connection, deps []p
 	outputs := &Outputs{}
 
 	if j.System.Leader() {
-		issuer, err := pki.New(ctx, "journald-gather-ca")
+		issuer, err := pki.New(ctx, "journald-ca")
 		if err != nil {
 			return nil, fmt.Errorf("failed to create journald pki: %w", err)
 		}
-		cert, err := issuer.NewCertificate(fmt.Sprintf("journald-receiver:%s", j.ID),
+		cert, err := issuer.NewCertificate(fmt.Sprintf("journald-receiver:%s", j.ID), []string{"server_auth"},
 			pki.WithIPAddesses(pulumi.StringArray{
 				j.System.LeaderIP(),
 			}),
-			pki.WithAllowedUsages([]string{"server_auth"}),
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create server cert: %w", err)
@@ -101,8 +107,7 @@ func (j *JournalD) Up(ctx *program.Context, con *connection.Connection, deps []p
 
 	if *j.Config.GatherToLeader {
 		cert, err := j.System.JournaldLeader().Issuer.NewCertificate(
-			fmt.Sprintf("journald-uploader:%s", j.ID),
-			pki.WithAllowedUsages([]string{"client_auth"}),
+			fmt.Sprintf("journald-uploader:%s", j.ID), []string{"server_auth"},
 		)
 		if err != nil {
 			return nil, fmt.Errorf("failed to create journald uploader cert: %w", err)
@@ -173,9 +178,9 @@ func (j *JournalD) setupReceiver(ctx *program.Context, con *connection.Connectio
 		return nil, fmt.Errorf("failed to create receiver configuration file: %w", err)
 	}
 
-	enable, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("enable-journald-remote-service:%s", j.ID), &remote.CommandArgs{
+	enable, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("manage-journald-remote-service:%s", j.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
-		Create:     pulumi.Sprintf(restartSystemDTemplate, socketName),
+		Create:     pulumi.Sprintf(enableSystemdServiceCMD, socketName),
 		Triggers: pulumi.Array{
 			service.Md5sum,
 			service.Connection,
@@ -196,7 +201,7 @@ func (j *JournalD) setupReceiver(ctx *program.Context, con *connection.Connectio
 		pulumi.DeleteBeforeReplace(true),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create enable journald remote server: %w", err)
+		return nil, fmt.Errorf("failed to manage journald remote server: %w", err)
 	}
 
 	return enable, nil
@@ -246,9 +251,14 @@ func (j *JournalD) setupUploader(ctx *program.Context, con *connection.Connectio
 		return nil, fmt.Errorf("failed to create uploader configuration file: %w", err)
 	}
 
-	enable, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("enable-journald-upload-service:%s", j.ID), &remote.CommandArgs{
+	cmd := disableSystemdServiceCMD
+	if *j.Config.GatherToLeader {
+		cmd = enableSystemdServiceCMD
+	}
+
+	status, err := program.PulumiRun(ctx, remote.NewCommand, fmt.Sprintf("manage-journald-upload-service:%s", j.ID), &remote.CommandArgs{
 		Connection: con.RemoteCommand(),
-		Create:     pulumi.Sprintf(restartSystemDTemplate, serviceName),
+		Create:     pulumi.Sprintf(cmd, serviceName),
 		Triggers: pulumi.Array{
 			receiver.Create,
 			config.Md5sum,
@@ -267,11 +277,11 @@ func (j *JournalD) setupUploader(ctx *program.Context, con *connection.Connectio
 		pulumi.DeleteBeforeReplace(true),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("failed to enable uploader service: %w", err)
+		return nil, fmt.Errorf("failed to manage uploader service: %w", err)
 	}
 
 	return []pulumi.Resource{
 		config,
-		enable,
+		status,
 	}, nil
 }
