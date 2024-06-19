@@ -25,8 +25,6 @@ var enableSystemdServiceCMD = strings.Join([]string{
 var disableSystemdServiceCMD = strings.Join([]string{
 	"sudo systemctl daemon-reload",
 	"sudo systemctl disable --now %[1]s",
-	"sudo systemctl status %[1]s",
-	"echo 'systemctl status command returned' $? exit code",
 }, " && ")
 
 var (
@@ -105,20 +103,18 @@ func (j *JournalD) Up(ctx *program.Context, con *connection.Connection, deps []p
 		return nil, fmt.Errorf("failed to deploy journald CA cert: %w", err)
 	}
 
-	if *j.Config.GatherToLeader {
-		cert, err := j.System.JournaldLeader().Issuer.NewCertificate(
-			fmt.Sprintf("journald-uploader:%s", j.ID), []string{"server_auth"},
-		)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create journald uploader cert: %w", err)
-		}
-
-		uploader, err := j.setupUploader(ctx, con, cert, j.System.JournaldLeader().Restart)
-		if err != nil {
-			return nil, fmt.Errorf("failed to create journald uploader: %w", err)
-		}
-		resources = append(resources, uploader...)
+	cert, err := j.System.JournaldLeader().Issuer.NewCertificate(
+		fmt.Sprintf("journald-uploader:%s", j.ID), []string{"server_auth"},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create journald uploader cert: %w", err)
 	}
+
+	uploader, err := j.setupUploader(ctx, con, cert, j.System.JournaldLeader().Restart)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create journald uploader: %w", err)
+	}
+	resources = append(resources, uploader...)
 
 	return &Provisioned{
 		resources: resources,

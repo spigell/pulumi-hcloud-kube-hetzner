@@ -6,7 +6,12 @@ var (
 )
 
 type Config struct {
-	GatherAuditD   *bool `json:"gather-auditd" yaml:"gather-auditd" mapstructure:"gather-auditd"`
+	// GatherAuditD indicates whether auditd logs should be gathered.
+	// Default is true.
+	GatherAuditD *bool `json:"gather-auditd" yaml:"gather-auditd" mapstructure:"gather-auditd"`
+
+	// GatherToLeader indicates whether journald logs should be sent to the leader node.
+	// Default is true.
 	GatherToLeader *bool `json:"gather-to-leader" yaml:"gather-to-leader" mapstructure:"gather-to-leader"`
 }
 

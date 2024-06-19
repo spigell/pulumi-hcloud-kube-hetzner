@@ -9,8 +9,7 @@ import (
 )
 
 type Certificate struct {
-	allowedUsages []string
-	ipAddreses    pulumi.StringArray
+	ipAddreses pulumi.StringArray
 
 	PrivateKeyPem  pulumi.StringOutput
 	CertificatePem pulumi.StringOutput
