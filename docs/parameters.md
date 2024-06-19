@@ -201,8 +201,8 @@ Users are advised to refer to the latest version of this document for the most a
 
 | Field | Type | Description | Default |
 |-------|------|-------------|---------|
-| gather-auditd | [journald.*bool](#journaldbool) |  | {} |
-| gather-to-leader | [journald.*bool](#journaldbool) |  | {} |
+| gather-auditd | [journald.*bool](#journaldbool) | GatherAuditD indicates whether auditd logs should be gathered.   | true |
+| gather-to-leader | [journald.*bool](#journaldbool) | GatherToLeader indicates whether journald logs should be sent to the leader node.   | true |
 
 ## k3s.Config
 
