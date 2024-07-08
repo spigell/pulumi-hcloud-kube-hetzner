@@ -1,0 +1,26 @@
+# The example is used for testing current latest channel version of k3s.
+network:
+    hetzner:
+      enabled: true
+k8s:
+    addons:
+      k3s-upgrade-controller:
+        enabled: true
+        # managed by renovate
+        target-channel: v1.29
+      ccm:
+        enabled: true
+nodepools:
+    agents:
+      - id: 01-agents
+        nodes:
+        - id: k3s-fsn1-agent01
+          server:
+            location: fsn1
+    servers:
+      - id: 01-control-plane
+        config:
+          server:
+            server-type: cpx21
+        nodes:
+        - id: k3s-server01
