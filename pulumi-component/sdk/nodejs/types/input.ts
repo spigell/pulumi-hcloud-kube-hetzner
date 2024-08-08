@@ -126,6 +126,10 @@ export namespace cluster {
          */
         NodeID?: pulumi.Input<string>;
         /**
+         * OS defines configuration for operating system. 
+         */
+        OS?: pulumi.Input<inputs.cluster.OsconfigOSConfigArgs>;
+        /**
          * Server is the configuration of a Hetzner server. 
          */
         Server?: pulumi.Input<inputs.cluster.ConfigServerConfigArgs>;
@@ -254,6 +258,17 @@ export namespace cluster {
          * Version is version of helm chart. Default is taken from default-helm-versions.yaml in template's versions directory. 
          */
         Version?: pulumi.Input<string>;
+    }
+
+    export interface JournaldConfigArgs {
+        /**
+         * GatherAuditD indicates whether auditd logs should be gathered. Default is true. 
+         */
+        GatherAuditD?: pulumi.Input<boolean>;
+        /**
+         * GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true. 
+         */
+        GatherToLeader?: pulumi.Input<boolean>;
     }
 
     export interface K3sConfigArgs {
@@ -421,6 +436,10 @@ export namespace cluster {
          * Network zone. Default is eu-central. 
          */
         Zone?: pulumi.Input<string>;
+    }
+
+    export interface OsconfigOSConfigArgs {
+        JournalD?: pulumi.Input<inputs.cluster.JournaldConfigArgs>;
     }
 
 }

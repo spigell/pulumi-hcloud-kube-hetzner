@@ -5,6 +5,8 @@ import (
 
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/k3stoken"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/info"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/journald"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/variables"
 
@@ -33,7 +35,11 @@ func (c *Cluster) Up(token *k3stoken.Token, deps *hetzner.Deployed) (*Deployed, 
 	}
 
 	var k3sOutputs *k3s.Outputs
+	var journaldLeader *info.JournaldLeader
 	for _, v := range *c {
+		v.info = v.info.WithLeaderIP(leaderIPS[v.info.CommunicationMethod().String()])
+		v.info = v.info.WithJournaldLeader(journaldLeader)
+
 		// Cluster is sorted by seniority.
 		// So, agents and non-leader servers will wait for leader to be ready.
 		// After that, agents will wait for non-leader servers.
@@ -41,6 +47,10 @@ func (c *Cluster) Up(token *k3stoken.Token, deps *hetzner.Deployed) (*Deployed, 
 		v.kubeDependecies = kubeDependencies
 
 		for k, module := range v.OS.Modules() {
+			if k == variables.JournalD {
+				v.OS.Modules()[k] = module.(*journald.JournalD).WithSysInfo(v.info)
+			}
+
 			if k == variables.K3s {
 				v.OS.Modules()[k] = module.(*k3s.K3S).WithSysInfo(v.info).WithLeaderIP(
 					leaderIPS[v.info.CommunicationMethod().String()],
@@ -54,6 +64,11 @@ func (c *Cluster) Up(token *k3stoken.Token, deps *hetzner.Deployed) (*Deployed, 
 		}
 
 		for k, module := range s.OS.Modules() {
+			// Leader must be filled by leader node only once.
+			if k == variables.JournalD && v.info.Leader() {
+				journaldLeader = module.Value().(*journald.Outputs).JournalDLeader
+			}
+
 			if k == variables.K3s {
 				// Cluster is sorted by seniority.
 				// So, workers and non-leader nodes will wait for leader to be ready.

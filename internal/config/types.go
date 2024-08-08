@@ -5,6 +5,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/network"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/k8sconfig"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/modules/k3s"
+	osconfig "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/system/os/config"
 )
 
 type WithID interface {
@@ -68,6 +69,8 @@ type NodeConfig struct {
 	// Role specifies the role of the server (server or agent).
 	// Default is computed.
 	Role string `json:"-" yaml:"-" mapstructure:"-"`
+	// OS defines configuration for operating system.
+	OS *osconfig.OSConfig
 }
 
 func (n *NodeConfig) GetID() string {
@@ -129,6 +132,10 @@ func (d *DefaultConfig) WithInited() *DefaultConfig {
 
 	if d.Global.K3s == nil {
 		d.Global.K3s = &k3s.Config{}
+	}
+
+	if d.Global.OS == nil {
+		d.Global.OS = &osconfig.OSConfig{}
 	}
 
 	if d.Global.K8S == nil {

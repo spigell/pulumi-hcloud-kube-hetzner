@@ -1243,6 +1243,8 @@ type ConfigNodeConfig struct {
 	Leader *bool `pulumi:"Leader"`
 	// NodeID is the id of a server. It is used throughout the entire program as a key. Required. Default is not specified.
 	NodeID *string `pulumi:"NodeID"`
+	// OS defines configuration for operating system.
+	OS *OsconfigOSConfig `pulumi:"OS"`
 	// Server is the configuration of a Hetzner server.
 	Server *ConfigServerConfig `pulumi:"Server"`
 }
@@ -1267,6 +1269,8 @@ type ConfigNodeConfigArgs struct {
 	Leader pulumi.BoolPtrInput `pulumi:"Leader"`
 	// NodeID is the id of a server. It is used throughout the entire program as a key. Required. Default is not specified.
 	NodeID pulumi.StringPtrInput `pulumi:"NodeID"`
+	// OS defines configuration for operating system.
+	OS OsconfigOSConfigPtrInput `pulumi:"OS"`
 	// Server is the configuration of a Hetzner server.
 	Server ConfigServerConfigPtrInput `pulumi:"Server"`
 }
@@ -1393,6 +1397,11 @@ func (o ConfigNodeConfigOutput) NodeID() pulumi.StringPtrOutput {
 	return o.ApplyT(func(v ConfigNodeConfig) *string { return v.NodeID }).(pulumi.StringPtrOutput)
 }
 
+// OS defines configuration for operating system.
+func (o ConfigNodeConfigOutput) OS() OsconfigOSConfigPtrOutput {
+	return o.ApplyT(func(v ConfigNodeConfig) *OsconfigOSConfig { return v.OS }).(OsconfigOSConfigPtrOutput)
+}
+
 // Server is the configuration of a Hetzner server.
 func (o ConfigNodeConfigOutput) Server() ConfigServerConfigPtrOutput {
 	return o.ApplyT(func(v ConfigNodeConfig) *ConfigServerConfig { return v.Server }).(ConfigServerConfigPtrOutput)
@@ -1460,6 +1469,16 @@ func (o ConfigNodeConfigPtrOutput) NodeID() pulumi.StringPtrOutput {
 		}
 		return v.NodeID
 	}).(pulumi.StringPtrOutput)
+}
+
+// OS defines configuration for operating system.
+func (o ConfigNodeConfigPtrOutput) OS() OsconfigOSConfigPtrOutput {
+	return o.ApplyT(func(v *ConfigNodeConfig) *OsconfigOSConfig {
+		if v == nil {
+			return nil
+		}
+		return v.OS
+	}).(OsconfigOSConfigPtrOutput)
 }
 
 // Server is the configuration of a Hetzner server.
@@ -2680,6 +2699,162 @@ func (o HelmConfigPtrOutput) Version() pulumi.StringPtrOutput {
 		}
 		return v.Version
 	}).(pulumi.StringPtrOutput)
+}
+
+type JournaldConfig struct {
+	// GatherAuditD indicates whether auditd logs should be gathered. Default is true.
+	GatherAuditD *bool `pulumi:"GatherAuditD"`
+	// GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true.
+	GatherToLeader *bool `pulumi:"GatherToLeader"`
+}
+
+// JournaldConfigInput is an input type that accepts JournaldConfigArgs and JournaldConfigOutput values.
+// You can construct a concrete instance of `JournaldConfigInput` via:
+//
+//	JournaldConfigArgs{...}
+type JournaldConfigInput interface {
+	pulumi.Input
+
+	ToJournaldConfigOutput() JournaldConfigOutput
+	ToJournaldConfigOutputWithContext(context.Context) JournaldConfigOutput
+}
+
+type JournaldConfigArgs struct {
+	// GatherAuditD indicates whether auditd logs should be gathered. Default is true.
+	GatherAuditD pulumi.BoolPtrInput `pulumi:"GatherAuditD"`
+	// GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true.
+	GatherToLeader pulumi.BoolPtrInput `pulumi:"GatherToLeader"`
+}
+
+func (JournaldConfigArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*JournaldConfig)(nil)).Elem()
+}
+
+func (i JournaldConfigArgs) ToJournaldConfigOutput() JournaldConfigOutput {
+	return i.ToJournaldConfigOutputWithContext(context.Background())
+}
+
+func (i JournaldConfigArgs) ToJournaldConfigOutputWithContext(ctx context.Context) JournaldConfigOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(JournaldConfigOutput)
+}
+
+func (i JournaldConfigArgs) ToJournaldConfigPtrOutput() JournaldConfigPtrOutput {
+	return i.ToJournaldConfigPtrOutputWithContext(context.Background())
+}
+
+func (i JournaldConfigArgs) ToJournaldConfigPtrOutputWithContext(ctx context.Context) JournaldConfigPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(JournaldConfigOutput).ToJournaldConfigPtrOutputWithContext(ctx)
+}
+
+// JournaldConfigPtrInput is an input type that accepts JournaldConfigArgs, JournaldConfigPtr and JournaldConfigPtrOutput values.
+// You can construct a concrete instance of `JournaldConfigPtrInput` via:
+//
+//	        JournaldConfigArgs{...}
+//
+//	or:
+//
+//	        nil
+type JournaldConfigPtrInput interface {
+	pulumi.Input
+
+	ToJournaldConfigPtrOutput() JournaldConfigPtrOutput
+	ToJournaldConfigPtrOutputWithContext(context.Context) JournaldConfigPtrOutput
+}
+
+type journaldConfigPtrType JournaldConfigArgs
+
+func JournaldConfigPtr(v *JournaldConfigArgs) JournaldConfigPtrInput {
+	return (*journaldConfigPtrType)(v)
+}
+
+func (*journaldConfigPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**JournaldConfig)(nil)).Elem()
+}
+
+func (i *journaldConfigPtrType) ToJournaldConfigPtrOutput() JournaldConfigPtrOutput {
+	return i.ToJournaldConfigPtrOutputWithContext(context.Background())
+}
+
+func (i *journaldConfigPtrType) ToJournaldConfigPtrOutputWithContext(ctx context.Context) JournaldConfigPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(JournaldConfigPtrOutput)
+}
+
+type JournaldConfigOutput struct{ *pulumi.OutputState }
+
+func (JournaldConfigOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*JournaldConfig)(nil)).Elem()
+}
+
+func (o JournaldConfigOutput) ToJournaldConfigOutput() JournaldConfigOutput {
+	return o
+}
+
+func (o JournaldConfigOutput) ToJournaldConfigOutputWithContext(ctx context.Context) JournaldConfigOutput {
+	return o
+}
+
+func (o JournaldConfigOutput) ToJournaldConfigPtrOutput() JournaldConfigPtrOutput {
+	return o.ToJournaldConfigPtrOutputWithContext(context.Background())
+}
+
+func (o JournaldConfigOutput) ToJournaldConfigPtrOutputWithContext(ctx context.Context) JournaldConfigPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v JournaldConfig) *JournaldConfig {
+		return &v
+	}).(JournaldConfigPtrOutput)
+}
+
+// GatherAuditD indicates whether auditd logs should be gathered. Default is true.
+func (o JournaldConfigOutput) GatherAuditD() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v JournaldConfig) *bool { return v.GatherAuditD }).(pulumi.BoolPtrOutput)
+}
+
+// GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true.
+func (o JournaldConfigOutput) GatherToLeader() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v JournaldConfig) *bool { return v.GatherToLeader }).(pulumi.BoolPtrOutput)
+}
+
+type JournaldConfigPtrOutput struct{ *pulumi.OutputState }
+
+func (JournaldConfigPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**JournaldConfig)(nil)).Elem()
+}
+
+func (o JournaldConfigPtrOutput) ToJournaldConfigPtrOutput() JournaldConfigPtrOutput {
+	return o
+}
+
+func (o JournaldConfigPtrOutput) ToJournaldConfigPtrOutputWithContext(ctx context.Context) JournaldConfigPtrOutput {
+	return o
+}
+
+func (o JournaldConfigPtrOutput) Elem() JournaldConfigOutput {
+	return o.ApplyT(func(v *JournaldConfig) JournaldConfig {
+		if v != nil {
+			return *v
+		}
+		var ret JournaldConfig
+		return ret
+	}).(JournaldConfigOutput)
+}
+
+// GatherAuditD indicates whether auditd logs should be gathered. Default is true.
+func (o JournaldConfigPtrOutput) GatherAuditD() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *JournaldConfig) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.GatherAuditD
+	}).(pulumi.BoolPtrOutput)
+}
+
+// GatherToLeader indicates whether journald logs should be sent to the leader node. Default is true.
+func (o JournaldConfigPtrOutput) GatherToLeader() pulumi.BoolPtrOutput {
+	return o.ApplyT(func(v *JournaldConfig) *bool {
+		if v == nil {
+			return nil
+		}
+		return v.GatherToLeader
+	}).(pulumi.BoolPtrOutput)
 }
 
 type K3sConfig struct {
@@ -4564,6 +4739,139 @@ func (o NetworkConfigPtrOutput) Zone() pulumi.StringPtrOutput {
 	}).(pulumi.StringPtrOutput)
 }
 
+type OsconfigOSConfig struct {
+	JournalD *JournaldConfig `pulumi:"JournalD"`
+}
+
+// OsconfigOSConfigInput is an input type that accepts OsconfigOSConfigArgs and OsconfigOSConfigOutput values.
+// You can construct a concrete instance of `OsconfigOSConfigInput` via:
+//
+//	OsconfigOSConfigArgs{...}
+type OsconfigOSConfigInput interface {
+	pulumi.Input
+
+	ToOsconfigOSConfigOutput() OsconfigOSConfigOutput
+	ToOsconfigOSConfigOutputWithContext(context.Context) OsconfigOSConfigOutput
+}
+
+type OsconfigOSConfigArgs struct {
+	JournalD JournaldConfigPtrInput `pulumi:"JournalD"`
+}
+
+func (OsconfigOSConfigArgs) ElementType() reflect.Type {
+	return reflect.TypeOf((*OsconfigOSConfig)(nil)).Elem()
+}
+
+func (i OsconfigOSConfigArgs) ToOsconfigOSConfigOutput() OsconfigOSConfigOutput {
+	return i.ToOsconfigOSConfigOutputWithContext(context.Background())
+}
+
+func (i OsconfigOSConfigArgs) ToOsconfigOSConfigOutputWithContext(ctx context.Context) OsconfigOSConfigOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(OsconfigOSConfigOutput)
+}
+
+func (i OsconfigOSConfigArgs) ToOsconfigOSConfigPtrOutput() OsconfigOSConfigPtrOutput {
+	return i.ToOsconfigOSConfigPtrOutputWithContext(context.Background())
+}
+
+func (i OsconfigOSConfigArgs) ToOsconfigOSConfigPtrOutputWithContext(ctx context.Context) OsconfigOSConfigPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(OsconfigOSConfigOutput).ToOsconfigOSConfigPtrOutputWithContext(ctx)
+}
+
+// OsconfigOSConfigPtrInput is an input type that accepts OsconfigOSConfigArgs, OsconfigOSConfigPtr and OsconfigOSConfigPtrOutput values.
+// You can construct a concrete instance of `OsconfigOSConfigPtrInput` via:
+//
+//	        OsconfigOSConfigArgs{...}
+//
+//	or:
+//
+//	        nil
+type OsconfigOSConfigPtrInput interface {
+	pulumi.Input
+
+	ToOsconfigOSConfigPtrOutput() OsconfigOSConfigPtrOutput
+	ToOsconfigOSConfigPtrOutputWithContext(context.Context) OsconfigOSConfigPtrOutput
+}
+
+type osconfigOSConfigPtrType OsconfigOSConfigArgs
+
+func OsconfigOSConfigPtr(v *OsconfigOSConfigArgs) OsconfigOSConfigPtrInput {
+	return (*osconfigOSConfigPtrType)(v)
+}
+
+func (*osconfigOSConfigPtrType) ElementType() reflect.Type {
+	return reflect.TypeOf((**OsconfigOSConfig)(nil)).Elem()
+}
+
+func (i *osconfigOSConfigPtrType) ToOsconfigOSConfigPtrOutput() OsconfigOSConfigPtrOutput {
+	return i.ToOsconfigOSConfigPtrOutputWithContext(context.Background())
+}
+
+func (i *osconfigOSConfigPtrType) ToOsconfigOSConfigPtrOutputWithContext(ctx context.Context) OsconfigOSConfigPtrOutput {
+	return pulumi.ToOutputWithContext(ctx, i).(OsconfigOSConfigPtrOutput)
+}
+
+type OsconfigOSConfigOutput struct{ *pulumi.OutputState }
+
+func (OsconfigOSConfigOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((*OsconfigOSConfig)(nil)).Elem()
+}
+
+func (o OsconfigOSConfigOutput) ToOsconfigOSConfigOutput() OsconfigOSConfigOutput {
+	return o
+}
+
+func (o OsconfigOSConfigOutput) ToOsconfigOSConfigOutputWithContext(ctx context.Context) OsconfigOSConfigOutput {
+	return o
+}
+
+func (o OsconfigOSConfigOutput) ToOsconfigOSConfigPtrOutput() OsconfigOSConfigPtrOutput {
+	return o.ToOsconfigOSConfigPtrOutputWithContext(context.Background())
+}
+
+func (o OsconfigOSConfigOutput) ToOsconfigOSConfigPtrOutputWithContext(ctx context.Context) OsconfigOSConfigPtrOutput {
+	return o.ApplyTWithContext(ctx, func(_ context.Context, v OsconfigOSConfig) *OsconfigOSConfig {
+		return &v
+	}).(OsconfigOSConfigPtrOutput)
+}
+
+func (o OsconfigOSConfigOutput) JournalD() JournaldConfigPtrOutput {
+	return o.ApplyT(func(v OsconfigOSConfig) *JournaldConfig { return v.JournalD }).(JournaldConfigPtrOutput)
+}
+
+type OsconfigOSConfigPtrOutput struct{ *pulumi.OutputState }
+
+func (OsconfigOSConfigPtrOutput) ElementType() reflect.Type {
+	return reflect.TypeOf((**OsconfigOSConfig)(nil)).Elem()
+}
+
+func (o OsconfigOSConfigPtrOutput) ToOsconfigOSConfigPtrOutput() OsconfigOSConfigPtrOutput {
+	return o
+}
+
+func (o OsconfigOSConfigPtrOutput) ToOsconfigOSConfigPtrOutputWithContext(ctx context.Context) OsconfigOSConfigPtrOutput {
+	return o
+}
+
+func (o OsconfigOSConfigPtrOutput) Elem() OsconfigOSConfigOutput {
+	return o.ApplyT(func(v *OsconfigOSConfig) OsconfigOSConfig {
+		if v != nil {
+			return *v
+		}
+		var ret OsconfigOSConfig
+		return ret
+	}).(OsconfigOSConfigOutput)
+}
+
+func (o OsconfigOSConfigPtrOutput) JournalD() JournaldConfigPtrOutput {
+	return o.ApplyT(func(v *OsconfigOSConfig) *JournaldConfig {
+		if v == nil {
+			return nil
+		}
+		return v.JournalD
+	}).(JournaldConfigPtrOutput)
+}
+
 type Servers struct {
 	InternalIP *string `pulumi:"internalIP"`
 	Ip         *string `pulumi:"ip"`
@@ -4653,6 +4961,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*FirewallSSHConfigPtrInput)(nil)).Elem(), FirewallSSHConfigArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*HelmConfigInput)(nil)).Elem(), HelmConfigArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*HelmConfigPtrInput)(nil)).Elem(), HelmConfigArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*JournaldConfigInput)(nil)).Elem(), JournaldConfigArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*JournaldConfigPtrInput)(nil)).Elem(), JournaldConfigArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*K3sConfigInput)(nil)).Elem(), K3sConfigArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*K3sConfigPtrInput)(nil)).Elem(), K3sConfigArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*K3sK3sConfigInput)(nil)).Elem(), K3sK3sConfigArgs{})
@@ -4673,6 +4983,8 @@ func init() {
 	pulumi.RegisterInputType(reflect.TypeOf((*K8sconfigTaintConfigPtrInput)(nil)).Elem(), K8sconfigTaintConfigArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*NetworkConfigInput)(nil)).Elem(), NetworkConfigArgs{})
 	pulumi.RegisterInputType(reflect.TypeOf((*NetworkConfigPtrInput)(nil)).Elem(), NetworkConfigArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*OsconfigOSConfigInput)(nil)).Elem(), OsconfigOSConfigArgs{})
+	pulumi.RegisterInputType(reflect.TypeOf((*OsconfigOSConfigPtrInput)(nil)).Elem(), OsconfigOSConfigArgs{})
 	pulumi.RegisterOutputType(AddonsConfigOutput{})
 	pulumi.RegisterOutputType(AddonsConfigPtrOutput{})
 	pulumi.RegisterOutputType(AuditAuditLogConfigOutput{})
@@ -4704,6 +5016,8 @@ func init() {
 	pulumi.RegisterOutputType(FirewallSSHConfigPtrOutput{})
 	pulumi.RegisterOutputType(HelmConfigOutput{})
 	pulumi.RegisterOutputType(HelmConfigPtrOutput{})
+	pulumi.RegisterOutputType(JournaldConfigOutput{})
+	pulumi.RegisterOutputType(JournaldConfigPtrOutput{})
 	pulumi.RegisterOutputType(K3sConfigOutput{})
 	pulumi.RegisterOutputType(K3sConfigPtrOutput{})
 	pulumi.RegisterOutputType(K3sK3sConfigOutput{})
@@ -4724,6 +5038,8 @@ func init() {
 	pulumi.RegisterOutputType(K8sconfigTaintConfigPtrOutput{})
 	pulumi.RegisterOutputType(NetworkConfigOutput{})
 	pulumi.RegisterOutputType(NetworkConfigPtrOutput{})
+	pulumi.RegisterOutputType(OsconfigOSConfigOutput{})
+	pulumi.RegisterOutputType(OsconfigOSConfigPtrOutput{})
 	pulumi.RegisterOutputType(ServersOutput{})
 	pulumi.RegisterOutputType(ServersArrayOutput{})
 }
