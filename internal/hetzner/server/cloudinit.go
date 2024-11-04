@@ -81,3 +81,11 @@ func RenameInterfaceScript() *CloudInitWriteFile {
 		Permissions: "0755",
 	}
 }
+
+func WriteTalosScript() *CloudInitWriteFile {
+	return &CloudInitWriteFile{
+		Path:        "/etc/cloud/write-talos.sh",
+		Content:     scripts.WriteTalos,
+		Permissions: "0755",
+	}
+}

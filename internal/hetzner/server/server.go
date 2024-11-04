@@ -19,7 +19,7 @@ import (
 )
 
 const (
-	defaultServerType = "cx21"
+	defaultServerType = "cx22"
 	defaultUserName   = "rancher"
 	defaultLocation   = variables.DefaultLocation
 
@@ -144,14 +144,17 @@ func (s *Server) Up(ctx *program.Context, id string, internalIP string, netID pu
 		Location:   pulumi.String(s.Config.Location),
 		Name:       pulumi.String(s.Config.Hostname),
 		Image:      image,
+		Rescue:     pulumi.String("linux64"),
 		SshKeys: pulumi.StringArray{
 			s.KeyName,
 		},
 	}
 
 	if internalIP != "" {
-		s.Userdata.WriteFiles = append(s.Userdata.WriteFiles, RenameInterfaceScript())
-		s.Userdata.RunCMD = append(s.Userdata.RunCMD, RenameInterfaceScript().Path)
+		// s.Userdata.WriteFiles = append(s.Userdata.WriteFiles, RenameInterfaceScript())
+		// s.Userdata.WriteFiles = append(s.Userdata.WriteFiles, RenameInterfaceScript())
+		// s.Userdata.WriteFiles = append(s.Userdata.WriteFiles, WriteTalosScript())
+		// s.Userdata.RunCMD = append(s.Userdata.RunCMD, WriteTalosScript().Path)
 
 		args.Networks = &hcloud.ServerNetworkTypeArray{
 			hcloud.ServerNetworkTypeArgs{
@@ -178,6 +181,8 @@ func (s *Server) Up(ctx *program.Context, id string, internalIP string, netID pu
 	var opts []pulumi.ResourceOption
 	opts = append(opts, pulumi.DependsOn(deps))
 	opts = append(opts, pulumi.IgnoreChanges([]string{
+		"sshKeys",
+		"rescue",
 		"userData",
 		"image",
 		"networks[0].ip",

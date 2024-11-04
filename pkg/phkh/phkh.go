@@ -2,15 +2,16 @@ package phkh
 
 import (
 	"errors"
-	"fmt"
+	//"fmt"
 
 	"github.com/sanity-io/litter"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/config"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
+	//"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/k8s/distributions/k3s"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/k3stoken"
+	// "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/k3stoken"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/sshkeypair"
+	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/talos"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"k8s.io/client-go/tools/clientcmd"
@@ -84,34 +85,43 @@ func (c *PHKH) Up() (*Cluster, error) {
 		return nil, err
 	}
 
-	token, err := k3stoken.New(c.ctx)
-	if err != nil {
-		return nil, err
-	}
+	//token, err := k3stoken.New(c.ctx)
+	//if err != nil {
+	//	return nil, err
+	//}
 
 	cloud, err := c.compiled.Hetzner.Up(keypair)
 	if err != nil {
 		return nil, err
 	}
-	sys, err := c.compiled.SysCluster.Up(token, cloud)
+
+	err = talos.Provision(c.ctx, cloud.Servers)
 	if err != nil {
 		return nil, err
 	}
-
-	switch distr := c.compiled.K8S.Distr(); distr {
-	case k3s.DistrName:
-		err = c.compiled.K8S.Up(sys.K3s.KubeconfigForUsage, sys.Resources)
-		if err != nil {
-			return nil, err
-		}
-
-	default:
-		return nil, fmt.Errorf("unsupported kubernetes distribution: %s", distr)
+	err = talos.Bootstrap(c.ctx, cloud.Servers)
+	if err != nil {
+		return nil, err
 	}
+	// sys, err := c.compiled.SysCluster.Up(token, cloud)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	//switch distr := c.compiled.K8S.Distr(); distr {
+	//case k3s.DistrName:
+	//err = c.compiled.K8S.Up(sys.K3s.KubeconfigForUsage, sys.Resources)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	//default:
+	//return nil, fmt.Errorf("unsupported kubernetes distribution: %s", distr)
+	//}
 
 	return &Cluster{
-		Servers:    toExportedHetznerServers(cloud),
-		Kubeconfig: toExportedKubeconfig(sys.K3s.KubeconfigForExport),
+		Servers: toExportedHetznerServers(cloud),
+		// Kubeconfig: toExportedKubeconfig(sys.K3s.KubeconfigForExport),
 		Privatekey: keypair.PrivateKey(),
 	}, nil
 }
