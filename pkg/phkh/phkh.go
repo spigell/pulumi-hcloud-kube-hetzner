@@ -11,7 +11,7 @@ import (
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/program"
 	// "github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/k3stoken"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/storage/sshkeypair"
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/talos"
+	talos "github.com/spigell/pulumi-talos-cluster/sdk/go/talos-cluster"
 
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"k8s.io/client-go/tools/clientcmd"
@@ -90,19 +90,28 @@ func (c *PHKH) Up() (*Cluster, error) {
 	//	return nil, err
 	//}
 
-	cloud, err := c.compiled.Hetzner.Up(keypair)
+	talosCluster, err := talos.NewCluster(c.ctx.Context(), "cluster", &talos.ClusterArgs{})
+
 	if err != nil {
 		return nil, err
 	}
 
-	err = talos.Provision(c.ctx, cloud.Servers)
+	userdata := talosCluster.MachineConfigurations.MapIndex(pulumi.String("test2"))
+
+	cloud, err := c.compiled.Hetzner.Up(keypair, &userdata)
 	if err != nil {
 		return nil, err
 	}
-	err = talos.Bootstrap(c.ctx, cloud.Servers)
-	if err != nil {
-		return nil, err
-	}
+
+	_, err = talos.NewBootstrap(c.ctx.Context(), "bootstrap", &talos.BootstrapArgs{
+		Node: cloud.Servers[c.compiled.SysCluster.Leader().ID].Connection.IP,
+		ClientConfiguration: talosCluster.ClientConfiguration,
+	})
+
+	// err = talos.Provision(c.ctx, cloud.Servers)
+	// if err != nil {
+	//	return nil, err
+	//}
 	// sys, err := c.compiled.SysCluster.Up(token, cloud)
 	//if err != nil {
 	//	return nil, err

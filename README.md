@@ -1,6 +1,6 @@
-# THIS PROJECT IS FROZEN NOW
+## Switching to TALOS linux (https://github.com/spigell/pulumi-hcloud-kube-hetzner/tree/exp/move-to-talos)
 
-## Pulumi Hcloud Kube Hetzner
+## Pulumi Hcloud Kube Hetzner (WIP)
 This is a [Pulumi component](https://www.pulumi.com/docs/concepts/resources/components) (only GO and Typescript/JS are supported now) for creating Kubernetes clusters in Hetzner Cloud. It is inspired by [terraform-hcloud-kube-hetzner](https://github.com/kube-hetzner/terraform-hcloud-kube-hetzner).
 
 *Note: This project is in active development, and not everything is completed. However, it DOES work and is usable right now. I definitely appreciate feedback and will help with any issues*

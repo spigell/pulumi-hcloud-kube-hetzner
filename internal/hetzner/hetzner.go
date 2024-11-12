@@ -149,7 +149,7 @@ func (h *Hetzner) FirewallConfigByID(id, pool string) (*firewall.Config, error) 
 
 // Up creates hetzner cloud infrastructure.
 // It must be refactored.
-func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: gocognit
+func (h *Hetzner) Up(keys *sshkeypair.KeyPair, serverUserdata *pulumi.StringOutput) (*Deployed, error) { //nolint: gocognit
 	nodes := make(map[string]*Server)
 	firewalls := make(map[string]*firewall.Firewall)
 	firewallsByNodeRole := make(map[string]pulumi.IntArray)
@@ -201,7 +201,7 @@ func (h *Hetzner) Up(keys *sshkeypair.KeyPair) (*Deployed, error) { //nolint: go
 			netID = net.ID
 		}
 
-		s := server.New(srv.Server, key)
+		s := server.New(srv.Server, key).WithUserata(serverUserdata)
 		if err := s.Validate(); err != nil {
 			return nil, err
 		}

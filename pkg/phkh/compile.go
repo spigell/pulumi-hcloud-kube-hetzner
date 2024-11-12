@@ -129,6 +129,7 @@ func compile(ctx *program.Context, config *config.Config) (*Compiled, error) { /
 		return nil, fmt.Errorf("failed to get our external IP: %w", err)
 	}
 
+
 	s := make(system.Cluster, 0)
 	for _, node := range nodes {
 		fw, err := fwConfig(ctx.Context(), compiled, node.NodeID)

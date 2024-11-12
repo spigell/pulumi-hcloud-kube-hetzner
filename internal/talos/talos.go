@@ -1,7 +1,6 @@
 package talos
 
 import (
-	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -17,10 +16,6 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-var (
-	masterIP = "65.109.4.153"
-)
-
 //
 // TALOS_IMAGE="https://factory.talos.dev/image/1da3394e6229e507d4e3d166b718cacff86435a61c4765feedd66b43ac237558/v1.8.2/hcloud-amd64.raw.xz"
 //  WGET="wget --timeout=5 --waitretry=5 --tries=5 --retry-connrefused --inet4-only"
@@ -30,6 +25,109 @@ var (
 //  xz -d -c /tmp/talos.raw.xz | dd of=/dev/sda && sync
 //  # Reboot
 //  echo b > /proc/sysrq-trigger
+
+type Talos struct {
+	ctx  *program.Context
+	secrets *machine.Secrets
+	configuration machine.GetConfigurationResultOutput
+}
+
+func New(ctx *program.Context, machines []*machine.GetConfigurationArgs) (*Talos, error) {
+	secrets, err := machine.NewSecrets(ctx.Context(), "secrets", &machine.SecretsArgs{})
+	if err != nil {
+		return nil, err
+	}
+
+	t := true
+
+	configStruct := v1alpha1.Config{
+		MachineConfig: &v1alpha1.MachineConfig{
+			MachineInstall: &v1alpha1.InstallConfig{
+				InstallDisk: "/dev/sda",
+			},
+		},
+		ClusterConfig: &v1alpha1.ClusterConfig{
+			AllowSchedulingOnControlPlanes: &t,
+		},
+	}
+
+	configUnstruct := map[string]interface{}{
+		"machine": map[string]interface{}{
+			"install": map[string]interface{}{
+				"disk": "/dev/sda",
+			},
+		},
+		"cluster": map[string]interface{}{
+			"allowSchedulingOnControlPlanes": true,
+		},
+	}
+
+	yamlUnstruct, err := yaml.Marshal(configUnstruct)
+	yamlStruct, err := yaml.Marshal(configStruct)
+
+	fmt.Println(yamlUnstruct)
+
+	configuration := machine.GetConfigurationOutput(ctx.Context(), machine.GetConfigurationOutputArgs{
+		ClusterName:     pulumi.String("exampleCluster"),
+		MachineType:     pulumi.String("controlplane"),
+		KubernetesVersion: pulumi.String("v1.30.0"),
+		TalosVersion: pulumi.String("v1.8.0"),
+		ConfigPatches: pulumi.StringArray{
+			pulumi.String(string(yamlStruct)),
+		},
+		MachineSecrets:  secrets.ToSecretsOutput().MachineSecrets(),
+	}, nil)
+
+	return &Talos{
+		ctx: ctx,
+		secrets: secrets,
+		configuration: configuration,
+	}, nil
+}
+
+func(t *Talos) Bootstrap(srv *hetzner.Server) error {
+		_, err := machine.NewBootstrap(t.ctx.Context(), "bootstrap", &machine.BootstrapArgs{
+			ClientConfiguration:       t.secrets.ClientConfiguration,
+			Node:                      srv.Connection.IP,
+		})
+
+		return err
+}
+
+func(t *Talos) Apply(srv *hetzner.Server) error {
+		_, err := machine.NewConfigurationApply(t.ctx.Context(), "apply", &machine.ConfigurationApplyArgs{
+			Node:                srv.Connection.IP,
+			MachineConfigurationInput: t.configuration.MachineConfiguration(),
+			ClientConfiguration: t.secrets.ClientConfiguration,
+		})
+
+		_ = cluster.GetHealthOutput(t.ctx.Context(), cluster.GetHealthOutputArgs{
+			ClientConfiguration: cluster.GetHealthClientConfigurationArgs{
+				CaCertificate:     t.secrets.ClientConfiguration.CaCertificate(),
+				ClientCertificate: t.secrets.ClientConfiguration.ClientCertificate(),
+				ClientKey:         t.secrets.ClientConfiguration.ClientKey(),
+			},
+			ControlPlaneNodes: pulumi.StringArray{
+				srv.Connection.IP,
+			},
+		})
+		if err != nil {
+			return err
+		}
+
+		kube := cluster.GetKubeconfigOutput(t.ctx.Context(), cluster.GetKubeconfigOutputArgs{
+			ClientConfiguration: cluster.GetKubeconfigClientConfigurationArgs{
+				CaCertificate:     t.secrets.ClientConfiguration.CaCertificate(),
+				ClientCertificate: t.secrets.ClientConfiguration.ClientCertificate(),
+				ClientKey:         t.secrets.ClientConfiguration.ClientKey(),
+			},
+			Node: srv.Connection.IP,
+		})
+
+		t.ctx.Context().Export("kube", kube.KubeconfigRaw())
+
+	return nil
+}
 
 func Provision(ctx *program.Context, servers map[string]*hetzner.Server) error {
 	wget := "wget --timeout=5 --waitretry=5 --tries=5 --retry-connrefused --inet4-only"
@@ -59,100 +157,6 @@ func Provision(ctx *program.Context, servers map[string]*hetzner.Server) error {
 	return nil
 }
 
-func Bootstrap(ctx *program.Context, servers map[string]*hetzner.Server) error {
-
-	// talosVersion := "v1.8.2"
-	secrets, err := machine.NewSecrets(ctx.Context(), "secrets", &machine.SecretsArgs{})
-	if err != nil {
-		return err
-	}
-
-	configuration := machine.GetConfigurationOutput(ctx.Context(), machine.GetConfigurationOutputArgs{
-		ClusterName:     pulumi.String("exampleCluster"),
-		MachineType:     pulumi.String("controlplane"),
-		ClusterEndpoint: pulumi.Sprintf("https://%s:6443", masterIP),
-		MachineSecrets:  secrets.ToSecretsOutput().MachineSecrets(),
-	}, nil)
-
-	t := true
-
-	config0 := v1alpha1.Config{
-		MachineConfig: &v1alpha1.MachineConfig{
-			MachineInstall: &v1alpha1.InstallConfig{
-				InstallDisk: "/dev/sda",
-			},
-		},
-		ClusterConfig: &v1alpha1.ClusterConfig{
-			AllowSchedulingOnControlPlanes: &t,
-		},
-	}
-
-	tmpJSON0, err := json.Marshal(map[string]interface{}{
-		"machine": map[string]interface{}{
-			"install": map[string]interface{}{
-				"disk": "/dev/sda",
-			},
-		},
-		"cluster": map[string]interface{}{
-			"allowSchedulingOnControlPlanes": true,
-		},
-	})
-
-	json1, _ := yaml.Marshal(config0)
-	json0, _ := json.Marshal(tmpJSON0)
-
-	fmt.Println(string(json0))
-	fmt.Println(string(json1))
-
-	for _, srv := range servers {
-
-		json0 := string(json1)
-		configurationApply, err := machine.NewConfigurationApply(ctx.Context(), "configurationApply", &machine.ConfigurationApplyArgs{
-			ClientConfiguration:       secrets.ClientConfiguration,
-			MachineConfigurationInput: configuration.MachineConfiguration(),
-			Node:                      srv.Connection.IP,
-			ConfigPatches: pulumi.StringArray{
-				pulumi.String(json0),
-			},
-		})
-		if err != nil {
-			return err
-		}
-		_, err = machine.NewBootstrap(ctx.Context(), "bootstrap", &machine.BootstrapArgs{
-			Node:                srv.Connection.IP,
-			ClientConfiguration: secrets.ClientConfiguration,
-		}, pulumi.DependsOn([]pulumi.Resource{
-			configurationApply,
-		}))
-
-		_ = cluster.GetHealthOutput(ctx.Context(), cluster.GetHealthOutputArgs{
-			ClientConfiguration: cluster.GetHealthClientConfigurationArgs{
-				CaCertificate:     secrets.ClientConfiguration.CaCertificate(),
-				ClientCertificate: secrets.ClientConfiguration.ClientCertificate(),
-				ClientKey:         secrets.ClientConfiguration.ClientKey(),
-			},
-			ControlPlaneNodes: pulumi.StringArray{
-				srv.Connection.IP,
-			},
-		})
-		if err != nil {
-			return err
-		}
-
-		kube := cluster.GetKubeconfigOutput(ctx.Context(), cluster.GetKubeconfigOutputArgs{
-			ClientConfiguration: cluster.GetKubeconfigClientConfigurationArgs{
-				CaCertificate:     secrets.ClientConfiguration.CaCertificate(),
-				ClientCertificate: secrets.ClientConfiguration.ClientCertificate(),
-				ClientKey:         secrets.ClientConfiguration.ClientKey(),
-			},
-			Node: srv.Connection.IP,
-		})
-
-		ctx.Context().Export("kube", kube.KubeconfigRaw())
-	}
-
-	return nil
-}
 
 /*mport * as talos from "@pulumiverse/talos";
 

@@ -13,13 +13,15 @@ require (
 	github.com/pulumi/pulumi-kubernetes/sdk/v3 v3.30.2
 	github.com/pulumi/pulumi-kubernetes/sdk/v4 v4.12.0
 	github.com/pulumi/pulumi/pkg/v3 v3.118.0
-	github.com/pulumi/pulumi/sdk/v3 v3.129.0
+	github.com/pulumi/pulumi/sdk/v3 v3.137.0
 	github.com/pulumiverse/pulumi-talos/sdk v0.2.1-0.20241010205148-1f0d724ea2b4
 	github.com/sanity-io/litter v1.5.5
 	github.com/seancfoley/ipaddress-go v1.6.0
+	github.com/siderolabs/talos/pkg/machinery v1.8.2
 	github.com/spigell/pulumi-automation-api-apps v0.0.0-20231022103528-4099afba2f99
 	github.com/spigell/pulumi-automation-api-apps/hetzner-snapshots-manager/sdk v0.0.0-20231022103528-4099afba2f99
 	github.com/spigell/pulumi-file/sdk v0.0.0-20240124083824-da5e49302f10
+	github.com/spigell/pulumi-talos-cluster/sdk v0.0.0-00010101000000-000000000000
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/crypto v0.26.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -143,7 +145,6 @@ require (
 	github.com/siderolabs/go-pointer v1.0.0 // indirect
 	github.com/siderolabs/net v0.4.0 // indirect
 	github.com/siderolabs/protoenc v0.2.1 // indirect
-	github.com/siderolabs/talos/pkg/machinery v1.8.2 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
@@ -288,3 +289,5 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	lukechampine.com/frand v1.4.2 // indirect
 )
+
+replace github.com/spigell/pulumi-talos-cluster/sdk => ../pulumi-talos-cluster/sdk

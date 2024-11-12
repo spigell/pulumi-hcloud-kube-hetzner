@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/spigell/pulumi-hcloud-kube-hetzner/internal/hetzner/server/scripts"
-
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 	"gopkg.in/yaml.v3"
 )
@@ -72,20 +70,4 @@ func (c *CloudInit) render() pulumi.StringOutput {
 
 		return cloudConfigHeader + string(cfg), nil
 	}).(pulumi.StringOutput)
-}
-
-func RenameInterfaceScript() *CloudInitWriteFile {
-	return &CloudInitWriteFile{
-		Path:        "/etc/cloud/rename_interface.sh",
-		Content:     scripts.RenameInterface,
-		Permissions: "0755",
-	}
-}
-
-func WriteTalosScript() *CloudInitWriteFile {
-	return &CloudInitWriteFile{
-		Path:        "/etc/cloud/write-talos.sh",
-		Content:     scripts.WriteTalos,
-		Permissions: "0755",
-	}
 }

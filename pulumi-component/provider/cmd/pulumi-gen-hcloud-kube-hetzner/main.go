@@ -10,7 +10,7 @@ import (
 	dotnetgen "github.com/pulumi/pulumi/pkg/v3/codegen/dotnet"
 	gogen "github.com/pulumi/pulumi/pkg/v3/codegen/go"
 	nodejsgen "github.com/pulumi/pulumi/pkg/v3/codegen/nodejs"
-	pygen "github.com/pulumi/pulumi/pkg/v3/codegen/python"
+	// pygen "github.com/pulumi/pulumi/pkg/v3/codegen/python"
 	"github.com/spigell/pulumi-hcloud-kube-hetzner/pkg/phkh"
 
 	"github.com/pulumi/pulumi/pkg/v3/codegen/schema"

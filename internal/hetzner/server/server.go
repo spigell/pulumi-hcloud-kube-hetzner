@@ -45,7 +45,7 @@ var (
 
 type Server struct {
 	Config   *config.ServerConfig
-	Userdata *CloudInit
+	Userdata *pulumi.StringOutput
 	KeyName  pulumi.StringOutput
 }
 
@@ -104,16 +104,23 @@ func New(srv *config.ServerConfig, key *hcloud.SshKey) *Server {
 	userdata.Inputs = &CloudInitPulumiInputs{
 		Key: &key.PublicKey,
 	}
+	ud := pulumi.ToSecret(userdata.render()).(pulumi.StringOutput)
 
 	return &Server{
 		Config:   srv,
-		Userdata: userdata,
+		Userdata: &ud,
 		KeyName:  key.Name,
 	}
 }
 
 func (s *Server) Validate() error {
 	return nil
+}
+
+func (s *Server) WithUserata(u *pulumi.StringOutput) *Server {
+	s.Userdata = u
+
+	return s
 }
 
 func (s *Server) Up(ctx *program.Context, id string, internalIP string, netID pulumi.IntInput, deps []pulumi.Resource) (*Deployed, error) {
@@ -144,7 +151,7 @@ func (s *Server) Up(ctx *program.Context, id string, internalIP string, netID pu
 		Location:   pulumi.String(s.Config.Location),
 		Name:       pulumi.String(s.Config.Hostname),
 		Image:      image,
-		Rescue:     pulumi.String("linux64"),
+		// Rescue:     pulumi.String("linux64"),
 		SshKeys: pulumi.StringArray{
 			s.KeyName,
 		},
@@ -164,7 +171,7 @@ func (s *Server) Up(ctx *program.Context, id string, internalIP string, netID pu
 		}
 	}
 
-	args.UserData = pulumi.ToSecret(s.Userdata.render()).(pulumi.StringOutput)
+	args.UserData = s.Userdata
 
 	if os.Getenv(autoApiApps.EnvAutomaionAPIAddr) != "" {
 		sn, err := snapshots.GetLastSnapshot(&http.Client{}, s.Config.Hostname)
